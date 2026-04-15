@@ -1,2 +1,5 @@
 # bkit local state
 .bkit/
+
+# macOS
+.DS_Store
