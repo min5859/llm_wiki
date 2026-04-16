@@ -3,14 +3,18 @@ title: "Claude Code 개요"
 domain: "staging"
 tags: ["Claude Code", "CLI", "AI 코딩 에이전트", "요금", "설치", "터미널"]
 created: "2026-04-15"
-updated: "2026-04-15"
+updated: "2026-04-16"
 sources:
   - "raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf"
+  - "raw/음성 260413_AA-1-1_original.txt"
+  - "raw/음성 260413_AA-1-6_original.txt"
+  - "raw/음성 260414_AA-2-4_original.txt"
 confidence: "high"
 related:
   - "wiki/ai-agent-basics.md"
   - "wiki/claude-code-setup.md"
   - "wiki/claude-code-basic-usage.md"
+  - "wiki/claude-code-enterprise-security-bedrock.md"
 ---
 
 # Claude Code 개요
@@ -55,6 +59,7 @@ Node.js 18+ 필요. 최초 실행 시 OAuth 인증 또는 API 키 설정.
 - 코드베이스 전체 탐색 및 수정
 - 서브에이전트 생성 (병렬 작업)
 - MCP 서버를 통한 외부 시스템 연결
+- 음성 입력, IDE 연동, 원격 제어 등으로 터미널 작업 흐름 확장
 
 ## 세부 사항
 
@@ -83,6 +88,12 @@ Node.js 18+ 필요. 최초 실행 시 OAuth 인증 또는 API 키 설정.
 - **MCP**: 외부 도구 연결 표준 프로토콜
 - **Sub-agents**: 병렬 작업을 위한 에이전트 생성
 
+### 도입 관점
+
+강의에서는 Claude Code를 단순 개발 도구보다 "업무 실행 에이전트"로 설명했다. 개인이 쓰면 체감 생산성은 빠르게 올라가지만, 회사 전체 성과는 기존 프로세스가 바뀌지 않으면 제한적이다. 따라서 도입은 도구 설치보다 업무 절차, 승인, 보안, 산출물 검토 방식을 함께 바꾸는 문제다.
+
+비개발 직군도 대상이다. 녹취에서는 일본 디자인 회사 사례처럼 코딩 경험이 없는 직원이 Claude Code로 업무 앱이나 자동화 도구를 배포하는 흐름을 언급했다. 엑셀 매크로, 이메일 응답, 보고 자동화 같은 사무 업무도 MCP나 CLI 연결을 통해 터미널 기반으로 처리할 수 있다.
+
 ## 관련 맥락
 
 - VS Code와 달리 프로젝트 구조에 종속되지 않음 — 어떤 언어·프레임워크도 지원
@@ -91,4 +102,5 @@ Node.js 18+ 필요. 최초 실행 시 OAuth 인증 또는 API 키 설정.
 
 ## 변경 이력
 
+- 2026-04-16: 녹취 기반 도입 관점과 비개발 직군 활용 맥락 보강
 - 2026-04-15: 최초 생성 (출처: raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf)

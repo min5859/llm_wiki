@@ -3,14 +3,21 @@ title: "Claude Code 고급 기능 — MCP·Hooks·SubAgents·Agent Teams"
 domain: "staging"
 tags: ["Claude Code", "MCP", "Hooks", "SubAgents", "Agent Teams", "병렬 에이전트", "자동화"]
 created: "2026-04-15"
-updated: "2026-04-15"
+updated: "2026-04-16"
 sources:
   - "raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf"
+  - "raw/음성 260413_AA-1-5_original.txt"
+  - "raw/음성 260414_AA-2-2_original.txt"
+  - "raw/음성 260415_AA-3-1_original.txt"
+  - "raw/음성 260415_AA-3-3_original.txt"
+  - "raw/Tips/Agent-Team-tmux가이드.pdf"
+  - "raw/Tips/Claude Code Agent Teams 완전 도입 가이드 — 멀티에이전트로 개발 생성.pdf"
 confidence: "high"
 related:
   - "wiki/ai-agent-basics.md"
   - "wiki/claude-code-setup.md"
   - "wiki/claude-code-skills-plugins.md"
+  - "wiki/claude-code-agent-teams-tmux.md"
 ---
 
 # Claude Code 고급 기능 — MCP·Hooks·SubAgents·Agent Teams
@@ -35,8 +42,15 @@ claude mcp add github "npx @anthropic-ai/mcp-server-github"
 - **Communication**: Slack, Jira, Notion
 - **Browser**: Playwright (웹 자동화)
 - **File System**: 원격 파일 접근
+- **Codebase Indexing**: Serena, spec-workflow MCP 등
+- **Diagram / Docs**: Draw.io, Obsidian 등
+- **Runtime Debugging**: Chrome DevTools, Docker 등
 
 MCP 서버는 `~/.claude/settings.json` 또는 프로젝트별 `.claude/settings.json`에서 관리.
+
+실무상 MCP는 "연결 고리"에 가깝다. DB, GitHub, Figma, 브라우저, 장비 로그처럼 기존 시스템이 가진 기능을 Claude Code가 호출할 수 있게 노출한다. 다만 MCP 서버가 정상이어도 LLM이 도구를 인식하지 못하면 호출이 실패할 수 있으므로, 서버 자체 테스트와 LLM의 도구 인식 테스트를 분리해서 봐야 한다.
+
+MCP가 항상 최선은 아니다. Claude Code처럼 터미널 기반 자동화를 많이 쓰는 환경에서는 반복 작업을 MCP보다 CLI로 만들어 배포하는 편이 더 단순한 경우가 있다. GUI 기반 도구나 외부 서비스 연결은 MCP, 사내 표준 자동화나 배포 가능한 실행 모듈은 CLI로 나누는 방식이 실용적이다.
 
 ### Hooks 이벤트 시스템
 
@@ -46,11 +60,13 @@ MCP 서버는 `~/.claude/settings.json` 또는 프로젝트별 `.claude/settings
 
 | 이벤트 | 트리거 시점 |
 |---|---|
-| `PreToolCall` | 도구 호출 직전 |
-| `PostToolCall` | 도구 호출 완료 후 |
-| `PreCommit` | git commit 실행 전 |
-| `PostCommit` | git commit 완료 후 |
+| `PreToolUse` | 도구 호출 직전 |
+| `PostToolUse` | 도구 호출 성공 후 |
+| `PostToolUseFailure` | 도구 호출 실패 후 |
+| `PermissionRequest` | 권한 승인 요청 발생 시 |
 | `SessionStart` | 세션 시작 시 |
+| `PreCompact` / `PostCompact` | 컨텍스트 압축 전후 |
+| `Stop` | Claude 응답 종료 시 |
 | `SessionEnd` | 세션 종료 시 |
 
 #### 훅 활용 예시
@@ -58,15 +74,27 @@ MCP 서버는 `~/.claude/settings.json` 또는 프로젝트별 `.claude/settings
 ```json
 {
   "hooks": {
-    "PostToolCall": [
+    "PostToolUse": [
       {
-        "matcher": "Write",
-        "command": "eslint --fix {{file_path}}"
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write"
+          }
+        ]
       }
     ],
-    "PreCommit": [
+    "PreToolUse": [
       {
-        "command": "npm test"
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(rm *)",
+            "command": ".claude/hooks/block-destructive-command.sh"
+          }
+        ]
       }
     ]
   }
@@ -103,6 +131,8 @@ Claude Code는 작업을 병렬로 처리하기 위해 서브에이전트를 생
 - performance-reviewer: 성능 이슈
 
 각 에이전트가 병렬로 검토 후 결과를 종합.
+
+tmux 기반 Agent Teams는 pane을 나누어 여러 Claude Code 세션을 동시에 관찰하고 지시하는 방식이다. 2026년 4월 업데이트 이후 Windows PowerShell 환경에서는 tmux 운용이 막히는 사례가 있어 WSL2 또는 Git Bash 전환이 필요하다. 자세한 설정은 [[claude-code-agent-teams-tmux.md]]와 [[claude-code-windows-wsl-tmux.md]]에 분리한다.
 
 ### AGENTS.md
 
@@ -142,4 +172,5 @@ Claude Code는 작업을 병렬로 처리하기 위해 서브에이전트를 생
 
 ## 변경 이력
 
+- 2026-04-16: 녹취 및 Tips 기반 MCP 운영 팁, Hook 공식 이벤트명, Agent Teams/tmux 연결 보강
 - 2026-04-15: 최초 생성 (출처: raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf)

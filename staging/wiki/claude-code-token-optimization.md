@@ -3,14 +3,19 @@ title: "Claude Code 토큰 최적화 — 소비 절반 줄이기"
 domain: "staging"
 tags: ["Claude Code", "토큰", "비용 최적화", "Context Rot", "/compact", "/clear", "컨텍스트 관리"]
 created: "2026-04-15"
-updated: "2026-04-15"
+updated: "2026-04-16"
 sources:
   - "raw/claude-code-token-소비절반줄이기.pdf"
   - "raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf"
+  - "raw/음성 260413_AA-1-3_original.txt"
+  - "raw/음성 260413_AA-1-5_original.txt"
+  - "raw/음성 260414_AA-2-5_original.txt"
+  - "raw/Tips/Claude 토큰 절약 8가지 방법.pdf"
 confidence: "high"
 related:
   - "wiki/claude-code-basic-usage.md"
   - "wiki/claude-code-overview.md"
+  - "wiki/claude-token-saving-tips.md"
 ---
 
 # Claude Code 토큰 최적화 — 소비 절반 줄이기
@@ -71,6 +76,8 @@ related:
 
 - 독립적인 작업은 `/clear` 후 새 세션으로 시작
 - 하나의 세션에 모든 것을 몰아넣지 않기
+- 버그 수정, 문서 업데이트, 테스트 추가를 한 세션에 섞지 않기
+- API, DB, UI처럼 레이어가 다르면 세션을 나누기
 
 #### 4. /plan 모드 활용
 
@@ -81,6 +88,14 @@ related:
 
 - 테스트 실행 시 전체 로그 대신 요약만 요청
 - 파일 내용 대신 라인 번호·함수명만 참조하게 하기
+
+#### 6. Prompt 파일 재사용
+
+반복되는 작업은 `.claude/prompts/` 같은 디렉터리에 별도 md 파일로 저장하고, 세션에서는 "이 파일을 읽고 실행해줘"라고 지시한다. 큰 작업 지시를 매번 대화창에 붙여 넣는 것보다 컨텍스트가 안정적이고, 팀 단위 재사용도 쉽다.
+
+#### 7. 세션 중 설정 변경 최소화
+
+작업 중 `CLAUDE.md`나 settings 파일을 자주 바꾸면 프롬프트 캐시가 깨질 수 있다. 규칙·설정 변경은 세션 시작점이나 작업 마무리 시점에 몰아서 처리한다.
 
 ### 비용 기준점 (참고)
 
@@ -111,7 +126,10 @@ Context: 68% used (136k / 200k tokens)
 - 1200시간 운영 데이터: CLAUDE.md 품질이 토큰 효율성에 가장 큰 영향
 - 팀 단위 사용 시 개인별 사용 패턴 차이가 비용 차이로 이어짐
 - Max 20× 플랜($200/월)이 일반 API 사용보다 고비용 작업에서 경제적인 경우 있음
+- 서브에이전트는 편하지만 간단한 검색에도 토큰을 크게 쓸 수 있다. 병렬 처리는 대량·복합 작업에 한정한다.
+- 불필요한 MCP 서버 연결이나 살아 있는 다른 터미널 세션도 백그라운드 토큰 소비 원인이 될 수 있다.
 
 ## 변경 이력
 
+- 2026-04-16: 녹취 및 Tips 기반 세션 분리, prompt 파일, 캐시/설정 변경 주의점 보강
 - 2026-04-15: 최초 생성 (출처: raw/claude-code-token-소비절반줄이기.pdf, raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf)
