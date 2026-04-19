@@ -88,24 +88,24 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph Interface[1) 인터페이스 계층]
+    subgraph Interface["1) 인터페이스 계층"]
         U[대표님]
         TG[Telegram]
     end
 
-    subgraph Agent[2) 에이전트 계층]
+    subgraph Agent["2) 에이전트 계층"]
         MAIN[맥비 / Main Agent]
         ACP[ACP / Claude Code Session]
     end
 
-    subgraph Work[3) 작업 계층]
+    subgraph Work["3) 작업 계층"]
         HT[ht_trading]
         UP[upbit_trading]
         WK[llm_wiki]
         CR[cron 자동화]
     end
 
-    subgraph External[4) 외부 서비스 계층]
+    subgraph External["4) 외부 서비스 계층"]
         LLM[LLM Provider]
         NT[Notion / MCP 후보]
         TEL[Telegram Delivery]
