@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-04-22
+updated: 2026-04-22T08:30:00+09:00
 ---
 
 # Wiki Index
@@ -32,3 +32,5 @@ updated: 2026-04-22
 ## 분석 (analyses/)
 
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent의 미실행 작업 캐치업 동작 (cron과의 차이)
+- [[meanflow-text-to-image]] — MeanFlow 프레임워크를 텍스트 조건부 T2I로 확장 (EMF, arXiv 2604.18168): discriminability·disentanglement의 중요성
+- [[diffusion-snr-t-bias]] — 확산 모델 추론 시 발생하는 SNR-t 편향 규명과 웨이블릿 도메인 training-free 보정법 (arXiv 2604.16044)

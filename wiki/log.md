@@ -15,3 +15,16 @@ updated:
   - wiki/analyses/macos-launchagent-catchup-behavior.md — macOS LaunchAgent 캐치업 동작 분석
 - Updated: wiki/index.md, wiki/log.md
 - Skipped: 탐색적 QA 대화, 설치 과정 시행착오 (결론만 추출)
+
+## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
+
+- Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" 프롬프트)
+- Source: session-logs/20260422-080037-7719-*.md (arXiv: 2604.18168)
+  - Created: wiki/analyses/meanflow-text-to-image.md
+    — MeanFlow 텍스트 조건부 확장 (EMF), discriminability·disentanglement 분석
+- Source: session-logs/20260422-080140-da77-*.md (arXiv: 2604.16044)
+  - Created: wiki/analyses/diffusion-snr-t-bias.md
+    — DPM의 SNR-t 편향 규명 및 웨이블릿 도메인 training-free 보정법
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 전체
