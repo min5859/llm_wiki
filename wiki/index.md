@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-04-22T08:30:00+09:00
+updated: 2026-04-23T00:00:00+09:00
 ---
 
 # Wiki Index
@@ -12,6 +12,7 @@ updated: 2026-04-22T08:30:00+09:00
 ## 프로젝트 (projects/)
 
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
+- [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점), 설정 파일 동기화 규칙, 임계값 이력
 
 ## 설계 판단 (decisions/)
 

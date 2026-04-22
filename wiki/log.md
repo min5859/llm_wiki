@@ -16,6 +16,15 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Skipped: 탐색적 QA 대화, 설치 과정 시행착오 (결론만 추출)
 
+## 2026-04-23 — wiki-ingest (session-logs, ingested: false 1건)
+
+- Source: session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md
+  - Project: ht_trading
+  - Created: wiki/projects/ht-trading.md
+    — ScoringStrategy 이중 스케일 구조(백테스트 40pt / 라이브 100pt), config 2파일 동기화 규칙, 임계값 65→60 조정 이력
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 1개 session-log 파일
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
