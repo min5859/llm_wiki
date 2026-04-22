@@ -3,3 +3,6 @@
 
 # macOS
 .DS_Store
+
+# gieok session logs (local only — may contain secrets)
+session-logs/
