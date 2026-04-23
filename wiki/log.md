@@ -46,6 +46,14 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 6개 session-log 파일 전체
 
+## 2026-04-23T13:30 — wiki-ingest (session-logs, ingested: false 1건)
+
+- Source: session-logs/20260423-130102-15da-지금-wiki에-어떤-페이지가-있나요.md
+  - Project: gieok
+  - Skipped: 단순 wiki 페이지 조회 세션 (vault 경로 확인 외 설계 판단·버그·패턴 없음)
+- Updated: wiki/index.md (기존에 누락된 concepts 6건, patterns 9건, projects 1건, analyses 1건 일괄 추가)
+- Marked ingested: true — 1개 session-log 파일
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
