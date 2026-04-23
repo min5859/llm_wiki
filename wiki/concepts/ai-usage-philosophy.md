@@ -1,6 +1,7 @@
 ---
 title: "AI 사용법 철학 — 언어화 능력·컨텍스트 설계·리버럴 아츠"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["AI 사용법", "언어화", "컨텍스트 설계", "리버럴 아츠", "프롬프트 엔지니어링"]
 created: "2026-04-15"
 updated: "2026-04-16"

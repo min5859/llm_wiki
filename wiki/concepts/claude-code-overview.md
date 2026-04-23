@@ -1,6 +1,7 @@
 ---
 title: "Claude Code 개요"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "CLI", "AI 코딩 에이전트", "요금", "설치", "터미널"]
 created: "2026-04-15"
 updated: "2026-04-16"

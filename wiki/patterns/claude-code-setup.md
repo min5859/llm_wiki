@@ -1,6 +1,7 @@
 ---
 title: "Claude Code 초기 설정 및 하네스 엔지니어링"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "설정", "하네스 엔지니어링", "CLAUDE.md", "Hooks", "MCP", "Permissions"]
 created: "2026-04-15"
 updated: "2026-04-16"

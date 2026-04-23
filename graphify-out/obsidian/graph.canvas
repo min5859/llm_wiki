@@ -1,0 +1,459 @@
+{
+  "nodes": [
+    {
+      "id": "g0",
+      "type": "group",
+      "label": "Flow-based Text-to-Image Generation",
+      "x": 0,
+      "y": 0,
+      "width": 660,
+      "height": 420,
+      "color": "1"
+    },
+    {
+      "id": "n_concept_blip3o_next",
+      "type": "file",
+      "file": "graphify/obsidian/BLIP3o-NEXT (Vision-Language Aligned Text Encoder).md",
+      "x": 20,
+      "y": 80,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_emf",
+      "type": "file",
+      "file": "graphify/obsidian/EMF (Extended MeanFlow for Text-to-Image).md",
+      "x": 220,
+      "y": 80,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_analyses_meanflow_t2i",
+      "type": "file",
+      "file": "graphify/obsidian/MeanFlow Text-to-Image Extension (EMF).md",
+      "x": 420,
+      "y": 80,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_meanflow",
+      "type": "file",
+      "file": "graphify/obsidian/MeanFlow \u2014 Average Velocity Flow Matching.md",
+      "x": 20,
+      "y": 160,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_discriminability",
+      "type": "file",
+      "file": "graphify/obsidian/Text Encoder Discriminability (for Few-Step Generation).md",
+      "x": 220,
+      "y": 160,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_disentanglement",
+      "type": "file",
+      "file": "graphify/obsidian/Text Encoder Disentanglement (Semantic Separation).md",
+      "x": 420,
+      "y": 160,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_arxiv_2505_13447",
+      "type": "file",
+      "file": "graphify/obsidian/arXiv2505.13447 \u2014 MeanFlow (Geng et al., 2025).md",
+      "x": 20,
+      "y": 240,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_arxiv_2510_15857",
+      "type": "file",
+      "file": "graphify/obsidian/arXiv2510.15857 \u2014 BLIP3o-NEXT (Chen et al., 2025).md",
+      "x": 220,
+      "y": 240,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_arxiv_2604_18168",
+      "type": "file",
+      "file": "graphify/obsidian/arXiv2604.18168 \u2014 EMF Extending MeanFlow to Text-to-Image.md",
+      "x": 420,
+      "y": 240,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "g1",
+      "type": "group",
+      "label": "gieok Knowledge Automation System",
+      "x": 740,
+      "y": 0,
+      "width": 660,
+      "height": 420,
+      "color": "2"
+    },
+    {
+      "id": "n_concept_claude_code",
+      "type": "file",
+      "file": "graphify/obsidian/Claude Code (CC).md",
+      "x": 760,
+      "y": 80,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_obsidian",
+      "type": "file",
+      "file": "graphify/obsidian/Obsidian Wiki Vault.md",
+      "x": 960,
+      "y": 80,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_log_operation_log",
+      "type": "file",
+      "file": "graphify/obsidian/Operation Log.md",
+      "x": 1160,
+      "y": 80,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_index_wiki_index",
+      "type": "file",
+      "file": "graphify/obsidian/Wiki Index.md",
+      "x": 760,
+      "y": 160,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concepts_gieok",
+      "type": "file",
+      "file": "graphify/obsidian/gieok Concept \u2014 Claude Code Second Brain.md",
+      "x": 960,
+      "y": 160,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_gieok_pipeline",
+      "type": "file",
+      "file": "graphify/obsidian/gieok Hook\u2192LLM\u2192Wiki\u2192Git Pipeline.md",
+      "x": 1160,
+      "y": 160,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_projects_gieok",
+      "type": "file",
+      "file": "graphify/obsidian/gieok Project Detail.md",
+      "x": 760,
+      "y": 240,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_launchagent",
+      "type": "file",
+      "file": "graphify/obsidian/macOS LaunchAgent (launchd scheduling).md",
+      "x": 960,
+      "y": 240,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_analyses_macos_launchagent",
+      "type": "file",
+      "file": "graphify/obsidian/macOS LaunchAgent Catchup Behavior.md",
+      "x": 1160,
+      "y": 240,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "g2",
+      "type": "group",
+      "label": "Diffusion Model Bias Correction",
+      "x": 0,
+      "y": 500,
+      "width": 660,
+      "height": 400,
+      "color": "3"
+    },
+    {
+      "id": "n_concept_dcw",
+      "type": "file",
+      "file": "graphify/obsidian/DCW \u2014 Wavelet Domain Difference Correction.md",
+      "x": 20,
+      "y": 580,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_analyses_diffusion_snr",
+      "type": "file",
+      "file": "graphify/obsidian/Diffusion SNR-t Bias Analysis.md",
+      "x": 220,
+      "y": 580,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_exposure_bias",
+      "type": "file",
+      "file": "graphify/obsidian/Exposure Bias in Diffusion Models.md",
+      "x": 420,
+      "y": 580,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_concept_snr_t_bias",
+      "type": "file",
+      "file": "graphify/obsidian/SNR-t Bias in Diffusion Probabilistic Models.md",
+      "x": 20,
+      "y": 660,
+      "width": 180,
+      "height": 60
+    },
+    {
+      "id": "n_arxiv_2604_16044",
+      "type": "file",
+      "file": "graphify/obsidian/arXiv2604.16044 \u2014 Elucidating SNR-t Bias in DPMs.md",
+      "x": 220,
+      "y": 660,
+      "width": 180,
+      "height": 60
+    }
+  ],
+  "edges": [
+    {
+      "id": "e_log_operation_log_concepts_gieok",
+      "fromNode": "n_log_operation_log",
+      "toNode": "n_concepts_gieok",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_log_operation_log_projects_gieok",
+      "fromNode": "n_log_operation_log",
+      "toNode": "n_projects_gieok",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_log_operation_log_analyses_macos_launchagent",
+      "fromNode": "n_log_operation_log",
+      "toNode": "n_analyses_macos_launchagent",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_log_operation_log_analyses_meanflow_t2i",
+      "fromNode": "n_log_operation_log",
+      "toNode": "n_analyses_meanflow_t2i",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_log_operation_log_analyses_diffusion_snr",
+      "fromNode": "n_log_operation_log",
+      "toNode": "n_analyses_diffusion_snr",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_log_operation_log_index_wiki_index",
+      "fromNode": "n_log_operation_log",
+      "toNode": "n_index_wiki_index",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_index_wiki_index_concepts_gieok",
+      "fromNode": "n_index_wiki_index",
+      "toNode": "n_concepts_gieok",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_index_wiki_index_projects_gieok",
+      "fromNode": "n_index_wiki_index",
+      "toNode": "n_projects_gieok",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_index_wiki_index_analyses_macos_launchagent",
+      "fromNode": "n_index_wiki_index",
+      "toNode": "n_analyses_macos_launchagent",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_index_wiki_index_analyses_meanflow_t2i",
+      "fromNode": "n_index_wiki_index",
+      "toNode": "n_analyses_meanflow_t2i",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_index_wiki_index_analyses_diffusion_snr",
+      "fromNode": "n_index_wiki_index",
+      "toNode": "n_analyses_diffusion_snr",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_projects_gieok_concepts_gieok",
+      "fromNode": "n_projects_gieok",
+      "toNode": "n_concepts_gieok",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_projects_gieok_analyses_macos_launchagent",
+      "fromNode": "n_projects_gieok",
+      "toNode": "n_analyses_macos_launchagent",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_projects_gieok_concept_launchagent",
+      "fromNode": "n_projects_gieok",
+      "toNode": "n_concept_launchagent",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_concepts_gieok_concept_claude_code",
+      "fromNode": "n_concepts_gieok",
+      "toNode": "n_concept_claude_code",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_concepts_gieok_concept_obsidian",
+      "fromNode": "n_concepts_gieok",
+      "toNode": "n_concept_obsidian",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_concepts_gieok_concept_gieok_pipeline",
+      "fromNode": "n_concepts_gieok",
+      "toNode": "n_concept_gieok_pipeline",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_macos_launchagent_concept_launchagent",
+      "fromNode": "n_analyses_macos_launchagent",
+      "toNode": "n_concept_launchagent",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_analyses_diffusion_snr",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_analyses_diffusion_snr",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_arxiv_2604_18168",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_arxiv_2604_18168",
+      "label": "cites [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_concept_meanflow",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_concept_meanflow",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_concept_emf",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_concept_emf",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_concept_discriminability",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_concept_discriminability",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_concept_disentanglement",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_concept_disentanglement",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_arxiv_2505_13447",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_arxiv_2505_13447",
+      "label": "cites [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_meanflow_t2i_arxiv_2510_15857",
+      "fromNode": "n_analyses_meanflow_t2i",
+      "toNode": "n_arxiv_2510_15857",
+      "label": "cites [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_diffusion_snr_arxiv_2604_16044",
+      "fromNode": "n_analyses_diffusion_snr",
+      "toNode": "n_arxiv_2604_16044",
+      "label": "cites [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_diffusion_snr_concept_snr_t_bias",
+      "fromNode": "n_analyses_diffusion_snr",
+      "toNode": "n_concept_snr_t_bias",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_diffusion_snr_concept_dcw",
+      "fromNode": "n_analyses_diffusion_snr",
+      "toNode": "n_concept_dcw",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_analyses_diffusion_snr_concept_exposure_bias",
+      "fromNode": "n_analyses_diffusion_snr",
+      "toNode": "n_concept_exposure_bias",
+      "label": "references [EXTRACTED]"
+    },
+    {
+      "id": "e_concept_meanflow_concept_emf",
+      "fromNode": "n_concept_meanflow",
+      "toNode": "n_concept_emf",
+      "label": "implements [EXTRACTED]"
+    },
+    {
+      "id": "e_concept_snr_t_bias_concept_dcw",
+      "fromNode": "n_concept_snr_t_bias",
+      "toNode": "n_concept_dcw",
+      "label": "implements [EXTRACTED]"
+    },
+    {
+      "id": "e_concept_emf_concept_blip3o_next",
+      "fromNode": "n_concept_emf",
+      "toNode": "n_concept_blip3o_next",
+      "label": "shares_data_with [EXTRACTED]"
+    },
+    {
+      "id": "e_concept_snr_t_bias_concept_exposure_bias",
+      "fromNode": "n_concept_snr_t_bias",
+      "toNode": "n_concept_exposure_bias",
+      "label": "conceptually_related_to [EXTRACTED]"
+    },
+    {
+      "id": "e_concept_launchagent_concept_gieok_pipeline",
+      "fromNode": "n_concept_launchagent",
+      "toNode": "n_concept_gieok_pipeline",
+      "label": "shares_data_with [INFERRED]"
+    },
+    {
+      "id": "e_concept_meanflow_concept_snr_t_bias",
+      "fromNode": "n_concept_meanflow",
+      "toNode": "n_concept_snr_t_bias",
+      "label": "conceptually_related_to [INFERRED]"
+    }
+  ]
+}

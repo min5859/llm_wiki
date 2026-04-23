@@ -1,6 +1,7 @@
 ---
 title: "확산 모델의 SNR-t 편향 (SNR-t Bias in DPMs)"
 domain: "research"
+sensitivity: "public"
 tags: ["diffusion", "DPM", "SNR", "bias", "inference", "wavelet", "training-free"]
 created: "2026-04-22"
 updated: "2026-04-22"

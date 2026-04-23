@@ -1,6 +1,7 @@
 ---
 title: "CLAUDE.md 완전 가이드 — 작성법·패턴·템플릿"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["CLAUDE.md", "Claude Code", "프롬프트 설계", "Memory", "하네스 엔지니어링", "AGENTS.md"]
 created: "2026-04-15"
 updated: "2026-04-16"

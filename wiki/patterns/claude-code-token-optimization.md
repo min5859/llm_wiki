@@ -1,6 +1,7 @@
 ---
 title: "Claude Code 토큰 최적화 — 소비 절반 줄이기"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "토큰", "비용 최적화", "Context Rot", "/compact", "/clear", "컨텍스트 관리"]
 created: "2026-04-15"
 updated: "2026-04-16"

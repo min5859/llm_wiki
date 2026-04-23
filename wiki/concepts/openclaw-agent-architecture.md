@@ -1,6 +1,7 @@
 ---
 title: "OpenClaw 에이전트 아키텍처 (현재 구조 + 확장 방향)"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["OpenClaw", "에이전트 아키텍처", "ACP", "Claude Code", "자동화", "Telegram", "ht_trading", "upbit_trading", "llm_wiki"]
 created: "2026-04-17"
 updated: "2026-04-17"

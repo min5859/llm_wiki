@@ -1,6 +1,7 @@
 ---
 title: "Claude 토큰 절약 8가지 방법"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude", "Claude Code", "토큰 절약", "컨텍스트", ".claudeignore", "sandbox", "Jupyter"]
 created: "2026-04-16"
 updated: "2026-04-16"

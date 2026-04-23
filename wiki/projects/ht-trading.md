@@ -1,6 +1,7 @@
 ---
 title: "ht_trading — 프로젝트 설계 상세"
 domain: "personal"
+sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
 updated: "2026-04-23"

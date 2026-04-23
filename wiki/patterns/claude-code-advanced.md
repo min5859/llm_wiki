@@ -1,6 +1,7 @@
 ---
 title: "Claude Code 고급 기능 — MCP·Hooks·SubAgents·Agent Teams"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "MCP", "Hooks", "SubAgents", "Agent Teams", "병렬 에이전트", "자동화"]
 created: "2026-04-15"
 updated: "2026-04-16"

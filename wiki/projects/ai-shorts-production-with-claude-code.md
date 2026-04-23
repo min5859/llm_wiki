@@ -1,6 +1,7 @@
 ---
 title: "Claude Code로 AI 쇼츠 영상 대량 제작"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "AI 쇼츠", "영상 제작", "부업", "스크립트", "콘텐츠 자동화"]
 created: "2026-04-16"
 updated: "2026-04-16"

@@ -1,6 +1,7 @@
 ---
 title: "OneVL — 자율주행을 위한 1스텝 잠재 추론·계획 모델"
 domain: "research"
+sensitivity: "public"
 tags: ["autonomous-driving", "VLM", "VLA", "chain-of-thought", "latent-reasoning", "xiaomi", "real-time"]
 created: "2026-04-23"
 updated: "2026-04-23"

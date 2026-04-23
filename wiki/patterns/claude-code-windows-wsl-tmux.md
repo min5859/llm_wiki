@@ -1,6 +1,7 @@
 ---
 title: "Windows에서 WSL·VS Code·tmux·Claude Code 환경 구성"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "Windows", "WSL2", "VS Code", "tmux", "Git Bash", "PowerShell"]
 created: "2026-04-16"
 updated: "2026-04-16"

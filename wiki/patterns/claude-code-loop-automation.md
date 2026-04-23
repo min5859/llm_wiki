@@ -1,6 +1,7 @@
 ---
 title: "Claude Code /loop 자동화 패턴"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "/loop", "자동화", "리포트", "스케줄", "정보 수집"]
 created: "2026-04-16"
 updated: "2026-04-16"

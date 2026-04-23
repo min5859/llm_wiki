@@ -1,6 +1,7 @@
 ---
 title: "Claude Code 기업 보안 도입과 AWS Bedrock"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "기업 보안", "AWS Bedrock", "Vertex AI", "Azure AI", "권한", "데이터 유출"]
 created: "2026-04-16"
 updated: "2026-04-16"

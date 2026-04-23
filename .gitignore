@@ -6,3 +6,9 @@
 
 # gieok session logs (local only — may contain secrets)
 session-logs/
+
+# 회사 원본 파일 (반출 금지 — 절대 commit 금지)
+work-raw/
+
+# confidential wiki 문서 (sensitivity: confidential)
+wiki/**/*-confidential.md

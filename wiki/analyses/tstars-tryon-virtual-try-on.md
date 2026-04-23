@@ -1,6 +1,7 @@
 ---
 title: "Tstars-Tryon 1.0 — 상업용 가상 피팅 시스템"
 domain: "research"
+sensitivity: "public"
 tags: ["virtual-try-on", "diffusion", "image-generation", "e-commerce", "MMDiT", "RL", "taobao"]
 created: "2026-04-23"
 updated: "2026-04-23"

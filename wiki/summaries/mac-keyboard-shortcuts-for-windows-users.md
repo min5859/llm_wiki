@@ -1,6 +1,7 @@
 ---
 title: "맥 키보드 단축키 정리 (윈도우 사용자용)"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["macOS", "Windows", "단축키", "윈도우→맥", "생산성", "입문", "키보드"]
 created: "2026-04-17"
 updated: "2026-04-17"

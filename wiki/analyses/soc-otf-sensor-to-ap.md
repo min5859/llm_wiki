@@ -1,6 +1,7 @@
 ---
 title: "SoC On-The-Fly (OTF): Sensor → AP 직접 연결 구조"
-domain: "research"
+domain: "work"
+sensitivity: "internal"
 tags: ["SoC", "OTF", "On-The-Fly", "ISP", "sensor", "AP", "HW설계", "SW설계", "카메라파이프라인"]
 created: "2026-04-21"
 updated: "2026-04-21 (SW control sequence 다이어그램 추가)"

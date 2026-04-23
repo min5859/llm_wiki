@@ -1,6 +1,7 @@
 ---
 title: "Claude Code Agent Teams와 tmux 운용"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "Agent Teams", "tmux", "멀티에이전트", "병렬 개발", "split panes"]
 created: "2026-04-16"
 updated: "2026-04-16"

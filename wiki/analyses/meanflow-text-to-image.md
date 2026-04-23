@@ -1,6 +1,7 @@
 ---
 title: "MeanFlow의 텍스트 조건부 이미지 생성 확장 (EMF)"
 domain: "research"
+sensitivity: "public"
 tags: ["diffusion", "MeanFlow", "text-to-image", "few-step-generation", "text-encoder", "discriminability", "disentanglement"]
 created: "2026-04-22"
 updated: "2026-04-22"

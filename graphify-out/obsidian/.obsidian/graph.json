@@ -1,0 +1,25 @@
+{
+  "colorGroups": [
+    {
+      "query": "tag:#community/Flow-based_Text-to-Image_Generation",
+      "color": {
+        "a": 1,
+        "rgb": 5142951
+      }
+    },
+    {
+      "query": "tag:#community/gieok_Knowledge_Automation_System",
+      "color": {
+        "a": 1,
+        "rgb": 15896107
+      }
+    },
+    {
+      "query": "tag:#community/Diffusion_Model_Bias_Correction",
+      "color": {
+        "a": 1,
+        "rgb": 14767961
+      }
+    }
+  ]
+}

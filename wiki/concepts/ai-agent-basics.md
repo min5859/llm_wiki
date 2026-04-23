@@ -1,6 +1,7 @@
 ---
 title: "AI 에이전트 기초"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["AI 에이전트", "LLM", "MCP", "A2A", "자율도", "하네스 엔지니어링"]
 created: "2026-04-15"
 updated: "2026-04-16"

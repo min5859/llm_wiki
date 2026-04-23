@@ -1,6 +1,7 @@
 ---
 title: "Claude Code 기본 사용법 — Plan 모드·세션 관리·슬래시 커맨드"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "Plan 모드", "세션 관리", "슬래시 커맨드", "/compact", "/clear", "/context"]
 created: "2026-04-15"
 updated: "2026-04-16"

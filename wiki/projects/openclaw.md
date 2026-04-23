@@ -1,6 +1,7 @@
 ---
 title: "OpenClaw — AI 에이전트 자동화 도구"
 domain: "personal"
+sensitivity: "public"
 tags: ["project", "openclaw", "ai-agent", "telegram", "automation", "npm"]
 created: "2026-04-23"
 updated: "2026-04-23"

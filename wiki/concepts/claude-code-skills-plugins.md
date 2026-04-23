@@ -1,6 +1,7 @@
 ---
 title: "Claude Code 스킬 및 공식 플러그인 완전 가이드"
-domain: "staging"
+domain: "personal"
+sensitivity: "public"
 tags: ["Claude Code", "Skills", "Plugin", "번들 스킬", "/loop", "/simplify", "/batch", "feature-dev", "pr-review"]
 created: "2026-04-15"
 updated: "2026-04-16"
