@@ -25,6 +25,27 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 1개 session-log 파일
 
+## 2026-04-23T13:00 — wiki-ingest (session-logs, ingested: false 6건)
+
+- Source: session-logs/20260423-080035-4bb7-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" 프롬프트)
+- Source: session-logs/20260423-080041-976a-*.md (arXiv: 2604.19748)
+  - Created: wiki/analyses/tstars-tryon-virtual-try-on.md
+    — Taobao 상업용 가상 피팅 시스템: MMDiT 5B, 8카테고리, 단일 3.92s/멀티 6.74s, RL(DiffusionNFT)
+- Source: session-logs/20260423-080131-e2e6-*.md (arXiv: 2604.18486)
+  - Created: wiki/analyses/onevl-latent-reasoning.md
+    — Xiaomi 자율주행 VLA: 잠재 CoT로 명시적 CoT 정확도 + 답변-only 지연시간 동시 달성
+- Source: session-logs/20260423-120308-f269-*.md (ht_trading)
+  - Updated: wiki/projects/ht-trading.md
+    — split throttle G4-1 드로다운 버그 수정 기록 추가 (bar.close → pos.current_price, commit c5dc818)
+- Source: session-logs/20260423-113736-72aa-*.md (openclaw)
+  - Created: wiki/projects/openclaw.md
+    — OpenClaw 업데이트(2026.3.28→2026.4.21), git 관리 구조, 이미지 생성 별도 API 키 필요
+- Source: session-logs/20260423-125016-fe2e-*.md (gieok)
+  - Skipped: 짧은 탐색적 세션 (gieok 세션 컨텍스트 주입 확인), 새로운 설계 판단 없음
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 6개 session-log 파일 전체
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md

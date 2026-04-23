@@ -6,6 +6,7 @@ created: "2026-04-23"
 updated: "2026-04-23"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
+  - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
 confidence: "high"
 related: []
 ---
@@ -50,11 +51,38 @@ screener:
 
 - `ht_trading.strategy.builtin.scoring_strategy.ScoringStrategy` — 점수 기반 매수 전략
 
+## 분할 매수 Throttle (G4-1)
+
+2차·3차 분할 매수를 제어하는 가드. 조건 두 가지를 **AND**로 충족해야 추가 매수 허용:
+1. **시간 조건** — 직전 분할 이후 충분한 시간 경과
+2. **드로다운 조건** — 직전 분할 체결가 대비 현재가 하락 ≥ `min_split_drawdown_pct` (기본 1.5%)
+
+관련 파라미터:
+
+```yaml
+# config/strategies/scoring.yaml
+enable_split_throttle: true
+min_split_drawdown_pct: 0.015  # 1.5%
+```
+
+### 버그 수정 (2026-04-23, commit c5dc818)
+
+**증상**: 1차 매수 후 하락 중인데도 2차 분할 매수가 진행되지 않음. 로그에 "split throttle 드로다운 부족: 0.00% < 1.50%" 반복.
+
+**원인**: `_last_split_price`에 `last_bar.close`(일봉 캐시 종가)를 저장했고, 드로다운 비교도 `bar.close`(같은 일봉 캐시)로 수행 → 일봉 캐시는 장중 변하지 않아 드로다운 항상 0%.
+
+**수정 내용**:
+| 수정 위치 | 변경 전 | 변경 후 |
+|----------|---------|---------|
+| `_can_add_split` | `bar.close` 기준 비교 | `pos.current_price`(브로커 실시간 평가가) 기준 비교 |
+| `_record_split_event` (라이브 경로) | `last_bar.close` 저장 | `pb.limit_price`(지정가) 저장 |
+
 ## 설계 변경 이력
 
 | 날짜 | 변경 내용 | 이유 |
 |------|---------|------|
 | 2026-04-22 | `buy_min_score_full` 65 → 60 | 매수 기회 확대 (임계값 완화) |
+| 2026-04-23 | split throttle 드로다운 버그 수정 (c5dc818) | 일봉 캐시 종가 대신 실시간 평가가 사용 |
 
 ## 투자 파라미터
 
@@ -67,3 +95,4 @@ lookback_period: 60     # 최소 봉 수 / MA·신고가 기간
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260422-230939-22f1 에서 추출)
+- 2026-04-23: split throttle G4-1 섹션 추가, 드로다운 버그 수정 기록 (세션 로그 20260423-120308-f269)
