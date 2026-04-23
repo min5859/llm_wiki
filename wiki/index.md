@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-04-23T13:30:00+09:00
+updated: 2026-04-23T21:15:00+09:00
 ---
 
 # Wiki Index
@@ -18,8 +18,8 @@ updated: 2026-04-23T13:30:00+09:00
 ## 프로젝트 (projects/)
 
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
-- [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점), 설정 파일 동기화 규칙, split throttle 버그 수정
-- [[openclaw]] — AI 에이전트 자동화 도구: 업데이트 방법, git 관리, 이미지 생성 시 별도 API 키 필요
+- [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점), 버그 수정 4건(datetime.now/RSI/TrailingSell/split throttle), 백로그 B1-B4
+- [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
 
 ## 설계 판단 (decisions/)
@@ -54,3 +54,4 @@ updated: 2026-04-23T13:30:00+09:00
 - [[tstars-tryon-virtual-try-on]] — Taobao 상업용 가상 피팅: MMDiT 5B, 8카테고리, 단일 3.92s (arXiv 2604.19748)
 - [[onevl-latent-reasoning]] — 자율주행 VLA의 잠재 CoT: 명시적 CoT 정확도 + 답변-only 지연시간 달성 (arXiv 2604.18486)
 - [[soc-otf-sensor-to-ap]] — SoC On-The-Fly: Sensor→AP 직접 스트리밍 연결의 HW/SW 설계 주의사항
+- [[openclaw-telegram-group-setup]] — Telegram 그룹 봇: Privacy Mode 비활성화, requireMention 설정, 포럼 토픽 vs 별도 봇 트레이드오프

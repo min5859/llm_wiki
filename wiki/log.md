@@ -54,6 +54,37 @@ updated:
 - Updated: wiki/index.md (기존에 누락된 concepts 6건, patterns 9건, projects 1건, analyses 1건 일괄 추가)
 - Marked ingested: true — 1개 session-log 파일
 
+## 2026-04-23T21:15 — wiki-ingest (session-logs, ingested: false 3건)
+
+- Source: session-logs/20260423-192900-e7ec-Reply-with-exactly--coder-session-alive.md
+  - Project: openclaw
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 ping 프롬프트)
+
+- Source: session-logs/20260423-193125-b999-graphify.md
+  - Project: ht_trading
+  - Updated: wiki/projects/ht-trading.md
+    - graphify 아키텍처 분석 추가 (god nodes: Bar 176, Market 174, 87 communities)
+    - 버그 수정 3건 추가:
+      - Rule 6 백테스트 `datetime.now()` → `bar.dt` (commit 803a158)
+      - RSI 평탄 구간 100 → 50 반환 (commit 803a158)
+      - TrailingSell `bar.close` → `pos.current_price` (commit f376ba8)
+    - 개선 백로그 B1-B4 추가
+
+- Source: session-logs/20260423-194609-6b61-코딩전용-openclaw-agent-를-추가했는데-텔레그램으로-메세지를-보내면-응답이-없습.md
+  - Project: openclaw
+  - Updated: wiki/projects/openclaw.md
+    - 다중 에이전트 구성 (main/english/coder) 섹션 추가
+    - Telegram 그룹 설정 (requireMention, Privacy Mode) 섹션 추가
+    - 라우팅 버그 트러블슈팅 섹션 추가
+  - Created: wiki/analyses/openclaw-telegram-group-setup.md
+    - Telegram Bot Privacy Mode 비활성화 필요성
+    - requireMention 그룹/토픽 레벨 차이
+    - 포럼 토픽 vs 별도 봇 트레이드오프
+    - OpenClaw bindings에 `"type": "acp"` 포함 시 라우팅 0 버그
+
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 전체 (skip 1건, 처리 2건)
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md

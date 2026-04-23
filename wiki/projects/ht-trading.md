@@ -8,6 +8,7 @@ updated: "2026-04-23"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
+  - "session-logs/20260423-193125-b999-graphify.md"
 confidence: "high"
 related: []
 ---
@@ -52,6 +53,22 @@ screener:
 
 - `ht_trading.strategy.builtin.scoring_strategy.ScoringStrategy` — 점수 기반 매수 전략
 
+## 코드베이스 구조 (graphify 분석, 2026-04-23)
+
+82개 파일, ~57,088 단어. 주요 god node(연결 수 기준):
+
+| 노드 | 엣지 수 | 역할 |
+|------|--------|------|
+| `Bar` | 176 | 봉 데이터 — 모든 전략·지표의 입력 |
+| `Market` | 174 | 9개 커뮤니티를 잇는 시스템 허브 |
+| `Position` | 128 | 포지션 상태 |
+| `StrategyContext` | 122 | 전략 실행 컨텍스트 |
+| `Strategy` | 93 | 전략 ABC (BacktestEngine과 ScoringStrategy의 연결 지점) |
+| `LiveEngine` | 75 | KIS API + RiskManager + CycleSnapshot 연결 |
+| `RiskManager` | 71 | 매수 신호 검증 게이트 |
+
+주요 커뮤니티: Strategy Indicators(141), Backtest Engine(137), KIS API Auth(117), Data Feed(94), Live Engine Core(88), Risk Manager(25), State Store(24), Stock Screener(고립, degree 8).
+
 ## 분할 매수 Throttle (G4-1)
 
 2차·3차 분할 매수를 제어하는 가드. 조건 두 가지를 **AND**로 충족해야 추가 매수 허용:
@@ -78,12 +95,74 @@ min_split_drawdown_pct: 0.015  # 1.5%
 | `_can_add_split` | `bar.close` 기준 비교 | `pos.current_price`(브로커 실시간 평가가) 기준 비교 |
 | `_record_split_event` (라이브 경로) | `last_bar.close` 저장 | `pb.limit_price`(지정가) 저장 |
 
+## 버그 수정 이력
+
+### 버그 수정 (2026-04-23, commit 803a158): Rule 6 datetime.now() 백테스트 오작동
+
+**증상**: 백테스트 시 모든 포지션에서 Rule 6(시간 기반 손절)이 즉시 발동.
+
+**원인**: `scoring_strategy.py:849`에서 `datetime.now()`를 사용해 현재 실행 시각과 비교. 2024년 봉 데이터를 돌리면 보유 기간이 수백 일로 계산되어 손실 포지션을 즉시 손절.
+
+**수정**: `bar.dt` 기준으로 변경.
+
+```python
+# 전: days_held = (dt.now() - dt.strptime(entry_date, "%Y-%m-%d")).days
+# 후: days_held = (bar.dt - dt.strptime(entry_date, "%Y-%m-%d")).days
+```
+
+> **패턴**: 백테스트에서는 절대로 `datetime.now()`를 쓰지 말 것. 항상 `bar.dt`(봉 시각)를 현재 시각으로 사용해야 한다.
+
+---
+
+### 버그 수정 (2026-04-23, commit 803a158): RSI 평탄 구간 100 반환
+
+**증상**: 가격 변동이 없는 봉 구간에서 RSI=100으로 계산되어 Rule 5(과매수 익절)가 오발동.
+
+**원인**: `indicators.py:54`에서 `avg_loss == 0`인 경우 항상 100.0 반환. 실제로 `avg_gain`, `avg_loss` 모두 0이면(가격 변화 없음) RSI는 50(중립)이어야 한다.
+
+**수정**:
+```python
+# 전: if avg_loss == 0: return 100.0
+# 후: if avg_loss == 0: return 100.0 if avg_gain > 0 else 50.0
+```
+
+---
+
+### 버그 수정 (2026-04-23, commit f376ba8): TrailingSell 트레일링 스톱 기준 불일치
+
+**증상**: 라이브에서 트레일링 스톱이 사실상 동작하지 않음 (하락률 항상 0%).
+
+**원인**: `trailing_sell.py:154`에서 고점 추적과 현재가 비교에 `bar.close`(일봉 캐시 종가)를 사용. `bar.close`는 하루 종일 고정값이라 고점 = 현재가 → 하락률 0%.
+
+`ScoringStrategy`는 이미 `c5dc818`에서 `pos.current_price`(KIS 실시간 평가가)로 수정됐는데 `TrailingSell`은 누락.
+
+**수정**: `bar.close` → `pos.current_price` (고점 갱신 + 하락률 계산 모두).
+
+```python
+# 전: peak = self._peak_prices.get(symbol, bar.close)
+# 후: ref = pos.current_price if pos.current_price > 0 else bar.close
+#     peak = self._peak_prices.get(symbol, ref)
+```
+
+---
+
+### 버그 수정 (2026-04-23, commit c5dc818): split throttle 드로다운 0% 버그
+
+**증상**: 1차 매수 후 하락 중인데도 2차 분할 매수가 진행되지 않음. "split throttle 드로다운 부족: 0.00% < 1.50%"가 계속 출력.
+
+**원인**: `_can_add_split`에서 `bar.close`(일봉 캐시, 장중 고정값)를 사용. 드로다운이 항상 0%.
+
+**수정**: `pos.current_price`(브로커 실시간 평가가) 기준으로 변경.
+
 ## 설계 변경 이력
 
 | 날짜 | 변경 내용 | 이유 |
 |------|---------|------|
 | 2026-04-22 | `buy_min_score_full` 65 → 60 | 매수 기회 확대 (임계값 완화) |
 | 2026-04-23 | split throttle 드로다운 버그 수정 (c5dc818) | 일봉 캐시 종가 대신 실시간 평가가 사용 |
+| 2026-04-23 | Rule 6 백테스트 datetime.now() 버그 수정 (803a158) | bar.dt 기준으로 변경 |
+| 2026-04-23 | RSI 평탄 구간 100→50 버그 수정 (803a158) | avg_gain=0, avg_loss=0 시 중립값 반환 |
+| 2026-04-23 | TrailingSell 트레일링 스톱 기준 불일치 수정 (f376ba8) | bar.close → pos.current_price |
 
 ## 투자 파라미터
 
@@ -93,7 +172,19 @@ buy_split_count: 3      # 분할 매수 횟수 (3분할)
 lookback_period: 60     # 최소 봉 수 / MA·신고가 기간
 ```
 
+## 개선 백로그 (B 시리즈)
+
+graphify 코드베이스 분석(2026-04-23)에서 발굴. `docs/BACKLOG.md`에도 기록됨.
+
+| ID | 파일 | 라인 | 내용 | 영향도 |
+|----|------|------|------|--------|
+| **B1** | `scoring_strategy.py` | `_calc_qty` | 분할 수량이 현금 잔액 기준으로 계산되어 2차·3차로 갈수록 수량이 줄어드는 구조적 문제. 의도(총 투자금의 1/N씩)와 구현이 다름 | 중 |
+| **B2** | `risk/manager.py` | 31 | `max_order_value = 5_000_000` 하드코딩. equity ≥ 2,500만원이면 매수를 막기 시작 | 중 |
+| **B3** | `scoring_strategy.py` | 799~831 | Rule 4(데드크로스, ≥3% 익절 50%) vs Rule 2.5(단계적 익절, ≥10% 1/3 매도) 우선순위 충돌. Rule 2.5가 먼저 적용되어 Rule 4는 3~10% 구간에서만 동작 | 검토 필요 |
+| **B4** | `scoring_strategy.py` | 711~720 | `_calc_buy_score` 거래량 점수 계단식 불연속 (vol_r=4.9 vs 5.0이 2점 차이). 과적합 위험 | 낮음 |
+
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260422-230939-22f1 에서 추출)
 - 2026-04-23: split throttle G4-1 섹션 추가, 드로다운 버그 수정 기록 (세션 로그 20260423-120308-f269)
+- 2026-04-23: graphify 아키텍처 분석, 버그 수정 3건, 백로그 B1-B4 추가 (세션 로그 20260423-193125-b999)
