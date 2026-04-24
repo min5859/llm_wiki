@@ -85,6 +85,19 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 3개 session-log 파일 전체 (skip 1건, 처리 2건)
 
+## 2026-04-24T09:00 — wiki-ingest (session-logs, ingested: false 3건)
+
+- Source: session-logs/20260424-080017-211f-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" health-check 프롬프트)
+- Source: session-logs/20260424-080022-8403-*.md (arXiv: 2604.20796)
+  - Created: wiki/analyses/llada2-uni-unified-multimodal-diffusion.md
+    — LLaDA2.0-Uni: SigLIP-VQ(의미론적 이산 토크나이저) + 16B MoE dLLM + 확산 디코더. 이해·생성·편집을 단일 마스크 예측 목표로 통합. SPRINT 추론 1.6× 가속
+- Source: session-logs/20260424-080120-625e-*.md (arXiv: 2604.15825)
+  - Created: wiki/analyses/algorithmic-collusion-reinforcement-learning.md
+    — Soft Actor-Critic 기반 가격 게임에서 담합 수렴: Q-learning 대비 100배 빠름 (~5만 스텝 ≈ 5년), 반독점 규제 시사점
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 전체 (skip 1건, 생성 2건)
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
