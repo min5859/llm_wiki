@@ -98,6 +98,19 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 3개 session-log 파일 전체 (skip 1건, 생성 2건)
 
+## 2026-04-25T09:00 — wiki-ingest (session-logs, ingested: false 3건)
+
+- Source: session-logs/20260425-080017-8e34-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" health-check)
+- Source: session-logs/20260425-080021-dbd0-*.md (arXiv: 2604.13346)
+  - Created: wiki/analyses/agentspex-agent-specification-language.md
+    — AgentSPEX: YAML 선언형 에이전트 워크플로우 명세 언어. LangGraph 대비 모델 버전 변경 시 -0.2% 유지(vs Live-SWE-agent -6.8%). 형식 검증(formal verification) 가능.
+- Source: session-logs/20260425-080113-edb6-*.md (arXiv: 2604.21061)
+  - Created: wiki/analyses/invitrovision-embryo-vlm.md
+    — PaliGemma-2 LoRA 적응: 1,000개 IVF 배아 이미지로 ChatGPT 5.2 능가(총점 0.67 vs 0.52). 임상 맞춤 복합 평가 메트릭(ECC/MD/PD 가중치) 제안.
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 전체 (skip 1건, 생성 2건)
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
