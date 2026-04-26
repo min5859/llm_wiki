@@ -4,10 +4,12 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "openclaw", "ai-agent", "telegram", "automation", "npm"]
 created: "2026-04-23"
-updated: "2026-04-23"
+updated: "2026-04-26"
 sources:
   - "session-logs/20260423-113736-72aa-openclaw-를-업데이트-하려고-합니다.-가이드를-알려주세요.md"
   - "session-logs/20260423-194609-6b61-코딩전용-openclaw-agent-를-추가했는데-텔레그램으로-메세지를-보내면-응답이-없습.md"
+  - "session-logs/20260426-120703-304f-현재-프로젝트는-openclaw-라는-Agent-를-사용해서-자산관리-웹앱을-구현해보고-있.md"
+  - "session-logs/20260426-121630-14c3-https---bongman.tistory.com-1341-위-웹페이지-내용을-요약해-주세.md"
 confidence: "high"
 related:
   - "wiki/projects/gieok.md"
@@ -194,7 +196,68 @@ Gateway 서비스는 macOS LaunchAgent로 실행된다:
 4. 봇이 그룹에 입장한 시점이 Privacy Mode 변경 이전이면 추방 후 재초대 필요
 5. `openclaw channels status --probe`로 audit 경고 확인
 
+## ACP coder 에이전트 — 자율 실행 권한 설정
+
+### permissionMode / nonInteractivePermissions 스키마 제약
+
+acpx 플러그인 스키마에서 확인된 허용값:
+
+| 필드 | 허용값 |
+|------|--------|
+| `permissionMode` | `"approve-all"`, `"approve-reads"`, `"deny-all"` |
+| `nonInteractivePermissions` | `"deny"`, `"fail"` |
+
+**중요**: `permissionMode: "auto"`, `nonInteractivePermissions: "allow"` 옵션은 acpx 플러그인 스키마에 존재하지 않는다. 이 설정으로는 완전한 자율 실행이 불가능하다.
+
+설정 변경 명령어:
+```bash
+# CLI로 변경 (스키마 내 값만 가능)
+openclaw config set plugins.entries.acpx.config.permissionMode approve-reads
+openclaw config get plugins.entries.acpx.config.permissionMode
+
+# 현재 실제 운용 값 (기본)
+# permissionMode: "approve-all"
+# nonInteractivePermissions: "deny"
+```
+
+> **주의**: openclaw 게이트웨이 실행 중에 `~/.openclaw/openclaw.json`을 직접 편집하면 프로세스가 파일을 감시하다가 덮어쓸 수 있다. 편집 시 `openclaw gateway stop` → 편집 → `openclaw gateway start` 순서로 진행할 것.
+
+### Claude Code settings.json을 통한 권한 우회
+
+acpx 플러그인 외에, coder 에이전트 디렉터리의 `.claude/settings.json`을 통해 Claude Code 레벨에서 직접 권한을 부여하는 방법도 존재한다 (별도 검토 필요).
+
+## asset-dashboard 프로젝트 git 분리
+
+openclaw workspace-coder(`~/.openclaw/workspace-coder`) 아래에 `asset-dashboard/` 서브디렉터리가 존재했으나, 독립 git repo로 분리되었다.
+
+```
+~/.openclaw/workspace-coder/
+├── .gitignore          ← asset-dashboard/ 와 .openclaw/workspace-state.json 제외
+├── IDENTITY.md
+├── SOUL.md
+├── USER.md
+└── asset-dashboard/    ← 독립 git repo (자체 .gitignore, 초기 커밋 완료)
+```
+
+### workspace-state.json untrack
+
+`.openclaw/workspace-state.json`은 런타임 상태 파일로 `git rm --cached`로 트래킹에서 제거하고 `.gitignore`에 추가되었다.
+
+### asset-dashboard 현재 진행 상태 (2026-04-26 기준)
+
+| Phase | 내용 | 상태 |
+|-------|------|------|
+| 1 | Next.js + TypeScript + Tailwind + shadcn/ui 설정, Prisma 스키마, 포트폴리오 계산 로직 | ✅ 완료 |
+| 2 | Account/Holding CRUD 페이지 + Server Actions | ❌ 미시작 |
+| 3 | Yahoo Finance 연동 | ❌ 미시작 |
+| 4 | 세금 관리 | ❌ 미시작 |
+| 5 | Gemini AI 분석 | ❌ 미시작 |
+| 6 | 차트 시각화 + 배포 | ❌ 미시작 |
+
+Prisma 스키마 핵심: `Account`, `Holding` 모델, `AccountType` / `AssetClass` / `Currency` enum, Supabase PostgreSQL 연결.
+
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260423-113736-72aa에서 추출)
 - 2026-04-23: 다중 에이전트 구성, Telegram 그룹 설정, 버그 트러블슈팅 추가 (세션 로그 20260423-194609-6b61)
+- 2026-04-26: ACP permissionMode 스키마 제약, asset-dashboard git 분리 구조 추가 (세션 로그 20260426-120703-304f, 20260426-121630-14c3)

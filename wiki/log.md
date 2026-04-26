@@ -111,6 +111,34 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 3개 session-log 파일 전체 (skip 1건, 생성 2건)
 
+## 2026-04-26T13:00 — wiki-ingest (session-logs, ingested: false 6건)
+
+- Source: session-logs/20260426-080019-1991-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" health-check)
+- Source: session-logs/20260426-080023-cb0a-*.md (arXiv: 2604.19636)
+  - Created: wiki/analyses/cointeract-hoi-video-synthesis.md
+    — CoInteract: Human-Aware MoE + 비대칭 Co-Attention 2단계 학습으로 손-물체 교합 제거, 추론 시 HOI 브랜치 제거(zero overhead). VLM-QA 0.72, HQ 0.724로 기존 방법 능가
+- Source: session-logs/20260426-080121-2ff3-*.md (arXiv: 2604.17295)
+  - Created: wiki/analyses/llatisa-time-series-reasoning.md
+    — LLaTiSA: 4단계 인지 계층(L1-L4) TSR 분류, 83K HITSR 데이터셋, 시각화+수치 테이블 융합 VLM, 3단계 커리큘럼 파인튜닝
+- Source: session-logs/20260426-111623-cfe2-*.md (ht_trading)
+  - Updated: wiki/projects/ht-trading.md
+    - 리스크 매니저 정책(max_positions:5, max_position_pct:30%, _validate_buy 5조건) 추가
+    - 2026-04-24 리스크 거부 사례 분석: HD현대일렉트릭·수산인더스트리 매수 거부 원인이 5/5 포지션 포화
+    - 구조적 문제: rotation 로직 부재 → 고점수 신호도 진입 불가
+- Source: session-logs/20260426-120703-304f-*.md (openclaw / asset-dashboard)
+  - Updated: wiki/projects/openclaw.md
+    - asset-dashboard git 분리 구조 (workspace-coder/.gitignore, 독립 repo 초기화)
+    - workspace-state.json untrack 처리
+    - asset-dashboard Phase 1 완료·Phase 2 미시작 현황
+- Source: session-logs/20260426-121630-14c3-*.md (openclaw / ACP 설정)
+  - Updated: wiki/projects/openclaw.md
+    - acpx 플러그인 permissionMode 스키마 제약 (approve-all/approve-reads/deny-all만 허용, "auto" 없음)
+    - nonInteractivePermissions 스키마: deny/fail만 허용 ("allow" 없음) → 자율 실행 불가
+    - openclaw config set 명령으로 설정 변경 방법
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 6개 session-log 파일 (skip 1건, 생성 2건, 수정 2건)
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
