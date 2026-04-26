@@ -139,6 +139,32 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 6개 session-log 파일 (skip 1건, 생성 2건, 수정 2건)
 
+## 2026-04-26T20:30 — wiki-ingest (session-logs, ingested: false 3건)
+
+- Source: session-logs/20260426-141208-ad61-맥비-지금-코드가-어디까지-구현되었는지-확인해-주세요.md
+  - Project: openclaw / asset-dashboard
+  - Updated: wiki/projects/openclaw.md
+    - Phase 2 완료 기록 (Account/Holding CRUD + Server Actions)
+    - Phase 3 완료 기록 (Yahoo Finance 시세·환율 연동)
+    - Phase 3 구현 파일 상세: PriceCache 모델, lib/market.ts, app/actions/prices.ts, lib/portfolio.ts PriceContext, RefreshPricesButton
+    - yahoo-finance2 ESM-only 모듈 주의사항 (require 불가, new YahooFinance() 인스턴스화 필요, as any 우회)
+
+- Source: session-logs/20260426-155125-ac49-logout.md
+  - Project: openclaw
+  - Skipped: "logout" 2회 입력만 있는 빈 세션 (assistant_turns: 0)
+
+- Source: session-logs/20260426-184740-49b5-지금-실행되는-next.js-에서-5-issues-라고-뜹니다.-##-Error-Type.md
+  - Project: openclaw / asset-dashboard
+  - Created: wiki/analyses/prisma-decimal-nextjs-serialization.md
+    - Prisma Decimal 타입 → Next.js Server→Client 직렬화 경계 오류 원인 분석
+    - spread `...holding` 시 Decimal 포함 → 런타임 에러 (tsc 통과라 발견 어려움)
+    - 수정 패턴: toNumber()로 Decimal 필드를 명시 변환 후 override
+  - Updated: wiki/projects/openclaw.md
+    - Prisma Decimal 직렬화 버그 수정 패턴 + [[prisma-decimal-nextjs-serialization]] 링크 추가
+
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 (skip 1건, 수정 1건, 생성 1건 + 수정 1건)
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md

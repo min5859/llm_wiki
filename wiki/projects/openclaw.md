@@ -10,6 +10,8 @@ sources:
   - "session-logs/20260423-194609-6b61-코딩전용-openclaw-agent-를-추가했는데-텔레그램으로-메세지를-보내면-응답이-없습.md"
   - "session-logs/20260426-120703-304f-현재-프로젝트는-openclaw-라는-Agent-를-사용해서-자산관리-웹앱을-구현해보고-있.md"
   - "session-logs/20260426-121630-14c3-https---bongman.tistory.com-1341-위-웹페이지-내용을-요약해-주세.md"
+  - "session-logs/20260426-141208-ad61-맥비-지금-코드가-어디까지-구현되었는지-확인해-주세요.md"
+  - "session-logs/20260426-184740-49b5-지금-실행되는-next.js-에서-5-issues-라고-뜹니다.-##-Error-Type.md"
 confidence: "high"
 related:
   - "wiki/projects/gieok.md"
@@ -248,16 +250,62 @@ openclaw workspace-coder(`~/.openclaw/workspace-coder`) 아래에 `asset-dashboa
 | Phase | 내용 | 상태 |
 |-------|------|------|
 | 1 | Next.js + TypeScript + Tailwind + shadcn/ui 설정, Prisma 스키마, 포트폴리오 계산 로직 | ✅ 완료 |
-| 2 | Account/Holding CRUD 페이지 + Server Actions | ❌ 미시작 |
-| 3 | Yahoo Finance 연동 | ❌ 미시작 |
-| 4 | 세금 관리 | ❌ 미시작 |
-| 5 | Gemini AI 분석 | ❌ 미시작 |
-| 6 | 차트 시각화 + 배포 | ❌ 미시작 |
+| 2 | Account/Holding CRUD 페이지 + Server Actions | ✅ 완료 |
+| 3 | Yahoo Finance 시세·환율 연동, PriceCache, RefreshPricesButton | ✅ 완료 |
+| 4 | 세금 관리 (금융소득종합과세, 해외주식 양도소득세) | ❌ 미시작 |
+| 5 | Gemini AI 재무 분석·추천 | ❌ 미시작 |
+| 6 | Recharts 차트, 월별 스냅샷, Vercel 배포 | ❌ 미시작 |
 
-Prisma 스키마 핵심: `Account`, `Holding` 모델, `AccountType` / `AssetClass` / `Currency` enum, Supabase PostgreSQL 연결.
+#### Prisma 스키마 핵심
+
+- `Account`, `Holding`, **`PriceCache`** 모델
+- `AccountType` / `AssetClass` / `Currency` enum
+- Supabase PostgreSQL (pooled + direct URL 분리)
+
+#### Phase 3 구현 상세 (Yahoo Finance 연동)
+
+| 파일 | 역할 |
+|------|------|
+| `prisma/schema.prisma` | `PriceCache` 모델 추가 (symbol, price, fxRate, cachedAt) |
+| `lib/market.ts` | yahoo-finance2 로 시세/환율 조회, DB 캐시 upsert |
+| `app/actions/prices.ts` | `refreshPrices()` Server Action + `revalidatePath` |
+| `lib/portfolio.ts` | `PriceContext` 타입 추가 — `enrichHolding`/`enrichAccount`/`summarizePortfolio` 라이브 가격 지원 |
+| `lib/data.ts` | 포트폴리오·계좌 조회 시 캐시 가격 자동 주입 |
+| `components/refresh-prices-button.tsx` | 시세 새로고침 버튼 (로딩 스피너 + 갱신 수 표시) |
+
+**동작 방식**: 대시보드 로드 → DB 캐시에서 가격 읽어 평가액 계산 → 버튼 클릭 → Yahoo Finance API → DB 캐시 갱신 → 전체 페이지 revalidate. `symbol` 없거나 캐시 없는 보유자산은 `manualPrice`/`manualFxRate` 폴백.
+
+**yahoo-finance2 ESM 주의사항**: `require('yahoo-finance2').quote`는 `undefined`. ESM-only 모듈로, `import('yahoo-finance2').then(m => new m.default())` 또는 TypeScript에서 `import YahooFinance from "yahoo-finance2"` + `new YahooFinance()` 인스턴스화 필요. 오버로드 타입 매칭 실패 시 `as any` 캐스팅으로 우회.
+
+#### Prisma Decimal → Client Component 직렬화 버그
+
+**증상**: Next.js 에서 `Only plain objects can be passed to Client Components from Server Components. Decimal objects are not supported.` 에러.
+
+**원인**: `enrichHolding`/`enrichAccount`에서 `...holding` spread 시 Prisma `Decimal` 객체가 그대로 포함된다.
+
+**수정**: spread 전에 모든 Decimal 필드를 `toNumber()` 유틸로 명시적 변환.
+
+```typescript
+// ❌ Decimal이 그대로 전달됨
+return { ...holding, marketValueBase, ... }
+
+// ✅ Decimal 필드를 number로 변환 후 override
+return {
+  ...holding,
+  quantity: toNumber(holding.quantity),
+  averageCost: toNumber(holding.averageCost),
+  manualPrice: toNumber(holding.manualPrice),
+  manualFxRate: toNumber(holding.manualFxRate),
+  marketValueBase,
+  ...
+}
+```
+
+→ 범용 분석 페이지: [[prisma-decimal-nextjs-serialization]]
 
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260423-113736-72aa에서 추출)
 - 2026-04-23: 다중 에이전트 구성, Telegram 그룹 설정, 버그 트러블슈팅 추가 (세션 로그 20260423-194609-6b61)
 - 2026-04-26: ACP permissionMode 스키마 제약, asset-dashboard git 분리 구조 추가 (세션 로그 20260426-120703-304f, 20260426-121630-14c3)
+- 2026-04-26: asset-dashboard Phase 2/3 완료 기록, Yahoo Finance 연동 상세, Prisma Decimal 직렬화 버그 수정 패턴 추가 (세션 로그 20260426-141208-ad61, 20260426-184740-49b5)
