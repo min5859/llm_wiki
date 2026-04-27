@@ -139,6 +139,33 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 6개 session-log 파일 (skip 1건, 생성 2건, 수정 2건)
 
+## 2026-04-27T09:00 — wiki-ingest (session-logs, ingested: false 3건)
+
+- Source: session-logs/20260427-080020-5805-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (단순 "Reply with only: OK" 프롬프트, assistant_turns: 1, 유의미한 내용 없음)
+
+- Source: session-logs/20260427-080024-03ac-*.md (arXiv: 2604.18292)
+  - Paper: Agent-World: Scaling Real-World Environment Synthesis for Evolving General Agent Intelligence
+  - Institution: Renmin University of China + ByteDance Seed
+  - Created: wiki/analyses/agent-world-environment-synthesis.md
+    - 자기 진화형 에이전트 훈련 아레나: Agentic Environment-Task Discovery + Continuous Self-Evolving Agent Training
+    - GRPO 기반 다중 환경 RL + 자동 진단→타겟 확장→RL 루프
+    - Agent-World-14B: BFCL-V4 55.8% (DeepSeek-V3.2-685B 54.1% 초과, 50배 작은 모델)
+    - 환경 스케일링: 0→1978개 환경, 평균 성능 18.4%→38.5% (+20.1 pt)
+
+- Source: session-logs/20260427-080119-fdca-*.md (arXiv: 2604.18394)
+  - Paper: OpenGame: Open Agentic Coding for Games
+  - Institution: CUHK MMLab
+  - Created: wiki/analyses/opengame-agentic-game-development.md
+    - 첫 오픈소스 end-to-end 웹 게임 생성 에이전틱 프레임워크
+    - Game Skill: Template Skill(5개 물리 특성별 템플릿 패밀리) + Debug Skill(living protocol)
+    - GameCoder-27B: Qwen3.5-27B 기반 CPT+SFT+RL 3단계 훈련
+    - OpenGame-Bench: BH/VU/IA 동적 평가 (헤드리스 브라우저 + VLM 판정)
+    - Hook-Driven Implementation이 가장 중요한 컴포넌트 (-10.1 BH, -11.6 IA without it)
+
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 (skip 1건, 생성 2건)
+
 ## 2026-04-26T20:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260426-141208-ad61-맥비-지금-코드가-어디까지-구현되었는지-확인해-주세요.md
