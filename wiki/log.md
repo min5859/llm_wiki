@@ -231,6 +231,46 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 2개 session-log 파일
 
+## 2026-04-29T00:00 — wiki-ingest (session-logs, ingested: false 9건)
+
+- Source: session-logs/20260428-234006-d910-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 OK 프롬프트)
+- Source: session-logs/20260428-234011-cd92-*.md (oss-radar analyze 세션: public-apis)
+  - Skipped: assistant_turns: 0 (analyze.sh가 `claude -p`로 호출한 비대화형 세션, 실제 분석은 data/analysis/에 저장)
+- Source: session-logs/20260428-234044-dc39-*.md (oss-radar analyze 세션: free-programming-books)
+  - Skipped: 동일 사유 (assistant_turns: 0)
+- Source: session-logs/20260428-234111-ba4a-*.md (oss-radar analyze 세션: system-design-primer)
+  - Skipped: 동일 사유 (assistant_turns: 0)
+- Source: session-logs/20260428-234144-9d4e-*.md (oss-radar analyze 세션: VibeVoice)
+  - Skipped: 동일 사유 (assistant_turns: 0) — VibeVoice 분석 내용은 231551-12d1 세션에서 추출
+- Source: session-logs/20260428-234218-45ec-*.md (oss-radar analyze 세션: mattpocock/skills)
+  - Skipped: 동일 사유 (assistant_turns: 0)
+- Source: session-logs/20260428-231410-9f52-*.md (asset-dashboard Prisma 에러)
+  - Project: asset-dashboard (Next.js + Prisma)
+  - Created: wiki/analyses/prisma-generate-missing-error.md
+    - `.prisma/client/` 미생성으로 findMany 에러 원인 분석
+    - 해결: `npx prisma generate`
+    - 재발 방지: `dev` 스크립트에 `prisma generate &&` 추가 패턴
+- Source: session-logs/20260428-231551-12d1-*.md (oss-radar 실행 및 자동화)
+  - Project: oss-radar
+  - Updated: wiki/projects/oss-radar.md
+    - analyze.sh venv python3 우선 사용 버그 수정 기록 (시스템 python3 → .venv/bin/python3)
+    - 스케줄 변경: 매주 월요일 → 매일 09:00
+    - GITHUB_TOKEN git 비포함 패턴 (LaunchAgents 설치 파일에만)
+    - 중복 방지 한계 3가지 추가 (최신성·Trending 의존도·lookback_days 미적용)
+  - Created: wiki/analyses/microsoft-vibevoice-voice-ai.md
+    - oss-radar 파이프라인 첫 실행에서 발굴한 Microsoft VibeVoice 분석
+    - ASR-7B 60분 단일패스, TTS-1.5B 90분, Realtime-0.5B 300ms
+    - Rich Transcription (Who/When/What), 파인튜닝 코드 공개
+- Source: session-logs/20260428-235122-215d-*.md (ht_trading 매매 로그 분석)
+  - Project: ht_trading
+  - Updated: wiki/projects/ht-trading.md
+    - 동적 트레일링 스톱 (trailing_tiers) 기능 추가 기록
+    - 수익 3~9%: 3%, 10~19%: 6%, 20%+: 10% distance 구간별 확대
+    - profit_take_levels 비활성화 (trailing_tiers로 대체)
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 9개 session-log 파일 (skip 6건, 처리 3건, 생성 2건, 수정 1건)
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md

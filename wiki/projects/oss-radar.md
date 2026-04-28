@@ -4,10 +4,11 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-04-28"
+updated: "2026-04-29"
 sources:
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
+  - "session-logs/20260428-231551-12d1-현재-프로젝트를-실행시키려면-어떻게-해야-하나요.md"
 confidence: "high"
 related:
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
@@ -86,18 +87,28 @@ env -u CLAUDECODE claude -p "$(cat prompt.txt)" < /dev/null
 
 ## 자동화 설정
 
+초기에 매주 월요일 09:00으로 설정됐으나, 2026-04-28 매일 실행으로 변경.
+
 ```xml
 <!-- config/com.wooki.oss-radar.plist -->
-<!-- 매주 월요일 09:00 KST -->
+<!-- 매일 09:00 KST (변경 후) -->
 <key>StartCalendarInterval</key>
 <dict>
-    <key>Weekday</key><integer>1</integer>
     <key>Hour</key><integer>9</integer>
     <key>Minute</key><integer>0</integer>
 </dict>
 ```
 
 Wiki 페이지 명명 규칙: `YYYY-MM-DD-Weekly-OSS-Radar.md`
+
+### GITHUB_TOKEN 보안 패턴
+
+`GITHUB_TOKEN`을 plist에 하드코딩하면 git 히스토리에 영구 노출됨.
+
+- **git에 올라가는 `config/com.wooki.oss-radar.plist`**: 토큰 없이 관리
+- **실제 실행되는 `~/Library/LaunchAgents/com.wooki.oss-radar.plist`**: 설치 시 토큰 직접 추가
+
+Mac 재설정·이전 시 LaunchAgents 파일에 토큰을 다시 수동으로 추가해야 한다.
 
 ## 초기 실행 절차
 
@@ -111,6 +122,40 @@ bash run.sh
 
 launchd 등록은 `README.md` 참고.
 
+## 중복 방지 로직과 한계
+
+`data/history.json`으로 이미 선정된 레포를 추적하여 재선정 방지.
+
+```python
+candidates = [r for r in merged.values() if r["full_name"] not in history]
+```
+
+**한계 3가지:**
+
+1. **최신성 보장 안 됨**: GitHub Search는 `stars >= 100` 조건만 봄. `public-apis`, `free-programming-books` 같은 수년 된 레포도 Trending에 오르면 선정 가능.
+2. **GitHub Trending 의존도 높음**: GitHub Search 쿼리가 결과를 너무 좁혀 0개가 나올 때 Trending 전체를 대체 소스로 사용. 2026-04-28 첫 실행 시 Search 0개, Trending 13개에서 5개 선정.
+3. **lookback_days 미적용**: `pushed_at >= 7일 전` 조건이 GitHub Search에만 적용됨. Trending 스크래핑에서는 `pushed_at`을 수집하지 않아 필터링 불가.
+
+## 버그 수정 이력
+
+### 2026-04-28: analyze.sh venv python3 우선 사용
+
+**증상**: `analyze.sh` 실행 시 `ModuleNotFoundError: No module named 'yaml'`.
+
+**원인**: 스크립트가 시스템 전역 `python3`를 사용했는데, `yaml`(PyYAML) 패키지는 `.venv`에만 설치됨.
+
+**수정 내용**:
+```bash
+# .venv/bin/python3를 먼저 탐색, 없으면 시스템 python3 fallback
+PYTHON3="$ROOT/.venv/bin/python3"
+if [ ! -f "$PYTHON3" ]; then
+    PYTHON3="python3"
+fi
+```
+
+모든 `python3` 참조를 `$PYTHON3`로 교체. `export PATH="$HOME/.local/bin:$PATH"` 선언 위치도 파일 상단으로 이동 (cron 환경에서 claude CLI PATH 확보 목적).
+
 ## 변경 이력
 
 - 2026-04-28: 최초 생성 — Phase 1~6 전체 구현 완료 기록
+- 2026-04-28: 자동화 스케줄 매주 월요일 → 매일 09:00 변경, GITHUB_TOKEN 보안 패턴, analyze.sh venv 버그 수정, 중복 방지 한계 3가지 추가

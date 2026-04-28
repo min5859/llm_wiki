@@ -4,12 +4,13 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-04-26"
+updated: "2026-04-29"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
   - "session-logs/20260423-193125-b999-graphify.md"
   - "session-logs/20260426-111623-cfe2-4월-24일-매매시-몇가지-종목들이-리그크-거부로-인해서-매수거부가-발생했습니다.-왜-그런.md"
+  - "session-logs/20260428-235122-215d-오늘-매매-로그를-분석해서-개선사항을-도출해-주세요.md"
 confidence: "high"
 related: []
 ---
@@ -155,6 +156,38 @@ min_split_drawdown_pct: 0.015  # 1.5%
 
 **수정**: `pos.current_price`(브로커 실시간 평가가) 기준으로 변경.
 
+## 동적 트레일링 스톱 (trailing_tiers)
+
+### 배경
+
+기존 Rule 2 (고정 trailing)의 문제: 수익 3%+에서 활성화되지만 distance가 고정 3%라 15% 상승한 주식도 3% 조정만 발생하면 매도됨. 강한 상승 추세에서 조기 매도가 잦음.
+
+### 설계
+
+수익률이 높아질수록 trailing distance를 확대해 큰 추세를 끝까지 추적:
+
+```yaml
+# scoring.yaml
+trailing_tiers:
+  - {activation: 0.03, distance: 0.03}   # 수익 3~9%: 3% 거리 (소폭 이익 보호)
+  - {activation: 0.10, distance: 0.06}   # 수익 10~19%: 6% 거리 (조정 허용)
+  - {activation: 0.20, distance: 0.10}   # 수익 20%+: 10% 거리 (큰 추세 추적)
+```
+
+수익률 구간별 동작:
+```
+수익 2~9%  → trailing distance 3%
+수익 10~19% → trailing distance 6%
+수익 20%+  → trailing distance 10%
+```
+
+### 변경 사항 (2026-04-28 commit: feat: 동적 트레일링 스톱 추가)
+
+- `scoring_strategy.py`: `_get_trailing_distance(profit_pct)` 메서드 추가 (38 insertions, 12 deletions)
+- `config/strategies/scoring.yaml`: `trailing_tiers` 추가, `profit_take_levels: []`로 10% 고정 익절 비활성화
+
+> 10% 고정 익절(`profit_take_levels`)을 비활성화하고 `trailing_tiers`가 대체. 상승 추세에서 1/3씩 끊어 파는 대신 트레일링으로 전량 추적.
+
 ## 설계 변경 이력
 
 | 날짜 | 변경 내용 | 이유 |
@@ -164,6 +197,7 @@ min_split_drawdown_pct: 0.015  # 1.5%
 | 2026-04-23 | Rule 6 백테스트 datetime.now() 버그 수정 (803a158) | bar.dt 기준으로 변경 |
 | 2026-04-23 | RSI 평탄 구간 100→50 버그 수정 (803a158) | avg_gain=0, avg_loss=0 시 중립값 반환 |
 | 2026-04-23 | TrailingSell 트레일링 스톱 기준 불일치 수정 (f376ba8) | bar.close → pos.current_price |
+| 2026-04-28 | trailing_tiers 동적 트레일링 스톱 추가, profit_take_levels 비활성화 | 상승 추세 조기 매도 방지 |
 
 ## 투자 파라미터
 
