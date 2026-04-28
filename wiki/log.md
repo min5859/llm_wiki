@@ -192,6 +192,28 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 3개 session-log 파일 (skip 1건, 수정 1건, 생성 1건 + 수정 1건)
 
+## 2026-04-28T09:00 — wiki-ingest (session-logs, ingested: false 3건)
+
+- Source: session-logs/20260428-080030-b01f-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" health-check 프롬프트)
+- Source: session-logs/20260428-080034-ffa6-*.md (arXiv: 2604.22748)
+  - Paper: Agentic World Modeling: Foundations, Capabilities, Laws, and Beyond
+  - Institution: HKUST·NUS·Oxford·NTU·CUHK 등 다기관
+  - Created: wiki/analyses/agentic-world-modeling-taxonomy.md
+    — L1(Predictor)/L2(Simulator)/L3(Evolver) × 4가지 지배 법칙 체제(물리/디지털/사회/과학)
+    — 400편+ 문헌 합성. L1→L2 경계는 단일 스텝 품질이 아닌 롤아웃 충실도로 결정
+    — 대표 시스템: EfficientZero(2시간 Atari 초인간), TD-MPC2(317M·104과제)
+- Source: session-logs/20260428-080124-aa02-*.md (arXiv: 2604.20733)
+  - Paper: Near-Future Policy Optimization
+  - Institution: IIE, CAS / JD.COM
+  - Created: wiki/analyses/near-future-policy-optimization-npo.md
+    — RLVR 혼합 정책: S=Q/V (신호 품질/분산 비용) 트레이드오프 정식화
+    — NPO: 같은 훈련 런의 근미래 체크포인트를 가이드로 활용
+    — AutoNPO: 엔트로피 붕괴 탐지 → Δ* 자동 선택 → 롤백 재학습
+    — Qwen3-VL-8B: 57.88 → 62.84 (NPO) → 63.15 (AutoNPO)
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 (skip 1건, 생성 2건)
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
