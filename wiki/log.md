@@ -214,6 +214,23 @@ updated:
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 3개 session-log 파일 (skip 1건, 생성 2건)
 
+## 2026-04-28T17:00 — wiki-ingest (session-logs, ingested: false 2건)
+
+- Source: session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md
+  - Project: oss-radar (toy)
+  - Skipped: 상태 분석 탐색 세션 (현황 파악만, 설계 판단 없음) — 다음 세션과 합산 처리
+- Source: session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md
+  - Project: oss-radar (toy)
+  - Created: wiki/projects/oss-radar.md
+    — Phase 1~6 전체 구현 완료 기록
+    — 스코어링 공식 (star_velocity×0.5 + star_total_norm×0.3 + fork_norm×0.2)
+    — `env -u CLAUDECODE claude -p` 중첩 세션 방지 패턴
+    — GitHub API rate limit (60→5000 req/h with GITHUB_TOKEN)
+    — README 40k자 truncate, bkit footer 제거, 한국어 검증 max 2회 재시도
+    — macOS launchd 매주 월요일 09:00 KST 자동화
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 2개 session-log 파일
+
 ## 2026-04-22T08:30 — wiki-ingest (session-logs, ingested: false 3건)
 
 - Source: session-logs/20260422-080031-e9df-Reply-with-only--OK.md
