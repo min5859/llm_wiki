@@ -299,3 +299,47 @@ updated:
   - Skipped: 내용 없음 (assistant_turns: 0, 단순 "hi")
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 5개 session-log 파일 전체 (skip 4건, 처리 1건, 생성 1건)
+
+## 2026-04-30T18:30 — wiki-ingest (session-logs, ingested: false 17건)
+
+- Source: session-logs/20260430-141817-baa6-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0)
+- Source: session-logs/20260430-141825-b1dc-*.md, 141857-8b24-*.md, 141931-b081-*.md, 142011-af92-*.md, 142048-7399-*.md (oss-radar cron 의 OSS 분석 프롬프트 5개)
+  - Skipped: 모두 assistant_turns: 0 (cron 첫 시도, 분석 응답이 생성되지 않은 세션. 같은 시간대에 oss-radar 프로그램 디버깅이 진행되어 cron 실행이 실패한 결과로 보임)
+- Source: session-logs/20260430-144026-977a-Reply-with-only--OK.md
+  - Skipped: 내용 없음
+- Source: session-logs/20260430-144033-2641-*.md, 144111-c80d-*.md, 144143-2c7c-*.md, 144218-615f-*.md (oss-radar cron 의 OSS 분석 프롬프트 4개)
+  - Skipped: 모두 assistant_turns: 0
+- Source: session-logs/20260430-144247-00cb-*.md (oss-radar cron, affaan-m/everything-claude-code 분석)
+  - Project: oss-radar
+  - Created: wiki/analyses/everything-claude-code.md
+    — Claude Code 하네스 성능 시스템 (170k stars): 48 agents, 182 skills, AgentShield 1,282 tests + 102 정적 분석 룰, Continuous Learning v2, 크로스 하네스, ECC 2.0 alpha (Rust 컨트롤 플레인), v2.0.0-rc.1 변경, 설치 함정 4가지
+- Source: session-logs/20260430-134759-328e-*.md (oss-radar cron 동작 안 됨 디버깅)
+  - Project: oss-radar
+  - Updated: wiki/projects/oss-radar.md
+    — GITHUB_TOKEN 401 만료 → fine-grained PAT 재발급 + plist 평문 → config/.env 분리. GitHub Search API의 topic: OR 미지원 발견 → 카테고리별 N번 쿼리로 우회 (Search 후보 0 → 422)
+  - Created: wiki/patterns/launchd-secret-management.md
+    — launchd 가 ~/.zshrc 를 안 읽는 메커니즘, 안티 패턴 2종 (plist 평문, zshrc export), config/.env + run.sh source + chmod 600 표준 패턴, fine-grained PAT 권장
+  - Created: wiki/analyses/github-search-api-topic-or-limitation.md
+    — GitHub Repository Search API의 topic 한정자가 OR 연산자를 거부하는 격리 테스트, 카테고리별 쿼리 + full_name dedupe 우회 코드
+- Source: session-logs/20260430-135011-e8eb-*.md (japa Vercel 첫 배포)
+  - Project: japa-asset-dashboard
+  - Created: wiki/projects/japa-asset-dashboard.md
+    — 1인 자산 통합 대시보드 (Next.js 16 + Prisma + Supabase + Yahoo Finance + Gemini), 단일 사용자 인증 (HMAC-SHA256 Web Crypto + Edge runtime middleware), Prisma + Supabase 풀러 모드 분리 (DATABASE_URL Transaction / DIRECT_URL Session), force-dynamic 결정
+  - Created: wiki/analyses/nextjs-vercel-supabase-deployment.md
+    — Next.js + Vercel + Supabase 통합 배포 7가지 결정 지점 (GitHub App 연동, 업로드 한도, organization 제약, force-dynamic, Pooler 모드 비교, 환경변수 import + 재배포 타이밍, .next/.gitignore). 8항목 종합 점검 리스트
+  - Created: wiki/bugs/node-modules-symlink-copy-prisma.md
+    — node_modules 폴더 카피 시 .bin/prisma 심볼릭 링크 풀려서 wasm ENOENT, rm -rf node_modules && npm install 로 재생성. cp -a / rsync -aH 예방
+- Source: session-logs/20260430-161410-0fcc-*.md (japa 추가 기능: 수익률 % / 시세 새로고침 글로벌 / 누락 종목 / 로그인)
+  - Project: japa-asset-dashboard
+  - Updated: wiki/projects/japa-asset-dashboard.md (단일 사용자 인증·시세 새로고침 worker pool 6 + retry·수익률 % 표시)
+  - Created: wiki/bugs/yahoo-finance-concurrent-silent-fail.md
+    — yahoo-finance2 동시 30개 호출 시 일부 응답에 regularMarketPrice 누락 silent fail, worker pool 6 + 250ms 1회 재시도 + UI ⚠️ 가시성 패턴, 진단 명령
+- Source: session-logs/20260430-171050-9ee3-*.md (openclaw apc list 확인)
+  - Skipped: openclaw 명령어 디스커버리 (apc 는 acp 의 오타, sessions 명령으로 추정), 새로운 설계 판단·버그·패턴 없음
+- Source: session-logs/20260430-174408-1a2e-*.md (finance-analysis-nextjs 파악)
+  - Project: finance-analysis-nextjs
+  - Created: wiki/projects/finance-analysis-nextjs.md
+    — 한국 기업 재무분석 대시보드 (Next.js 16 + Prisma + 멀티 AI 프로바이더), PDF/JSON/DART API 입력, 12 슬라이드 + AI/수동 밸류에이션, M&A 활용 계획. 약점 4가지 (밸류에이션 신뢰도, JSON 통째 저장 + FinancialStatement 미사용, PDF 인식율, sessionStorage 탭 분리)
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 17개 session-log 파일 전체 (skip 12건, 처리 5건; 생성: projects 2건, analyses 3건, patterns 1건, bugs 2건; 업데이트: projects 1건)

@@ -4,14 +4,17 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-04-29"
+updated: "2026-04-30"
 sources:
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
   - "session-logs/20260428-231551-12d1-현재-프로젝트를-실행시키려면-어떻게-해야-하나요.md"
+  - "session-logs/20260430-134759-328e-지금-이-프로그램을-매일-오전-9시에-돌아가도록-설정해-두었는데-동작-하지-않는-것-같습니.md"
 confidence: "high"
 related:
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
+  - "wiki/patterns/launchd-secret-management.md"
+  - "wiki/analyses/github-search-api-topic-or-limitation.md"
 ---
 
 # oss-radar — 주간 GitHub OSS 발굴 파이프라인
@@ -101,14 +104,36 @@ env -u CLAUDECODE claude -p "$(cat prompt.txt)" < /dev/null
 
 Wiki 페이지 명명 규칙: `YYYY-MM-DD-Weekly-OSS-Radar.md`
 
-### GITHUB_TOKEN 보안 패턴
+### GITHUB_TOKEN 보안 패턴 (2026-04-30 갱신)
 
-`GITHUB_TOKEN`을 plist에 하드코딩하면 git 히스토리에 영구 노출됨.
+초기에는 `~/Library/LaunchAgents/com.wooki.oss-radar.plist` 의 `EnvironmentVariables` 에 토큰을 평문으로 넣었으나, 다음 두 이유로 **`config/.env` (gitignore + chmod 600) 분리 + `run.sh` 에서 source** 패턴으로 이전했다.
 
-- **git에 올라가는 `config/com.wooki.oss-radar.plist`**: 토큰 없이 관리
-- **실제 실행되는 `~/Library/LaunchAgents/com.wooki.oss-radar.plist`**: 설치 시 토큰 직접 추가
+1. plist 평문은 백업·동기화 시 노출 경로가 넓다.
+2. **launchd는 `~/.zshrc` 를 읽지 않는다.** plist 가 `/bin/bash run.sh` 를 직접 fork/exec 하므로 어떤 셸 프로파일도 거치지 않는다. → zshrc 에 둔 토큰이 cron/launchd 환경에선 보이지 않는다. 이 일반 패턴은 [[launchd-secret-management]] 에 정리.
 
-Mac 재설정·이전 시 LaunchAgents 파일에 토큰을 다시 수동으로 추가해야 한다.
+현재 구성:
+
+```bash
+# run.sh 첫머리 (venv activate 직전)
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -f "$SCRIPT_DIR/config/.env" ]; then
+    set -a
+    source "$SCRIPT_DIR/config/.env"
+    set +a
+fi
+```
+
+- `config/.env`: `GITHUB_TOKEN=...` 한 줄. `chmod 600`. `.gitignore` 의 `.env` 패턴이 자동 매칭.
+- `~/Library/LaunchAgents/com.wooki.oss-radar.plist`: 토큰 줄 삭제, 일반 설정만 유지.
+- 토큰 권한: Fine-grained PAT의 **Public Repositories (read-only)** 가 적합 (publish 는 SSH 키 사용, write 권한 불필요). Classic 을 쓸 경우 scope 를 0개로 두면 된다 (`public_repo` 는 issue/PR 쓰기 포함이라 헷갈리지만 비추천).
+
+토큰 갱신은 `config/.env` 한 곳만 수정 → launchd `bootout → bootstrap → kickstart -k` 로 즉시 반영.
+
+### GitHub Search API의 topic OR 미지원 (2026-04-30 발견)
+
+`fetch_github_search` 의 카테고리 필터 (`topic:ai topic:developer-tools topic:productivity`) 가 의도와 다르게 동작했다. GitHub Repository Search API의 기본 연산자는 AND이고, **`topic:` 한정자에는 `OR` 연산자가 받아들여지지 않는다** (응답이 invalid query → `total_count` 없음).
+
+수정: 카테고리별로 별도 쿼리를 던지고 `full_name` 으로 dedupe 후 병합. 효과: Search 후보 0 → 422 (ai 187, dev-tools 161, productivity 150). 일반 패턴은 [[github-search-api-topic-or-limitation]].
 
 ## 초기 실행 절차
 
@@ -159,3 +184,4 @@ fi
 
 - 2026-04-28: 최초 생성 — Phase 1~6 전체 구현 완료 기록
 - 2026-04-28: 자동화 스케줄 매주 월요일 → 매일 09:00 변경, GITHUB_TOKEN 보안 패턴, analyze.sh venv 버그 수정, 중복 방지 한계 3가지 추가
+- 2026-04-30: GITHUB_TOKEN 만료(401) → fine-grained PAT 재발급 + plist에서 `config/.env` 로 시크릿 분리. GitHub Search API의 `topic:` OR 미지원 발견 → 카테고리별 개별 쿼리로 우회 (Search 후보 0 → 422). 출처: session-logs/20260430-134759-328e-*
