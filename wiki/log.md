@@ -283,3 +283,19 @@ updated:
     — DPM의 SNR-t 편향 규명 및 웨이블릿 도메인 training-free 보정법
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 3개 session-log 파일 전체
+
+## 2026-04-30T09:00 — wiki-ingest (session-logs, ingested: false 5건)
+
+- Source: session-logs/20260429-080017-0092-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" 프롬프트)
+- Source: session-logs/20260429-080021-a14d-*.md (arXiv: 2604.24355, "An Aircraft Upset Recovery System with Reinforcement Learning")
+  - Skipped: assistant_turns: 0 (LLM 분석 응답이 누락된 세션, 결론 부재로 wiki 생성 보류)
+- Source: session-logs/20260429-080059-18fa-*.md (arXiv: 2604.22446, "From Skills to Talent: Organising Heterogeneous Agents as a Real-World Company")
+  - Created: wiki/analyses/onemancompany-heterogeneous-agents-organization.md
+    — Talent–Container 분리(6 인터페이스) + E²R 트리(AND-FSM 7 불변조건) + 자기 진화(1on1·SOP·HR) → PRDBench 84.67% (Claude-4.5 +15.48pt), 태스크당 $6.91
+- Source: session-logs/20260430-080020-6dbb-Reply-with-only--OK.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "Reply with only: OK" 프롬프트)
+- Source: session-logs/20260430-080453-b15a-hi.md
+  - Skipped: 내용 없음 (assistant_turns: 0, 단순 "hi")
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 5개 session-log 파일 전체 (skip 4건, 처리 1건, 생성 1건)
