@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-01T13:00:00+09:00
+updated: 2026-05-02T08:00:00+09:00
 ---
 
 # Wiki Index
@@ -41,11 +41,13 @@ updated: 2026-05-01T13:00:00+09:00
 - [[claude-code-enterprise-security-bedrock]] — 기업 도입 시 데이터·계정·네트워크·권한·감사·비용 6가지 결정사항
 - [[claude-code-windows-wsl-tmux]] — WSL2 필요성, 4월 tmux 이슈, 프로젝트 배치, 트러블슈팅 가이드
 - [[launchd-secret-management]] — macOS launchd 환경 시크릿 분리: ~/.zshrc 안 읽힘, plist 평문 안티 패턴, config/.env + run.sh source + chmod 600 표준 패턴, fine-grained PAT 권장
+- [[vercel-cron-best-practices]] — Vercel Cron 5결정: Hobby 슬롯 제약 → 단일 라우트 + KST 날짜 분기, CRON_SECRET, middleware exempt, 멱등성 (createMany skipDuplicates / updateMany / 24h guard), Crons UI / Logs 운영
 
 ## 버그와 해결책 (bugs/)
 
 - [[node-modules-symlink-copy-prisma]] — node_modules 폴더 카피 시 .bin/prisma 심볼릭 링크 풀려서 wasm ENOENT, rm -rf node_modules && npm install 로 재생성, cp -a / rsync -aH 예방
 - [[yahoo-finance-concurrent-silent-fail]] — 30개 심볼 Promise.allSettled 동시 호출 시 일부 응답에 regularMarketPrice 누락 silent fail, worker pool 6 + 250ms 1회 재시도 + UI 가시성으로 수정
+- [[prisma-connection-pool-vercel-supabase]] — Vercel + connection_limit=1 환경에서 8개 $transaction 병렬화로 P2024 풀 고갈, 같은 인스턴스 후속 요청까지 연쇄 실패. 불변 시계열은 createMany skipDuplicates 한 방으로, 무거운 쓰기는 click-path 에서 일별 cron 으로 분리
 
 ## 요약 (summaries/)
 

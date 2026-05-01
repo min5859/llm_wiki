@@ -4,15 +4,18 @@ domain: both
 sensitivity: public
 tags: ["nextjs", "vercel", "supabase", "prisma", "deployment", "pgbouncer", "force-dynamic", "serverless"]
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 sources:
   - "session-logs/20260430-135011-e8eb-*.md"
+  - "session-logs/20260501-213505-aecb-*.md"
 confidence: high
 related:
   - "wiki/projects/japa-asset-dashboard.md"
   - "wiki/analyses/prisma-decimal-nextjs-serialization.md"
   - "wiki/analyses/prisma-generate-missing-error.md"
   - "wiki/bugs/node-modules-symlink-copy-prisma.md"
+  - "wiki/bugs/prisma-connection-pool-vercel-supabase.md"
+  - "wiki/patterns/vercel-cron-best-practices.md"
 ---
 
 # Next.js + Vercel + Supabase 배포 — 핵심 결정 7가지
@@ -136,6 +139,15 @@ datasource db {
 
 `prisma migrate` 는 prepared statements 를 쓰므로 자동으로 `directUrl` (Session pooler) 사용 → 정상 동작.
 
+### `connection_limit=1` 의 인접 함정 — 무거운 트랜잭션 병렬화
+
+`connection_limit=1` 은 serverless 의 정답이지만, 그 환경에서 **무거운 `$transaction` 을 click-path 에서 병렬화**하면 단 1개의 connection 을 N개 트랜잭션이 두고 경합 → 10초 타임아웃 (P2024) → 풀이 망가진 채로 남아 같은 함수 인스턴스의 후속 요청들도 모두 같이 죽는다. 사용자 입장에선 "버튼 한 번 눌렀는데 사이트 전체가 죽었다" 로 보임. 자세한 사례와 fix 는 [[prisma-connection-pool-vercel-supabase]] 참고.
+
+원칙:
+
+- **불변 시계열 / 로그 / 과거 OHLC** — `createMany({ skipDuplicates: true })` 한 번이면 충분. `upsert` 트랜잭션은 오버킬.
+- **무거운 쓰기는 click-path 에서 cron 으로 분리** — 단일 사용자 액션이 1년치를 다시 훑는 흐름은 [[vercel-cron-best-practices]] 의 일별 cron 패턴으로 옮기는 게 정공법.
+
 ## 6. 환경변수 — `.env` Import 와 재배포 타이밍
 
 Vercel 의 Configure Project 화면에 **".env" 형식 통째 붙여넣기 (Import .env)** 가 있다. 한 줄씩 입력하지 말 것.
@@ -163,6 +175,12 @@ production 자동 마이그레이션이 필요하면 build 스크립트를:
 ```
 
 다만 staging 없이 곧장 prod 에 reflect 되니 신중히. 작은 1인 프로젝트가 아니면 별도 CI 단계로 분리하는 편이 안전하다.
+
+도입 시 추가 점검:
+
+- Vercel Project Env 의 `DIRECT_URL` 이 **Production / Preview / Development 모두** 체크돼 있어야 빌드 단계에서 `migrate deploy` 가 동작 (마이그레이션은 Session pooler / direct 연결을 필요로 함).
+- 빌드 단계에서 마이그레이션이 실패하면 빌드가 멈춘다 — 컬럼 없이 새 코드가 배포되는 일은 없으니 안전. Vercel 빌드 로그에 `Applying migration '<이름>'` 라인이 찍히는지 확인하면 적용 여부가 한눈에 보인다.
+- 기존 배포는 빌드 중 그대로 돌고, **빌드 성공 시에만 트래픽이 새 배포로 전환**되므로 다운타임 없음 (단, 스키마 변경이 후방 호환되지 않을 때는 이 흐름이 안전망이 안 된다 — 컬럼 삭제 / NOT NULL 추가 같은 변경은 expand-and-contract 분리 필요).
 
 ### 비밀번호 재설정이 가장 빠른 진단 종결자
 

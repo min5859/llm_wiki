@@ -1,9 +1,23 @@
 ---
 title: Operation Log
-updated:
+updated: 2026-05-02T08:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-02T08:00 — wiki-ingest (session-logs, ingested: false 2건)
+
+- Source: session-logs/20260501-213505-aecb-*.md (cwd: japa / Vercel P2024 시세 새로고침 사고)
+  - Project: japa-asset-dashboard
+  - **Created**: wiki/bugs/prisma-connection-pool-vercel-supabase.md — `connection_limit=1` 환경에서 8개 `$transaction` 병렬화로 P2024 풀 고갈 + 같은 인스턴스 후속 요청 연쇄 실패. fix: 불변 시계열은 `createMany({ skipDuplicates: true })` + 오늘 한 행만 upsert, 무거운 쓰기는 click-path 에서 일별 cron 으로 분리. 일반화 신호 (Vercel + connection_limit=1 + 트랜잭션 병렬화 + 불변 데이터) 정리.
+  - **Created**: wiki/patterns/vercel-cron-best-practices.md — Vercel Cron 5결정 종합. (1) Hobby 슬롯 제약 (≤2, 일1회) → 단일 `/api/cron/daily` + KST 날짜 분기 (월1일 / 1월1일) 패턴. (2) CRON_SECRET — 공개 cron URL 보호. Vercel 이 자동으로 `Authorization: Bearer` 헤더 첨부, 라우트는 헤더 비교만. (3) Next.js middleware 가 cron 호출을 `/login` 으로 redirect 하지 않게 matcher 에서 `api/cron` 제외. (4) 멱등성 — `createMany skipDuplicates` / `updateMany` / 비멱등 작업엔 24h guard. (5) Crons UI / Logs / 수동 Run / Notifications 운영.
+  - **Updated**: wiki/projects/japa-asset-dashboard.md — sources 추가, "시세 새로고침 P2024 사고와 cron 통합" / "세테크 계좌 납입한도 평가액 분리 (`Account.contributionYTD` 컬럼)" / "WTI 원유 인덱스" / "CSV 내보내기 (UTF-8 BOM)" / "Prisma migrate deploy 빌드 통합" / "Yahoo quote 와 한국 종목 시간외 거래" 섹션 신설.
+  - **Updated**: wiki/analyses/nextjs-vercel-supabase-deployment.md — sources 추가, `connection_limit=1` 의 인접 함정 (무거운 트랜잭션 병렬화) 섹션 신설, prisma migrate deploy 빌드 통합 운영 점검 사항 보강 (DIRECT_URL 환경 체크 / 빌드 실패가 안전망 / expand-and-contract 주의).
+- Source: session-logs/20260501-233118-b6e0-*.md (cwd: finance-analysis-nextjs / 기능 제안 → DB 데이터 정리 검토)
+  - Project: finance-analysis-nextjs
+  - **Updated**: wiki/projects/finance-analysis-nextjs.md — sources 추가, "운영 측 약점 (analyses 누적 / DELETE 경로 부재 / financial_statements 미사용 / provider 하드코딩)" 섹션 신설, 백로그 4개 추가. PDF 내보내기 (`pdf-generator.ts` + `html2canvas-pro` + `jspdf`) 가 이미 구현되어 있음을 확인 — Claude 가 코드 검증 전에 PDF 기능을 신규 후보로 제안했다가 사용자 지적으로 정정한 사건이 있어 이번 갱신에서는 "기존 구현 확인됨" 을 명시.
+- Updated: wiki/index.md (patterns/ 에 vercel-cron-best-practices 추가, bugs/ 에 prisma-connection-pool-vercel-supabase 추가)
+- Marked ingested: true — 2개 session-log 파일
 
 ## 2026-05-01T13:00 — wiki-ingest (session-logs, ingested: false 26건)
 

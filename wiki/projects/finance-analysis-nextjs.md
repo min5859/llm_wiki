@@ -4,9 +4,10 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "ai-extract", "dart-api", "valuation", "ma", "pdf-extraction"]
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-05-02
 sources:
   - "session-logs/20260430-174408-1a2e-*.md"
+  - "session-logs/20260501-233118-b6e0-*.md"
 confidence: medium
 related:
   - "wiki/projects/japa-asset-dashboard.md"
@@ -187,6 +188,41 @@ src/
 | 낮음 | 비상장사 비유동성 할인 | 소수지분 할인 적용 |
 | 낮음 | 거래 구조 시뮬레이터 | 주식매수 / 자산양수 / 합병 세후 효과 비교 |
 
+## 운영 측 약점 — 데이터 누적·삭제 경로 부재 (2026-05-01 추가)
+
+기능 제안 검토 중 코드를 다시 훑다가 발견한 운영성 결함. 모두 **사용자 데이터 정리 경로가 전혀 없는** 데서 비롯된다.
+
+### 1) `analyses` 테이블이 누적만 됨, 갱신 안 됨
+
+`src/app/api/companies/route.ts:78` 에서 `prisma.analysis.create` 만 호출. `upsert` / `update` 가 없어서 **같은 회사를 N 번 분석하면 row 가 N개 쌓인다**. 읽기 쪽 `[name]/route.ts` 는 `findFirst` + `orderBy: { createdAt: 'desc' }` 로 가장 최근 것만 보므로 동작은 정상이지만, `analyses` 테이블은 시간이 지나면 같은 회사 row 로 부푼다.
+
+### 2) UI / API 어디에도 DELETE 경로가 없음
+
+- API 라우트 전수 점검: `companies/route.ts` 는 `findMany` + `upsert`, `companies/[name]/route.ts` 는 `GET` 만, `valuation/route.ts` 는 `POST` 만. **`DELETE` 핸들러가 하나도 없음**.
+- 클라이언트 쪽도 `fetch(..., { method: 'DELETE' })` 호출 없음.
+- 결과: 한번 저장된 데이터는 Prisma Studio 또는 직접 SQL 로만 삭제 가능 → **수동 정리 부담**.
+
+좋은 소식: `prisma/schema.prisma` 에서 `Company → FinancialStatement / Analysis → Valuation` 관계에 모두 `onDelete: Cascade` 가 이미 걸려 있어서 **`Company` 한 줄만 지우면 연관 데이터가 자동 cascade**. 즉 구현은 매우 가볍다 — `[name]/route.ts` 에 `DELETE` 핸들러 + UI 의 휴지통 + 회사명 직접 입력 같은 가드 정도면 충분.
+
+### 3) `financial_statements` 테이블은 스키마만 있고 실제 사용 안 됨
+
+`grep` 으로 코드 전수 점검해도 `prisma.financialStatement.*` 호출이 한 군데도 없음. BS/IS/CF 를 정규화해 분리 저장하려던 흔적이지만 현재는 모든 재무 데이터가 `analyses.financialData` JSON 안에 통째로 묶여 들어간다 — 그래서 쿼리·검증이 어렵다는 약점이 그대로 남음 (위 §1단계 백로그의 정규화 필요성과 같은 뿌리).
+
+### 4) `provider` 필드가 사실상 하드코딩
+
+`companies` POST 가 항상 `'anthropic'` 으로 저장 → DB 레벨에는 멀티 프로바이더 (Claude/GPT/Gemini/DeepSeek) 가 반영되지 않음. UI 에선 멀티 프로바이더 선택지가 있어도 DB 검색·필터링은 의미 없는 상태.
+
+## 백로그 추가
+
+위 결함을 반영해 운영 측 백로그를 추가:
+
+| 우선 | 항목 | 비고 |
+|---|---|---|
+| 높음 | `companies/[name]` 에 `DELETE` 핸들러 + UI 휴지통 (확인 다이얼로그 + 회사명 직접 입력) | onDelete Cascade 가 있어서 1줄 구현 |
+| 중간 | `analysis` upsert 또는 일별 cleanup — 같은 (companyId, reportYear, provider) 키로 row 누적 방지 | 누적 row 가 의미 있는 시계열은 아니므로 최신만 유지가 자연스러움 |
+| 중간 | `provider` 하드코딩 제거 — 실제 호출에 사용한 프로바이더를 DB 에 기록 | DB 레벨 필터링·통계 가능 |
+| 낮음 | `financial_statements` 정규화 활성화 또는 스키마 제거 | 미사용 표 제거하거나 §1단계 백로그와 연동 |
+
 ## 관련 맥락
 
 - 자산 보유 측의 [[japa-asset-dashboard]] 와는 별도 프로젝트. japa는 본인 자산 추적, finance-analysis-nextjs는 외부 기업 분석.
@@ -196,3 +232,4 @@ src/
 
 - 2026-04-30: 최초 생성. 프로젝트 구조·기능·약점 정리 (출처: session-logs/20260430-174408-1a2e-*)
 - 2026-04-30: 코드 깊이 분석 추가 — 4가지 구조적 결함 (AI 환각 + 수식 오류 / 단위 강제 부재 / 빈 인풋 → 가짜 데이터 5곳 / 스캔 PDF 침묵 실패) 식별, 4단계 우선순위 백로그 + M&A 기능 11개 후보 정리. 일반 패턴은 [[ai-valuation-trustworthiness]], [[pdf-text-extraction-vs-ocr]] 로 분리.
+- 2026-05-02: 운영성 결함 4가지 추가 — analyses 누적 / DELETE 경로 부재 / financial_statements 미사용 / provider 하드코딩. 관련 백로그 4개 추가. PDF 내보내기 (`pdf-generator.ts` 의 `downloadPdf`/`downloadFullReportPdf` + `html2canvas-pro`/`jspdf`) 가 이미 구현되어 있음을 확인 (출처: session-logs/20260501-233118-b6e0-*)
