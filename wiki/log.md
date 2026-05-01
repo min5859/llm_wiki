@@ -5,6 +5,37 @@ updated:
 
 # Operation Log
 
+## 2026-05-01T13:00 — wiki-ingest (session-logs, ingested: false 26건)
+
+- Skipped (내용 없음 — 단순 ping):
+  - 20260430-141817-baa6, 20260430-144026-977a, 20260501-080100-ae82, 20260501-090051-be5b (모두 `Reply with only: OK`)
+- Skipped (논문 분석 미완료, assistant_turns: 0):
+  - 20260501-080108-f48b (arXiv 2604.24819 ProDa: Programming with Data) — 본문 길이가 컨텍스트 한계를 넘어 응답 생성되지 않음
+  - 20260501-080209-9b29 (arXiv 2604.26752 GLM-5V-Turbo) — 동일 사유로 응답 없음
+- Skipped (oss-radar 자동 발행물 — 본 LLM Wiki 의 wiki/analyses/ 에는 추가하지 않음):
+  - 20260430-141825-b1dc, 20260430-141857-8b24, 20260430-141931-b081, 20260430-142011-af92, 20260430-142048-7399 (CJackHwang/ds2api), 20260430-144033-2641 (badlogic/pi-mono), 20260430-144111-c80d, 20260430-144143-2c7c, 20260430-144218-615f, 20260430-144247-00cb (everything-claude-code — 이미 wiki/analyses 에 페이지 존재), 20260501-090057-57ff, 20260501-090135-2511, 20260501-090209-cd7c (microsoft/generative-ai-for-beginners), 20260501-090243-4133, 20260501-090320-90d0 (langchain-ai/langchain) — 모두 oss-radar 의 README 분석 자동 워크플로우 산출물로, oss-radar 의 GitHub Wiki 에 발행되는 정형 리포트
+- Source: session-logs/20260430-134759-328e-*.md (cwd: oss-radar / GITHUB_TOKEN 401)
+  - Project: oss-radar
+  - 이미 처리됨: wiki/projects/oss-radar.md, wiki/patterns/launchd-secret-management.md (sources 에 본 세션 포함)
+  - 추가 변경 없음 (PAT 401 진단 + plist → config/.env 분리 + fine-grained PAT 권장 + launchd 가 ~/.zshrc 안 읽음 모두 이미 정리됨)
+- Source: session-logs/20260430-135011-e8eb-*.md (cwd: japa / disk size + Vercel 배포)
+  - Project: japa-asset-dashboard
+  - 이미 처리됨: wiki/projects/japa-asset-dashboard.md, wiki/analyses/nextjs-vercel-supabase-deployment.md (sources 에 본 세션 포함)
+  - 추가 변경 없음 (Vercel-GitHub App + Webhook + Hobby private repo + Pooler 모드 + force-dynamic + Import .env 모두 이미 정리됨)
+- Source: session-logs/20260430-161410-0fcc-*.md (cwd: japa / 4가지 개선 + 인증 + Yahoo silent fail)
+  - Project: japa-asset-dashboard
+  - 이미 처리됨: wiki/projects/japa-asset-dashboard.md, wiki/bugs/yahoo-finance-concurrent-silent-fail.md (sources 에 본 세션 포함)
+  - 추가 변경 없음 (HMAC-SHA256 단일 사용자 인증 + 시세 새로고침 worker pool 6 + 1회 retry + 수익률 % 표시 모두 이미 정리됨)
+- Source: session-logs/20260430-171050-9ee3-*.md (cwd: openclaw / acp list 확인)
+  - Project: openclaw
+  - Skipped: 결론 없는 1턴 짜리 세션 (`apc` 가 `acp` 의 오타임을 확인하고 종료, 새로운 설계 판단·버그·패턴 없음)
+- Source: session-logs/20260430-174408-1a2e-*.md (cwd: openclaw workspace / finance-analysis-nextjs 분석)
+  - Project: finance-analysis-nextjs
+  - 이미 처리됨: wiki/projects/finance-analysis-nextjs.md, wiki/analyses/ai-valuation-trustworthiness.md (sources 에 본 세션 포함)
+  - **Created**: wiki/analyses/pdf-text-extraction-vs-ocr.md — ai-valuation-trustworthiness 와 finance-analysis-nextjs 가 모두 link 하고 있었으나 페이지가 누락 상태였음. 디지털 PDF vs 스캔 PDF vs 하이브리드 PDF 의 구분, 빈 텍스트 침묵 실패 차단, OCR 엔진 비교 (Tesseract / Google Vision / Upstage / Azure / Textract), 트렁케이션 시 재무제표 페이지 선별, 연결/별도 재무제표 구분 metadata 패턴 정리.
+- Updated: wiki/index.md (analyses/ 섹션에 pdf-text-extraction-vs-ocr 추가), wiki/log.md (본 항목)
+- Marked ingested: true — 26개 session-log 파일 전체
+
 ## 2026-04-22 — wiki-ingest (session-log)
 
 - Project: gieok
