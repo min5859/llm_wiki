@@ -9,6 +9,7 @@ sources:
   - "session-logs/20260430-135011-e8eb-*.md"
   - "session-logs/20260430-161410-0fcc-*.md"
   - "session-logs/20260501-213505-aecb-*.md"
+  - "session-logs/20260502-095014-6859-*.md"
 confidence: high
 related:
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
@@ -155,6 +156,90 @@ cron 도입에 따른 인접 변경:
 
 push 한 방으로 마이그레이션 → 코드 배포가 동시에. 빌드 단계에서 `prisma migrate deploy` 가 실패하면 빌드 자체가 멈춰서 컬럼 없이 새 코드가 배포되는 일은 없음. 단 Vercel Project Env 에 `DIRECT_URL` 이 빌드 시점에 노출돼야 동작 (Production / Preview / Development 모두 체크). 기존 배포는 그대로 돌고, 빌드 성공 시에만 트래픽이 새 배포로 전환되므로 다운타임 없음. 일반 패턴은 [[nextjs-vercel-supabase-deployment]] §6.
 
+### 사이드바 네비게이션 + 모바일 드로어 (2026-05-02 추가)
+
+`toy/japa` 의 사이드바 UI 가 보기 좋다는 사용자 피드백을 받아, 기존 상단 pill nav 를 좌측 sticky sidebar (데스크톱) + 햄버거 슬라이드오버 (모바일) 로 교체. shadcn `Sheet` 컴포넌트가 없어 자체 슬라이드오버 구현 (`components/layout/app-shell.tsx`).
+
+| 결정 | 선택 | 이유 |
+|---|---|---|
+| `RefreshPricesButton` / `LogoutButton` 위치 | 본문 상단 toolbar | 페이지별 작업 버튼과의 일관성 |
+| 모바일 대응 | 햄버거 토글 | `w-56` 고정 사이드바는 좁은 화면에서 본문이 너무 좁아짐 |
+| `/login` chrome | 기존 isAuthPage 분기로 사이드바 비표시 | 중복 chrome 방지 |
+| 자동 닫힘 | 라우트 변경 시 모바일 드로어 자동 닫힘, ESC 키 닫힘, body scroll lock | UX 표준 |
+
+`AppShell` 은 client component 로 사이드바 상태를 소유하고, 서버 컴포넌트인 `app/layout.tsx` 가 그 안에 children 을 넘겨 wrap. middleware 는 `x-pathname` 헤더로 현재 경로를 서버 컴포넌트에 노출 (`/login` 분기용).
+
+### 종목 자동 판별 (KOSPI/KOSDAQ 6자리 코드, 2026-05-02 추가)
+
+`toy/japa` 의 `detectSymbol` 패턴을 가져와 `HoldingForm` 의 ticker 입력란 옆에 「자동」 버튼을 추가. 6자리 숫자 코드를 입력하면 `.KS` (KOSPI) → 실패 시 `.KQ` (KOSDAQ) 순서로 Yahoo Finance 에 probe, 성공 시 name / symbol / currency 자동 채움. 영문/숫자 혼합 ticker 는 그대로 query.
+
+구현:
+- `lib/market.ts` — `lookupSymbol()` 직렬 .KS / .KQ probe
+- `app/actions/symbols.ts` — server action wrapper (`{ ok, name, symbol, currency }` 또는 `{ ok: false, error }` 봉투)
+- `components/forms/holding-form.tsx` — 입력 필드를 controlled 로 전환 (서버 액션 결과로 setState), 사용자가 이미 채운 name 은 덮어쓰지 않음
+
+도메인 패턴 메모: **사용자 입력 보호 우선** — 자동 채움은 빈 필드만, 사용자가 입력한 값은 보존. 예측이 잘못됐을 때 사용자 작업이 날아가지 않게 함.
+
+### 수동 시세 갱신 60초 쿨다운 (2026-05-02 추가)
+
+`refreshPrices()` server action 진입부에 `priceCache.fetchedAt` 검사 추가. 60초 이내면 즉시 `{ skippedCooldown: true, cooldownRemainingSeconds }` 반환, UI 는 「X초 후 재시도」 표시. cron 경로 (`refreshAllPrices` 직접 호출) 는 영향 없음.
+
+```ts
+const newest = await prisma.priceCache.findFirst({ orderBy: { fetchedAt: "desc" } });
+if (newest && Date.now() - newest.fetchedAt.getTime() < 60_000) {
+  return { skippedCooldown: true, cooldownRemainingSeconds, ... };
+}
+```
+
+도메인 패턴 메모: **쿨다운은 click-path 에만 적용**, 자동화 (cron / 백그라운드 작업) 에는 적용하지 말 것. 그렇지 않으면 cron 의 정상적 빈도까지 막힘. 60초는 연타·실수 클릭 차단 + 실제 사용 지장 없음의 균형점.
+
+### `toy/japa` 와의 비교 — 차용 / 미차용 결정 (2026-05-02)
+
+`/Users/wooki/project/toy/japa` (별도의 Supabase 직접 사용 버전) 와 비교한 결과, **차용 가치가 있는 4가지** 와 **차용하지 않을 1가지** 를 결정. (rate limit 방어 측면에서는 본 프로젝트가 더 견고함이 확인됨 — toy 의 직렬+100ms 보다 본 프로젝트의 worker pool 6 + 250ms 1회 재시도가 정교함)
+
+| 차용 | 우선도 | 상태 |
+|---|---|---|
+| ⭐⭐⭐ 배당 내역 기록 (Dividend 모델) | 1 | 백로그 |
+| ⭐⭐ 계좌 그룹 (N:M, account_groups + members) | 2 | 백로그 |
+| ⭐⭐ 종목 자동 판별 (`detectSymbol`) | 3 | ✅ 적용 (2026-05-02) |
+| ⭐ 사이드바 UI | 4 | ✅ 적용 (2026-05-02) |
+| ⭐ 수동 시세 갱신 쿨다운 (60초) | 5 | ✅ 적용 (2026-05-02). 단 toy 의 5분 쿨다운은 설계 문서에만 있고 코드엔 없었음 — 본 프로젝트가 신규 도입 |
+
+미차용:
+
+- **Stocks 마스터 테이블 분리** — 정규화는 깔끔하지만 현재 Holding 구조로 충분히 동작. 마이그레이션 비용 > 이득. "상장폐지 종목 추적" 이 필요해지면 `Holding.status` 컬럼 추가 정도로 충분
+- **ISA 200/400만원 비과세 한도** — `annualContributionLimit` / `contributionYTD` 로 납입한도는 이미 추적 중. 비과세 한도는 별도 개념이지만 우선순위 낮음
+- **toy 의 직렬+sleep API 호출 패턴** — 동시성 6 + 재시도가 더 정교. 베끼지 않음
+
+### 배당 내역 기록 — Dividend 모델 (백로그, 2026-05-02 정리)
+
+현재 한계: `Holding.dividendYield(%)` 로 「예상 배당」 만 계산 → 실제 받은 배당과 괴리, 세금 신고 자료 활용 불가. Tax 페이지의 "예상 배당소득" 이 추정치 기반.
+
+`toy/japa` 모델:
+
+```
+Dividend {
+  accountId, holdingId, dividend_date, ex_dividend_date,
+  amount_per_share, quantity, total_amount,
+  tax_amount (자동계산 + 수동 override 가능),
+  net_amount, currency, is_tax_overridden, memo
+}
+```
+
+도입 시 얻는 가치:
+- 실제 배당 ↔ 예상 배당 비교
+- 연도별 / 계좌별 / 종목별 배당 합산 (Tax 페이지에 실값 반영)
+- 원천징수 자동 계산 + 사용자 오버라이드 (정산금액 등 예외 처리)
+- 금융소득종합과세 추적이 「예상치」 가 아닌 「실값」 기반으로 전환
+
+도메인 패턴 메모: **「예측치」 와 「실측치」 는 같은 컬럼에 섞지 말 것** — 평가액과 누적 입금액이 분리되어야 했던 것과 같은 패턴. 회계성 / 신고용 지표는 실측치 기반이어야 신뢰성이 생긴다.
+
+### 계좌 그룹 (N:M, 백로그, 2026-05-02 정리)
+
+현재 한계: `Account.type` enum + `isTaxAdvantaged` 플래그만 → 「해외주식 전용 계좌들만 묶어서 보기」 같은 사용자 정의 관점이 불가능.
+
+`toy/japa` 모델: `account_groups` + `account_group_members` 매핑 테이블로 한 계좌가 여러 그룹 소속 가능. 사용자가 자유롭게 「절세계좌」, 「해외주식 계좌」, 「장기 보유」 등으로 분류·필터링.
+
 ### 야후 quote 와 한국 종목 시간외 거래
 
 `yahoo-finance2` 의 `quote()` 는 `regularMarketPrice` (정규장 종가) 만 안정적으로 채워 주고, `postMarketPrice` 필드가 있긴 하지만 **한국 종목은 거의 빈값**. 시간외 단일가 / 애프터마켓은 사실상 반영되지 않음. 또한 한국 휴장일 (예: 근로자의 날) 에는 야후 자체가 "어제 종가" 를 최신값으로 내려주므로, 사용자에게 "시세가 갱신 안 됐다" 로 보일 수 있다 — 실제로는 거래일이 없어서 그게 최신.
@@ -163,3 +248,4 @@ push 한 방으로 마이그레이션 → 코드 배포가 동시에. 빌드 단
 
 - 2026-04-30: 최초 생성. 디스크 분석·Vercel 배포·Supabase pooler 모드·force-dynamic·단일 사용자 인증·Yahoo Finance 동시 호출 silent fail 수정·수익률 % 표시 작업 기록 (출처: session-logs/20260430-135011-e8eb-*, 161410-0fcc-*)
 - 2026-05-02: P2024 connection pool 사고와 cron 통합 작업 기록 — `marketIndexHistory.createMany skipDuplicates`, click-path 슬림화, `/api/cron/daily` 신설 (CRON_SECRET + middleware exempt + KST 날짜 분기), `Account.contributionYTD` 컬럼 신설 + 1월 1일 cron 리셋, WTI 원유 인덱스, CSV 내보내기, prisma migrate deploy 빌드 통합 (출처: session-logs/20260501-213505-aecb-*). 일반 패턴은 [[prisma-connection-pool-vercel-supabase]], [[vercel-cron-best-practices]] 로 분리.
+- 2026-05-02 (2nd batch): `toy/japa` 와의 비교 분석 + 4개 차용 결정 (사이드바 / 종목 자동 판별 / 60초 쿨다운 / 배당 모델 / 계좌 그룹). 사이드바 + 종목 자동 판별 + 쿨다운 3건 적용 완료, 배당 모델 + 계좌 그룹은 백로그. rate limit 방어 측면에서 본 프로젝트가 toy 보다 견고함 확인 (직렬+100ms vs worker pool 6 + 250ms 1회 재시도). 도메인 패턴 메모: 「자동 채움은 빈 필드만 / 사용자 입력 보호 우선」, 「쿨다운은 click-path 만 / cron 은 영향 없음」, 「예측치와 실측치는 같은 컬럼에 섞지 말 것」 (출처: session-logs/20260502-095014-6859-*).

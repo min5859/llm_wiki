@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-02T08:00:00+09:00
+updated: 2026-05-03T00:45:00+09:00
 ---
 
 # Wiki Index
@@ -14,6 +14,7 @@ updated: 2026-05-02T08:00:00+09:00
 - [[claude-code-basic-usage]] — Plan 모드, /context, /compact vs /clear, 중요도별 커맨드 분류
 - [[ai-agent-basics]] — LLM+프롬프트+도구 3계층 구조, 자율도 5레벨, 하네스 엔지니어링의 6요소
 - [[ai-usage-philosophy]] — 언어화 능력·컨텍스트 설계·리버럴 아츠의 AI 활용 3가지 핵심 원칙
+- [[hermes-agent]] — Nous Research 의 self-hosted personal AI agent: persistent memory + skill 자가생성 + Telegram/Discord/Slack 다중 게이트웨이 + 200+ LLM provider
 
 ## 프로젝트 (projects/)
 
@@ -24,6 +25,7 @@ updated: 2026-05-02T08:00:00+09:00
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
 - [[japa-asset-dashboard]] — 1인 전용 자산 통합 대시보드: Next.js 16 + Prisma + Supabase + Yahoo Finance, force-dynamic + Transaction pooler + HMAC-SHA256 단일 사용자 인증
 - [[finance-analysis-nextjs]] — 한국 기업 재무분석 대시보드: PDF/JSON/DART API 입력, AI 멀티 프로바이더 구조화, 12 슬라이드 + AI/수동 밸류에이션, M&A 활용 계획
+- [[wardrobe]] — 옷장 매칭 웹 앱 (Next.js 15 + Tailwind v4 + LocalStorage MVP): 사이드바 레이아웃, 시드 JSON, DB 없이 Step 1 단계로 시작
 
 ## 설계 판단 (decisions/)
 
@@ -80,3 +82,8 @@ updated: 2026-05-02T08:00:00+09:00
 - [[prisma-generate-missing-error]] — Prisma 클라이언트 미생성으로 인한 findMany 에러: dev 스크립트에 prisma generate 추가하는 재발 방지 패턴
 - [[onemancompany-heterogeneous-agents-organization]] — Talent–Container 분리 + E²R 트리 + 자기 진화로 50개 PRDBench 태스크 84.67% 성공 (Claude-4.5 대비 +15.48pt) (arXiv 2604.22446)
 - [[pdf-text-extraction-vs-ocr]] — 스캔 PDF 침묵 실패 차단 패턴: 빈 텍스트 감지·OCR 폴백·재무제표 페이지 선별·연결/별도 구분
+- [[anthropic-oauth-third-party-billing-trap]] — third-party CLI 의 Claude OAuth 는 별도 `extra_usage` pool 로 라우팅 → Pro 불가, Max+credits 필수, Sonnet/Opus 429. API key 직발급 또는 OpenRouter 우회 권장
+- [[llm-provider-aggregator-vs-local-vs-hub]] — OpenRouter (클라우드 중계) vs Ollama (로컬 런타임) vs Hugging Face (모델 허브) 의 3가지 분류 + 시나리오별 선택 가이드
+- [[personal-ai-agent-messaging-channels]] — Telegram 이 self-hosted personal AI agent 의 사실상 표준이 된 6가지 이유 + 한국 카톡 함정 + 시나리오별 채널 선택
+- [[web-app-storage-without-db]] — DB 없이 시작하는 웹 앱: 데이터 4옵션 (시드 JSON/LocalStorage/IndexedDB/Cookie) + 이미지 4옵션 (public/base64/Blob/외부) + 단계적 도입 패턴
+- [[vercel-friendly-database-options]] — Vercel 배포 친화적 DB 4종 비교: Neon (관계형 1순위) / Vercel KV (캐시) / Supabase (인증·스토리지 묶음) / Turso (가벼운 1인용·edge)

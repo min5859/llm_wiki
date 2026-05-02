@@ -1,9 +1,42 @@
 ---
 title: Operation Log
-updated: 2026-05-02T08:00:00+09:00
+updated: 2026-05-03T00:45:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-03T00:45 — wiki-ingest (session-logs, ingested: false 1건)
+
+- Source: session-logs/20260502-235145-8714-*.md (cwd: wardrobe / 신규 옷장 매칭 앱 시작)
+  - Project: wardrobe (~/project/git/wk/wardrobe — 신규 빈 디렉터리에서 시작)
+  - **Created**: wiki/projects/wardrobe.md — Next.js 15 + Tailwind v4 + LocalStorage MVP 구성, 4개 라우트 (대시보드/옷장/추천/저장), `ClothingItem`/`Outfit`/`MatchingContext` 도메인 모델, 사이드바 (`usePathname` active 표시) + ItemCard + WardrobeView + RecommendForm 컴포넌트, forest green + Playfair Display 디자인 토큰. CLAUDE.md 충돌 회피용 수동 스캐폴딩 11파일의 분류 (필수 5 / Tailwind 2 / Git 1 / 문서 2 / 선택 1), 시드 22개 → 10개 변경 시 CLAUDE.md 의 22개 언급 모두 정리 (사용자 지적 반영). 커밋 2건 (`c1fb5de` scaffold, `94fab63` dashboard UI)
+  - **Created**: wiki/analyses/web-app-storage-without-db.md — "DB 없이 사진을 보고 싶다" 의 분리. 데이터 저장 4옵션 (시드 JSON / LocalStorage / IndexedDB / Cookie) × 이미지 저장 4옵션 (public 정적 / base64+LocalStorage / IndexedDB Blob / 외부 호스팅), 단계적 도입 패턴 (Step 1 LocalStorage → Step 2 IndexedDB → Step 3 외부 Blob+Postgres). LocalStorage 의 base64 이미지 한계 (20–30장), `URL.createObjectURL` 메모리 누수, `<img src>` 4가지 형식. MVP 단계의 DB 조기 도입 안티 패턴
+  - **Created**: wiki/analyses/vercel-friendly-database-options.md — Step 3 진입 시 후보 4개 비교. Neon (관계형 1순위, Vercel 마켓플레이스 일급, Branching, HTTP serverless driver 로 connection pool 함정 회피) / Vercel KV (Upstash Redis, 캐시·카운터 전용) / Supabase (Postgres+Auth+Storage+Realtime 묶음) / Turso (libSQL, edge 분산). serverless 환경의 connection pool 함정과 옵션별 회피 메커니즘 정리, 도입 의사결정 트리, 무료 티어 비교 (2026-05 기준, confidence: medium)
+- Updated: wiki/index.md (projects/ 에 wardrobe 추가, analyses/ 에 web-app-storage-without-db / vercel-friendly-database-options 2개 추가)
+- Marked ingested: true — 1개 session-log 파일
+
+## 2026-05-02T11:00 — wiki-ingest (session-logs, ingested: false 11건)
+
+- Skipped (내용 없음 — 단순 ping):
+  - 20260502-080035-bff8, 20260502-090049-1969 (모두 `Reply with only: OK` health-check, assistant_turns: 0)
+- Skipped (논문 분석 입력만 / 응답 미수집, assistant_turns: 0):
+  - 20260502-080041-a662 (arXiv 2604.27351 EywaAgent — Heterogeneous Scientific Foundation Model Collaboration) — 본문이 들어왔으나 응답이 세션 로그에 기록되지 않음
+  - 20260502-080150-8887 (arXiv 2604.28185 Visual Generation in the New Era — Atomic Mapping → Agentic World Modeling) — 동일 사유. 인접 주제는 [[agentic-world-modeling-taxonomy]] 가 이미 존재
+- Skipped (oss-radar 자동 발행물 입력 — 본 LLM Wiki 의 wiki/analyses/ 에는 추가하지 않음):
+  - 20260502-090055-8c94 (open-webui/open-webui), 20260502-090134-6028 (NousResearch/hermes-agent), 20260502-090214-be27 (excalidraw/excalidraw), 20260502-090243-d6a2 (Comfy-Org/ComfyUI), 20260502-090321-7ab6 (google-gemini/gemini-cli) — 모두 oss-radar 의 README 분석 자동 워크플로우 산출물. assistant_turns: 0 으로 응답도 미수집
+  - (메모) hermes-agent README 의 입력은 사용자가 별도 세션 (092045) 에서 수동 조사를 진행했고, 그 결과를 별도로 ingest 함
+- Source: session-logs/20260502-092045-628d-*.md (cwd: hermes / Hermes Agent 조사)
+  - Project: hermes (toy/hermes — 빈 디렉터리, 설치 전 단계의 사전 조사)
+  - **Created**: wiki/concepts/hermes-agent.md — Nous Research 의 self-hosted personal AI agent 의 컨셉 / 기능 / 시스템 요구사항 / 설치 / LLM 백엔드 / 메신저 게이트웨이 의의 정리. Claude Code / Cursor 와의 위치 짓기 (persistent memory + 멀티 채널 + skill 자가생성 의 차별점)
+  - **Created**: wiki/analyses/anthropic-oauth-third-party-billing-trap.md — Hermes 조사 중에 드러난 함정. Anthropic OAuth 가 third-party 클라이언트 요청을 별도 `extra_usage` pool 로 라우팅 → Pro 불가, Max + credits 필수, Sonnet/Opus 는 429, Haiku 만 안정. 권장 패턴 (API key 직발급 / OpenRouter 우회). 같은 부류 도구를 만났을 때의 점검 항목 (issue tracker 검색 키워드 등)
+  - **Created**: wiki/analyses/llm-provider-aggregator-vs-local-vs-hub.md — 사용자의 "OpenRouter 가 Ollama 같은 건가요?" 질문에서 도출. OpenRouter (클라우드 중계 / aggregator) vs Ollama (로컬 inference 런타임) vs Hugging Face (모델 허브 + Inference) 의 3가지 분류. 같은 차원의 선택지가 아님을 강조. 시나리오별 권장 / third-party agent 의 provider 옵션 매핑
+  - **Created**: wiki/analyses/personal-ai-agent-messaging-channels.md — Telegram 이 self-hosted personal AI agent 의 사실상 표준이 된 6가지 이유 (BotFather 30초 토큰 / 1:1 DM / 음성 / 그룹 / 안정 무료 API / 모바일 우선). 한국 카톡은 봇 API 제약으로 OSS 표준 경로가 아님. [[openclaw-telegram-group-setup]] 과 상호 링크
+- Source: session-logs/20260502-095014-6859-*.md (cwd: japa / toy/japa 비교 + 사이드바 + 종목 자동 판별 + 60초 쿨다운)
+  - Project: japa-asset-dashboard
+  - **Updated**: wiki/projects/japa-asset-dashboard.md — sources 추가, "사이드바 네비게이션 + 모바일 드로어" / "종목 자동 판별 (KOSPI/KOSDAQ 6자리 코드)" / "수동 시세 갱신 60초 쿨다운" / "toy/japa 와의 비교 — 차용 / 미차용 결정" / "배당 내역 기록 — Dividend 모델 (백로그)" / "계좌 그룹 (N:M, 백로그)" 섹션 신설. 도메인 패턴 메모 3건 (자동 채움은 빈 필드만 / 쿨다운은 click-path 만 / 예측치와 실측치 분리)
+  - 사용자 지적으로 정정한 사건이 있어서 기록: 처음 답변에서 "toy 의 5분 쿨다운" 을 차용 가치로 ⭐ 매겼으나, 실제 코드 확인 결과 toy 도 코드엔 쿨다운이 없고 설계 문서에만 있음. **본 프로젝트는 신규로 60초 쿨다운 도입**. rate limit 방어 측면에서 toy (직렬+100ms) 보다 본 프로젝트 (worker pool 6 + 250ms 1회 재시도) 가 견고함이 확인됨
+- Updated: wiki/index.md (concepts/ 에 hermes-agent 추가, analyses/ 에 anthropic-oauth-third-party-billing-trap / llm-provider-aggregator-vs-local-vs-hub / personal-ai-agent-messaging-channels 3개 추가)
+- Marked ingested: true — 11개 session-log 파일 전체 (skip 9건, 처리 2건)
 
 ## 2026-05-02T08:00 — wiki-ingest (session-logs, ingested: false 2건)
 
