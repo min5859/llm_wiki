@@ -1,9 +1,32 @@
 ---
 title: Operation Log
-updated: 2026-05-03T00:45:00+09:00
+updated: 2026-05-03T12:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-03T12:30 — wiki-ingest (session-logs, ingested: false 10건)
+
+- Skipped (내용 없음 — 단순 ping, assistant_turns: 0):
+  - 20260503-080020-bda1 (cwd: research-wiki, `Reply with only: OK`)
+  - 20260503-090052-f7b6 (cwd: oss-radar, `Reply with only: OK`)
+- Skipped (논문 분석 입력만 / 응답 미수집, assistant_turns: 0):
+  - 20260503-080027-8bf0 (arXiv 2604.24763 Tuna-2: Pixel Embeddings Beat Vision Encoders) — 본문이 들어왔으나 응답이 세션 로그에 기록되지 않음
+  - 20260503-080129-3506 (arXiv 2604.26067 RADIO-ViPE: Open-Vocabulary Semantic SLAM in Dynamic Environments) — 동일 사유
+- Skipped (oss-radar 자동 발행물 입력 — 본 LLM Wiki 의 wiki/analyses/ 에는 추가하지 않음, 모두 assistant_turns: 0):
+  - 20260503-090102-a146 (jwasham/coding-interview-university)
+  - 20260503-090139-8e4e (Gar-b-age/CodeFormer)
+  - 20260503-090229-eb25 (kamranahmedse/developer-roadmap)
+  - 20260503-090304-0867 (hacksider/Deep-Live-Cam)
+  - 20260503-090339-5fb3 (firecrawl/firecrawl)
+- Source: session-logs/20260503-100914-b80f-*.md (cwd: japa / japa-s 비교 + Zod 스키마 통합 + Gemini 모델 hotfix + 멀티 LLM provider 도입)
+  - Project: japa-asset-dashboard
+  - **Updated**: wiki/projects/japa-asset-dashboard.md — sources 추가, "`git/wk/japa-s` 와의 비교 — 차용 / 미차용 결정" / "Zod 스키마 entity별 분리 적용" / "Gemini 2.0-flash → 2.5-flash + GEMINI_MODEL env override" / "AI 분석 결과 DB 저장 + 멀티 LLM provider 도입" / "Zod-schema 정리 후 폼 즉시 검증 (백로그)" 섹션 신설. 4개 entity 의 server action 인라인 Zod 를 `lib/<entity>/schema.ts` 로 분리해 enum 3중 중복 제거 (순감 80줄, Currency/AccountType/AssetClass 모두 Prisma SSOT). `AiAnalysis` Prisma 모델 + `provider` 컬럼으로 분석 결과 영속화. 단일 Gemini 코드 → `lib/ai/providers/{gemini,openai,anthropic}.ts` 어댑터 (공식 SDK 직접 사용, 멀티 LLM 추상화 라이브러리 미도입)
+  - **Created**: wiki/analyses/multi-llm-provider-adapter-pattern.md — LangChain / Vercel AI SDK 같은 추상화 레이어 없이 OpenAI / Anthropic / Gemini 공식 SDK 를 어댑터 뒤에 두는 경량 패턴. 디렉터리 구조 (`lib/ai/{types,context,index}.ts` + `providers/<vendor>.ts`), 환경변수 / 모델 선택 정책 (`<VENDOR>_MODEL` env override), 라이브러리를 안 쓰는 이유 비교표, provider 별 SDK 인터페이스 차이 흡수 항목 (메서드 / system 프롬프트 / 응답 본문 / streaming / token usage), 키 저장 단계 (env-only → DB AES-256-GCM 암호화), 본 패턴이 적합한 시나리오 정리
+  - **Created**: wiki/patterns/zod-schema-per-entity.md — `lib/<entity>/schema.ts` 에 enum 배열 / label map / Zod 폼 스키마 / 추론 타입을 응집시키는 SSOT 패턴. 안티 패턴 (분산형 — Prisma + labels.ts + server action 인라인 3중 분산) 과 통합형 비교, 도입 단계 (시범 entity 1개 → 확산 → 폼 즉시 검증), 자주 부딪히는 함정 (`Record<EnumType, string>` 노출 시 호출부 깨짐 → `Record<string, string>` 로 절충 / `z.nativeEnum` SSOT / FormData 정규화 / `as const` literal union)
+  - **Created**: wiki/bugs/gemini-2-0-flash-free-tier-blocked.md — 2026 봄 시점 `gemini-2.0-flash` 가 free tier 에서 사실상 차단 (429 + `limit: 0`). 증상 단서로 `limit: 0` 의 의미 (모델 자체 한도 0, retry 로 회복 안 됨), `gemini-2.5-flash` 로 한 줄 교체 + `GEMINI_MODEL` env override 추가. 모델별 free tier 한도 표 (2.5-flash / 2.5-flash-lite / 2.5-pro / 2.0-flash 차단), 429 디버깅 분기 (`limit: 0` vs `limit: N` vs API key invalid)
+- Updated: wiki/index.md (patterns/ 에 zod-schema-per-entity 추가, bugs/ 에 gemini-2-0-flash-free-tier-blocked 추가, analyses/ 에 multi-llm-provider-adapter-pattern 추가)
+- Marked ingested: true — 10개 session-log 파일 전체 (skip 9건, 처리 1건)
 
 ## 2026-05-03T00:45 — wiki-ingest (session-logs, ingested: false 1건)
 

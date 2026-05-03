@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-03T00:45:00+09:00
+updated: 2026-05-03T12:30:00+09:00
 ---
 
 # Wiki Index
@@ -44,12 +44,14 @@ updated: 2026-05-03T00:45:00+09:00
 - [[claude-code-windows-wsl-tmux]] — WSL2 필요성, 4월 tmux 이슈, 프로젝트 배치, 트러블슈팅 가이드
 - [[launchd-secret-management]] — macOS launchd 환경 시크릿 분리: ~/.zshrc 안 읽힘, plist 평문 안티 패턴, config/.env + run.sh source + chmod 600 표준 패턴, fine-grained PAT 권장
 - [[vercel-cron-best-practices]] — Vercel Cron 5결정: Hobby 슬롯 제약 → 단일 라우트 + KST 날짜 분기, CRON_SECRET, middleware exempt, 멱등성 (createMany skipDuplicates / updateMany / 24h guard), Crons UI / Logs 운영
+- [[zod-schema-per-entity]] — `lib/<entity>/schema.ts` 에 enum / label / Zod schema / 추론 타입 응집: server-client 검증 일관성 + Prisma enum SSOT 강제 + 점진 도입 (entity 당 30분~1시간)
 
 ## 버그와 해결책 (bugs/)
 
 - [[node-modules-symlink-copy-prisma]] — node_modules 폴더 카피 시 .bin/prisma 심볼릭 링크 풀려서 wasm ENOENT, rm -rf node_modules && npm install 로 재생성, cp -a / rsync -aH 예방
 - [[yahoo-finance-concurrent-silent-fail]] — 30개 심볼 Promise.allSettled 동시 호출 시 일부 응답에 regularMarketPrice 누락 silent fail, worker pool 6 + 250ms 1회 재시도 + UI 가시성으로 수정
 - [[prisma-connection-pool-vercel-supabase]] — Vercel + connection_limit=1 환경에서 8개 $transaction 병렬화로 P2024 풀 고갈, 같은 인스턴스 후속 요청까지 연쇄 실패. 불변 시계열은 createMany skipDuplicates 한 방으로, 무거운 쓰기는 click-path 에서 일별 cron 으로 분리
+- [[gemini-2-0-flash-free-tier-blocked]] — 2026 봄 시점 `gemini-2.0-flash` 가 free tier 차단 (429 + `limit: 0`), `gemini-2.5-flash` 로 교체 + `<VENDOR>_MODEL` env override 패턴으로 재발 방지
 
 ## 요약 (summaries/)
 
@@ -87,3 +89,4 @@ updated: 2026-05-03T00:45:00+09:00
 - [[personal-ai-agent-messaging-channels]] — Telegram 이 self-hosted personal AI agent 의 사실상 표준이 된 6가지 이유 + 한국 카톡 함정 + 시나리오별 채널 선택
 - [[web-app-storage-without-db]] — DB 없이 시작하는 웹 앱: 데이터 4옵션 (시드 JSON/LocalStorage/IndexedDB/Cookie) + 이미지 4옵션 (public/base64/Blob/외부) + 단계적 도입 패턴
 - [[vercel-friendly-database-options]] — Vercel 배포 친화적 DB 4종 비교: Neon (관계형 1순위) / Vercel KV (캐시) / Supabase (인증·스토리지 묶음) / Turso (가벼운 1인용·edge)
+- [[multi-llm-provider-adapter-pattern]] — 추상화 라이브러리 (LangChain 등) 없이 Gemini/OpenAI/Anthropic 공식 SDK 를 어댑터 뒤에 두는 경량 멀티 LLM 패턴: `lib/ai/providers/<vendor>.ts` + `<VENDOR>_MODEL` env override

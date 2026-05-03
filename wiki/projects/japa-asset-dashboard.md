@@ -4,19 +4,23 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "supabase", "vercel", "yahoo-finance", "personal-asset", "single-user-auth"]
 created: 2026-04-30
-updated: 2026-05-02
+updated: 2026-05-03
 sources:
   - "session-logs/20260430-135011-e8eb-*.md"
   - "session-logs/20260430-161410-0fcc-*.md"
   - "session-logs/20260501-213505-aecb-*.md"
   - "session-logs/20260502-095014-6859-*.md"
+  - "session-logs/20260503-100914-b80f-*.md"
 confidence: high
 related:
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
+  - "wiki/analyses/multi-llm-provider-adapter-pattern.md"
   - "wiki/bugs/yahoo-finance-concurrent-silent-fail.md"
   - "wiki/bugs/node-modules-symlink-copy-prisma.md"
   - "wiki/bugs/prisma-connection-pool-vercel-supabase.md"
+  - "wiki/bugs/gemini-2-0-flash-free-tier-blocked.md"
   - "wiki/patterns/vercel-cron-best-practices.md"
+  - "wiki/patterns/zod-schema-per-entity.md"
 ---
 
 # japa — 개인 자산 통합 대시보드
@@ -244,8 +248,80 @@ Dividend {
 
 `yahoo-finance2` 의 `quote()` 는 `regularMarketPrice` (정규장 종가) 만 안정적으로 채워 주고, `postMarketPrice` 필드가 있긴 하지만 **한국 종목은 거의 빈값**. 시간외 단일가 / 애프터마켓은 사실상 반영되지 않음. 또한 한국 휴장일 (예: 근로자의 날) 에는 야후 자체가 "어제 종가" 를 최신값으로 내려주므로, 사용자에게 "시세가 갱신 안 됐다" 로 보일 수 있다 — 실제로는 거래일이 없어서 그게 최신.
 
+### `git/wk/japa-s` 와의 비교 — 차용 / 미차용 결정 (2026-05-03)
+
+`/Users/wooki/project/git/wk/japa-s` (Supabase SSR + Zod 스키마 + 멀티 LLM 중심의 별도 재구축본) 와 비교한 결과 상위 3개 항목을 우선순위로 정리. (앞선 `toy/japa` 비교는 또 다른 프로젝트로, japa-s 는 보다 새로운 별도 재구현이다)
+
+| 우선도 | 기능 | 도입 가치 | 상태 |
+|---|---|---|---|
+| 🔴 1 | Supabase Auth + 이메일 Allowlist (`lib/supabase/middleware.ts`, `lib/auth/allowlist.ts`) | 1인용 매직 링크 인증 → 자체 SESSION_COOKIE 보다 견고 | 백로그 (별도 세션 권장 — 인증 락아웃 위험) |
+| 🔴 2 | AI 키 AES-256-GCM 암호화 (`lib/ai/crypto.ts`, `AiCredential` 모델 + `/settings/ai` UI) | 멀티 LLM 확장 시 사용자 키 안전 저장, 환경변수 의존도 감소 | 백로그 (멀티 LLM 도입 의사결정 선행) |
+| 🔴 3 | **Zod 스키마 entity별 분리** (`lib/<entity>/schema.ts`) | 서버·클라이언트 검증 일관성, enum SSOT 강제 | ✅ 적용 (2026-05-03) |
+| 🟡 중 | 보유종목 이동평균 재계산 (`lib/holdings/recompute.ts`) FIFO 양도차익 | Decimal 단위 테스트 필요 | 백로그 (Phase 3~4) |
+| 🟡 중 | Yahoo Finance rate limit + fallback 심볼 변환 (`.KS/.KQ/.T`) | 본 프로젝트는 worker pool 6 + 250ms 재시도로 이미 견고 | 미도입 (현 구조 유지) |
+| 🟡 중 | 설계 문서 구조 (`docs/01-plan/`, `docs/02-design/`, `.bkit/`) | tasks/ 와 보완적 | 백로그 |
+
+미차용:
+- **PostgreSQL 트리거 기반 SQL 마이그레이션** — Prisma 유지 시 우선순위 낮음
+
+발견한 추가 정비 사항:
+- 현재 `middleware.ts` 가 `api/cron` 을 matcher 에서 제외 → 외부 노출 상태. Supabase Auth 전환과 별개로 `Authorization: Bearer $CRON_SECRET` 헤더 검증 추가 권장 (라우트 핸들러 내부에는 이미 존재. matcher 제외와 분리 정리 필요)
+
+### Zod 스키마 entity별 분리 적용 (2026-05-03)
+
+`japa-s` 의 패턴을 따라 `lib/<entity>/schema.ts` 에 enum 배열, label map, Zod 폼 스키마, 추론 타입을 한 파일로 모음. 일반 패턴은 [[zod-schema-per-entity]] 로 분리.
+
+| 변경 | 파일 |
+|---|---|
+| 신규 | `lib/accounts/schema.ts`, `lib/holdings/schema.ts`, `lib/dividends/schema.ts`, `lib/groups/schema.ts` (각 entity 의 `<ENTITY>_TYPES`, `<ENTITY>_TYPE_LABELS`, `<entity>FormSchema`, `<Entity>FormInput` 통합) |
+| 리팩터 | 4 server action (`app/actions/{accounts,holdings,dividends,groups}.ts`) — 인라인 `z.object({...})` 와 `z.enum(["KRW", ...])` 중복 제거, 새 schema import |
+| 출처 통일 | `components/forms/{account,holding,dividend}-form.tsx`, `app/{page,accounts/page,accounts/[id]/page,holdings/page,tax/page}.tsx`, `components/charts/allocation-pie.tsx`, `lib/ai.ts` |
+| 정리 | `lib/labels.ts` — entity별 항목 제거, `CURRENCIES` 와 `QUOTE_TYPE_LABELS` 만 잔류 (3개 entity 가 공유) |
+
+**효과**: `Currency` enum 3중 중복 (`accounts/holdings/dividends.ts` 모두 같은 string array) → Prisma `Currency` 단일 SSOT (`z.nativeEnum(Currency)`). `AccountType`/`AssetClass` 도 동일 정리. 순감 80줄 (109 삭제 / 29 추가).
+
+**`Record<AssetClass, string>` 노출 시 호출부 깨짐**: 더 엄격해진 라벨 맵에서 `?? holding.assetClass` 같은 fallback 패턴이 `string` 인덱싱을 전제로 해 컴파일 실패. 옵션 배열의 `Option<AssetClass>[]` 가 이미 SSOT 강제 책임을 지고 있으므로 라벨 맵은 `Record<string, string>` 으로 노출해 호출부 호환을 유지하는 절충이 적절.
+
+**SDK**: zod 4.3.6 기준 `z.nativeEnum(...)` 사용. zod 4 도 동작하며 추후 `z.enum(Object.values(...))` 류로 마이그레이션 가능.
+
+### Gemini 2.0-flash → 2.5-flash + GEMINI_MODEL env override (2026-05-03 hotfix)
+
+배포된 `/ai` 페이지에서 「AI 분석 시작」 클릭 시 429 quota error + 메시지에 `limit: 0` 동반 → `gemini-2.0-flash` 가 2026 시점 free tier 에서 사실상 차단된 상태 (Google 이 2.5 출시 후 2.0 free tier 를 제한). `lib/ai.ts:94` 한 줄 교체 + env override 추가:
+
+```ts
+const model = genAI.getGenerativeModel({
+  model: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
+});
+```
+
+일반 패턴은 [[gemini-2-0-flash-free-tier-blocked]] 로 분리.
+
+### AI 분석 결과 DB 저장 + 멀티 LLM provider 도입 (2026-05-03)
+
+기존 `/ai` 흐름은 `analyzePortfolio()` 결과를 `useState` 에만 보관 → 새로고침 시 사라지고, 매 분석마다 free tier quota 소비. 두 가지 작업을 한 번에 진행:
+
+1. **`AiAnalysis` 모델 추가** — `prisma migrate dev --name add_ai_analysis` (5개 한국어 텍스트 필드 + `createdAt @@index` + `netWorthAtTime Decimal?`). 1건 ~2-5KB → 1000건 쌓여도 ~5MB (Supabase 무료 500MB 의 1%).
+2. **멀티 LLM provider 어댑터 도입** — 단일 `lib/ai.ts` 를 `lib/ai/{types,context,index}.ts` + `lib/ai/providers/{gemini,openai,anthropic}.ts` 로 분해. `prisma migrate dev --name add_ai_provider` 로 `provider` 컬럼 추가. 일반 패턴은 [[multi-llm-provider-adapter-pattern]] 로 분리.
+
+| 결정 | 선택 |
+|---|---|
+| Provider 추상화 | `lib/ai/providers/<vendor>.ts` 어댑터 |
+| 환경변수 | `GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` (있는 것만 UI 노출) |
+| 모델 선택 | 각 provider 별 default + `<VENDOR>_MODEL` env override |
+| 키 저장 | **환경변수만** (DB 저장 + 암호화는 #1 백로그) |
+| DB 컬럼 | `provider` 추가 (마이그레이션 별건) |
+| SDK | 세 provider 모두 공식 SDK 직접 사용 — 멀티 LLM 추상화 라이브러리 도입 안 함 |
+| UI | provider 드롭다운, server component (`page.tsx`) + client component (`ai-page-client.tsx`) 분리 |
+
+**삭제 정책 (백로그)**: `prisma.aiAnalysis.deleteMany()` 으로 전체 비우기 가능, daily cron 에 `where: { createdAt: { lt: 90일 전 } }` 추가하면 자동 retention. 모델 자체 drop 도 `Account/Holding` 핵심 데이터와 분리되어 있어 영향 없음.
+
+### Zod-schema 정리 후 폼 즉시 검증 (백로그)
+
+server/client 가 동일 schema 를 import 할 수 있게 되었으므로 `react-hook-form + @hookform/resolvers/zod` 도입 시 폼 제출 → 서버 왕복 → 에러 사이클이 **클라이언트 즉시 검증** 으로 단축 가능. 이번 세션에서는 보류 (별건).
+
 ## 변경 이력
 
 - 2026-04-30: 최초 생성. 디스크 분석·Vercel 배포·Supabase pooler 모드·force-dynamic·단일 사용자 인증·Yahoo Finance 동시 호출 silent fail 수정·수익률 % 표시 작업 기록 (출처: session-logs/20260430-135011-e8eb-*, 161410-0fcc-*)
 - 2026-05-02: P2024 connection pool 사고와 cron 통합 작업 기록 — `marketIndexHistory.createMany skipDuplicates`, click-path 슬림화, `/api/cron/daily` 신설 (CRON_SECRET + middleware exempt + KST 날짜 분기), `Account.contributionYTD` 컬럼 신설 + 1월 1일 cron 리셋, WTI 원유 인덱스, CSV 내보내기, prisma migrate deploy 빌드 통합 (출처: session-logs/20260501-213505-aecb-*). 일반 패턴은 [[prisma-connection-pool-vercel-supabase]], [[vercel-cron-best-practices]] 로 분리.
 - 2026-05-02 (2nd batch): `toy/japa` 와의 비교 분석 + 4개 차용 결정 (사이드바 / 종목 자동 판별 / 60초 쿨다운 / 배당 모델 / 계좌 그룹). 사이드바 + 종목 자동 판별 + 쿨다운 3건 적용 완료, 배당 모델 + 계좌 그룹은 백로그. rate limit 방어 측면에서 본 프로젝트가 toy 보다 견고함 확인 (직렬+100ms vs worker pool 6 + 250ms 1회 재시도). 도메인 패턴 메모: 「자동 채움은 빈 필드만 / 사용자 입력 보호 우선」, 「쿨다운은 click-path 만 / cron 은 영향 없음」, 「예측치와 실측치는 같은 컬럼에 섞지 말 것」 (출처: session-logs/20260502-095014-6859-*).
+- 2026-05-03: `git/wk/japa-s` 와의 비교 + 상위 3개 항목 결정 (Supabase Auth / AI 키 암호화 / Zod 스키마 분리). #3 Zod 스키마 entity별 분리 (`lib/<entity>/schema.ts` 4개 신규 + 15개 파일 리팩터, 순감 80줄) 적용 완료. Gemini 2.0-flash free tier blocked → 2.5-flash 마이그레이션 + `GEMINI_MODEL` env override 추가. `AiAnalysis` Prisma 모델 추가로 분석 결과 DB 영속화. 단일 Gemini 코드를 `lib/ai/providers/{gemini,openai,anthropic}.ts` 어댑터 패턴으로 분해 + `provider` 컬럼 추가 (공식 SDK 직접 사용, 멀티 LLM 추상화 라이브러리 미도입). 일반 패턴은 [[zod-schema-per-entity]], [[multi-llm-provider-adapter-pattern]], [[gemini-2-0-flash-free-tier-blocked]] 로 분리 (출처: session-logs/20260503-100914-b80f-*).
