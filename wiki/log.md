@@ -1,9 +1,30 @@
 ---
 title: Operation Log
-updated: 2026-05-03T12:30:00+09:00
+updated: 2026-05-04T13:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-04T13:30 — wiki-ingest (session-logs, ingested: false 11건)
+
+- Skipped (내용 없음 — 단순 ping, assistant_turns: 0):
+  - 20260504-080029-0ab9 (cwd: research-wiki, `Reply with only: OK`)
+  - 20260504-090051-a943 (cwd: oss-radar, `Reply with only: OK`)
+- Skipped (research-wiki cron 의 논문 분석 프롬프트 / 응답 미수집, assistant_turns: 0):
+  - 20260504-080042-eee3 (arXiv 2604.24300 ReVSI: Rebuilding Visual Spatial Intelligence Evaluation for Accurate Assessment of VLM 3D Reasoning) — 본문이 들어왔으나 응답이 세션 로그에 기록되지 않음
+  - 20260504-080144-bada (arXiv 2604.22554 Video Analysis and Generation via a Semantic Progress Function, Tel Aviv U + SFU) — 동일 사유
+- Skipped (oss-radar cron 의 OSS 분석 프롬프트 5개, 모두 assistant_turns: 0):
+  - 20260504-090058-a1ca (puppeteer/puppeteer)
+  - 20260504-090131-5a27 (spec-kit-extensions / spec-kit 확장 카탈로그)
+  - 20260504-090209-64c6 (대상 미상 — 입력 본문 짧음)
+  - 20260504-090251-5c5f (modelcontextprotocol/servers 또는 awesome-mcp 카탈로그류)
+  - 20260504-090331-3151 (대상 미상)
+  - 같은 시간대에 oss-radar/research-wiki cron 양쪽이 동시에 응답 미수집 → 호스트의 일시적 cron 환경 이슈 가능성. 이전 cron 실패 사례 (2026-04-30T18:30, 2026-05-03T12:30) 와 동일 패턴
+- Skipped (탐색적 시행착오 — 결론 없이 세션 종료):
+  - 20260504-121101-2aec (cwd: kakao-mem, "vercel DB 와 동일하게 로컬 연결" 질문) — 14개 bash 탐색 후 assistant_turns: 0 으로 종료. 탐색만으로 kakao-mem 은 Python CLI 이며 DB 의존 없음 (Postgres/Neon/Supabase/SQLite 모두 미발견) 이 드러났으나 LLM 결론 미생성. 새로운 설계 판단·버그·패턴 없음
+  - 20260504-121656-61ee (cwd: finance-analysis-nextjs, 동일 질문) — Session Summary 미기록 상태로 중단. 탐색만으로 schema.prisma 가 `DATABASE_URL` + `DIRECT_DATABASE_URL` (이미 [[nextjs-vercel-supabase-deployment]] 에 정리됨) 임이 재확인됨. 신규 지식 없음
+- Updated: wiki/index.md (updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 11개 session-log 파일 전체 (skip 11건, 신규 페이지 0건)
 
 ## 2026-05-03T12:30 — wiki-ingest (session-logs, ingested: false 10건)
 
