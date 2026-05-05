@@ -1,9 +1,23 @@
 ---
 title: Operation Log
-updated: 2026-05-05T11:00:00+09:00
+updated: 2026-05-06T01:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-06T01:30 — wiki-ingest (session-logs, ingested: false 2건)
+
+- Source: session-logs/20260505-232155-9172-*.md (cwd: kakao-mem, 기존 코드 분석 + 카카오 직접 통신 옵션 평가)
+  - Project: kakao-mem (신규 wiki/projects/ 페이지)
+  - **Created**: wiki/projects/kakao-mem.md — Python + `kakaocli` 어댑터 read-only CLI 구조 정리. 잘 된 점 5개 (어댑터 격리 / `derive_message_id` sha256(24) dedup / `_try_json_command` 후보 폴백 / 13 tests 0.003s 결정적 커버리지 / 프라이버시 가드레일). 잠재 이슈 7개 우선순위 정리 (`load_messages` JSONDecodeError raise, `Message(**item)` 미지키 폭주, 룸 ID sanitize 매핑 부재, `_parse_text_messages` `:` 분할 위험, `is_question` `"나요"` false positive, `_try_json_command` 마지막 에러만 보존, `config/local.toml` git 추적 vs README 모순). "카톡 앱 상시 가동" 의미 분해 (DB 읽기 시점 != 동기화 시점). 자매 프로젝트 [[kakao-db]] 와 옵션 분석으로 링크
+  - **Created**: wiki/analyses/kakao-messaging-automation-options.md — 카카오톡 자동화 3 옵션 일반 비교. (1) 공식 Kakao Developers API: 단톡 읽기 불가. (2) 비공식 LOCO 클라이언트 (`node-kakao` / `PyKakao` / `agent-messenger`): 실시간 가능하지만 약관 위반 · 계정 정지 (페이/뱅크/T 연동 위험) · 키 유출 시 타인 로그인 가능 · 프로토콜 변동에 따른 유지보수 부업화 · 정통망법/개보법 회색지대. 별도 카카오 계정 운용이 업계 관행. (3) 하이브리드 (Mac 로컬 DB 읽기 + "나에게 보내기" 공식 송신): 약관 위반 0, PC 상시 가동 필요. 7행 비교표 + 시나리오별 추천 4가지
+- Source: session-logs/20260505-235703-d859-*.md (cwd: kakao-db, gpters 글 기반 신규 Rust 프로젝트 시작)
+  - Project: kakao-db (신규 wiki/projects/ 페이지)
+  - **Created**: wiki/projects/kakao-db.md — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 Rust 프로젝트. 초기 5 결정 표 (Rust 단일 / OSS LOCO wrap / 단발 CLI + cron / macOS Keychain / App Store 26.3.0). 마일스톤 M0–M5 정의. M0 산출물 (Cargo.toml 의존성 `clap`/`anyhow`/`tracing`/`rusqlite-bundled-sqlcipher`/`chrono`/`walkdir`/`tempfile`, `cli/db/inspect` 모듈, 6/6 테스트 통과, `~/.zshrc` cargo env 1줄). M1 결정 표 B1-B4 (rusqlite + bundled-sqlcipher / 읽기 전용 사본 모드 / 키는 환경변수·Keychain 직접 주입 / 첫 서브커맨드 `inspect`). 운영 모드 = "보안·시스템 위험만 묻고 추천 옵션 자율 진행" (사용자 명시 0:23). 알려진 함정 (TCC 토스트 / `/fewer-permission-prompts` skill / DB 락 회피)
+  - **Created**: wiki/analyses/kakaotalk-mac-data-locations.md — App Store v26.3.0 (`com.kakao.KakaoTalkMac`, TeamID `L75WVXX68A`) 의 메시지 sqlcipher DB 위치 일반 패턴. 본체는 `~/Library/Containers/com.kakao.KakaoTalkMac/Data/Library/Application Support/com.kakao.KakaoTalkMac/<80자 hex>` + `-shm` + `-wal` 3종 세트, 약 90MB. 80자 hex 무확장자 파일에 평문 SQLite 매직 부재 → 일반 `*.db`/`*.sqlite*` 글롭으로 안 잡힘. 식별 단서 = WAL 동반 + 큰 파일 크기 + `-wal` 자체에는 평문 매직 존재. `inspect` 휴리스틱 분류 `[magic]`/`[wal]`/`[ext]` 정의. 키 도출은 미해결 spike (App Store sandbox Keychain 의존 가능성)
+  - **Created**: wiki/patterns/macos-tcc-full-disk-access.md — macOS Sonoma+ TCC 토스트 ("iTerm 이 다른 앱의 데이터에 접근하려고 합니다") 일반 처리 패턴. Claude Code 권한 팝업 vs macOS TCC 토스트 비교표 (출처/형태/단위/처리/영구적용). 한 번에 끄는 방법 6단계 (시스템 설정 → 개인정보 보호와 보안 → 전체 디스크 접근 → +iTerm.app → ON → **iTerm 완전 종료 후 재시작**). 권한 부여 없이 우회 (사용자 직접 cp / 매번 허용). 별개로 Claude Code 권한 팝업 줄이는 3가지 (Always allow / `/fewer-permission-prompts` skill / `/permissions`). 함정 4가지 (재시작 누락 / 자식 프로세스 별도 권한 / 권한 거부 후 부분 성공 silent / 두 종류 팝업 동시 등장)
+- Updated: wiki/index.md (projects/ 에 kakao-mem, kakao-db 추가 / patterns/ 에 macos-tcc-full-disk-access 추가 / analyses/ 에 kakao-messaging-automation-options, kakaotalk-mac-data-locations 추가 / updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 2개 session-log 파일 전체 (skip 0건, 처리 2건 → 신규 페이지 5건)
 
 ## 2026-05-05T11:00 — wiki-ingest (session-logs, ingested: false 14건)
 

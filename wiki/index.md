@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-05T11:00:00+09:00
+updated: 2026-05-06T01:30:00+09:00
 ---
 
 # Wiki Index
@@ -26,6 +26,8 @@ updated: 2026-05-05T11:00:00+09:00
 - [[japa-asset-dashboard]] — 1인 전용 자산 통합 대시보드: Next.js 16 + Prisma + Supabase + Yahoo Finance, force-dynamic + Transaction pooler + HMAC-SHA256 단일 사용자 인증
 - [[finance-analysis-nextjs]] — 한국 기업 재무분석 대시보드: PDF/JSON/DART API 입력, AI 멀티 프로바이더 구조화, 12 슬라이드 + AI/수동 밸류에이션, M&A 활용 계획
 - [[wardrobe]] — 옷장 매칭 웹 앱 (Next.js 15 + Tailwind v4 + LocalStorage MVP): 사이드바 레이아웃, 시드 JSON, DB 없이 Step 1 단계로 시작
+- [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
+- [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입
 
 ## 설계 판단 (decisions/)
 
@@ -46,6 +48,7 @@ updated: 2026-05-05T11:00:00+09:00
 - [[vercel-cron-best-practices]] — Vercel Cron 5결정: Hobby 슬롯 제약 → 단일 라우트 + KST 날짜 분기, CRON_SECRET, middleware exempt, 멱등성 (createMany skipDuplicates / updateMany / 24h guard), Crons UI / Logs 운영
 - [[zod-schema-per-entity]] — `lib/<entity>/schema.ts` 에 enum / label / Zod schema / 추론 타입 응집: server-client 검증 일관성 + Prisma enum SSOT 강제 + 점진 도입 (entity 당 30분~1시간)
 - [[vercel-timeout-browser-direct-api]] — Vercel Hobby 60s lambda timeout escape hatch: 인증 사용자에게 API key 내려주고 브라우저에서 Anthropic SDK 직접 호출. 보안 부채 (DevTools 키 추출) + 회수 조건 + 키 회전 의무
+- [[macos-tcc-full-disk-access]] — macOS Sonoma+ TCC 토스트 ("iTerm 이 다른 앱 데이터에 접근") 처리: 시스템 설정 → 전체 디스크 접근 + iTerm 완전 재시작. Claude Code 권한 팝업과 별개로 구분
 
 ## 버그와 해결책 (bugs/)
 
@@ -92,3 +95,5 @@ updated: 2026-05-05T11:00:00+09:00
 - [[vercel-friendly-database-options]] — Vercel 배포 친화적 DB 4종 비교: Neon (관계형 1순위) / Vercel KV (캐시) / Supabase (인증·스토리지 묶음) / Turso (가벼운 1인용·edge)
 - [[multi-llm-provider-adapter-pattern]] — 추상화 라이브러리 (LangChain 등) 없이 Gemini/OpenAI/Anthropic 공식 SDK 를 어댑터 뒤에 두는 경량 멀티 LLM 패턴: `lib/ai/providers/<vendor>.ts` + `<VENDOR>_MODEL` env override
 - [[claude-code-scheduled-tasks]] — Claude Code 데스크톱의 scheduled-tasks: `~/.claude/scheduled-tasks/<name>/SKILL.md`, 앱 종료 시에만 정지, /loop 와의 차이, 권한 사전 승인 / "Run now" 의 의미
+- [[kakao-messaging-automation-options]] — 카카오톡 자동화 3 옵션 비교: Kakao Developers API (정식, 단톡 읽기 불가) / LOCO (비공식, 약관 위반·계정 정지 위험) / 하이브리드 (로컬 DB 읽기 + 나에게 보내기 송신). 시나리오별 추천
+- [[kakaotalk-mac-data-locations]] — App Store v26.3.0 (`com.kakao.KakaoTalkMac`) 의 메시지 sqlcipher DB 위치: `~/Library/Containers/.../Application Support/com.kakao.KakaoTalkMac/<80hex>` + `-wal` + `-shm`. `[wal]` / `[magic]` / `[ext]` 휴리스틱
