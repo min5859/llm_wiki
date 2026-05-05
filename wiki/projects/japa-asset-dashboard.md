@@ -4,13 +4,14 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "supabase", "vercel", "yahoo-finance", "personal-asset", "single-user-auth"]
 created: 2026-04-30
-updated: 2026-05-03
+updated: 2026-05-05
 sources:
   - "session-logs/20260430-135011-e8eb-*.md"
   - "session-logs/20260430-161410-0fcc-*.md"
   - "session-logs/20260501-213505-aecb-*.md"
   - "session-logs/20260502-095014-6859-*.md"
   - "session-logs/20260503-100914-b80f-*.md"
+  - "session-logs/20260505-084952-fe4f-*.md"
 confidence: high
 related:
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
@@ -21,6 +22,7 @@ related:
   - "wiki/bugs/gemini-2-0-flash-free-tier-blocked.md"
   - "wiki/patterns/vercel-cron-best-practices.md"
   - "wiki/patterns/zod-schema-per-entity.md"
+  - "wiki/analyses/pgbouncer-direct-url-hybrid-routing.md"
 ---
 
 # japa — 개인 자산 통합 대시보드
@@ -315,6 +317,96 @@ const model = genAI.getGenerativeModel({
 
 **삭제 정책 (백로그)**: `prisma.aiAnalysis.deleteMany()` 으로 전체 비우기 가능, daily cron 에 `where: { createdAt: { lt: 90일 전 } }` 추가하면 자동 retention. 모델 자체 drop 도 `Account/Holding` 핵심 데이터와 분리되어 있어 영향 없음.
 
+### 일별 cron timeout 사고와 DIRECT_URL 우회 (2026-05-05 hotfix)
+
+매일 KST 07:00 cron 이 실패해 `/market` 페이지가 어제 시세를 그대로 보여주는 증상으로 시작. 6 commit 에 걸친 root cause 추적 끝에 PgBouncer 의 query 당 connection acquire 누적 비용이 진짜 원인이었음을 확인. **cron lambda 만 `DIRECT_URL` 로 PgBouncer 를 우회**하는 것이 정공법. 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리.
+
+증상 진행:
+
+| 단계 | commit | 결과 |
+|---|---|---|
+| 1. `/api/cron/daily` 수동 호출 | — | 즉시 500, P2024 (`connection_limit: 1`, `timeout: 10`) |
+| 2. `Promise.all` 3-튜플 + 내부 `Promise.allSettled` 모두 직렬화 | `46ed64a` | P2024 사라짐, 60초 timeout (`FUNCTION_INVOCATION_TIMEOUT`) |
+| 3. prisma 호출만 mutex (`withPrismaLock`) 로 직렬화, yahoo 는 병렬 복원 | `414a6ad` | 여전히 60초 timeout |
+| 4. `refreshMarketHistory` fetch window 1년 → 7일 | `653d147` | 여전히 60초 timeout |
+| 5. 진단 timing log + instrumentation count 직렬화 | `7c49814` | route handler 의 첫 `console.log` 가 한 번도 안 찍힘 |
+| 6. instrumentation `register` 를 fire-and-forget 으로 + try/catch | `5f6e0b5` | 그래도 timeout |
+| 7. **`prismaDirect` (DIRECT_URL) 주입 + cron 만 PgBouncer 우회** | `6f1ec93` | **24.5초에 200 OK, 41 holdings + 9 indices + history 정상** |
+| 8. cleanup (진단 코드 제거) | `bdeb3b1` | 정상 |
+
+진단 도중 `refreshMarketIndices` 만으로도 23.5초가 걸리는 것을 timing log 로 잡은 것이 결정적 단서. 9개 직렬 upsert 가 23초나 걸리는 건 yahoo 가 아니라 **PgBouncer transaction mode 환경에서 매 prisma 호출마다 connection acquire 비용이 누적**되고 있다는 의미.
+
+수정 후의 구조:
+
+```
+Promise.all                                    ← yahoo I/O 는 병렬
+ ├─ refreshAllPrices    (yahoo 41 symbols, worker pool 6)
+ ├─ refreshMarketIndices (yahoo 9 indices)
+ └─ refreshMarketHistory (yahoo 9 × 7일 chart)
+      └─ withPrismaLock(prisma upsert)        ← DB write 는 mutex 로 큐잉
+            └─ prismaDirect (DIRECT_URL, no PgBouncer)
+```
+
+- **yahoo I/O = 병렬** (`Promise.all`) → wall-clock 을 가장 느린 1개로 압축
+- **prisma write = 직렬** (`withPrismaLock`) → connection_limit=1 안전
+- **prismaDirect = PgBouncer 우회** → query 당 acquire 비용 제거
+
+직렬화만으로는 부족했던 이유 — yahoo round-trip 59회 (41+9+9) × 평균 0.5~1초가 누적되면 단순 직렬은 30~60초로 lambda budget 초과. 병렬은 worker pool 안에서 가장 느린 batch 시간만 소요.
+
+### History fetch window 7일 단축 (2026-05-05)
+
+`refreshMarketHistory` 의 yahoo chart fetch 를 1년 → 7일로 축소 (`lib/market.ts:393` `period1.setDate(-7)`). DB 에는 이미 1년치 history 가 backfill 되어 있고 `createMany skipDuplicates` 라 매일 새로 들어가는 row 는 어제/오늘 1~2개뿐. 즉 **9 × 365 row × 24 byte 의 yahoo 페이로드를 매일 받아 99.7% 를 버리던 구조**였다.
+
+엣지 케이스:
+- **장기 outage (>7일)**: 7일 넘는 공백은 빈 채로 남음. 발생 시 `fetchSymbolHistory(symbol, 365)` ad-hoc 1회 백필 필요.
+- **새 INDICES_CONFIG 추가**: instrumentation 의 `historyCount === 0` 분기가 트리거 안 됨 (이미 다른 symbol 들로 0 이 아니므로). 첫 1년치 백필 별도 1회 필요.
+
+차트 측은 기존 그대로 `getMarketHistory(symbol, 365)` 가 DB SELECT 로 1년치를 가져오므로 사용자 영향 없음.
+
+### instrumentation.register `await` hang 함정 (2026-05-05 발견)
+
+`instrumentation.ts:register()` 가 `await prisma.marketIndex.count()` 같은 prisma 호출을 직접 실행하면, **lambda startup 단계에서 hang 시 route handler 의 첫 줄도 진입 못 함**. PgBouncer connection acquire 가 길어질 때 정확히 이 패턴으로 60초 timeout 만 남고 timing log 0건이 된다.
+
+해결: `register()` 안의 backfill 보조 코드를 fire-and-forget + try/catch 로 분리.
+
+```ts
+export async function register() {
+  void (async () => {
+    try {
+      const { prisma } = await import("@/lib/prisma");
+      const indexCount = await prisma.marketIndex.count();
+      if (indexCount === 0) await refreshMarketIndices();
+      const historyCount = await prisma.marketIndexHistory.count();
+      if (historyCount === 0) await refreshMarketHistory();
+    } catch (e) {
+      console.warn("[instrumentation] backfill skipped:", e);
+    }
+  })();
+}
+```
+
+instrumentation 의 backfill 은 신선한 DB 의 1회용 보조 코드이고 lambda hot path 가 아니다. 실패해도 startup 을 죽여서는 안 된다는 점이 일반 원칙.
+
+배포 후에도 페이지 lambda cold start 에서 `[instrumentation] backfill skipped: PrismaClientInitializationError ... connection limit: 1` warning 이 가끔 발생하지만, swallow 되어 lambda 는 정상 진행 (200 응답).
+
+### Vercel logs CLI 의 시간 윈도우 한계 (2026-05-05 발견)
+
+cron 실행 여부를 사후 확인하려고 `vercel logs` CLI 를 쓰니:
+
+- `--since 2h`, `-n 5000` 줘도 **server-side cap 에 걸려 가까운 ~50분 윈도우만 반환**. cron 실행 시각 (KST 07:00 = UTC 22:00) 까지 못 닿는 경우가 많음.
+- `--until <ISO>` 단독은 400.
+- `--since <ISO>` 특정 시각 지정도 traffic 많은 시간대면 400 또는 결과 비어 나옴.
+- `--source serverless`, `-q <text>` 같은 필터가 잘 안 먹음.
+- `--json` redirect 시 stdout 이 비기도 함 — `script -q /dev/null bash -c "vercel logs..."` 같은 PTY 모방으로만 잡힘.
+
+결론: 과거 시각의 cron 호출 1건을 CLI 로 콕 집어 잡는 건 사실상 불가능에 가까움. 정공법은 **Vercel 대시보드 Logs 탭에서 시간 범위 좁혀 검색** 또는 **endpoint 를 수동 curl 호출해 응답 + 직후 로그를 함께 캡처**.
+
+또한 Hobby 플랜의 cron 페이지에는 **Last Run / Status 컬럼이 표시되지 않음** (Pro 이상 기능). cron 실행 사실 검증은 위의 방법으로만 가능.
+
+### Hobby cron flexible 1-hour window (참고)
+
+`0 22 * * *` (UTC) = KST 07:00 으로 등록해도, Hobby 플랜은 **flexible 1-hour window** 로 KST 07:00~08:00 사이 어느 시점에 실행. 정확한 분 단위 시간은 보장되지 않음. 사용자 입장에서 "오전 7시에 안 돌고 8시에 돈다" 로 보일 수 있는데 정상 동작 범위.
+
 ### Zod-schema 정리 후 폼 즉시 검증 (백로그)
 
 server/client 가 동일 schema 를 import 할 수 있게 되었으므로 `react-hook-form + @hookform/resolvers/zod` 도입 시 폼 제출 → 서버 왕복 → 에러 사이클이 **클라이언트 즉시 검증** 으로 단축 가능. 이번 세션에서는 보류 (별건).
@@ -325,3 +417,4 @@ server/client 가 동일 schema 를 import 할 수 있게 되었으므로 `react
 - 2026-05-02: P2024 connection pool 사고와 cron 통합 작업 기록 — `marketIndexHistory.createMany skipDuplicates`, click-path 슬림화, `/api/cron/daily` 신설 (CRON_SECRET + middleware exempt + KST 날짜 분기), `Account.contributionYTD` 컬럼 신설 + 1월 1일 cron 리셋, WTI 원유 인덱스, CSV 내보내기, prisma migrate deploy 빌드 통합 (출처: session-logs/20260501-213505-aecb-*). 일반 패턴은 [[prisma-connection-pool-vercel-supabase]], [[vercel-cron-best-practices]] 로 분리.
 - 2026-05-02 (2nd batch): `toy/japa` 와의 비교 분석 + 4개 차용 결정 (사이드바 / 종목 자동 판별 / 60초 쿨다운 / 배당 모델 / 계좌 그룹). 사이드바 + 종목 자동 판별 + 쿨다운 3건 적용 완료, 배당 모델 + 계좌 그룹은 백로그. rate limit 방어 측면에서 본 프로젝트가 toy 보다 견고함 확인 (직렬+100ms vs worker pool 6 + 250ms 1회 재시도). 도메인 패턴 메모: 「자동 채움은 빈 필드만 / 사용자 입력 보호 우선」, 「쿨다운은 click-path 만 / cron 은 영향 없음」, 「예측치와 실측치는 같은 컬럼에 섞지 말 것」 (출처: session-logs/20260502-095014-6859-*).
 - 2026-05-03: `git/wk/japa-s` 와의 비교 + 상위 3개 항목 결정 (Supabase Auth / AI 키 암호화 / Zod 스키마 분리). #3 Zod 스키마 entity별 분리 (`lib/<entity>/schema.ts` 4개 신규 + 15개 파일 리팩터, 순감 80줄) 적용 완료. Gemini 2.0-flash free tier blocked → 2.5-flash 마이그레이션 + `GEMINI_MODEL` env override 추가. `AiAnalysis` Prisma 모델 추가로 분석 결과 DB 영속화. 단일 Gemini 코드를 `lib/ai/providers/{gemini,openai,anthropic}.ts` 어댑터 패턴으로 분해 + `provider` 컬럼 추가 (공식 SDK 직접 사용, 멀티 LLM 추상화 라이브러리 미도입). 일반 패턴은 [[zod-schema-per-entity]], [[multi-llm-provider-adapter-pattern]], [[gemini-2-0-flash-free-tier-blocked]] 로 분리 (출처: session-logs/20260503-100914-b80f-*).
+- 2026-05-05: 일별 cron 이 시세 갱신 실패 (P2024 → 60초 timeout) 사고. 6 commit 추적 끝에 root cause 가 PgBouncer transaction mode 의 query 당 connection acquire 누적 비용임을 확인 → `prismaDirect` (DIRECT_URL) 주입으로 cron lambda 만 PgBouncer 우회, 24.5초에 정상 완료. yahoo I/O = 병렬 / prisma write = mutex 직렬 / connection = direct URL 의 3계층 분리. `refreshMarketHistory` 1년 → 7일 단축 (skipDuplicates 라 99.7% 버려지던 페이로드 제거). `instrumentation.register` 의 `await` hang 함정 발견 → fire-and-forget + try/catch 로 분리. Vercel logs CLI 의 시간 윈도우 cap, Hobby cron Last Run 컬럼 미노출, cron flexible 1-hour window 등 운영 노하우 추가. 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리 (출처: session-logs/20260505-084952-fe4f-*).

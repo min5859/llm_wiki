@@ -4,13 +4,15 @@ domain: both
 sensitivity: public
 tags: ["prisma", "supabase", "vercel", "pgbouncer", "p2024", "connection-pool", "createMany", "transaction"]
 created: 2026-05-02
-updated: 2026-05-02
+updated: 2026-05-05
 sources:
   - "session-logs/20260501-213505-aecb-*.md"
+  - "session-logs/20260505-084952-fe4f-*.md"
 confidence: high
 related:
   - "wiki/projects/japa-asset-dashboard.md"
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
+  - "wiki/analyses/pgbouncer-direct-url-hybrid-routing.md"
   - "wiki/patterns/vercel-cron-best-practices.md"
 ---
 
@@ -116,6 +118,59 @@ await prisma.marketIndexHistory.upsert({
 
 Prisma Client 의 connection pool 이 한번 망가지면, **같은 함수 인스턴스가 받는 그 후의 평범한 쿼리들도 같이 죽는다**. Vercel 함수는 짧은 시간 내 연속 요청을 같은 인스턴스가 처리하기 때문에, "버튼 안 누른 사용자도 사이트가 안 열린다" 는 사용자 경험으로 이어진다. 사용자가 보고한 첫 증상이 "버튼 안 눌렀는데 메인 페이지가 안 열림" 인 경우 P2024 만성화일 가능성이 높음.
 
+## 후속 — 직렬화 후에도 cron 이 60초 timeout 으로 쓰러진 사례 (2026-05-05)
+
+P2024 만 막아도 끝나지 않는 두 번째 함정. japa 의 일별 cron 이 `Promise.all` 직렬화 + prisma mutex + history fetch 7일 단축까지 적용했는데도 `FUNCTION_INVOCATION_TIMEOUT` (60초) 가 났다. timing log 로 잡은 단서:
+
+```
+[cron] module loaded
+[cron] refreshMarketIndices done +23534ms     ← 9개 직렬 upsert 가 23.5초
+(이후 hang, refreshAllPrices/refreshMarketHistory 미완료 → 60초 timeout)
+```
+
+9개 직렬 prisma upsert 가 23초 걸리는 건 yahoo 가 아니라 **PgBouncer transaction mode 환경에서 query 당 connection acquire 비용이 누적**되고 있다는 의미. `connection_limit=1` 환경에서는 prepared statement 충돌 회피와 맞바꾼 acquire 비용이 무시 못 할 수준이고, write-heavy workload (cron / 배치) 에서 그 비용이 더 두드러진다.
+
+**Fix — cron lambda 만 DIRECT_URL 로 PgBouncer 우회**:
+
+```ts
+// lib/prisma.ts
+export const prisma = new PrismaClient(); // 페이지 라우트용 (DATABASE_URL = pgbouncer)
+export const prismaDirect = new PrismaClient({
+  datasources: { db: { url: process.env.DIRECT_URL! } }, // cron 전용
+});
+
+// app/api/cron/daily/route.ts
+const [portfolio, indicesUpdated] = await Promise.all([
+  refreshAllPrices(prismaDirect),
+  refreshMarketIndices(prismaDirect),
+  refreshMarketHistory(prismaDirect),
+]);
+```
+
+`prisma/schema.prisma` 에 `directUrl = env("DIRECT_URL")` 이 이미 잡혀 있으면 그대로 재사용. 페이지 라우트는 풀드 prisma 그대로 — Supabase direct connection 의 작은 한도를 다 잡아먹지 않게 명확히 분리. 자세한 패턴은 [[pgbouncer-direct-url-hybrid-routing]].
+
+**효과**: 24.5초 안에 200 OK + 41 holdings + 9 indices + history 모두 갱신. lambda budget 의 40% 만 소비.
+
+## 인접 함정 — instrumentation.register `await` hang
+
+`Next.js 의 instrumentation.ts` 안에서 `await prisma.someTable.count()` 같은 호출을 직접 하면 PgBouncer 환경에서 **lambda startup 단계에서 hang** 시 route handler 의 첫 줄도 진입 못 한다. 60초 timeout 만 남고 timing log 0건이 되는 패턴.
+
+해결: backfill 같은 보조 코드는 fire-and-forget + try/catch 로 분리해 startup 을 절대 죽이지 않게.
+
+```ts
+export async function register() {
+  void (async () => {
+    try {
+      const { prisma } = await import("@/lib/prisma");
+      // ...
+    } catch (e) {
+      console.warn("[instrumentation] backfill skipped:", e);
+    }
+  })();
+}
+```
+
 ## 변경 이력
 
 - 2026-05-02: 최초 생성. japa 시세 새로고침 클릭 시 P2024 가 8개 `$transaction` 병렬화 + `connection_limit=1` 충돌로 발생 → `createMany skipDuplicates` + 일별 cron 분리로 해결 (출처: session-logs/20260501-213505-aecb-*)
+- 2026-05-05: P2024 만 막아도 cron 60초 timeout 으로 쓰러지는 후속 사례 추가. PgBouncer transaction mode 의 query 당 connection acquire 누적 비용이 진짜 root cause 였음 — cron lambda 만 `prismaDirect` (DIRECT_URL) 로 PgBouncer 를 우회해 24.5초로 단축. `instrumentation.register` 의 `await` hang 함정도 추가 (fire-and-forget 으로 분리). 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리 (출처: session-logs/20260505-084952-fe4f-*)

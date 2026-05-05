@@ -4,15 +4,17 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "ai-extract", "dart-api", "valuation", "ma", "pdf-extraction"]
 created: 2026-04-30
-updated: 2026-05-02
+updated: 2026-05-05
 sources:
   - "session-logs/20260430-174408-1a2e-*.md"
   - "session-logs/20260501-233118-b6e0-*.md"
+  - "session-logs/20260505-101659-115c-*.md"
 confidence: medium
 related:
   - "wiki/projects/japa-asset-dashboard.md"
   - "wiki/analyses/ai-valuation-trustworthiness.md"
   - "wiki/analyses/pdf-text-extraction-vs-ocr.md"
+  - "wiki/patterns/vercel-timeout-browser-direct-api.md"
 ---
 
 # finance-analysis-nextjs — 한국 기업 재무분석 대시보드
@@ -223,13 +225,29 @@ src/
 | 중간 | `provider` 하드코딩 제거 — 실제 호출에 사용한 프로바이더를 DB 에 기록 | DB 레벨 필터링·통계 가능 |
 | 낮음 | `financial_statements` 정규화 활성화 또는 스키마 제거 | 미사용 표 제거하거나 §1단계 백로그와 연동 |
 
+## Vercel 60초 timeout 우회 — 임시 client-direct Anthropic 패턴 (2026-05-04 hotfix, 회수 대상)
+
+큰 PDF 의 vision 분석이 Vercel Hobby 의 60초 lambda timeout 에 걸려 서버에서 완료되지 못하는 사고를 일시 우회한 commit (`215b9ff TEMPORARY: bypass Vercel timeout via client-direct Anthropic call for PDF`). 인증된 사용자에게 `ANTHROPIC_API_KEY` 를 직접 내려주고 브라우저에서 Anthropic SDK (`dangerouslyAllowBrowser: true`) 로 호출해 timeout 제한을 사라지게 만드는 escape hatch.
+
+| 추가/변경 | 역할 |
+|---|---|
+| `src/app/api/anthropic-config/route.ts` (신규) | `auth()` 통과 시 `{ apiKey, model, system }` 응답. 미인증 401. 머리말에 ⚠️ TEMPORARY 마킹 + 회수 조건 명시. |
+| `src/lib/anthropic-browser.ts` (신규) | `fetchAnthropicConfig` / `fileToBase64` / `extractFinanceFromPdfDirect` 헬퍼. `dangerouslyAllowBrowser: true` + tool_use 강제로 structured JSON 출력. |
+| `src/app/page.tsx` | `processPdfFile` 에 분기 — `provider === 'anthropic'` 또는 OCR 강제 시 client-direct, 그 외 server multipart 경로 유지. 진행 메시지 "1~5분 소요" 로 갱신. |
+| `src/proxy.ts` | 미인증 + `/api/*` 경로 → HTML redirect 대신 JSON 401 응답. 클라이언트 fetch 가 res.ok 분기로 깔끔히 처리. |
+| `docs/tasks/todo.md` | G 섹션 신설 — 보안 부채 추적, 회수 조건, 회수 시 작업 체크리스트. |
+
+**보안 부채**: DevTools 로 키 추출 가능. 회수 조건 (Pro 업그레이드 / Cloud Run / 외부 워커 도입 중 하나 완료) 충족 시 즉시 회수해야 하고, 회수 절차에 **`ANTHROPIC_API_KEY` 회전**이 반드시 포함되어야 한다 — 한 번이라도 클라이언트에 내려간 키는 유출 전제로 다뤄야 한다. 일반 패턴과 회수 체크리스트는 [[vercel-timeout-browser-direct-api]] 참고.
+
 ## 관련 맥락
 
 - 자산 보유 측의 [[japa-asset-dashboard]] 와는 별도 프로젝트. japa는 본인 자산 추적, finance-analysis-nextjs는 외부 기업 분석.
 - M&A 가치평가 도구로의 발전을 염두에 두고 있어, 단순 대시보드가 아니라 "측정 신뢰도" 와 "검증 가능성" 이 핵심 요구사항이 된다.
+- Vercel timeout 의 또 다른 갈래 (cron / DB acquire 누적) 는 [[vercel-cron-best-practices]], [[prisma-connection-pool-vercel-supabase]].
 
 ## 변경 이력
 
 - 2026-04-30: 최초 생성. 프로젝트 구조·기능·약점 정리 (출처: session-logs/20260430-174408-1a2e-*)
 - 2026-04-30: 코드 깊이 분석 추가 — 4가지 구조적 결함 (AI 환각 + 수식 오류 / 단위 강제 부재 / 빈 인풋 → 가짜 데이터 5곳 / 스캔 PDF 침묵 실패) 식별, 4단계 우선순위 백로그 + M&A 기능 11개 후보 정리. 일반 패턴은 [[ai-valuation-trustworthiness]], [[pdf-text-extraction-vs-ocr]] 로 분리.
 - 2026-05-02: 운영성 결함 4가지 추가 — analyses 누적 / DELETE 경로 부재 / financial_statements 미사용 / provider 하드코딩. 관련 백로그 4개 추가. PDF 내보내기 (`pdf-generator.ts` 의 `downloadPdf`/`downloadFullReportPdf` + `html2canvas-pro`/`jspdf`) 가 이미 구현되어 있음을 확인 (출처: session-logs/20260501-233118-b6e0-*)
+- 2026-05-05: Vercel 60초 timeout 우회를 위한 임시 client-direct Anthropic 패턴 도입 사항 기록 (commit `215b9ff`). `/api/anthropic-config` + `lib/anthropic-browser.ts` + `proxy.ts` JSON 401 갱신. 일반 패턴은 [[vercel-timeout-browser-direct-api]] 로 분리. 회수 조건과 키 회전 의무 명시 (출처: session-logs/20260505-101659-115c-*)

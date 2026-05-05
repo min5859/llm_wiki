@@ -4,14 +4,16 @@ domain: both
 sensitivity: public
 tags: ["vercel", "cron", "serverless", "idempotency", "middleware", "nextjs", "hobby-plan"]
 created: 2026-05-02
-updated: 2026-05-02
+updated: 2026-05-05
 sources:
   - "session-logs/20260501-213505-aecb-*.md"
+  - "session-logs/20260505-084952-fe4f-*.md"
 confidence: high
 related:
   - "wiki/projects/japa-asset-dashboard.md"
   - "wiki/bugs/prisma-connection-pool-vercel-supabase.md"
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
+  - "wiki/analyses/pgbouncer-direct-url-hybrid-routing.md"
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
 ---
 
@@ -196,6 +198,55 @@ Supabase 무료 한도 (DB 500MB, egress 2GB) 대비 일반적인 cron 누적량
 
 DB 부담보다 **차트 가독성** 이 진짜 제약. 365점을 한 화면에 깔면 점이 겹쳐 추세가 잘 안 보인다. 일별로 자주 찍더라도 차트 측에서 "최근 90일은 일별, 그 이전은 월별 다운샘플" 같은 처리를 하는 편이 보기 좋음.
 
+## 7. Lambda 60초 timeout vs P2024 — 두 단계 구분
+
+cron 라우트 안에서 무거운 batch 를 돌릴 때 마주칠 수 있는 두 가지 실패 모드는 **아예 다른 원인**이라 해결책도 다르다. 헷갈리지 말 것:
+
+| 실패 | 응답 | 원인 | 해결 방향 |
+|---|---|---|---|
+| **P2024** | 즉시 500 (10초 안) | 한 lambda 안의 동시 prisma 호출이 `connection_limit=1` 풀을 두고 경쟁 | 호출 병렬도 낮추기 / mutex 직렬화 / `createMany skipDuplicates` |
+| **FUNCTION_INVOCATION_TIMEOUT** | 60초 후 504 | wall-clock 이 lambda budget 초과 (외부 I/O 누적, connection acquire 누적, instrumentation hang 등) | 외부 I/O 병렬화 / 페이로드 축소 / DIRECT_URL 우회 / instrumentation fire-and-forget |
+
+**같이 일어날 때 순서**: 먼저 P2024 를 푸는 게 정공법. P2024 가 살아있으면 timeout 진단 자체가 어렵다 (connection 못 받아서 죽는 건지 일이 길어서 죽는 건지 분간 안 됨). P2024 → timeout 으로 증상이 바뀌면 progress 로 받아들이고 다음 layer 를 본다.
+
+**timeout 진단의 함정**:
+- `console.log` 가 stdout buffer 에 갇혀 timeout SIGKILL 시 lost. `console.error` (stderr) 는 즉시 flush 되므로 marker 출력은 stderr 권장.
+- module top-level marker (`console.error("[cron] module loaded")`) + handler 첫 줄 marker 를 따로 출력해 "module 자체가 import 됐는지" vs "handler 가 진입했는지" 분리. 후자가 안 찍히면 instrumentation / 다른 module top-level await 가 hang 의심.
+- `instrumentation.ts` 의 `register()` 안에 `await prisma.xxx.count()` 같은 호출이 있으면 PgBouncer 환경에서 cold connection acquire 가 길어질 때 lambda startup 에서 hang 함. fire-and-forget + try/catch 로 분리해 startup 을 절대 죽이지 말 것.
+
+**PgBouncer transaction mode 의 cumulative cost**: `connection_limit=1` 환경에서는 query 당 connection acquire 비용이 누적된다. 직렬화로 P2024 는 막혀도 9개 직렬 upsert 가 23초씩 걸리는 기현상이 가능. cron lambda 만 `prismaDirect` (DIRECT_URL) 로 PgBouncer 우회하는 게 정공법. 자세한 건 [[pgbouncer-direct-url-hybrid-routing]].
+
+**병렬 vs 직렬 결정 원칙**:
+- 외부 I/O (HTTP fetch, yahoo quote 등) → **병렬** (`Promise.all`). wall-clock 을 가장 느린 1개로 압축.
+- 자원 한정된 자원 (DB connection 1개, rate limit) → **직렬** (mutex / `for...of`). 안전하게 큐잉.
+
+같은 작업의 충돌 지점만 직렬화하면 된다. 전체를 직렬화하면 외부 I/O 누적 비용으로 lambda budget 을 못 맞춘다 (실측: 59회 yahoo round-trip 직렬 ≈ 60초 초과).
+
+## 8. Hobby 플랜의 cron 운영 한계
+
+| 항목 | Hobby | 비고 |
+|---|---|---|
+| cron 슬롯 수 | ≤ 2 | 단일 라우트 + 날짜 분기로 우회 (§1) |
+| cron 빈도 | 일 1회 최대 | 시간 단위 cron 불가 |
+| **flexible window** | **1 시간** | `0 22 * * *` 등록해도 22:00~23:00 사이 어느 시점에 실행. 정확한 분 단위 보장 안 됨 |
+| **Last Run / Status 컬럼** | **표시 안 됨** | Crons 페이지에 등록 정보만 보임. 실제 실행 검증은 Logs 또는 수동 curl 호출로 |
+| Notifications | 사용 가능 | 실패 시 이메일 |
+| `maxDuration` | 60s | route file 의 `export const maxDuration = 60` |
+
+flexible window 때문에 사용자가 "오전 7시에 안 돌고 8시 5분에 돈다" 로 보일 수 있는데 정상 동작 범위. 분 단위 정확도가 필요하면 Pro 또는 외부 cron (cron-job.org / GitHub Actions) 트리거.
+
+### Vercel logs CLI 의 시간 윈도우 한계
+
+cron 실행 여부를 사후 검증할 때 `vercel logs` CLI 의존은 위험. 흔히 마주치는 한계:
+
+- `--since 2h`, `-n 5000` 줘도 **server-side cap** 으로 가까운 ~50분 윈도우만 반환. 과거 1~2 시간 전 cron 실행 시점에 못 닿음.
+- `--until <ISO>` 단독 → 400.
+- 특정 ISO `--since` → traffic 많은 시간대면 400 또는 결과 비어 옴.
+- `-q <text>` 텍스트 필터, `--source serverless` 가 잘 안 먹음.
+- `--json` redirect 시 stdout 비기도 함 — `script` 로 PTY 모방해야 잡힘.
+
+정공법: **Vercel 대시보드 Logs 탭에서 시간 범위 좁혀 검색** 또는 **endpoint 를 수동 curl 호출 → 응답 + 직후 로그 함께 캡처**. 후자는 호출 시각이 명확하므로 logs CLI 가 그 짧은 윈도우 안의 데이터를 줄 가능성이 높다.
+
 ## 관련 맥락
 
 - 이 패턴이 풀어 주는 본진 사고는 [[prisma-connection-pool-vercel-supabase]] (무거운 트랜잭션 click-path 폭주). cron 으로 옮기는 게 정공법.
@@ -205,3 +256,4 @@ DB 부담보다 **차트 가독성** 이 진짜 제약. 365점을 한 화면에 
 ## 변경 이력
 
 - 2026-05-02: 최초 생성. japa 자산 대시보드의 cron 도입 과정에서 마주한 5가지 결정 (Hobby 슬롯 제약 / CRON_SECRET / middleware 충돌 / 단일 라우트 fan-out / 멱등성) 정리 (출처: session-logs/20260501-213505-aecb-*)
+- 2026-05-05: §7 Lambda 60초 timeout vs P2024 의 두 단계 구분, console.error stderr marker / module-level marker / instrumentation fire-and-forget 진단 패턴, PgBouncer cumulative cost 와 DIRECT_URL 우회 전략, 병렬/직렬 결정 원칙 추가. §8 Hobby cron 운영 한계 (flexible 1-hour window / Last Run 컬럼 미노출 / `vercel logs` CLI 시간 윈도우 cap) 추가 (출처: session-logs/20260505-084952-fe4f-*)

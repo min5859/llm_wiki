@@ -1,9 +1,32 @@
 ---
 title: Operation Log
-updated: 2026-05-04T13:30:00+09:00
+updated: 2026-05-05T11:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-05T11:00 — wiki-ingest (session-logs, ingested: false 14건)
+
+- Skipped (cron heartbeat — `Reply with only: OK`, assistant_turns: 0):
+  - 20260505-080021-35e0 (cwd: research-wiki)
+  - 20260505-090054-20e7 (cwd: oss-radar)
+- Skipped (research-wiki cron 의 논문 분석 입력 — 응답 미수집, assistant_turns: 0):
+  - 20260505-080027-b1fd (대규모 ML 인프라 / Poplar SDK / TensorFlow IPU 관련 논문 입력)
+  - 20260505-080120-54c6 (VBench 기반 video temporal stability 평가 관련 논문 입력)
+- Skipped (oss-radar cron 의 OSS 분석 입력 5건 — 응답 미수집, assistant_turns: 0):
+  - 20260505-090101-7fe2, 20260505-090145-ef9f, 20260505-090220-941a, 20260505-090255-bb23, 20260505-090334-872f
+- Skipped (탐색적 시행착오 — 결론 없이 종료):
+  - 20260505-102319-121e (cwd: infinite_loop, "토큰 소비를 위한 1분 단위 작업 만들어 달라" — assistant 가 구체 작업 질의 후 종료. 신규 지식 없음)
+- Skipped (vercel cron 디버깅 세션 — 결론은 이전 사이클에서 이미 흡수 완료):
+  - 20260505-084952-fe4f (cwd: japa) — 6 commit 디버깅 끝에 `directUrl` 분리 + `prismaDirect` 도입 + `instrumentation.register` fire-and-forget. 결론과 일반 패턴은 이미 [[prisma-connection-pool-vercel-supabase]] / [[vercel-cron-best-practices]] / [[pgbouncer-direct-url-hybrid-routing]] / [[japa-asset-dashboard]] 의 이전 사이클 (2026-05-05 일자) 에 흡수됨. 신규 추출 없음
+- Source: session-logs/20260505-101659-115c-*.md (cwd: finance-analysis-nextjs-backup, vercel 60s timeout 우회 commit 검토)
+  - Project: finance-analysis-nextjs
+  - **Created**: wiki/patterns/vercel-timeout-browser-direct-api.md — Vercel Hobby 60s lambda timeout escape hatch 일반 패턴. 인증 사용자에게 `ANTHROPIC_API_KEY` 를 `/api/anthropic-config` 로 내려주고 브라우저에서 `dangerouslyAllowBrowser: true` 로 SDK 직접 호출. 동작 원리 / 최소 구현 / 분기 전략 / 보안 부채 (DevTools 키 추출 / rate limit 통제 약화 / 시스템 프롬프트 노출 / 사용량 추적 어려움) / 회수 조건 + 키 회전 의무 / 정공법 대안 6종 비교표 / 함정 정리. confidence: medium
+  - **Updated**: wiki/projects/finance-analysis-nextjs.md — sources / related 추가, "Vercel 60초 timeout 우회 — 임시 client-direct Anthropic 패턴 (2026-05-04 hotfix, 회수 대상)" 섹션 신설 (commit `215b9ff` 의 변경 파일 5개와 보안 부채 명시), 변경 이력 항목 추가
+- Source: session-logs/20260505-103341-adb1-*.md + 20260505-104124-ad05-*.md (cwd: infinite_loop, news-digest 스킬 + scheduled-task 자동 실행)
+  - **Created**: wiki/analyses/claude-code-scheduled-tasks.md — Claude Code 데스크톱의 scheduled-tasks 동작 모델. `~/.claude/scheduled-tasks/<name>/SKILL.md` 위치, `/loop` 와의 차이표 (동작 주체 / 등록 위치 / 수명 / 다음 실행 시점 / 실행 컨텍스트), 자동 실행 시 prompt 가 받는 `<scheduled-task>` 컨텍스트 ("사용자 부재" + "write 액션은 task file 명시 시에만"), SKILL.md 의 좋은 형식 (저장 경로/파일명 패턴 / 출력 형식 / 크기 제약 / 완료 신호), 운영 함정 (앱 종료 시 정지 / "Scheduled" 사이드바 미노출 버전 존재 / 권한 다이얼로그가 자동 실행 멈춤 → "Run now" 사전 승인 / 결과 파일 mtime 으로 동작 검증 / 디렉터리 제거로 정지 / 중복 호출 멱등성), 다른 자동화 수단 (LaunchAgent / Vercel Cron / GitHub Actions) 과의 trade-off 비교
+- Updated: wiki/index.md (patterns/ 에 vercel-timeout-browser-direct-api 추가, analyses/ 에 claude-code-scheduled-tasks 추가, updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 14개 session-log 파일 전체 (skip 12건, 처리 3건 → 신규 페이지 2건 + 기존 페이지 갱신 1건)
 
 ## 2026-05-04T13:30 — wiki-ingest (session-logs, ingested: false 11건)
 
