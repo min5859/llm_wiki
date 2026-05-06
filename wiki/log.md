@@ -1,9 +1,28 @@
 ---
 title: Operation Log
-updated: 2026-05-06T01:30:00+09:00
+updated: 2026-05-06T10:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-06T10:00 — wiki-ingest (session-logs, ingested: false 9건)
+
+- Skipped (cron heartbeat — `Reply with only: OK`, assistant_turns: 0):
+  - 20260506-080028-ce80 (cwd: research-wiki)
+  - 20260506-090050-9c0d (cwd: oss-radar)
+- Skipped (research-wiki cron 의 논문 분석 입력 — 응답 미수집, assistant_turns: 0):
+  - 20260506-080035-0d45 (MolmoAct2 — robotics action model)
+  - 20260506-080147-f700 (Evoskill — automated skill discovery for multi-agent systems, arXiv 2603.02766)
+- Skipped (oss-radar cron 의 OSS 분석 입력 5건 — 응답 미수집, assistant_turns: 0):
+  - 20260506-090057-1b0d (forrestchang/andrej-karpathy-skills — Karpathy guidelines as Claude Code plugin/CLAUDE.md)
+  - 20260506-090131-55a5 (bytedance/deer-flow — LangChain 기반 deep research / agent flow)
+  - 20260506-090209-90d6 (daytonaio/daytona — secure dev sandbox SDK)
+  - 20260506-090245-55e5 (jeecgboot/JeecgBoot — Apache-2.0 enterprise low-code 플랫폼)
+  - 20260506-090335-a0d7 (OpenBB-finance/OpenBB — open-source 금융 데이터 플랫폼)
+  - 같은 시간대에 oss-radar/research-wiki cron 양쪽이 동시에 응답 미수집 → 호스트의 일시적 cron 환경 이슈 가능성 (이전 동일 패턴: 2026-05-04T13:30, 2026-05-03T12:30, 2026-04-30T18:30)
+- raw-sources/ 의 신규 .md 없음 (해당 서브디렉터리에는 PDF 만 존재), .cache/extracted/ 디렉터리 없음 — PDF 유래 chunk 처리 대상 외
+- Updated: wiki/index.md (updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 9개 session-log 파일 전체 (skip 9건, 신규 페이지 0건)
 
 ## 2026-05-06T01:30 — wiki-ingest (session-logs, ingested: false 2건)
 
