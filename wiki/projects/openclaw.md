@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "openclaw", "ai-agent", "telegram", "automation", "npm"]
 created: "2026-04-23"
-updated: "2026-04-26"
+updated: "2026-05-07"
 sources:
   - "session-logs/20260423-113736-72aa-openclaw-를-업데이트-하려고-합니다.-가이드를-알려주세요.md"
   - "session-logs/20260423-194609-6b61-코딩전용-openclaw-agent-를-추가했는데-텔레그램으로-메세지를-보내면-응답이-없습.md"
@@ -12,10 +12,14 @@ sources:
   - "session-logs/20260426-121630-14c3-https---bongman.tistory.com-1341-위-웹페이지-내용을-요약해-주세.md"
   - "session-logs/20260426-141208-ad61-맥비-지금-코드가-어디까지-구현되었는지-확인해-주세요.md"
   - "session-logs/20260426-184740-49b5-지금-실행되는-next.js-에서-5-issues-라고-뜹니다.-##-Error-Type.md"
+  - "session-logs/20260507-011504-7932-지즘-openclaw-agent-중에-coding-agent-인-맥코더가-텔레그램-채팅-창.md"
 confidence: "high"
 related:
   - "wiki/projects/gieok.md"
   - "wiki/analyses/openclaw-telegram-group-setup.md"
+  - "wiki/analyses/openclaw-acp-runtime-internals.md"
+  - "wiki/bugs/openclaw-coder-silent-3-layer.md"
+  - "wiki/decisions/openclaw-coder-default-model-codex.md"
 ---
 
 # OpenClaw — AI 에이전트 자동화 도구
@@ -86,7 +90,9 @@ openclaw capability image generate --model <provider/model> --prompt "..." --out
 |------------|------|------|--------|
 | `main` | 맥비 🐝 | openai-codex/gpt-5.4 | Telegram default (DM + 그룹 일반 채팅) |
 | `english` | English Tutor 📚 | openai-codex/gpt-5.4-mini | Telegram english (별도 봇) |
-| `coder` | 코더 💻 | anthropic/claude-opus-4-6 | Telegram default, 그룹 "코딩" 토픽 |
+| `coder` | 코더 💻 | openai-codex/gpt-5.5 (2026-05-07 변경) | Telegram default, 그룹 "코딩" 토픽 |
+
+> 코더의 default 모델은 2026-05-07 까지 `anthropic/claude-opus-4-6` 였으나 Anthropic OAuth organization-level 거부로 인해 `openai-codex/gpt-5.5` 로 변경. Anthropic Claude 는 사용자가 명시적으로 `/acp spawn --bind here` 를 호출한 ACP 세션 내에서만 사용. 자세히 → [[openclaw-coder-default-model-codex]] / [[openclaw-coder-silent-3-layer]]
 
 ### 라우팅 규칙 (`bindings`)
 
@@ -303,9 +309,29 @@ return {
 
 → 범용 분석 페이지: [[prisma-decimal-nextjs-serialization]]
 
+## 2026-05-07 코더 응답 무 사건 (3계층 디버깅)
+
+코더 (`agent.id = coder`) 가 텔레그램 코더 토픽에서 응답이 끊긴 사건. 3개의 독립 원인이 동시에 발현. 자세한 디버깅 흐름 / sqlite 좀비 task 정리 절차 / 카카오톡 미스라우팅 후속 이슈는 별도 페이지로 분리:
+
+- [[openclaw-coder-silent-3-layer]] — 3계층 진단 사례
+- [[openclaw-acp-runtime-internals]] — `plugins.allow` / 좀비 task / `sessions.json` stale binding / wrapper 환경 상속
+- [[openclaw-coder-default-model-codex]] — Anthropic → Codex 모델 정책 변경
+- [[mcp-config-secret-exposure-via-ps]] — `--mcp-config` 평문 인자 노출 보안 함정
+
+핵심 변경:
+
+| 항목 | 이전 | 이후 |
+|------|------|------|
+| `agents.list[<코더>].model` | `anthropic/claude-opus-4-6` | `openai-codex/gpt-5.5` |
+| `runtime.acp.agent` | `claude` | (유지) |
+| `plugins.allow` | (미설정) | `["acpx", "telegram", "copilot-proxy"]` |
+
+운영 정책: 일반 메시지는 embedded 모델 (Codex) 로 즉시 응답. Anthropic Claude 는 `/acp spawn --bind here` 명시 호출 시에만 사용. ACP wrapper 가 user-level Claude.ai connector / MCP 를 모두 상속하므로 보안적으로 신뢰된 사용자만 ACP 호출 권장.
+
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260423-113736-72aa에서 추출)
 - 2026-04-23: 다중 에이전트 구성, Telegram 그룹 설정, 버그 트러블슈팅 추가 (세션 로그 20260423-194609-6b61)
 - 2026-04-26: ACP permissionMode 스키마 제약, asset-dashboard git 분리 구조 추가 (세션 로그 20260426-120703-304f, 20260426-121630-14c3)
 - 2026-04-26: asset-dashboard Phase 2/3 완료 기록, Yahoo Finance 연동 상세, Prisma Decimal 직렬화 버그 수정 패턴 추가 (세션 로그 20260426-141208-ad61, 20260426-184740-49b5)
+- 2026-05-07: 코더 응답 무 사건 (3계층 디버깅) 섹션 추가, 모델 정책 변경 (Anthropic → Codex). 자세한 분석은 별도 페이지로 분리 (세션 로그 20260507-011504-7932)

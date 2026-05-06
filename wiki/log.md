@@ -1,9 +1,27 @@
 ---
 title: Operation Log
-updated: 2026-05-06T10:00:00+09:00
+updated: 2026-05-07T13:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-07T13:00 — wiki-ingest (session-logs, ingested: false 4건)
+
+- Source: session-logs/20260506-230405-a179-*.md (cwd: ht_trading, KIS 매수 차단 버그 수정 + 매수 커트라인 60→62 튜닝)
+  - **Created**: wiki/bugs/kis-cash-d2-settlement-buy-rejection.md — `domestic.py:get_balance()` 의 `cash` 매핑이 `dnca_tot_amt` (D+0 출금가능) 만 사용 → 매도 직후 매수 사이클에서 RiskManager 가 "현금 부족" 차단. 한국 D+2 결제 시스템에서 `prvs_rcdl_excc_amt` (D+2 가수도정산금액) 가 매도 미정산 포함 매수가능 현금. `cash = max(deposit, settled_d2)` 로 매핑 + 모의투자 D+2=0 fallback. 신규 회귀 테스트 3건 (D+2 사용 / D+2=0 fallback / 동일값). 다운스트림 (`KISBroker.get_cash` → `_cached_cash` → `ctx.cash` → `RiskManager._validate_buy`) 동일 키라 변경 불필요. commit c6109f4
+  - **Created**: wiki/analyses/kis-balance-api-fields.md — KIS Open API 잔고 응답 (`/uapi/domestic-stock/v1/trading/inquire-balance`, TR `TTTC8434R`) 의 5개 현금/잔고 필드 의미 비교표: `dnca_tot_amt` (D+0 예수금총액 = 출금가능) / `nxdy_excc_amt` (D+1 익일정산) / `prvs_rcdl_excc_amt` (D+2 가수도정산 = 매도 미정산 포함 매수가능) / `tot_evlu_amt` (총평가) / `evlu_pfls_smtl_amt` (평가손익). 한국 D+2 결제 사이클 + 매도 직후 매수 가능 정책. 별도 매수가능조회 API (`inquire-psbl-order`) 와 동일 로직. 안전한 매핑 패턴 (max + fallback). "예수금" 한국어 의미 충돌 함정
+  - **Updated**: wiki/projects/ht-trading.md — sources / related 추가, 버그 수정 5번째 (D+2 정산 누락) 신설, 스코어링 임계값 60 → 62 (commit faa0518) 반영, 변경 이력 항목 추가
+- Source: session-logs/20260507-004906-1f45-*.md + 20260507-015508-eb0c-*.md (cwd: openclaw/workspace, kernel-digest 신규 프로젝트 AGENTS.md 작성. 두 번째 세션은 첫 세션의 산출물 재확인이라 내용 동일)
+  - **Created**: wiki/projects/kernel-digest.md — 리눅스 커널 일일 다이제스트 서비스. 4축 콘텐츠 (메인라인 패치 / 로드맵 / 버전 史 / 커뮤니티), 8 데이터 소스 (`git.kernel.org` / lore-LKML / LWN / KernelNewbies / Phoronix / Patchwork / kernel.org 공지 / 컨퍼런스), 4단계 파이프라인 (Collectors → Raw Store → AI Stage → Publisher → Web), 마일스톤 M0~M6 (현재 M0 완료). 정책: **종량제 API 금지** (`ANTHROPIC_API_KEY` 사용 금지) — 구독제 LLM (`claude -p` / `openclaw`) 만 허용 (월 비용 0원 목표). M1 진입 전 미결정 7건 (정적 사이트 도구 / 호스팅 / 저장소 구조 / 발행 시각 / LWN 구독 / 공유 범위 / LLM 라우팅). 토픽-플러그인 확장 (안드로이드 / AI 등)
+- Source: session-logs/20260507-011504-7932-*.md (cwd: openclaw, 코더 응답 무 3계층 디버깅 + 카카오톡 미스라우팅 후속)
+  - **Created**: wiki/bugs/openclaw-coder-silent-3-layer.md — 3개 독립 원인이 동시 발현 (1) `plugins.allow` 미설정으로 acpx runtime register 차단 (2) 12일 묵은 좀비 ACP task chicken-and-egg (3) **진짜 원인** Anthropic OAuth organization 차단 (HTTP 403) + 코더 fallback 0개로 silent 침묵. 가설 교체 2번 (좀비 task → plugins.allow → 인증). 회복: 모델 anthropic/claude-opus-4-6 → openai-codex/gpt-5.5. 후속 (Part 2): `/acp spawn` 후 응답이 카카오톡 "나와의 채팅" 으로 미스라우팅 (ACP wrapper 가 user-level Claude.ai connector 상속). 호명-only silent stop (모델-prompt 미스매치). 5가지 교훈
+  - **Created**: wiki/analyses/openclaw-acp-runtime-internals.md — OpenClaw 2026.5.3 ACP runtime 의 4가지 함정: (1) `plugins.allow` 보안 정책 — non-bundled plugin 의 register 차단, `inspect=loaded` 와 실제 register 의 격차, plugin short id 매칭 / set 출력의 stale snapshot / bundled plugin 의 entries 등록 시 같이 죽는 위험 (2) 좀비 ACP task 의 chicken-and-egg (cancel/flow cancel/maintenance 모두 거부) → sqlite 직접 편집 절차 + status='running' 가드 + sqlite3 changes() 0 함정 + daemon restart 필수 (3) `sessions.json` 의 stale ACP binding (wrapper 종료 후에도 잔존, 새 메시지 처리 차단) → python 으로 'acp:binding' 키 제거 + restart (4) ACP wrapper 의 `--setting-sources=user,project,local --allow-dangerously-skip-permissions` 가 user-level Claude.ai connector 전부 상속 → 보안 위험 + 응답 미스라우팅. 4계층 디버깅 체크리스트
+  - **Created**: wiki/analyses/mcp-config-secret-exposure-via-ps.md — Claude Code (그리고 ACP wrapper) 가 child claude binary 를 spawn 할 때 MCP 설정을 `--mcp-config` 옵션에 **인라인 JSON 평문**으로 전달 → `ps -ef` 의 command 컬럼에 NOTION_API_KEY 등 시크릿 지속 노출. macOS/Linux 기본 정책상 **다른 사용자도 보임**. 토큰 교체로 해결 안 됨 (재발 메커니즘). 노출 통로별 위험도 (다른 로컬 사용자 / 모니터링 에이전트 / 디버깅 캡처 외부 공유). 노출 방지 4옵션 (A upstream `--mcp-config-file` 추가 / B MCP 자체 제거 / C ACP 비활성 / D 환경 격리). single-user 환경의 실효 위험 평가
+  - **Created**: wiki/decisions/openclaw-coder-default-model-codex.md — 코더 default 모델 결정: anthropic/claude-opus-4-6 → openai-codex/gpt-5.5. 이유: Anthropic OAuth organization 차단 + fallback 0개 silent 침묵 회피, main agent 와 인증 단일화, Anthropic 은 ACP 경유 사용을 권장하는 정책 시그널. `runtime.acp.agent: claude` 유지 (ACP 경로 보존). `openclaw models set --agent` 는 글로벌 only 라 사용 불가 — `agents.list[<idx>].model` 직접 편집 + daemon restart. 트레이드오프 (Opus 응답 톤 상실 / prompt 재조정 필요) + 후속 작업 (system prompt 재조정, ACP 격리, 만료 토큰 정리)
+  - **Updated**: wiki/projects/openclaw.md — sources / related 추가, 코더 모델 표 갱신 (anthropic → codex + 정책 주석), "2026-05-07 코더 응답 무 사건 (3계층 디버깅)" 신설 (별도 페이지로 분리), 변경 이력 항목 추가
+- raw-sources/ 의 신규 .md 없음 — Tips/ 서브디렉터리는 PDF 만 존재 (chunk MD 처리 대상 외). 그 외 articles/ books/ ideas/ papers/ transcripts/ 모두 비어 있음
+- Updated: wiki/index.md (analyses/ 4건 / projects/ 1건 / bugs/ 2건 / decisions/ 1건 신규 추가, decisions 섹션 처음으로 활성화, updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 4개 session-log 파일 전체 (skip 0건, 처리 4건 → 신규 페이지 7건 + 기존 페이지 갱신 2건)
 
 ## 2026-05-06T10:00 — wiki-ingest (session-logs, ingested: false 9건)
 

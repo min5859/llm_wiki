@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-06T10:00:00+09:00
+updated: 2026-05-07T13:00:00+09:00
 ---
 
 # Wiki Index
@@ -28,10 +28,11 @@ updated: 2026-05-06T10:00:00+09:00
 - [[wardrobe]] — 옷장 매칭 웹 앱 (Next.js 15 + Tailwind v4 + LocalStorage MVP): 사이드바 레이아웃, 시드 JSON, DB 없이 Step 1 단계로 시작
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입
+- [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
 
 ## 설계 판단 (decisions/)
 
-(아직 페이지가 없습니다)
+- [[openclaw-coder-default-model-codex]] — OpenClaw 코더 default 모델을 Anthropic Claude Opus → Codex GPT-5.5 로 변경. Anthropic OAuth organization 차단 + fallback 0개로 인한 silent 침묵 회피. Claude Opus 는 `/acp spawn --bind here` 명시 호출 시에만 사용
 
 ## 패턴 (patterns/)
 
@@ -56,6 +57,8 @@ updated: 2026-05-06T10:00:00+09:00
 - [[yahoo-finance-concurrent-silent-fail]] — 30개 심볼 Promise.allSettled 동시 호출 시 일부 응답에 regularMarketPrice 누락 silent fail, worker pool 6 + 250ms 1회 재시도 + UI 가시성으로 수정
 - [[prisma-connection-pool-vercel-supabase]] — Vercel + connection_limit=1 환경에서 8개 $transaction 병렬화로 P2024 풀 고갈, 같은 인스턴스 후속 요청까지 연쇄 실패. 불변 시계열은 createMany skipDuplicates 한 방으로, 무거운 쓰기는 click-path 에서 일별 cron 으로 분리
 - [[gemini-2-0-flash-free-tier-blocked]] — 2026 봄 시점 `gemini-2.0-flash` 가 free tier 차단 (429 + `limit: 0`), `gemini-2.5-flash` 로 교체 + `<VENDOR>_MODEL` env override 패턴으로 재발 방지
+- [[kis-cash-d2-settlement-buy-rejection]] — KIS 잔고 응답에서 `dnca_tot_amt` (D+0 출금가능) 만 매수가능 현금으로 사용해 D+2 정산 대기 매도분이 누락 → RiskManager 가 매수 차단. `prvs_rcdl_excc_amt` (D+2 가수도정산금액) 와 max() 처리 + 모의투자 fallback
+- [[openclaw-coder-silent-3-layer]] — OpenClaw 코더 응답 무 3계층 디버깅: plugins.allow 미설정 (acpx runtime 차단) + 12일 묵은 좀비 ACP task (sqlite 직접 정리) + Anthropic OAuth 403 (진짜 원인). 모델 codex 로 변경 후 회복
 
 ## 요약 (summaries/)
 
@@ -97,3 +100,6 @@ updated: 2026-05-06T10:00:00+09:00
 - [[claude-code-scheduled-tasks]] — Claude Code 데스크톱의 scheduled-tasks: `~/.claude/scheduled-tasks/<name>/SKILL.md`, 앱 종료 시에만 정지, /loop 와의 차이, 권한 사전 승인 / "Run now" 의 의미
 - [[kakao-messaging-automation-options]] — 카카오톡 자동화 3 옵션 비교: Kakao Developers API (정식, 단톡 읽기 불가) / LOCO (비공식, 약관 위반·계정 정지 위험) / 하이브리드 (로컬 DB 읽기 + 나에게 보내기 송신). 시나리오별 추천
 - [[kakaotalk-mac-data-locations]] — App Store v26.3.0 (`com.kakao.KakaoTalkMac`) 의 메시지 sqlcipher DB 위치: `~/Library/Containers/.../Application Support/com.kakao.KakaoTalkMac/<80hex>` + `-wal` + `-shm`. `[wal]` / `[magic]` / `[ext]` 휴리스틱
+- [[kis-balance-api-fields]] — KIS 잔고 API summary 의 현금 필드 5종 비교: `dnca_tot_amt` (D+0 출금가능) vs `prvs_rcdl_excc_amt` (D+2 가수도정산금액 = 매도 미정산 포함 매수가능) vs `nxdy_excc_amt` / `tot_evlu_amt` / `evlu_pfls_smtl_amt`. 모의투자 fallback 패턴
+- [[openclaw-acp-runtime-internals]] — OpenClaw ACP runtime 의 4가지 함정: plugins.allow 미설정 시 acpx register 차단 / 좀비 task 의 chicken-and-egg + sqlite 직접 정리 절차 / sessions.json stale ACP binding / wrapper 의 user 환경 상속 보안 함정. 4계층 디버깅 체크리스트
+- [[mcp-config-secret-exposure-via-ps]] — Claude Code 가 MCP 설정을 `--mcp-config` 인라인 JSON 평문으로 전달 → `ps -ef` 에 `NOTION_API_KEY` 등 시크릿 지속 노출. 토큰 교체로 해결 안 됨 (재발). 노출 방지 4옵션 (upstream `--mcp-config-file` / MCP 제거 / ACP 비활성 / 환경 격리)
