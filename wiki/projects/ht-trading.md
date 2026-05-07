@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-05-07"
+updated: "2026-05-08"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
@@ -12,9 +12,11 @@ sources:
   - "session-logs/20260426-111623-cfe2-4월-24일-매매시-몇가지-종목들이-리그크-거부로-인해서-매수거부가-발생했습니다.-왜-그런.md"
   - "session-logs/20260428-235122-215d-오늘-매매-로그를-분석해서-개선사항을-도출해-주세요.md"
   - "session-logs/20260506-230405-a179-오늘-매수가능-금액이-있었는데도-매수가-리스크에-걸려-매수-되지-않았습니다.-제가-확인해.md"
+  - "session-logs/20260507-224943-690c-익절-조건이-됐는데도-익절을-하지-않는-것-같습니다.-오늘자-매매로그를-확인해서-익절조건인.md"
 confidence: "high"
 related:
   - "wiki/bugs/kis-cash-d2-settlement-buy-rejection.md"
+  - "wiki/bugs/dict-get-default-no-bootstrap.md"
   - "wiki/analyses/kis-balance-api-fields.md"
 ---
 
