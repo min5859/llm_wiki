@@ -1,9 +1,30 @@
 ---
 title: Operation Log
-updated: 2026-05-07T13:00:00+09:00
+updated: 2026-05-07T13:05:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-07T13:05 — wiki-ingest (session-logs, ingested: false 7건)
+
+- 모두 cron 자동 호출 (research-wiki / oss-radar) 의 분석 입력 프롬프트 — `assistant_turns: 0`. 5건은 같은 날 별도 세션에서 이미 wiki/analyses/ 페이지로 처리되어 있었으나 source session 의 `ingested: false` 가 잔존. wiki/index.md 의 analyses 섹션에 미반영이던 5건을 신규 등재
+- Source: session-logs/20260507-080029-d1f3-*.md (research-wiki cron, 논문 ESamp / arXiv 2604.24927)
+  - **Already exists**: wiki/analyses/esamp-latent-distilling-exploration.md — Latent Distiller (RND 영감) + KL-regularized closed-form 재가중 + 비동기 파이프라인 < 5% 오버헤드. AIME25 Pass@64 등 Pass@k 효율 향상
+- Source: session-logs/20260507-080128-c5a0-*.md (research-wiki cron, 논문 ARIS / arXiv 2605.03042)
+  - **Already exists**: wiki/analyses/aris-autonomous-research-harness.md — cross-family executor/reviewer 강제 + 65+ Markdown 스킬 + 5 워크플로우 + 3단계 assurance. github.com/wanshuiyin/Auto-claude-code-research-in-sleep
+- Source: session-logs/20260507-090100-b830-*.md (oss-radar cron, rasbt/LLMs-from-scratch)
+  - Skipped — README 가 정규식 마스킹으로 인해 citation BibTeX 외 거의 전부 redacted (`https://***:***@...` 형태). 응답 미수집 + 추출 가능한 컨텐츠 부족 → wiki 페이지 미작성
+- Source: session-logs/20260507-090136-e343-*.md (oss-radar cron, infiniflow/ragflow)
+  - **Already exists**: wiki/analyses/ragflow-rag-engine.md — 79.8k stars, Apache-2.0, Python. Deep document understanding · template-based chunking · grounded citations · agentic + MCP. Elasticsearch ↔ Infinity 전환 가능
+- Source: session-logs/20260507-090208-7524-*.md (oss-radar cron, koala73/worldmonitor)
+  - **Already exists**: wiki/analyses/worldmonitor-global-intelligence-dashboard.md — 53.6k stars, AGPL-3.0, TypeScript/Tauri. AI 뉴스 어그리게이션 + 지정학 모니터링 + 인프라 추적 실시간 대시보드
+- Source: session-logs/20260507-090243-d19f-*.md (oss-radar cron, ComposioHQ/awesome-claude-skills)
+  - Skipped — README 의 contributor URL 이 거의 전부 마스킹 (`https://***:***@...` 형태) 으로 awesome list 의 큐레이트된 항목들이 추출 불가. 응답 미수집 + 의미 있는 컨텐츠 부재 → wiki 페이지 미작성
+- Source: session-logs/20260507-090326-b169-*.md (oss-radar cron, D4Vinci/Scrapling)
+  - **Already exists**: wiki/analyses/scrapling-adaptive-web-scraping.md (confidence: low) — BSD-3-Clause, Python. 다중 셀렉터 + DynamicFetcher + Async/Stealthy 세션 + HTTP/3 + element 관계 헬퍼
+- raw-sources/ 의 신규 .md 없음 — Tips/ 서브디렉터리는 PDF 만 존재 (chunk MD 처리 대상 외). articles/ books/ ideas/ papers/ transcripts/ 모두 비어 있음. .cache/extracted/ 디렉터리 없음
+- Updated: wiki/index.md (analyses 섹션에 esamp / aris / ragflow / scrapling / worldmonitor 5건 추가, updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 7개 session-log 파일 전체 (skip 2건: 마스킹된 redacted README, 처리 5건: 모두 사전 작성된 페이지로 cross-reference)
 
 ## 2026-05-07T13:00 — wiki-ingest (session-logs, ingested: false 4건)
 

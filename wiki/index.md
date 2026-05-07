@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-07T13:00:00+09:00
+updated: 2026-05-07T13:05:00+09:00
 ---
 
 # Wiki Index
@@ -103,3 +103,8 @@ updated: 2026-05-07T13:00:00+09:00
 - [[kis-balance-api-fields]] — KIS 잔고 API summary 의 현금 필드 5종 비교: `dnca_tot_amt` (D+0 출금가능) vs `prvs_rcdl_excc_amt` (D+2 가수도정산금액 = 매도 미정산 포함 매수가능) vs `nxdy_excc_amt` / `tot_evlu_amt` / `evlu_pfls_smtl_amt`. 모의투자 fallback 패턴
 - [[openclaw-acp-runtime-internals]] — OpenClaw ACP runtime 의 4가지 함정: plugins.allow 미설정 시 acpx register 차단 / 좀비 task 의 chicken-and-egg + sqlite 직접 정리 절차 / sessions.json stale ACP binding / wrapper 의 user 환경 상속 보안 함정. 4계층 디버깅 체크리스트
 - [[mcp-config-secret-exposure-via-ps]] — Claude Code 가 MCP 설정을 `--mcp-config` 인라인 JSON 평문으로 전달 → `ps -ef` 에 `NOTION_API_KEY` 등 시크릿 지속 노출. 토큰 교체로 해결 안 됨 (재발). 노출 방지 4옵션 (upstream `--mcp-config-file` / MCP 제거 / ACP 비활성 / 환경 격리)
+- [[esamp-latent-distilling-exploration]] — ESamp (arXiv 2604.24927): LLM 내부 hidden representation 예측 오차를 RND 영감 신규성 신호로 활용해 의미 공간 다양성을 강제하는 디코딩. KL-regularized closed-form 재가중 + 비동기 LD 파이프라인 < 5% 오버헤드, AIME25 Pass@64 +대폭
+- [[aris-autonomous-research-harness]] — ARIS (arXiv 2605.03042): cross-family executor/reviewer 강제 + 65+ Markdown 스킬 + 5 워크플로우 + 3단계 assurance 로 단일 모델 family inductive bias 와 plausible-unsupported-success 차단하는 오픈소스 자율 연구 하네스
+- [[ragflow-rag-engine]] — RAGFlow (79.8k stars, Apache-2.0, Python): RAG + Agent 결합 컨텍스트 엔진. Deep document understanding · template chunking · grounded citations · agentic + MCP · MinerU/Docling 파싱 · Confluence/S3/Notion/Drive 동기화. Elasticsearch ↔ Infinity 전환, Docker Compose 기동
+- [[scrapling-adaptive-web-scraping]] — Scrapling (D4Vinci, BSD-3-Clause, Python): CSS/XPath/BeautifulSoup 셀렉터 단일 API + DynamicFetcher one-off + Stealthy/Async 세션 + HTTP/3 + element 관계 헬퍼·체이닝·텍스트 검색
+- [[worldmonitor-global-intelligence-dashboard]] — World Monitor (53.6k stars, AGPL-3.0, TypeScript/Tauri): AI 뉴스 어그리게이션 + 지정학 모니터링 + 인프라 추적 통합 실시간 글로벌 인텔리전스 대시보드, "오픈소스 Palantir 류"
