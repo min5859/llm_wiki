@@ -1,9 +1,24 @@
 ---
 title: Operation Log
-updated: 2026-05-08T13:00:00+09:00
+updated: 2026-05-09T13:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-09T13:00 — wiki-ingest (session-logs, ingested: false 21건)
+
+처리 1건 + 스킵 20건. 신규 페이지 2건 (projects 1 / analyses 1), 기존 페이지 갱신 1건 (concepts/hermes-agent).
+
+- Source: session-logs/20260509-001610-307a-*.md (cwd: toy/hermes, hermes 코딩 전용 프로필 maccoder 추가 + 13 turns + 75 bash + 7 file edits)
+  - **Created**: wiki/projects/hermes.md — toy/hermes 프로젝트 기록. default + 코딩 전용 `maccoder` 두 프로필 운영, 셋업 핵심 결정 5가지 (`profile create --clone` / OAuth symlink 공유 / Claude CLI HOME 복원 wrapper / `.bash_profile` PATH 주입 / Telegram 별도 봇 reconfigure), 파일 레이아웃, ACP 방향성 (server-only / claude 미채택), end-to-end 검증, 운영 명령어, 알려진 함정. commit `9feb783` (README + tasks/todo.md Review) / `62aec7d` (`.gitignore` 에 `client_secret_*.json` 추가)
+  - **Created**: wiki/analyses/multi-profile-cli-agent-isolation.md — CLI agent 멀티 프로필 격리 4대 함정 일반화. (1) OAuth 토큰 공유는 symlink (단순 복사·새 OAuth 모두 refresh-token 회전 충돌, lock 도 같이 symlink 하면 동시 refresh 직렬화) (2) Keychain 인증은 HOME 격리로 깨짐 → wrapper 가 HOME 만 복원 (`~/.claude` symlink 만으로는 부족) (3) hermes 등은 `.bashrc`/`.bash_profile` 만 source (`auto_source_bashrc`) → macOS zsh init 무시, cron / launchd / GitHub Actions 와 같은 비대화 셸 함정 패밀리 (4) `profile create --clone` 후 `.env` 의 Telegram bot token / API key 는 첫 setup 에서 reconfigure 필수
+  - **Updated**: wiki/concepts/hermes-agent.md — 멀티 프로필 (`hermes profile` 명령 / 격리 디렉터리 / launchd 분리 plist / `--clone` 메모리 fresh) 섹션, 빌트인 `claude-code` skill 의 동작 (subprocess + ACP 미사용), ACP 지원 방향 비대칭 (server-only) 추가. confidence medium → high. multi-profile-cli-agent-isolation / hermes (project) 와 cross-link
+- Skipped (dev-blog cron 자동 입력 — Linux Daily Newsletter Rewrite, JSON 출력 templated, dev-blog 파이프라인이 직접 받아 처리하므로 별도 인제스트 불요): 20260509-001334-015d, 20260509-001713-6cc4, 20260509-002321-504c, 20260509-003728-3549, 20260509-004240-96c7, 20260509-004756-55b3, 20260509-005319-3b67, 20260509-005725-84f6, 20260509-010205-6bcc, 20260509-010807-0814, 20260509-012359-8040, 20260509-014628-7071, 20260509-070015-71e8 (13건)
+- Skipped (dev-blog cron 자동 입력 — Linux Kernel Weekly Digest, JSON 출력 templated, 7일치 일일 다이제스트 압축): 20260509-013212-cc6f, 20260509-013708-3abd, 20260509-014127-d241 (3건)
+- Skipped (이전 maccoder 셋업 세션 직후의 sub-process 검증 호출 — 0~1 turn, 신규 지식 없음): 20260509-001352-0485 (`say hi`), 20260509-001423-38b6 (`say hi`), 20260509-004309-976f (`python3 -c "print(2+2)"` Bash 검증), 20260509-004343-06ab (`python --version` Bash 검증). 이 4건은 모두 maccoder 본 세션 (307a-*) 에서 hermes terminal tool 동작·HOME 격리 우회 검증으로 spawn 된 것이며 결론은 본 세션에 흡수됨
+- raw-sources/ 의 신규 .md 없음 — Tips/ articles/ books/ ideas/ papers/ transcripts/ 의 모든 서브디렉터리에 PDF / .pptx / .txt 만 존재 (chunk MD 처리 대상 외). .cache/extracted/ 디렉터리 없음 (PDF 자동 추출 대상 없음)
+- Updated: wiki/index.md (projects 에 hermes 1건, analyses 에 multi-profile-cli-agent-isolation 1건 추가, updated 타임스탬프), wiki/log.md, wiki/concepts/hermes-agent.md (sources / related / updated / 본문 3섹션 추가)
+- Marked ingested: true — 21개 session-log 파일 전체 (skip 20건, 처리 1건 → 신규 페이지 2건 + 기존 페이지 갱신 1건)
 
 ## 2026-05-08T13:00 — wiki-ingest (session-logs, ingested: false 19건)
 

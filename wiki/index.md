@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-08T13:00:00+09:00
+updated: 2026-05-09T13:00:00+09:00
 ---
 
 # Wiki Index
@@ -30,6 +30,7 @@ updated: 2026-05-08T13:00:00+09:00
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입
 - [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
 - [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드, BASE_PATH 자동 대응
+- [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇
 
 ## 설계 판단 (decisions/)
 
@@ -118,3 +119,4 @@ updated: 2026-05-08T13:00:00+09:00
 - [[supabase-magic-link-single-user-allowlist]] — 1인용 Next.js 앱의 자체 비밀번호 → Supabase Auth 매직 링크 + `OWNER_EMAIL` allowlist 교체. 4-Gate (UI / send-magic-link PRIMARY / Supabase OTP / callback SECONDARY) + email enumeration 방지 (generic 200 응답) + cron 라우트 분리
 - [[news-driven-market-signal-framework]] — 다일자 뉴스 코퍼스 → 시장 시그널 추출의 7-축 (매크로/지정학/시장흐름/섹터/기업이벤트/수급심리/톤) + 3-시나리오 (확률 가중 base/neutral/risk) + 섹터 비중 + 체크포인트. 일자별 병렬 서브에이전트 분해
 - [[llm-news-prediction-pitfalls]] — LLM 시장 예측 6가지 함정 (검증 결여 / 확률 직관 / selection bias / stale 속도 / 자문 회색지대 / 단일 인과 추론). 결과 영속화 부적절, 방법론·함정만 영속화
+- [[multi-profile-cli-agent-isolation]] — CLI agent 멀티 프로필 셋업의 4함정: OAuth 토큰 공유는 symlink (refresh-token 회전 충돌 회피) / Keychain 인증은 HOME 격리에 깨짐 → wrapper 로 HOME 복원 / hermes 등 agent 는 `.bashrc`·`.bash_profile` 만 source (zsh init 무시) / `--clone` 후 `.env` reconfigure 필수
