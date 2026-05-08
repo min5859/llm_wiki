@@ -4,7 +4,7 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "supabase", "vercel", "yahoo-finance", "personal-asset", "single-user-auth"]
 created: 2026-04-30
-updated: 2026-05-05
+updated: 2026-05-08
 sources:
   - "session-logs/20260430-135011-e8eb-*.md"
   - "session-logs/20260430-161410-0fcc-*.md"
@@ -12,6 +12,7 @@ sources:
   - "session-logs/20260502-095014-6859-*.md"
   - "session-logs/20260503-100914-b80f-*.md"
   - "session-logs/20260505-084952-fe4f-*.md"
+  - "session-logs/20260507-230645-c555-*.md"
 confidence: high
 related:
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
@@ -23,6 +24,8 @@ related:
   - "wiki/patterns/vercel-cron-best-practices.md"
   - "wiki/patterns/zod-schema-per-entity.md"
   - "wiki/analyses/pgbouncer-direct-url-hybrid-routing.md"
+  - "wiki/patterns/react-hook-form-zod-server-action.md"
+  - "wiki/analyses/supabase-magic-link-single-user-allowlist.md"
 ---
 
 # japa — 개인 자산 통합 대시보드
@@ -407,9 +410,42 @@ cron 실행 여부를 사후 확인하려고 `vercel logs` CLI 를 쓰니:
 
 `0 22 * * *` (UTC) = KST 07:00 으로 등록해도, Hobby 플랜은 **flexible 1-hour window** 로 KST 07:00~08:00 사이 어느 시점에 실행. 정확한 분 단위 시간은 보장되지 않음. 사용자 입장에서 "오전 7시에 안 돌고 8시에 돈다" 로 보일 수 있는데 정상 동작 범위.
 
-### Zod-schema 정리 후 폼 즉시 검증 (백로그)
+### Zod-schema 정리 후 폼 즉시 검증 → ✅ 적용 (2026-05-08, commit 96a22e1)
 
-server/client 가 동일 schema 를 import 할 수 있게 되었으므로 `react-hook-form + @hookform/resolvers/zod` 도입 시 폼 제출 → 서버 왕복 → 에러 사이클이 **클라이언트 즉시 검증** 으로 단축 가능. 이번 세션에서는 보류 (별건).
+`react-hook-form` 7.75 + `@hookform/resolvers/zod` 5.2 도입으로 4개 폼 (`account` / `holding` / `dividend` / `group`) 의 클라이언트 즉시 검증 + 서버 라운드트립 절감 (+365 / -186). 일반 패턴은 [[react-hook-form-zod-server-action]] 으로 분리.
+
+| 결정 | 선택 |
+|---|---|
+| input/output 타입 분리 | `useForm<z.input<S>, unknown, z.output<S>>` 명시 — resolvers v5 의 input/output 분리로 안 쓰면 TS2719 |
+| 서버 검증 유지 | 클라이언트 검증 통과 후 `FormData` 재구성 → 기존 server action 호출 (defense-in-depth) |
+| pending UX | `useTransition` |
+| cascade 자동 채움 | `setValue` 사용 (holding 의 심볼 lookup → symbol/currency/name 동시 채움; dividend 의 holding 선택 cascade + 통화 변경 시 FX 자동 fetch) |
+| 체크박스 배열 | `register("accountIds")` 한 줄 (group 폼의 Set state + hidden inputs 패턴 단순화) |
+| 호환성 | `Input`/`Select`/`Textarea` 가 모두 `forwardRef` 라 `register()` spread 그대로 동작 |
+
+### Supabase Auth + 이메일 Allowlist → ✅ 적용 (2026-05-08, commit e1bdb4a)
+
+기존 `ADMIN_PASSWORD` + HMAC-SHA256 세션 쿠키 인증을 Supabase Auth + 매직 링크 + `OWNER_EMAIL` allowlist 로 교체. 일반 패턴은 [[supabase-magic-link-single-user-allowlist]] 로 분리.
+
+| 변경 | 내용 |
+|---|---|
+| 신규 의존성 | `@supabase/ssr`, `@supabase/supabase-js` |
+| 신규 파일 | `lib/supabase/{server,client,middleware}.ts`, `lib/auth/allowlist.ts`, `app/auth/callback/route.ts`, `app/api/auth/send-magic-link/route.ts`, `app/api/auth/logout/route.ts` |
+| 삭제 | `lib/auth.ts` (HMAC + verifyAdminPassword), `app/actions/auth.ts` |
+| env 변경 | `+NEXT_PUBLIC_SUPABASE_URL`, `+NEXT_PUBLIC_SUPABASE_ANON_KEY`, `+OWNER_EMAIL`, `+NEXT_PUBLIC_APP_URL`; `-ADMIN_PASSWORD`, `-AUTH_SECRET` |
+| middleware | Supabase `updateSession` 위임. `/api/cron` 제외는 그대로 (Vercel Cron 은 cookie 없이 `CRON_SECRET` Bearer) |
+| Defense-in-depth | 매직 링크 발송 라우트 (GATE 2) + callback 라우트 (GATE) 양쪽에서 allowlist 재검증. 비-allowlist 이메일도 generic 200 응답 (email enumeration 방지) |
+
+운영 배포 노하우:
+
+- Supabase Dashboard 「API」 탭이 「Data API」(Project URL) + 「API Keys」(anon key) 두 개로 분리됨 (2026 봄). 같은 값 다른 별칭: Project URL = API URL = RESTful endpoint
+- Site URL vs Redirect URLs 의미 — 코드가 `emailRedirectTo: ${NEXT_PUBLIC_APP_URL}/auth/callback` 명시하면 Site URL 은 fallback. **Redirect URLs 화이트리스트가 핵심**
+- 로컬·운영 분리: `NEXT_PUBLIC_APP_URL` 만 환경별로 다르게 (`localhost:3000` vs `japa-kappa.vercel.app`), Supabase Redirect URLs 에는 두 콜백 모두 등록
+- Vercel 환경변수 변경 후 자동 재배포 안 됨 → Redeploy 수동 트리거 필요
+
+### AI 키 AES-256-GCM 암호화 → 보류 (2026-05-08 결정)
+
+원래 #3 백로그였으나, Vercel env 가 이미 at-rest 암호화 + 1인 사용자가 DB·env 모두 소유하는 위협 모델 단순성으로 **ROI 약함** 결론. env 직접 사용으로 충분. 얻는 것 (UI 로 키 추가/교체, 멀티 provider 키 중앙 관리) 대비 비용 (`AI_KEY_ENCRYPTION_SECRET` 분실 시 모든 키 손실 → 1Password 백업 필수, Prisma 마이그레이션, 매 요청 DB 조회 + AES 복호화) 이 더 큼.
 
 ## 변경 이력
 
@@ -418,3 +454,4 @@ server/client 가 동일 schema 를 import 할 수 있게 되었으므로 `react
 - 2026-05-02 (2nd batch): `toy/japa` 와의 비교 분석 + 4개 차용 결정 (사이드바 / 종목 자동 판별 / 60초 쿨다운 / 배당 모델 / 계좌 그룹). 사이드바 + 종목 자동 판별 + 쿨다운 3건 적용 완료, 배당 모델 + 계좌 그룹은 백로그. rate limit 방어 측면에서 본 프로젝트가 toy 보다 견고함 확인 (직렬+100ms vs worker pool 6 + 250ms 1회 재시도). 도메인 패턴 메모: 「자동 채움은 빈 필드만 / 사용자 입력 보호 우선」, 「쿨다운은 click-path 만 / cron 은 영향 없음」, 「예측치와 실측치는 같은 컬럼에 섞지 말 것」 (출처: session-logs/20260502-095014-6859-*).
 - 2026-05-03: `git/wk/japa-s` 와의 비교 + 상위 3개 항목 결정 (Supabase Auth / AI 키 암호화 / Zod 스키마 분리). #3 Zod 스키마 entity별 분리 (`lib/<entity>/schema.ts` 4개 신규 + 15개 파일 리팩터, 순감 80줄) 적용 완료. Gemini 2.0-flash free tier blocked → 2.5-flash 마이그레이션 + `GEMINI_MODEL` env override 추가. `AiAnalysis` Prisma 모델 추가로 분석 결과 DB 영속화. 단일 Gemini 코드를 `lib/ai/providers/{gemini,openai,anthropic}.ts` 어댑터 패턴으로 분해 + `provider` 컬럼 추가 (공식 SDK 직접 사용, 멀티 LLM 추상화 라이브러리 미도입). 일반 패턴은 [[zod-schema-per-entity]], [[multi-llm-provider-adapter-pattern]], [[gemini-2-0-flash-free-tier-blocked]] 로 분리 (출처: session-logs/20260503-100914-b80f-*).
 - 2026-05-05: 일별 cron 이 시세 갱신 실패 (P2024 → 60초 timeout) 사고. 6 commit 추적 끝에 root cause 가 PgBouncer transaction mode 의 query 당 connection acquire 누적 비용임을 확인 → `prismaDirect` (DIRECT_URL) 주입으로 cron lambda 만 PgBouncer 우회, 24.5초에 정상 완료. yahoo I/O = 병렬 / prisma write = mutex 직렬 / connection = direct URL 의 3계층 분리. `refreshMarketHistory` 1년 → 7일 단축 (skipDuplicates 라 99.7% 버려지던 페이로드 제거). `instrumentation.register` 의 `await` hang 함정 발견 → fire-and-forget + try/catch 로 분리. Vercel logs CLI 의 시간 윈도우 cap, Hobby cron Last Run 컬럼 미노출, cron flexible 1-hour window 등 운영 노하우 추가. 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리 (출처: session-logs/20260505-084952-fe4f-*).
+- 2026-05-08: tasks/plan-2026-05-03 의 #1·#2 완료. (1) **react-hook-form + @hookform/resolvers/zod** 도입으로 4개 폼 (account/holding/dividend/group) 클라이언트 즉시 검증 + 서버 라운드트립 절감 (commit 96a22e1, +365/-186). resolvers v5 의 input/output 분리로 `z.input` / `z.output` 명시 필요 (TS2719). group 폼의 Set state + hidden inputs 패턴이 `register("accountIds")` 한 줄로 단순화. (2) **Supabase Auth + 매직 링크 + OWNER_EMAIL allowlist** 로 HMAC AUTH_SECRET / ADMIN_PASSWORD 인증 교체 (commit e1bdb4a). Defense-in-depth 4-Gate: send-magic-link (GATE2) + /auth/callback 양쪽에서 allowlist 재검증, 비-allowlist 이메일은 generic 200 응답 (email enumeration 방지). middleware matcher 의 `/api/cron` 제외 유지 (CRON_SECRET Bearer 별도 인증). (3) #3 AI 키 AES-256-GCM 암호화는 위협 모델 단순성 + Vercel env 의 at-rest 암호화로 ROI 약하다는 결론 → 보류. 일반 패턴은 [[react-hook-form-zod-server-action]] / [[supabase-magic-link-single-user-allowlist]] 로 분리 (출처: session-logs/20260507-230645-c555-*).

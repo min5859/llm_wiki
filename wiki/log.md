@@ -1,9 +1,37 @@
 ---
 title: Operation Log
-updated: 2026-05-07T13:05:00+09:00
+updated: 2026-05-08T13:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-08T13:00 — wiki-ingest (session-logs, ingested: false 19건)
+
+처리 4건 + 스킵 15건. 신규 페이지 11건 (bugs 1 / patterns 2 / analyses 6 / projects 1 + dict-get 사전 작성 1 갱신 없음). projects 갱신 2건 (ht-trading, japa-asset-dashboard).
+
+- Source: session-logs/20260507-224943-690c-*.md (cwd: ht_trading, 익절 미발동 버그 분석 + 7 turns)
+  - **Already exists**: wiki/bugs/dict-get-default-no-bootstrap.md — `dict.get(key, default)` 가 dict 미갱신으로 1개월간 트레일링 스톱 영구 비활성. setdefault 1줄 교체. 회귀 테스트 4 cases. (이미 5/8 사전 작성되어 있음, sources 일치 확인)
+  - **Created**: wiki/analyses/partial-sell-rule-idempotency.md — 부분 매도 규칙 멱등성 패턴. 전량 매도 (자연 보호) vs 부분 매도 (직접 보호 필요) 구분, 3-step (once-flag dict + state 영속화 + 청산 시 정리). Rule 4 데드크로스 7 cycle 누적 발동 사례. 카운터형 모범 사례 (`_profit_take_done`). silent state-bug 탐지 (state 파일 / 로그 grep 교차 검증)
+  - **Updated**: wiki/projects/ht-trading.md — 매도 규칙 버그 수정 3건 추가 (commit 60ba3a6 setdefault, commit 957cf8a limit_price + dead_cross once-flag), 회귀 테스트 8 cases, 변경 이력 신설. partial-sell-rule-idempotency 와 cross-link
+- Source: session-logs/20260507-225855-4c7c-*.md (cwd: dev-blog, 신규 프로젝트 분석 + cron PATH/UTC 버그 발견)
+  - **Created**: wiki/projects/dev-blog.md — AI 보조 한국어 엔지니어링 일일 뉴스레터. 5-단계 파이프라인 (collect → draft → rewrite → publish → build), AI 어댑터 경계 (`template`/`claude` fallback), Multi-topic 전제, cron-on-laptop + GitHub Actions 빌드 분리. [[kernel-digest]] 와 자매 프로젝트
+  - **Created**: wiki/bugs/utc-iso-date-kst-rollover.md — `new Date().toISOString().slice(0, 10)` 가 KST 새벽~오전 (UTC 15:00~23:59 전날) 에 어제 날짜 반환. 매일 07:00 cron 이 어제 게시본 silent overwrite. `Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' })` 로 수정. 모든 Vercel/Actions/Lambda/Workers 의 한국 운영 cron 에 재현
+  - **Created**: wiki/patterns/cron-nvm-node-path-trap.md — cron 이 `~/.zshrc` 안 읽어 NVM node 못 찾는 함정. crontab 상단 `PATH=` 명시 + 비교표 (cron / launchd / systemd / GitHub Actions). [[launchd-secret-management]] 와 같은 비대화 셸 함정 패밀리
+  - **Created**: wiki/analyses/github-pages-base-path-pattern.md — `<id>.github.io` (root) vs 프로젝트 페이지 (`/<repo>`) 의 BASE_PATH 자동 대응. 빌드 시 prefix 주입 헬퍼 + GitHub Actions 자동 결정. Astro / Vite / Next.js / Hugo / Jekyll / Docusaurus 모두 동일 옵션
+- Source: session-logs/20260507-230645-c555-*.md (cwd: japa, tasks/plan-2026-05-03 #1·#2·#3 처리 + 25 turns)
+  - **Created**: wiki/patterns/react-hook-form-zod-server-action.md — RHF + zodResolver + server action 동일 스키마 패턴. resolvers v5 의 input/output 분리 → `useForm<z.input, unknown, z.output>` 3-제너릭 (TS2719 회피), FormData 재구성으로 server action 시그니처 보존, defense-in-depth (서버 검증 유지). [[zod-schema-per-entity]] 후속
+  - **Created**: wiki/analyses/supabase-magic-link-single-user-allowlist.md — 자체 HMAC 비밀번호 → Supabase Auth 매직 링크 + `OWNER_EMAIL` allowlist. 4-Gate (UI / send-magic-link PRIMARY / Supabase OTP / callback SECONDARY) + email enumeration 방지 (generic 200) + 응답 시간 일정화 + cron 라우트 분리. Vercel env 자동 재배포 안 됨 / Site URL vs Redirect URLs 차이
+  - **Updated**: wiki/projects/japa-asset-dashboard.md — #1 (commit 96a22e1, RHF 도입 +365/-186), #2 (commit e1bdb4a, Supabase Auth 교체), #3 (AI 키 암호화 보류 결정) 적용 완료. 변경 이력 신설. cross-link 2건
+- Source: session-logs/20260507-235145-988a-*.md (cwd: infinite_loop/news, 3일치 뉴스 → 시장 전망 + 4 turns)
+  - **Created**: wiki/analyses/news-driven-market-signal-framework.md — 다일자 뉴스 → 시그널 추출 프레임워크. 일자별 병렬 서브에이전트 분해 + 7-축 템플릿 (매크로/지정학/시장흐름/섹터/기업이벤트/수급심리/톤) + 3-시나리오 (확률 가중) + 섹터 비중 + 체크포인트. 뉴스 카테고리 → 영향 매핑 휴리스틱
+  - **Created**: wiki/analyses/llm-news-prediction-pitfalls.md — LLM 시장 예측 6가지 함정 (검증 결여 / 확률 직관 / selection bias / stale 속도 / 자문 회색지대 / 단일 인과 추론). 결과는 영속화 부적절, 방법론·함정·매핑 휴리스틱만 영속화
+- Skipped (Linux Daily Newsletter Rewrite cron 자동 입력 — `assistant_turns: 0`, dev-blog 의 `claude -p` 호출): 20260507-234605-c291, 20260507-234905-e1e1, 20260508-000741-f257, 20260508-005038-1664, 20260508-081629-022f, 20260508-081840-4a2e (6건). 본 cron 의 응답은 dev-blog 파이프라인이 직접 받아 처리하므로 별도 인제스트 불요. 이전 동일 패턴: research-wiki / oss-radar cron 의 분석 입력
+- Skipped (cron heartbeat — `Reply with only: OK`, assistant_turns: 0): 20260508-080019-8442 (research-wiki), 20260508-090052-7b1a (oss-radar)
+- Skipped (research-wiki cron 의 논문 분석 입력 — assistant_turns: 0): 20260508-080027-da2a, 20260508-080128-b612 (2건)
+- Skipped (oss-radar cron 의 OSS 분석 입력 — assistant_turns: 0): 20260508-090059-6b91, 20260508-090132-49e4, 20260508-090208-19a7, 20260508-090241-6480, 20260508-090319-b7ec (5건)
+- raw-sources/ 의 신규 .md 없음 — Tips/ articles/ books/ ideas/ papers/ transcripts/ 의 모든 서브디렉터리에 PDF / .pptx / .txt 만 존재. .cache/extracted/ 디렉터리 없음 (PDF chunk 처리 대상 외)
+- Updated: wiki/index.md (projects/dev-blog 1건, patterns/cron-nvm-node-path-trap + react-hook-form-zod-server-action 2건, bugs/dict-get-default-no-bootstrap + utc-iso-date-kst-rollover 2건, analyses/partial-sell-rule-idempotency + github-pages-base-path-pattern + supabase-magic-link-single-user-allowlist + news-driven-market-signal-framework + llm-news-prediction-pitfalls 5건 추가, updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 19개 session-log 파일 전체 (skip 15건, 처리 4건 → 신규 페이지 10건 + 사전 작성 페이지 1건 cross-reference + 기존 페이지 갱신 2건)
 
 ## 2026-05-07T13:05 — wiki-ingest (session-logs, ingested: false 7건)
 

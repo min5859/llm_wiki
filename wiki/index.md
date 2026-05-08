@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-07T13:05:00+09:00
+updated: 2026-05-08T13:00:00+09:00
 ---
 
 # Wiki Index
@@ -29,6 +29,7 @@ updated: 2026-05-07T13:05:00+09:00
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입
 - [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
+- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드, BASE_PATH 자동 대응
 
 ## 설계 판단 (decisions/)
 
@@ -50,6 +51,8 @@ updated: 2026-05-07T13:05:00+09:00
 - [[zod-schema-per-entity]] — `lib/<entity>/schema.ts` 에 enum / label / Zod schema / 추론 타입 응집: server-client 검증 일관성 + Prisma enum SSOT 강제 + 점진 도입 (entity 당 30분~1시간)
 - [[vercel-timeout-browser-direct-api]] — Vercel Hobby 60s lambda timeout escape hatch: 인증 사용자에게 API key 내려주고 브라우저에서 Anthropic SDK 직접 호출. 보안 부채 (DevTools 키 추출) + 회수 조건 + 키 회전 의무
 - [[macos-tcc-full-disk-access]] — macOS Sonoma+ TCC 토스트 ("iTerm 이 다른 앱 데이터에 접근") 처리: 시스템 설정 → 전체 디스크 접근 + iTerm 완전 재시작. Claude Code 권한 팝업과 별개로 구분
+- [[cron-nvm-node-path-trap]] — cron 이 `~/.zshrc` 안 읽어 NVM node 못 찾는 함정 (`env: node: No such file or directory`). crontab 상단 `PATH=` 명시 + 비교표 (cron / launchd / systemd / GitHub Actions)
+- [[react-hook-form-zod-server-action]] — Next.js Server Actions + react-hook-form + Zod 동일 스키마 패턴: `useForm<z.input, unknown, z.output>` 3-제너릭 (resolvers v5 의 input/output 분리), FormData 재구성으로 server action 시그니처 보존, defense-in-depth
 
 ## 버그와 해결책 (bugs/)
 
@@ -59,6 +62,8 @@ updated: 2026-05-07T13:05:00+09:00
 - [[gemini-2-0-flash-free-tier-blocked]] — 2026 봄 시점 `gemini-2.0-flash` 가 free tier 차단 (429 + `limit: 0`), `gemini-2.5-flash` 로 교체 + `<VENDOR>_MODEL` env override 패턴으로 재발 방지
 - [[kis-cash-d2-settlement-buy-rejection]] — KIS 잔고 응답에서 `dnca_tot_amt` (D+0 출금가능) 만 매수가능 현금으로 사용해 D+2 정산 대기 매도분이 누락 → RiskManager 가 매수 차단. `prvs_rcdl_excc_amt` (D+2 가수도정산금액) 와 max() 처리 + 모의투자 fallback
 - [[openclaw-coder-silent-3-layer]] — OpenClaw 코더 응답 무 3계층 디버깅: plugins.allow 미설정 (acpx runtime 차단) + 12일 묵은 좀비 ACP task (sqlite 직접 정리) + Anthropic OAuth 403 (진짜 원인). 모델 codex 로 변경 후 회복
+- [[dict-get-default-no-bootstrap]] — Python `dict.get(key, default)` 가 dict 미갱신 → 부트스트랩 영구 실패. ht_trading 트레일링 스톱 1개월간 영구 비활성. `setdefault` 한 줄 교체
+- [[utc-iso-date-kst-rollover]] — `new Date().toISOString().slice(0, 10)` 가 KST 새벽~오전에 어제 날짜로 떨어짐. 매일 07:00 cron 이 어제 게시본 silent overwrite. `Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' })` 로 수정. 모든 한국 운영 cron 에 재현 가능
 
 ## 요약 (summaries/)
 
@@ -108,3 +113,8 @@ updated: 2026-05-07T13:05:00+09:00
 - [[ragflow-rag-engine]] — RAGFlow (79.8k stars, Apache-2.0, Python): RAG + Agent 결합 컨텍스트 엔진. Deep document understanding · template chunking · grounded citations · agentic + MCP · MinerU/Docling 파싱 · Confluence/S3/Notion/Drive 동기화. Elasticsearch ↔ Infinity 전환, Docker Compose 기동
 - [[scrapling-adaptive-web-scraping]] — Scrapling (D4Vinci, BSD-3-Clause, Python): CSS/XPath/BeautifulSoup 셀렉터 단일 API + DynamicFetcher one-off + Stealthy/Async 세션 + HTTP/3 + element 관계 헬퍼·체이닝·텍스트 검색
 - [[worldmonitor-global-intelligence-dashboard]] — World Monitor (53.6k stars, AGPL-3.0, TypeScript/Tauri): AI 뉴스 어그리게이션 + 지정학 모니터링 + 인프라 추적 통합 실시간 글로벌 인텔리전스 대시보드, "오픈소스 Palantir 류"
+- [[partial-sell-rule-idempotency]] — 알고리즘 트레이딩 부분 매도 규칙 멱등성: 전량 매도 (자연 보호) vs 부분 매도 (직접 보호 필요). 3-step 패턴 (once-flag dict + state 영속화 + 청산 시 정리). ht_trading Rule 4 데드크로스 누적 발동 사례
+- [[github-pages-base-path-pattern]] — GitHub Pages 사용자 페이지 (`<id>.github.io`, root) vs 프로젝트 페이지 (`/<repo>` 서브경로) 의 BASE_PATH 자동 대응. 빌드 시 prefix 주입 헬퍼 (`url`/`absoluteUrl`) + Actions 자동 결정. RSS / fetch / 이미지 모두 처리
+- [[supabase-magic-link-single-user-allowlist]] — 1인용 Next.js 앱의 자체 비밀번호 → Supabase Auth 매직 링크 + `OWNER_EMAIL` allowlist 교체. 4-Gate (UI / send-magic-link PRIMARY / Supabase OTP / callback SECONDARY) + email enumeration 방지 (generic 200 응답) + cron 라우트 분리
+- [[news-driven-market-signal-framework]] — 다일자 뉴스 코퍼스 → 시장 시그널 추출의 7-축 (매크로/지정학/시장흐름/섹터/기업이벤트/수급심리/톤) + 3-시나리오 (확률 가중 base/neutral/risk) + 섹터 비중 + 체크포인트. 일자별 병렬 서브에이전트 분해
+- [[llm-news-prediction-pitfalls]] — LLM 시장 예측 6가지 함정 (검증 결여 / 확률 직관 / selection bias / stale 속도 / 자문 회색지대 / 단일 인과 추론). 결과 영속화 부적절, 방법론·함정만 영속화
