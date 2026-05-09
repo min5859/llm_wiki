@@ -4,7 +4,7 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "supabase", "vercel", "yahoo-finance", "personal-asset", "single-user-auth"]
 created: 2026-04-30
-updated: 2026-05-08
+updated: 2026-05-09
 sources:
   - "session-logs/20260430-135011-e8eb-*.md"
   - "session-logs/20260430-161410-0fcc-*.md"
@@ -13,6 +13,7 @@ sources:
   - "session-logs/20260503-100914-b80f-*.md"
   - "session-logs/20260505-084952-fe4f-*.md"
   - "session-logs/20260507-230645-c555-*.md"
+  - "session-logs/20260509-080729-fd9f-*.md"
 confidence: high
 related:
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
@@ -26,6 +27,7 @@ related:
   - "wiki/analyses/pgbouncer-direct-url-hybrid-routing.md"
   - "wiki/patterns/react-hook-form-zod-server-action.md"
   - "wiki/analyses/supabase-magic-link-single-user-allowlist.md"
+  - "wiki/analyses/holding-transaction-cost-basis-design.md"
 ---
 
 # japa — 개인 자산 통합 대시보드
@@ -447,6 +449,33 @@ cron 실행 여부를 사후 확인하려고 `vercel logs` CLI 를 쓰니:
 
 원래 #3 백로그였으나, Vercel env 가 이미 at-rest 암호화 + 1인 사용자가 DB·env 모두 소유하는 위협 모델 단순성으로 **ROI 약함** 결론. env 직접 사용으로 충분. 얻는 것 (UI 로 키 추가/교체, 멀티 provider 키 중앙 관리) 대비 비용 (`AI_KEY_ENCRYPTION_SECRET` 분실 시 모든 키 손실 → 1Password 백업 필수, Prisma 마이그레이션, 매 요청 DB 조회 + AES 복호화) 이 더 큼.
 
+### BUY/SELL Transaction 추적 → ✅ MVP 적용 (2026-05-09, commit 0aa2187)
+
+기존엔 `Holding.quantity`·`averageCost` 두 스칼라를 사용자가 직접 입력해야 했고 (`holding-form.tsx`), 추가 매수/매도 시 평단가를 손계산해 폼에서 다시 써야 했다. 매도 이력·실현 손익이 어디에도 안 남아 해외주식 양도세 (Major Req #4) 추적이 사실상 불가능했다. `tasks/todo-2026-05-03.md` 의 ⭐⭐⭐ 1순위 백로그 MVP 구현. 일반 패턴은 [[holding-transaction-cost-basis-design]] 으로 분리.
+
+| 결정 | 선택 |
+|---|---|
+| enum 1차 범위 | `BUY` / `SELL` 만 (`DIVIDEND` 는 별 모델, `OTHER` 는 가치 없음) |
+| 평단가 산식 | 한국 양도세 표준: `newAvg = (oldAvg·oldQty + price·qty + fee) / newQty` (수수료 취득원가 포함). 매도 시 평단 유지·수량만 차감 |
+| 실현 손익 | SELL row 의 `realizedGain` 컬럼에 박아 보존 (이후 평단 변경에도 안 흔들림) |
+| 거래 삭제 | 효과 역연산 (BUY: qty 차감 + 평단 재계산 + cash 환급 / SELL: qty 복원 + 평단 유지 + cash 차감) |
+| 거래 수정 | 1차 미지원 (삭제 후 재입력) |
+| `cashBalance` 자동 갱신 | 폼 체크박스 default ON. **계좌·거래 통화 일치할 때만** 적용 (환전 시점 모호함 회피) |
+| 진입점 | 신설 `/holdings/[id]` detail (보유/평단/누적실현손익 카드 + 거래 히스토리) → 매수/매도 버튼 |
+| 트랜잭션 | 수량·평단·현금 갱신 모두 `prisma.$transaction([...])` 으로 묶음 |
+
+| 신규/수정 | 파일 |
+|---|---|
+| 신규 (DB) | `prisma/schema.prisma` (enum `TransactionType` + model `Transaction`), `prisma/migrations/20260508232227_add_transaction/migration.sql` |
+| 신규 (서버) | `lib/transactions/schema.ts` (Zod 폼 스키마), `app/actions/transactions.ts` (`createTransaction` / `deleteTransaction`) |
+| 신규 (UI) | `components/forms/transaction-form.tsx`, `app/holdings/[id]/page.tsx` (보유 detail), `app/holdings/[id]/trade/new/page.tsx` (`?type=BUY|SELL` 분기) |
+| 수정 | `lib/data.ts` (`getHoldingTransactions(holdingId)` getter), `app/holdings/page.tsx` (자산명 → detail 링크), `app/accounts/[id]/page.tsx` (매수/매도 단축 아이콘) |
+
+후속 백로그 (별도 세션):
+- Tax 페이지의 `SELL` 실현손익 합산 → 「실현 + 미실현 분리」
+- `/api/export/transactions` CSV
+- enum 확장 (DEPOSIT / WITHDRAW / FEE / DIVIDEND_REINVEST) — 데이터 누적 후 양도세 신고 자료 완결성 요구 시점에 결정
+
 ## 변경 이력
 
 - 2026-04-30: 최초 생성. 디스크 분석·Vercel 배포·Supabase pooler 모드·force-dynamic·단일 사용자 인증·Yahoo Finance 동시 호출 silent fail 수정·수익률 % 표시 작업 기록 (출처: session-logs/20260430-135011-e8eb-*, 161410-0fcc-*)
@@ -455,3 +484,4 @@ cron 실행 여부를 사후 확인하려고 `vercel logs` CLI 를 쓰니:
 - 2026-05-03: `git/wk/japa-s` 와의 비교 + 상위 3개 항목 결정 (Supabase Auth / AI 키 암호화 / Zod 스키마 분리). #3 Zod 스키마 entity별 분리 (`lib/<entity>/schema.ts` 4개 신규 + 15개 파일 리팩터, 순감 80줄) 적용 완료. Gemini 2.0-flash free tier blocked → 2.5-flash 마이그레이션 + `GEMINI_MODEL` env override 추가. `AiAnalysis` Prisma 모델 추가로 분석 결과 DB 영속화. 단일 Gemini 코드를 `lib/ai/providers/{gemini,openai,anthropic}.ts` 어댑터 패턴으로 분해 + `provider` 컬럼 추가 (공식 SDK 직접 사용, 멀티 LLM 추상화 라이브러리 미도입). 일반 패턴은 [[zod-schema-per-entity]], [[multi-llm-provider-adapter-pattern]], [[gemini-2-0-flash-free-tier-blocked]] 로 분리 (출처: session-logs/20260503-100914-b80f-*).
 - 2026-05-05: 일별 cron 이 시세 갱신 실패 (P2024 → 60초 timeout) 사고. 6 commit 추적 끝에 root cause 가 PgBouncer transaction mode 의 query 당 connection acquire 누적 비용임을 확인 → `prismaDirect` (DIRECT_URL) 주입으로 cron lambda 만 PgBouncer 우회, 24.5초에 정상 완료. yahoo I/O = 병렬 / prisma write = mutex 직렬 / connection = direct URL 의 3계층 분리. `refreshMarketHistory` 1년 → 7일 단축 (skipDuplicates 라 99.7% 버려지던 페이로드 제거). `instrumentation.register` 의 `await` hang 함정 발견 → fire-and-forget + try/catch 로 분리. Vercel logs CLI 의 시간 윈도우 cap, Hobby cron Last Run 컬럼 미노출, cron flexible 1-hour window 등 운영 노하우 추가. 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리 (출처: session-logs/20260505-084952-fe4f-*).
 - 2026-05-08: tasks/plan-2026-05-03 의 #1·#2 완료. (1) **react-hook-form + @hookform/resolvers/zod** 도입으로 4개 폼 (account/holding/dividend/group) 클라이언트 즉시 검증 + 서버 라운드트립 절감 (commit 96a22e1, +365/-186). resolvers v5 의 input/output 분리로 `z.input` / `z.output` 명시 필요 (TS2719). group 폼의 Set state + hidden inputs 패턴이 `register("accountIds")` 한 줄로 단순화. (2) **Supabase Auth + 매직 링크 + OWNER_EMAIL allowlist** 로 HMAC AUTH_SECRET / ADMIN_PASSWORD 인증 교체 (commit e1bdb4a). Defense-in-depth 4-Gate: send-magic-link (GATE2) + /auth/callback 양쪽에서 allowlist 재검증, 비-allowlist 이메일은 generic 200 응답 (email enumeration 방지). middleware matcher 의 `/api/cron` 제외 유지 (CRON_SECRET Bearer 별도 인증). (3) #3 AI 키 AES-256-GCM 암호화는 위협 모델 단순성 + Vercel env 의 at-rest 암호화로 ROI 약하다는 결론 → 보류. 일반 패턴은 [[react-hook-form-zod-server-action]] / [[supabase-magic-link-single-user-allowlist]] 로 분리 (출처: session-logs/20260507-230645-c555-*).
+- 2026-05-09: tasks/todo-2026-05-03 의 ⭐⭐⭐ 1순위 백로그 **BUY/SELL Transaction 추적 MVP** 구현 (commit 0aa2187, +938/-16). `prisma.$transaction` 으로 수량·평균단가·계좌 현금 일괄 갱신, 한국 양도세 표준 가중평균 (수수료 취득원가 포함) ‖ SELL row 의 `realizedGain` 컬럼에 실현손익 박아 보존 ‖ 거래 삭제는 효과 역연산 ‖ 계좌·거래 통화 일치 시에만 cashBalance 자동 갱신 (환전 시점 모호함 회피). 신설 `/holdings/[id]` detail 페이지 + 매수/매도 단축 아이콘 (계좌 detail). enum 1차 범위는 `BUY`/`SELL` 만 (DIVIDEND 는 별 모델). Tax 양도세 페이지의 실현/미실현 분리 + CSV export + DEPOSIT/WITHDRAW enum 확장은 데이터 누적 후 별도 세션. 일반 패턴은 [[holding-transaction-cost-basis-design]] 으로 분리 (출처: session-logs/20260509-080729-fd9f-*).

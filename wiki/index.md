@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-09T13:00:00+09:00
+updated: 2026-05-09T15:30:00+09:00
 ---
 
 # Wiki Index
@@ -23,7 +23,7 @@ updated: 2026-05-09T13:00:00+09:00
 - [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅
 - [[oss-radar]] — 주간 GitHub OSS 발굴 파이프라인: discover→fetch→analyze→publish 6단계, star_velocity 스코어링, env -u CLAUDECODE 중첩세션 방지, GitHub topic OR 미지원 우회, config/.env 시크릿 분리
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
-- [[japa-asset-dashboard]] — 1인 전용 자산 통합 대시보드: Next.js 16 + Prisma + Supabase + Yahoo Finance, force-dynamic + Transaction pooler + HMAC-SHA256 단일 사용자 인증
+- [[japa-asset-dashboard]] — 1인 전용 자산 통합 대시보드: Next.js 16 + Prisma + Supabase + Yahoo Finance + 멀티 LLM, Supabase Auth 매직 링크 + RHF/Zod 폼 + BUY/SELL Transaction 추적 (가중평균 + realizedGain 동결)
 - [[finance-analysis-nextjs]] — 한국 기업 재무분석 대시보드: PDF/JSON/DART API 입력, AI 멀티 프로바이더 구조화, 12 슬라이드 + AI/수동 밸류에이션, M&A 활용 계획
 - [[wardrobe]] — 옷장 매칭 웹 앱 (Next.js 15 + Tailwind v4 + LocalStorage MVP): 사이드바 레이아웃, 시드 JSON, DB 없이 Step 1 단계로 시작
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
@@ -120,3 +120,4 @@ updated: 2026-05-09T13:00:00+09:00
 - [[news-driven-market-signal-framework]] — 다일자 뉴스 코퍼스 → 시장 시그널 추출의 7-축 (매크로/지정학/시장흐름/섹터/기업이벤트/수급심리/톤) + 3-시나리오 (확률 가중 base/neutral/risk) + 섹터 비중 + 체크포인트. 일자별 병렬 서브에이전트 분해
 - [[llm-news-prediction-pitfalls]] — LLM 시장 예측 6가지 함정 (검증 결여 / 확률 직관 / selection bias / stale 속도 / 자문 회색지대 / 단일 인과 추론). 결과 영속화 부적절, 방법론·함정만 영속화
 - [[multi-profile-cli-agent-isolation]] — CLI agent 멀티 프로필 셋업의 4함정: OAuth 토큰 공유는 symlink (refresh-token 회전 충돌 회피) / Keychain 인증은 HOME 격리에 깨짐 → wrapper 로 HOME 복원 / hermes 등 agent 는 `.bashrc`·`.bash_profile` 만 source (zsh init 무시) / `--clone` 후 `.env` reconfigure 필수
+- [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 4결정: 한국 양도세 표준 가중평균 (수수료 취득원가 포함) / SELL row 의 `realizedGain` 컬럼 동결 / 거래 삭제는 효과 역연산 / 계좌·거래 통화 일치 시에만 cashBalance 자동 갱신. MVP/풀구현/입력만 점진 도입

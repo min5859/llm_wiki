@@ -1,9 +1,25 @@
 ---
 title: Operation Log
-updated: 2026-05-09T13:00:00+09:00
+updated: 2026-05-09T15:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-09T15:30 — wiki-ingest (session-logs, ingested: false 12건)
+
+처리 1건 + 스킵 11건. 신규 페이지 1건 (analyses 1), 기존 페이지 갱신 1건 (projects/japa-asset-dashboard).
+
+- Source: session-logs/20260509-080729-fd9f-*.md (cwd: japa, "기존 종목을 매수 또는 매도하는 부분이 없는 것 같습니다" — 4 turns + 9 file edits + commit 0aa2187 push)
+  - **Created**: wiki/analyses/holding-transaction-cost-basis-design.md — 보유 종목 매수/매도 거래 추적의 일반화된 설계 4결정. (1) 평단가 산식: 한국 양도세 표준 가중평균 `(oldAvg·oldQty + price·qty + fee) / newQty` (수수료 취득원가 포함), 매도 시 평단 유지·수량 차감 (2) 실현 손익은 SELL row 의 `realizedGain` 컬럼에 박아 동결 (현재 평단가에서 역산하면 추가 매수가 과거 매도 손익을 흔들어 양도세 신고 자료 신뢰성 0). 시점성 파생값의 일반 패턴 (3) 거래 삭제는 효과 역연산 (BUY: 평단 재계산 + cash 환급 / SELL: qty 복원 + 평단 유지 + cash 차감). 수정은 1차 미지원 (삭제 후 재입력) (4) cashBalance 자동 갱신은 계좌·거래 통화 일치 시에만 (환전 시점 모호함 회피, fxRate 는 표시용 only). MVP/풀구현/입력만 3범위 비교, 회계성 데이터 일반 원칙 4가지 (예측치/실측치 분리, 시점성 파생값 동결, $transaction 묶음, 삭제 역연산 가능성)
+  - **Updated**: wiki/projects/japa-asset-dashboard.md — BUY/SELL Transaction 추적 → ✅ MVP 적용 (commit 0aa2187, +938/-16) 섹션 신설. enum 1차 BUY/SELL, Transaction 모델 + migration 20260508232227, `lib/transactions/schema.ts` Zod, `app/actions/transactions.ts` createTransaction/deleteTransaction (`prisma.$transaction` 묶음), `components/forms/transaction-form.tsx`, 신설 `/holdings/[id]` detail + `/holdings/[id]/trade/new?type=BUY|SELL`, 자산명 → detail 링크 + 계좌 detail 매수/매도 단축 아이콘. 후속 백로그 (Tax 페이지 실현/미실현 분리 / CSV export / DEPOSIT/WITHDRAW enum 확장) 명시. 변경 이력 + sources/related 갱신, holding-transaction-cost-basis-design 와 cross-link
+- Skipped (dev-blog cron 자동 입력 — Linux Daily Newsletter 가 아닌 Android Kernel Daily Briefing / Open Source Trending Daily Briefing 으로 토픽 확장. JSON 출력 templated, dev-blog 파이프라인이 직접 받아 처리하므로 별도 인제스트 불요): 20260509-074318-377b (Android Kernel Daily Briefing), 20260509-075110-05ad (Open Source Trending Daily Briefing). 기존 Linux Kernel 만이 아닌 토픽 다양화 진행 중 ([[dev-blog]] 의 Multi-topic 전제 부합)
+- Skipped (cron heartbeat — `Reply with only: OK`, assistant_turns: 0): 20260509-080025-d8bf (research-wiki), 20260509-090053-a9f7 (oss-radar)
+- Skipped (research-wiki cron 의 논문 분석 입력 — assistant_turns: 0, 논문 본문이 입력 프롬프트에 직접 포함된 형태): 20260509-080032-ef14, 20260509-080122-a28e (2건)
+- Skipped (oss-radar cron 의 OSS 분석 입력 — assistant_turns: 0): 20260509-090100-a5e6, 20260509-090141-9120, 20260509-090222-8603, 20260509-090254-77e1, 20260509-090329-6c4b (5건)
+- raw-sources/ 의 신규 .md 없음 — Tips/ articles/ books/ ideas/ papers/ transcripts/ 의 모든 서브디렉터리에 PDF / .pptx / .txt 만 존재 (chunk MD 처리 대상 외). .cache/extracted/ 디렉터리 없음 (PDF 자동 추출 대상 없음)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/index.md (analyses 에 holding-transaction-cost-basis-design 1건 추가, japa-asset-dashboard 요약 한 줄 갱신, updated 타임스탬프), wiki/log.md, wiki/projects/japa-asset-dashboard.md (sources / related / 본문 1섹션 / 변경 이력 갱신)
+- Marked ingested: true — 12개 session-log 파일 전체 (skip 11건, 처리 1건 → 신규 페이지 1건 + 기존 페이지 갱신 1건)
 
 ## 2026-05-09T13:00 — wiki-ingest (session-logs, ingested: false 21건)
 
