@@ -1,9 +1,24 @@
 ---
 title: Operation Log
-updated: 2026-05-09T15:30:00+09:00
+updated: 2026-05-10T09:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-10T09:30 — wiki-ingest (session-logs, ingested: false 12건)
+
+처리 0건 + 스킵 12건. 모든 신규 로그가 dev-blog / research-wiki / oss-radar 의 cron 자동 입력 또는 heartbeat. 신규 wiki 페이지 0건, 기존 페이지 갱신 1건 (projects/dev-blog).
+
+- Skipped (dev-blog cron 자동 입력 — 시스템 프롬프트만, dev-blog 파이프라인이 직접 받아 처리하므로 별도 인제스트 불요): 20260510-070019-a130 (Linux Daily Newsletter Rewrite, assistant_turns: 0), 20260510-070412-fd9a (Open Source Trending Daily Briefing, assistant_turns: 0). 어제 [[dev-blog]] log entry (2026-05-09) 와 같은 multi-topic 가동 패턴.
+- Skipped (dev-blog Android Kernel Daily Briefing — 1턴 자동 출력, 일일 발행물이라 시간 지나면 outdated): 20260510-070200-f6f1 (assistant_turns: 1, file_edits: 1, 결과물은 `dev-blog/content/topics/android/posts/2026-05-10-android-daily-briefing.json`)
+- Skipped (cron heartbeat — `Reply with only: OK`, assistant_turns: 0): 20260510-080022-053f (research-wiki), 20260510-090048-4ae8 (oss-radar)
+- Skipped (research-wiki cron 의 논문 분석 입력 — assistant_turns: 0): 20260510-080029-6a68 (arXiv 2605.05185, fatal-aware GRPO), 20260510-080128-8e5f (arXiv 2604.28196). 2건
+- Skipped (oss-radar cron 의 OSS 분석 입력 — assistant_turns: 0): 20260510-090055-a233, 20260510-090130-632e, 20260510-090206-4410, 20260510-090244-772a, 20260510-090324-7062. 5건
+- Updated: wiki/projects/dev-blog.md — 변경 이력에 multi-topic 정상 가동 확인 + 토픽별 시스템 프롬프트의 큐레이션 정책 차이 (Linux 의 fromMaintainer/maintainerComments 메타 / Android 의 ACK prefix 풀어쓰기 + GKI/ABI 가중 / OSS Trending 의 HN frontpage 1순위) + 공통 휴리스틱 (3-tier priority 강제, implications/nextActions 보충 섹션 금지, 데이터 부족 시 솔직한 fallback). sources 에 070019/070200/070412 3건 추가, updated 2026-05-10. 새 wiki/analyses/ 페이지는 만들지 않음 (어제 동일 자료 보고도 동일한 판단)
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음. .cache/extracted/ 디렉터리 없음 (PDF 자동 추출 대상 없음)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/index.md (dev-blog 한 줄 요약에 Multi-topic 가동 확인 추가, updated 타임스탬프), wiki/log.md, wiki/projects/dev-blog.md (sources / 변경 이력 / updated)
+- Marked ingested: true — 12개 session-log 파일 전체 (skip 12건, 처리 0건; 기존 페이지 갱신 1건)
 
 ## 2026-05-09T15:30 — wiki-ingest (session-logs, ingested: false 12건)
 
