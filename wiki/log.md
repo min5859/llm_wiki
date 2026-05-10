@@ -1,9 +1,28 @@
 ---
 title: Operation Log
-updated: 2026-05-10T09:30:00+09:00
+updated: 2026-05-11T00:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-11T00:00 — wiki-ingest (session-logs, ingested: false 7건)
+
+처리 2건 + 스킵 5건. 신규 페이지 3건 (analyses 2 + projects 1), 기존 페이지 갱신 1건 (projects/ht-trading).
+
+- Source: session-logs/20260510-194933-8c5e-*.md (cwd: upbit_trading, "수익율을 더 높이기 위한 전략을 추천해 주세요" — 5 prompts + 5 turns + 45 bash + 3 file edits + commit `e3b8...` + launchd 재시작)
+  - **Created**: wiki/projects/upbit-trading.md — Upbit 암호화폐 무한매수법 자동매매 (Python + APScheduler + launchd, 40분할 DCA + Trailing Stop). 70일 운영 평균 +5.20% (10라운드, 모두 trailing 청산). 5개 키 즉시 적용 (A trailing 2.0→2.5% / B cooldown 12→6h / C max_round_days 90→45 + 계단식 30/60/90→15/30/45 정합 / D partial_profit ON levels [(4.0,0.3),(6.0,0.3)] / E tighten_on_weakness ON). 진단된 수익 저해 패턴 5건 (trailing 너무 타이트 / 부분익절 미사용 / 자본 묶임 / 종목 2개 분산 부족 / 추세 필터 모두 OFF). 백로그 F (use_dynamic_coin_selection True), G (btc_24h_drop_threshold -3→-5 + use_btc_trend_filter True). DB 스키마 (`infinite_buy_rounds.peak_price`/`consumed_partial_levels` 가 재시작 후 trailing·partial 상태 복원의 핵심)
+  - **Created**: wiki/analyses/dca-trailing-stop-tuning.md — DCA·Trailing Stop 자동매매 튜닝의 일반화된 5 레버 (trailing 거리 / 매수 쿨다운 / max_round_days + 계단식 / partial profit / tighten on weakness) + 운영 로그 진단 6단계 (라운드 평균/청산 사유/수익 분포/자본 묶임/매수 차단 사유/종목 분산도) + 즉시 vs Paper 검증 vs 중기 분류 + 자본 분산 함정 + 추세 필터 양면성 (OFF/타이트 ON/완화 ON spectrum) + 라이브 봇 재시작 안전 체크리스트 (`InfiniteBuyStrategy 초기화: ...` 한 줄 grep 검증)
+
+- Source: session-logs/20260510-195349-94ba-*.md (cwd: ht_trading, "수익을 더 올릴수 있는 방안을 제안해 주세요" — 15 prompts + 14 turns + 88 bash + 16 file edits + commits `9d69502` `b507f2a` `0088d85` `d0571c5` + launchd 재시작 2회)
+  - **Updated**: wiki/projects/ht-trading.md — V3 점수 알고리즘 (IC 검증 기반 재설계) 섹션 신설. `n_stock_info` 별도 저장소 commit `0088d85` (technical 40→50 / fundamental 40→30 / EPS 절대값 → earnings_yield / ATR 신규). IC 검증 결과 핵심 (양봉/거래량 sweet 최강 알파 +0.039/+0.029, MA 정렬 IC -0.003 거의 0, 단기 모멘텀 IC -0.038 음수 mean reversion, RSI 안정구간 IC -0.020 음수, 단일 룰 OR `강양봉 AND 거래량 sweet` 승률 67.2% 평균 +3.38%). A/C/D 튜닝 (commit `d0571c5`) — 체결률 (limit_price_ratio 1.0→1.005 → 36% → 70%+ 기대), 트레일링·단계익절 둔감화 (5%→4% + 18% tier 추가), 상대손절 완화 (15%→20%). B/E/F/G 는 `tasks/backlog.md`. 라이브 분석 스크립트 `scripts/analyze_live_period.py` (commit `9d69502`, +407, --from/--to/--recent/--compare-with). 검증 스크립트 `scripts/validate_score_ic.py` (commit `b507f2a`, +588). 적용 후 ScoringStrategy 초기화 한 줄 비교 검증
+  - **Created**: wiki/analyses/scoring-system-ic-validation.md — 룰베이스 트레이딩의 종목 선별 점수 검증 방법론. IC (Pearson/Spearman) 정의, 표본 설계 5가지 결정, 한국 시장 검증 결과 (n=2362), cutoff 시뮬레이션, AND vs OR 게이팅, regime 안정성, 검증 → 재설계 표준 절차 6단계, 펀더는 forward 로깅 인프라 권장 (분기 데이터 과거 시점 재현 어려움), 안티 패턴 4가지 (검증 없는 가중치 직관 조정 / 합산 점수만 측정 / single-asset 검증 / forward horizon 단일 측정)
+
+- Skipped (kakao-db 의 카톡 채팅 요약 prompt 테스트 5건, assistant_turns: 0, 모두 prompt-only — kakao-db 가 LLM 으로 라우팅하는 채팅 요약 기능을 테스트한 흔적. 새 wiki 페이지 작성할 만한 일반 지식 없음, kakao-db 프로젝트 문서에 *summary 기능 테스트 흔적* 정도 mention 만 가능): 20260510-233843-1e8c (한 줄 요약 프롬프트), 20260510-234019-1af3 (오픈테스트방 4 메시지 요약), 20260510-234036-b5f2 (오픈테스트방 1 메시지), 20260510-234521-e7d0 (다른방 1 메시지), 20260510-234533-571c (인덱스 출력)
+
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음 (Tips/ 의 PDF 들은 기존 wiki 페이지가 모두 존재). .cache/extracted/ 디렉터리 없음 (PDF 자동 추출 대상 없음)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/index.md (upbit-trading 프로젝트 1줄 + ht-trading V3 추가 1줄 + analyses 2건 추가 2줄, updated 타임스탬프), wiki/log.md, wiki/projects/ht-trading.md (V3 + A/C/D 섹션 + 변경 이력)
+- Marked ingested: true — 7개 session-log 파일 전체 (처리 2건 + 스킵 5건; 신규 페이지 3건 + 기존 페이지 갱신 1건)
 
 ## 2026-05-10T09:30 — wiki-ingest (session-logs, ingested: false 12건)
 
