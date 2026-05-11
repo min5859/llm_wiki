@@ -4,7 +4,7 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "supabase", "vercel", "yahoo-finance", "personal-asset", "single-user-auth"]
 created: 2026-04-30
-updated: 2026-05-09
+updated: 2026-05-12
 sources:
   - "session-logs/20260430-135011-e8eb-*.md"
   - "session-logs/20260430-161410-0fcc-*.md"
@@ -14,6 +14,7 @@ sources:
   - "session-logs/20260505-084952-fe4f-*.md"
   - "session-logs/20260507-230645-c555-*.md"
   - "session-logs/20260509-080729-fd9f-*.md"
+  - "session-logs/20260512-000725-28e8-DB-에-있는-내용을-모두-CSV-로-export-한-뒤-계좌-내용을-초기화-하고-다시-추.md"
 confidence: high
 related:
   - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
@@ -22,8 +23,11 @@ related:
   - "wiki/bugs/node-modules-symlink-copy-prisma.md"
   - "wiki/bugs/prisma-connection-pool-vercel-supabase.md"
   - "wiki/bugs/gemini-2-0-flash-free-tier-blocked.md"
+  - "wiki/bugs/nextjs16-use-server-non-async-export.md"
   - "wiki/patterns/vercel-cron-best-practices.md"
   - "wiki/patterns/zod-schema-per-entity.md"
+  - "wiki/patterns/csv-roundtrip-backup-restore.md"
+  - "wiki/patterns/supabase-region-migration.md"
   - "wiki/analyses/pgbouncer-direct-url-hybrid-routing.md"
   - "wiki/patterns/react-hook-form-zod-server-action.md"
   - "wiki/analyses/supabase-magic-link-single-user-allowlist.md"
@@ -485,3 +489,4 @@ cron 실행 여부를 사후 확인하려고 `vercel logs` CLI 를 쓰니:
 - 2026-05-05: 일별 cron 이 시세 갱신 실패 (P2024 → 60초 timeout) 사고. 6 commit 추적 끝에 root cause 가 PgBouncer transaction mode 의 query 당 connection acquire 누적 비용임을 확인 → `prismaDirect` (DIRECT_URL) 주입으로 cron lambda 만 PgBouncer 우회, 24.5초에 정상 완료. yahoo I/O = 병렬 / prisma write = mutex 직렬 / connection = direct URL 의 3계층 분리. `refreshMarketHistory` 1년 → 7일 단축 (skipDuplicates 라 99.7% 버려지던 페이로드 제거). `instrumentation.register` 의 `await` hang 함정 발견 → fire-and-forget + try/catch 로 분리. Vercel logs CLI 의 시간 윈도우 cap, Hobby cron Last Run 컬럼 미노출, cron flexible 1-hour window 등 운영 노하우 추가. 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리 (출처: session-logs/20260505-084952-fe4f-*).
 - 2026-05-08: tasks/plan-2026-05-03 의 #1·#2 완료. (1) **react-hook-form + @hookform/resolvers/zod** 도입으로 4개 폼 (account/holding/dividend/group) 클라이언트 즉시 검증 + 서버 라운드트립 절감 (commit 96a22e1, +365/-186). resolvers v5 의 input/output 분리로 `z.input` / `z.output` 명시 필요 (TS2719). group 폼의 Set state + hidden inputs 패턴이 `register("accountIds")` 한 줄로 단순화. (2) **Supabase Auth + 매직 링크 + OWNER_EMAIL allowlist** 로 HMAC AUTH_SECRET / ADMIN_PASSWORD 인증 교체 (commit e1bdb4a). Defense-in-depth 4-Gate: send-magic-link (GATE2) + /auth/callback 양쪽에서 allowlist 재검증, 비-allowlist 이메일은 generic 200 응답 (email enumeration 방지). middleware matcher 의 `/api/cron` 제외 유지 (CRON_SECRET Bearer 별도 인증). (3) #3 AI 키 AES-256-GCM 암호화는 위협 모델 단순성 + Vercel env 의 at-rest 암호화로 ROI 약하다는 결론 → 보류. 일반 패턴은 [[react-hook-form-zod-server-action]] / [[supabase-magic-link-single-user-allowlist]] 로 분리 (출처: session-logs/20260507-230645-c555-*).
 - 2026-05-09: tasks/todo-2026-05-03 의 ⭐⭐⭐ 1순위 백로그 **BUY/SELL Transaction 추적 MVP** 구현 (commit 0aa2187, +938/-16). `prisma.$transaction` 으로 수량·평균단가·계좌 현금 일괄 갱신, 한국 양도세 표준 가중평균 (수수료 취득원가 포함) ‖ SELL row 의 `realizedGain` 컬럼에 실현손익 박아 보존 ‖ 거래 삭제는 효과 역연산 ‖ 계좌·거래 통화 일치 시에만 cashBalance 자동 갱신 (환전 시점 모호함 회피). 신설 `/holdings/[id]` detail 페이지 + 매수/매도 단축 아이콘 (계좌 detail). enum 1차 범위는 `BUY`/`SELL` 만 (DIVIDEND 는 별 모델). Tax 양도세 페이지의 실현/미실현 분리 + CSV export + DEPOSIT/WITHDRAW enum 확장은 데이터 누적 후 별도 세션. 일반 패턴은 [[holding-transaction-cost-basis-design]] 으로 분리 (출처: session-logs/20260509-080729-fd9f-*).
+- 2026-05-12: **CSV round-trip 백업/복원 워크플로 + Supabase 뭄바이 → 서울 리전 마이그레이션** 완료. (1) `/api/export/[type]` 에 `groups` (N:M `;-구분 accountIds` 직렬화) / `transactions` 추가, holdings 에 `accountId` / dividends 에 `accountId`/`holdingId` 컬럼 추가로 round-trip 보장 (commit de3bf75, +613/-5). 신설 `/settings/data` 한 페이지에서 5종 CSV 다운로드 → "RESET" 입력 + 브라우저 confirm 2중 가드 → 5-파일 업로드 import 흐름 강제. PgBouncer transaction-mode 호환 위해 `$transaction(callback)` 대신 array form 사용. @updatedAt 은 import 시점에 재생성 (createdAt 만 보존). (2) Next.js 16 Turbopack 의 `"use server"` 파일이 async function 외 export (객체 `INITIAL_DATA_STATE`) 거부 → runtime 에러로 페이지 깨짐, 객체 export 제거 + type-only export 만 유지로 수정 (commit 4ba3e26). 일반 패턴은 [[nextjs16-use-server-non-async-export]] 로 분리. (3) Supabase 리전 마이그레이션 9 단계 절차 (CSV 백업 → .env 백업 → 새 프로젝트 4 연결정보 수집 → .env 교체 → `prisma migrate reset --force --skip-seed` → Auth URL whitelist 추가 → 로컬 import 검증 → 코드 commit → Vercel env 교체 + push 자동배포) 로 응답속도 개선. 비밀번호 함정 (Database password vs anon key vs service_role 혼동, URL percent-encoding, "Generate a password" 의 특수문자 위험), P3005 (schema not empty) 대응, auth.users 마이그레이션 불필요 (단일 사용자 매직 링크는 새 프로젝트에서 다시 로그인) 등 모두 [[supabase-region-migration]] / [[csv-roundtrip-backup-restore]] 로 분리 (출처: session-logs/20260512-000725-28e8-*).

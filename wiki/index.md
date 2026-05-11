@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-11T09:30:00+09:00
+updated: 2026-05-12T13:00:00+09:00
 ---
 
 # Wiki Index
@@ -55,6 +55,9 @@ updated: 2026-05-11T09:30:00+09:00
 - [[macos-tcc-full-disk-access]] — macOS Sonoma+ TCC 토스트 ("iTerm 이 다른 앱 데이터에 접근") 처리: 시스템 설정 → 전체 디스크 접근 + iTerm 완전 재시작. Claude Code 권한 팝업과 별개로 구분
 - [[cron-nvm-node-path-trap]] — cron 이 `~/.zshrc` 안 읽어 NVM node 못 찾는 함정 (`env: node: No such file or directory`). crontab 상단 `PATH=` 명시 + 비교표 (cron / launchd / systemd / GitHub Actions)
 - [[react-hook-form-zod-server-action]] — Next.js Server Actions + react-hook-form + Zod 동일 스키마 패턴: `useForm<z.input, unknown, z.output>` 3-제너릭 (resolvers v5 의 input/output 분리), FormData 재구성으로 server action 시그니처 보존, defense-in-depth
+- [[shell-set-eu-topic-isolation]] — shell `set -eu` 와 multi-topic 파이프라인의 격리: 한 토픽 실패가 후속 전체 중단을 일으키는 부작용을 `if !` 한 줄 wrap 으로 차단. 의존 사슬 / 독립 N건 의 작업 단위 결정이 핵심
+- [[csv-roundtrip-backup-restore]] — CSV round-trip 백업/복원: 외래키 ID + N:M `;-구분 ID 목록` 직렬화로 export → reset → import 시 PK/FK/N:M 매핑 그대로 복원. RFC 4180 미니 파서, "RESET" 텍스트 + browser confirm 2중 가드, @updatedAt 함정
+- [[supabase-region-migration]] — Supabase 프로젝트 리전 마이그레이션 9 단계 (CSV 백업 → .env 백업 → 새 프로젝트 연결정보 → .env 교체 → `prisma migrate reset --force` → Auth URL → 로컬 import 검증 → commit → Vercel env 교체). Database password / anon key / service_role 혼동 함정 + URL percent-encoding + P3005 + auth.users 마이그레이션 불필요
 
 ## 버그와 해결책 (bugs/)
 
@@ -66,6 +69,8 @@ updated: 2026-05-11T09:30:00+09:00
 - [[openclaw-coder-silent-3-layer]] — OpenClaw 코더 응답 무 3계층 디버깅: plugins.allow 미설정 (acpx runtime 차단) + 12일 묵은 좀비 ACP task (sqlite 직접 정리) + Anthropic OAuth 403 (진짜 원인). 모델 codex 로 변경 후 회복
 - [[dict-get-default-no-bootstrap]] — Python `dict.get(key, default)` 가 dict 미갱신 → 부트스트랩 영구 실패. ht_trading 트레일링 스톱 1개월간 영구 비활성. `setdefault` 한 줄 교체
 - [[utc-iso-date-kst-rollover]] — `new Date().toISOString().slice(0, 10)` 가 KST 새벽~오전에 어제 날짜로 떨어짐. 매일 07:00 cron 이 어제 게시본 silent overwrite. `Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul' })` 로 수정. 모든 한국 운영 cron 에 재현 가능
+- [[ndjson-stdout-parser-greedy-regex]] — AI CLI (cursor/claude -p) 의 stdout 파서가 NDJSON / envelope.result / fenced JSON 케이스에 깨짐. 탐욕 정규식 (`/\{[\s\S]*\}/`) 대신 단계적 4 경로 폴백 + 회귀 fixture. dev-blog 5/11 12토픽 누락 사고의 직접 원인
+- [[nextjs16-use-server-non-async-export]] — Next.js 16 Turbopack 부터 `"use server"` 파일이 async function 외 export (객체/상수) 거부 → runtime 에러로 페이지 깨짐. typecheck 미감지. type-only export 만 안전
 
 ## 요약 (summaries/)
 
