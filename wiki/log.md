@@ -1,9 +1,21 @@
 ---
 title: Operation Log
-updated: 2026-05-11T00:00:00+09:00
+updated: 2026-05-11T09:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-11T09:30 — wiki-ingest (session-logs, ingested: false 9건)
+
+처리 0건 + 스킵 9건. 모든 신규 로그가 cron 자동 입력 (research-wiki / oss-radar 의 paper / OSS 일일 분석 + heartbeat). 신규 wiki 페이지 0건, 기존 페이지 갱신 0건.
+
+- Skipped (cron heartbeat — `Reply with only: OK`, assistant_turns: 0): 20260511-080024-fcd1 (research-wiki), 20260511-090048-1738 (oss-radar). 2건
+- Skipped (research-wiki cron 의 논문 분석 입력 — assistant_turns: 0, 논문 본문이 입력 프롬프트에 직접 포함된 형태. 본 cron 의 응답은 research-wiki 파이프라인이 직접 받아 처리하므로 별도 인제스트 불요): 20260511-080031-55d7 (arXiv 2605.05242, *Beyond Semantic Similarity: Direct Corpus Interaction*), 20260511-080145-d3ea (arXiv 2605.06130, *Skill1: Unified Evolution of Skill-Augmented Agents via RL*). 2건
+- Skipped (oss-radar cron 의 OSS 분석 입력 — assistant_turns: 0, 본 cron 의 응답은 oss-radar 파이프라인이 직접 받아 처리하므로 별도 인제스트 불요): 20260511-090056-b201 (JuliusBrussee/caveman, 57k stars, Claude Code skill ~75% 토큰 절약), 20260511-090135-0493 (google-research/google-research), 20260511-090217-df09 (Fission-AI/OpenSpec), 20260511-090250-9ecb (asgeirtj/system_prompts_leaks), 20260511-090330-f6ff (streamlit/streamlit). 5건
+- raw-sources/ 의 신규 .md 없음 — Tips/ articles/ books/ ideas/ papers/ transcripts/ 의 모든 서브디렉터리에 PDF / .pptx / .txt 만 존재 (chunk MD 처리 대상 외). .cache/extracted/ 디렉터리 없음 (PDF chunk 처리 대상 외)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/index.md (updated 타임스탬프만 — 신규/갱신 페이지 없음), wiki/log.md
+- Marked ingested: true — 9개 session-log 파일 전체 (skip 9건, 처리 0건)
 
 ## 2026-05-11T00:00 — wiki-ingest (session-logs, ingested: false 7건)
 
