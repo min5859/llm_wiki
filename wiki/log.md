@@ -1,9 +1,29 @@
 ---
 title: Operation Log
-updated: 2026-05-12T15:00:00+09:00
+updated: 2026-05-13T08:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-13T08:00 — wiki-ingest (session-logs, ingested: false 2건)
+
+처리 2건 + 스킵 0건. 신규 페이지 6건 (analyses 2 + patterns 2 + bugs 1 + projects 0), 기존 페이지 갱신 1건 (projects/finance-analysis-nextjs).
+
+- Source: session-logs/20260512-214455-2046-*.md (cwd: personal-vim-md-editor, "지금 프로젝트는 vim 인터페이스의 터미널형태의 코딩 에디터 ... CLAUDE.md 를 만들어 주세요" → SSH 환경에 Tauri 가 안 맞다는 사실 발견 → glow + neovim 워크플로 + CLI 도구 추천 + Notion MCP 등록. 32 prompts + 31 turns + 32 bash + 4 file edits, commit `5a18fdc`)
+  - **Created**: wiki/analyses/terminal-markdown-viewer-tools.md — 터미널·CLI 마크다운 뷰어 6종 비교표 (glow / mdcat / frogmouth / bat / neovim + render-markdown.nvim / markdown-preview.nvim). Mermaid SVG 의 터미널 본질적 한계 + 4단계 우회 (코드블록 → ASCII → 외부 뷰어 → 인라인 이미지). neovim 마크다운 렌더 3단계 + Tauri/Electron 데스크탑 앱이 SSH 환경에 부적합한 이유 (webview, DOM 의존, 빌드 산출물 GB 단위)
+  - **Created**: wiki/patterns/ssh-cli-toolkit-essentials.md — SSH 개발 환경 CLI 도구 우선순위. Top 3 (tmux/ripgrep/fzf) + 보조 4종 (bat/fd/lazygit/delta) + mac/linux 설치 명령 + 표준 워크플로 (`tmux new -s work` → `rg --type md` → `glow -p $(fzf)` → `Ctrl+B d`). 왜 이 3개가 우선인가의 정성적 설명
+  - **Created**: wiki/patterns/claude-mcp-server-scope-and-add-json.md — Claude Code MCP 등록의 4 함정. `-e KEY=VALUE` 의 셸 토큰 분해 모호함 → `add-json` 우회 / 기본 `local` scope 의 디렉터리 격리 → `-s user` 필수 / 새 MCP 는 세션 시작 시만 로드 → 재시작 / 외부 MCP + API key 자동 승인 거부. `~/.claude.json` 의 `mcpServers` (user) vs `projects.<path>.mcpServers` (local) 분기 + `print -l --` 토큰 분해 진단
+  - **Created**: wiki/bugs/grep-env-var-leak-to-chatlog.md — `grep -c "NOTION_API_KEY" ~/.zshrc` 가 라인 전체 출력으로 API key 가 LLM 채팅 로그에 그대로 노출된 실 사고. 즉시 조치 (revoke/rotate → `.zshrc` 갱신 → 새 셸) + 안전한 환경변수 검증법 (`echo "len=${#VAR}"` / `[ -n "$VAR" ]` / `grep -q`) + AI 어시스턴트 측 위생 (마스킹 출력, 사전 안전한 명령 설계). 관련: [[mcp-config-secret-exposure-via-ps]]
+
+- Source: session-logs/20260512-231800-c191-*.md (cwd: finance-analysis-nextjs, "본 프로젝트를 비판적으로 검토해서 더 추가하면 좋을 기능을 알려 주세요" → 7개 갭 식별 → 사용자 "순차적으로 진행, 페이즈별 커밋" → Phase 1~7 일괄 구현. 3 prompts + 3 turns + 70+ file edits + commit 7건: `a9568b9` `926567e` `44ff302` `9eefe34` `fbefdfa` `65c191c` `98a8101`)
+  - **Created**: wiki/analyses/financial-health-composite-scores.md — 재무 건전성 합성 스코어 3종 비교 (Altman Z / Piotroski F / Beneish M) + 5 카테고리 룰 기반 risk flag (profitability/liquidity/leverage/efficiency/cash). 한국 시장 적용 시 함정 — Z 의 운전자본·이익잉여금 절대값 누락 → 단순화된 룰 기반 distress signal 대체 / F 의 insufficient fallback / Beneish 의 false positive. LLM 호출 0 의 가치 (속도/비용/신뢰/튜닝)
+  - **Created**: wiki/patterns/ai-token-usage-cost-guard.md — AI 토큰 사용량 + per-user 일일 비용 한도 가드 패턴 4단계. `usage_events` 테이블 + `lib/pricing.ts` (provider/model pricing, prefix 매칭으로 datestamped Anthropic 대응, provider default safety net) + `ai-client.ts` 가 `UsageInfo` 함께 반환 + entrypoint 가드 (사전 한도 체크 + 사후 recordUsage). client-direct 우회 경로용 `/api/usage` POST reporting endpoint + `/api/anthropic-config` 의 사전 가드. UTC 자정 cutoff, $5 기본 한도
+  - **Updated**: wiki/projects/finance-analysis-nextjs.md — 2026-05-12 비판적 검토 7개 갭 + Phase 1~7 일괄 구현 섹션 신설. commit 7건 표 (F-Score / CSV / 토큰 비용 가드 / risk flag / 공유 링크 / 시나리오 패널 / vitest 32 테스트) + 우선순위 결정 (비용/리스크 대비 효과) + 빌드 함정 (`PerformanceData` 인덱스 시그니처 누락) + 일반 패턴 분리 ([[financial-health-composite-scores]], [[ai-token-usage-cost-guard]]). sources/related/updated 갱신, 변경 이력 신설 항목
+
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음 (Tips/ 및 루트의 PDF/pptx/txt 들은 처리 대상 외). .cache/extracted/ 디렉터리 없음 (PDF 자동 추출 대상 없음)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/projects/finance-analysis-nextjs.md (Phase 1~7 + sources/related/변경이력), wiki/index.md (finance-analysis-nextjs 1줄 업데이트 + 신규 5 페이지 1줄씩 추가 + updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 2개 session-log 파일 전체 (처리 2건 + 스킵 0건; 신규 페이지 5건 + 기존 페이지 갱신 1건)
 
 ## 2026-05-12T15:00 — wiki-ingest (session-logs, ingested: false 14건)
 
