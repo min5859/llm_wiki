@@ -4,17 +4,20 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "ai-extract", "dart-api", "valuation", "ma", "pdf-extraction"]
 created: 2026-04-30
-updated: 2026-05-05
+updated: 2026-05-13
 sources:
   - "session-logs/20260430-174408-1a2e-*.md"
   - "session-logs/20260501-233118-b6e0-*.md"
   - "session-logs/20260505-101659-115c-*.md"
+  - "session-logs/20260512-231800-c191-*.md"
 confidence: medium
 related:
   - "wiki/projects/japa-asset-dashboard.md"
   - "wiki/analyses/ai-valuation-trustworthiness.md"
   - "wiki/analyses/pdf-text-extraction-vs-ocr.md"
   - "wiki/patterns/vercel-timeout-browser-direct-api.md"
+  - "wiki/analyses/financial-health-composite-scores.md"
+  - "wiki/patterns/ai-token-usage-cost-guard.md"
 ---
 
 # finance-analysis-nextjs — 한국 기업 재무분석 대시보드
