@@ -1,9 +1,32 @@
 ---
 title: Operation Log
-updated: 2026-05-11T09:30:00+09:00
+updated: 2026-05-12T15:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-12T15:00 — wiki-ingest (session-logs, ingested: false 14건)
+
+처리 1건 + 스킵 13건. 신규 페이지 0건, 기존 페이지 갱신 1건 (wiki/projects/dev-blog.md).
+
+대부분의 핵심 내용은 직전 자동 인제스트 (`2889307 auto: wiki update 20260512-0800`) 가 이미 wiki/projects/{dev-blog, ht-trading, japa-asset-dashboard}.md 에 반영 완료 (5/11 dev-blog 콘텐츠 품질 가드 4종 + ht_trading V3 컷오프 캘리브레이션 + japa Supabase 리전 마이그레이션 + CSV round-trip). 본 인제스트는 5/12 8시 이후의 새 세션 (dev-blog 자동화 누락 발견) 1건만 추가 반영.
+
+- Source: session-logs/20260512-093236-ee09-*.md (cwd: dev-blog, "오늘 5/12일 업데이트가 안된 토픽이 있다 — 분석해서 업데이트 되도록 해 주세요" — 8 prompts + 8 turns + commits 2건)
+  - **Updated**: wiki/projects/dev-blog.md — `daily-deploy.sh` 의 자동화 토픽 누락 발견·수정 섹션 신설. launchd 진입점이 linux/android/opensource 3개만 호출하고 있어 lens 8종 + opensource-curation 은 매일 silent 누락 (5/11 의 12개 토픽 게시는 사실 수동 실행 결과였다). 9개 토픽 5/12 분 수동 재생성 (run-all-kernel-lenses + run-daily-opensource-curation, 첫 실패 lens 는 per-topic 루프 + 1회 재시도 셸 스니펫으로 회피) + daily-deploy.sh 에 per-topic 루프 + `if !` 격리로 lens 8종 / opensource-curation 추가. `run-all-kernel-lenses` 자체도 stop-on-first-fail 함정이 있어 per-topic 우회 필요. 일반 교훈: multi-topic 파이프라인에서 「토픽 진입점 / 자동화 호출 목록 / 그룹 호출자」 3계층 모두 토픽 추가 시 동기화 필요. sources 에 ee09 추가, 변경 이력에 "2nd batch" 항목 신설. 관련: [[shell-set-eu-topic-isolation]]
+
+- Source: session-logs/20260511-230001-14d5-*.md (이미 직전 자동 인제스트 commit `2889307` 가 wiki/projects/dev-blog.md 의 콘텐츠 품질 가드 4종 섹션 + commit 2a4b2ec / 2cc5ff5 변경 이력으로 반영 완료. ingested:false 만 잔존)
+- Source: session-logs/20260511-230648-4621-*.md (이미 직전 자동 인제스트가 wiki/projects/ht-trading.md 의 V3 컷오프 캘리브레이션 섹션 + commit 50c929c 변경 이력 + V2/V3 30 매칭 종목 Spearman ρ=+0.835 / Top-10 80% 교집합 분석 + [[scoring-version-comparison-methodology]] 분리로 반영 완료. ingested:false 만 잔존)
+- Source: session-logs/20260512-000725-28e8-*.md (이미 직전 자동 인제스트가 wiki/projects/japa-asset-dashboard.md 의 2026-05-12 항목 — CSV round-trip + Supabase 뭄바이→서울 리전 마이그레이션 9단계 + [[supabase-region-migration]] / [[csv-roundtrip-backup-restore]] / [[nextjs16-use-server-non-async-export]] 분리로 반영 완료. ingested:false 만 잔존)
+
+- Skipped (단발 QA, assistant_turns: 0 — 사용자 질문만 있고 응답 없이 종료): 20260512-011921-bc6c "mac 에서 .dmsg 로 앱 설치 후 .dmsg 삭제 가능?" (cwd: question, 1 prompt + 0 turn — 답변되지 않은 1회성 질문, 일반 지식이지만 응답이 없어 wiki 화 대상 외)
+- Skipped (cron heartbeat — `Reply with only: OK`, assistant_turns: 0): 20260512-080024-b516 (research-wiki), 20260512-090051-62dc (oss-radar). 2건
+- Skipped (research-wiki cron 의 논문 분석 입력 — assistant_turns: 0, 본 cron 의 응답은 research-wiki 파이프라인이 직접 받아 처리하므로 별도 인제스트 불요): 20260512-080032-4eeb (arXiv 2605.06716, *From Storage to Experience: A Survey on the Evolution of LLM Agent Memory Mechanisms*), 20260512-080135-6c12 (arXiv 2605.06169, *Mean Mode Screaming: Mean-Variance Split Residuals for 1000-Layer Diffusion Transformers*). 2건
+- Skipped (oss-radar cron 의 OSS 분석 입력 — assistant_turns: 0): 20260512-090057-be65, 20260512-090130-eadb, 20260512-090205-0665, 20260512-090238-a42d, 20260512-090313-b25c. 5건
+
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음 (Tips/ 의 PDF 들은 기존 wiki 페이지가 모두 존재). .cache/extracted/ 디렉터리 없음 (PDF 자동 추출 대상 없음)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/projects/dev-blog.md (daily-deploy.sh 자동화 누락 섹션 + sources + 변경 이력), wiki/log.md, wiki/index.md (updated 타임스탬프만 — 신규 페이지 없어 목차 변경 없음)
+- Marked ingested: true — 14개 session-log 파일 전체 (처리 1건 + 스킵 13건; 신규 페이지 0건 + 기존 페이지 갱신 1건)
 
 ## 2026-05-11T09:30 — wiki-ingest (session-logs, ingested: false 9건)
 
