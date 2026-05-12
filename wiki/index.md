@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-12T15:00:00+09:00
+updated: 2026-05-13T08:00:00+09:00
 ---
 
 # Wiki Index
@@ -24,7 +24,7 @@ updated: 2026-05-12T15:00:00+09:00
 - [[oss-radar]] — 주간 GitHub OSS 발굴 파이프라인: discover→fetch→analyze→publish 6단계, star_velocity 스코어링, env -u CLAUDECODE 중첩세션 방지, GitHub topic OR 미지원 우회, config/.env 시크릿 분리
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
 - [[japa-asset-dashboard]] — 1인 전용 자산 통합 대시보드: Next.js 16 + Prisma + Supabase + Yahoo Finance + 멀티 LLM, Supabase Auth 매직 링크 + RHF/Zod 폼 + BUY/SELL Transaction 추적 (가중평균 + realizedGain 동결)
-- [[finance-analysis-nextjs]] — 한국 기업 재무분석 대시보드: PDF/JSON/DART API 입력, AI 멀티 프로바이더 구조화, 12 슬라이드 + AI/수동 밸류에이션, M&A 활용 계획
+- [[finance-analysis-nextjs]] — 한국 기업 재무분석 대시보드: PDF/JSON/DART API 입력, AI 멀티 프로바이더 구조화, 12 슬라이드 + AI/수동 밸류에이션, M&A 활용 계획. 비판적 검토 7개 갭 + Phase 1~7 일괄 구현 (F-Score / CSV / 토큰 비용 가드 / risk flag / 공유 링크 / 시나리오 패널 / vitest 32 테스트)
 - [[wardrobe]] — 옷장 매칭 웹 앱 (Next.js 15 + Tailwind v4 + LocalStorage MVP): 사이드바 레이아웃, 시드 JSON, DB 없이 Step 1 단계로 시작
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입
@@ -58,6 +58,9 @@ updated: 2026-05-12T15:00:00+09:00
 - [[shell-set-eu-topic-isolation]] — shell `set -eu` 와 multi-topic 파이프라인의 격리: 한 토픽 실패가 후속 전체 중단을 일으키는 부작용을 `if !` 한 줄 wrap 으로 차단. 의존 사슬 / 독립 N건 의 작업 단위 결정이 핵심
 - [[csv-roundtrip-backup-restore]] — CSV round-trip 백업/복원: 외래키 ID + N:M `;-구분 ID 목록` 직렬화로 export → reset → import 시 PK/FK/N:M 매핑 그대로 복원. RFC 4180 미니 파서, "RESET" 텍스트 + browser confirm 2중 가드, @updatedAt 함정
 - [[supabase-region-migration]] — Supabase 프로젝트 리전 마이그레이션 9 단계 (CSV 백업 → .env 백업 → 새 프로젝트 연결정보 → .env 교체 → `prisma migrate reset --force` → Auth URL → 로컬 import 검증 → commit → Vercel env 교체). Database password / anon key / service_role 혼동 함정 + URL percent-encoding + P3005 + auth.users 마이그레이션 불필요
+- [[ssh-cli-toolkit-essentials]] — SSH 개발 환경의 CLI 필수 도구: tmux + ripgrep + fzf 우선 (Top 3) + bat/fd/lazygit/delta. mac/linux 양쪽 동일 명령. AI 가 만드는 `.md` 더미 + 코드 작업의 표준 워크플로 (`tmux new` → `rg --type md` → `glow -p $(fzf)` → `Ctrl+B d`)
+- [[claude-mcp-server-scope-and-add-json]] — Claude Code `claude mcp add` 의 4 함정: `-e KEY=VALUE` 의 셸 토큰 분해 모호함 → `add-json` 우회 / 기본 `local` scope 의 디렉터리 격리 → `-s user` 필수 / 새 MCP 는 세션 시작 시만 로드 → 재시작 / 외부 MCP + API key 등록은 자동 승인 거부. `~/.claude.json` 의 `mcpServers` vs `projects.<path>.mcpServers` 분기
+- [[ai-token-usage-cost-guard]] — AI 토큰 사용량 기록 + per-user 일일 비용 한도 가드 패턴: `usage_events` 테이블 + provider/model pricing (prefix 매칭 + provider default) + `ai-client` 가 `UsageInfo` 함께 반환 + 모든 entrypoint 한도 가드 + client-direct 우회 경로용 `/api/usage` reporting endpoint. UTC 자정 cutoff
 
 ## 버그와 해결책 (bugs/)
 

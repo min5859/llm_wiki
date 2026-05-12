@@ -242,6 +242,53 @@ src/
 
 **보안 부채**: DevTools 로 키 추출 가능. 회수 조건 (Pro 업그레이드 / Cloud Run / 외부 워커 도입 중 하나 완료) 충족 시 즉시 회수해야 하고, 회수 절차에 **`ANTHROPIC_API_KEY` 회전**이 반드시 포함되어야 한다 — 한 번이라도 클라이언트에 내려간 키는 유출 전제로 다뤄야 한다. 일반 패턴과 회수 체크리스트는 [[vercel-timeout-browser-direct-api]] 참고.
 
+## 2026-05-12 비판적 검토 7개 갭 + Phase 1~7 일괄 구현
+
+`docs/tasks/todo.md` 의 기존 백로그 (다중 회사 비교, Q&A 챗봇, 워치리스트, PDF 다중 업로드, DART 감사정보 통합) 와 별도로 **누락되어 있는 영역 7개**를 추출하고 일괄 구현. 모두 LLM 호출 0 (Phase 3 제외) 또는 비용 추가 없음.
+
+### 비판적 검토 — 7개 갭
+
+1. **분석 기능의 빈 자리** — 합성 스코어 (Z/F/M-Score), 시나리오·민감도, 시계열 예측, 분기 데이터, 세그먼트 분석
+2. **외부 데이터 통합** — 주가/시총 (KRX/Yahoo), 애널리스트 컨센서스, 동종업계 자동 매칭 (KSIC), 최근 공시/뉴스
+3. **AI 파이프라인 운영** — 분석당 토큰/비용 가시화, eval 자동화 (골든셋 회귀), 사용자 정의 프롬프트/지표, 자동 risk flag
+4. **보안/운영 부채** — API rate limit, 감사 로그, 에러 모니터링 (Sentry), 백업 정책, `financial_statements` dead schema 결정
+5. **UX/협업** — read-only 공유 URL, 검색/태그/즐겨찾기, 버전 히스토리, Excel/CSV 내보내기, 프레젠테이션 모드, 다크모드/모바일
+6. **Valuation 모듈 미완** — WACC/베타 자동, Reverse DCF, 시나리오 저장 (Bull/Base/Bear), Monte Carlo
+7. **테스트 인프라 부재** — 13개 페이지 + AI 파이프라인 + 4 provider 멀티분기인데 자동 테스트 0건
+
+### Phase 1~7 일괄 구현 (commit 7건)
+
+| Phase | commit | 내용 |
+|---|---|---|
+| 1 | `a9568b9` | Piotroski F-Score + rule-based distress signals → summary 페이지. 8 sub-checks (ROA / OCF / ROA 개선 / accruals / 부채 추세 / 유동비율 추세 / 영업이익률 추세 / 자산회전율 추세) + insufficient fallback. Altman Z 는 운전자본·이익잉여금 절대값 미추출 한국 상황으로 *단순화된 룰 기반* 대체. |
+| 2 | `926567e` | Excel-compatible CSV 내보내기 (UTF-8 BOM 으로 한국어 컬럼 보존). Header 의 CSV 버튼이 모든 numeric time series (performance / balance / stability / cash flow / working capital / profitability / growth / dupont) 를 섹션별 빈 줄로 구분해 출력. |
+| 3 | `44ff302` | **AI 토큰 비용 가드** — `usage_events` 테이블 + `lib/pricing.ts` (provider/model 별 USD per 1M, prefix 매칭으로 datestamped Anthropic 모델 대응) + `lib/usage.ts` recordUsage/getDailyUsage (UTC 자정 cutoff) + `ai-client.ts` 가 `UsageInfo` 함께 반환 + 3 entrypoint (`/api/extract`, `/api/valuation`, `/api/anthropic-config`) 한도 가드 + client-direct 경로용 `/api/usage` POST reporting. `DAILY_USAGE_LIMIT_USD` env override (기본 $5). 이전: 다음 날 아침 Anthropic 청구 대시보드만 신호. |
+| 4 | `9eefe34` | Rule-based risk flag detector — profitability / liquidity / leverage / efficiency / cash 5 카테고리, 각 룰이 self-contained 함수로 `RiskFlag \| null` 반환. severity (safe/watch/danger) 가 sort order 형성. 좀비 기업 (이자보상배율 < 1), CCC/DSO 급증, 운영 음수 + 재무 양수 (차입금 운영) 등. AI 호출 0. |
+| 5 | `fbefdfa` | Read-only 공유 링크 — `share_links` 테이블 (token unique, 옵션 expiresAt, soft-revoke via revokedAt, Company cascade), `/api/share` POST/GET (auth), `/api/share/[token]` GET (public, 404/410 처리), `/share/[token]` 페이지가 snapshot 으로 Zustand 하이드레이트 후 모든 reportSlides 인라인 렌더. `proxy.ts` 가 GET `/api/share/<token>` 과 `/share/*` 만 인증 면제. Header 의 Share 버튼이 클립보드 복사. 32 random bytes (base64url) 토큰. |
+| 6 | `65c191c` | Scenario / sensitivity 패널 — DCF 결과 아래 3 슬라이더 (WACC ±3%p / terminal growth ±2%p / initial growth ±10%p) 실시간 재계산 + horizontal tornado 차트 (fixed ±deltas, magnitude 정렬). `terminal growth → wacc` 접근 시 perpetuity 발산 방지 — SensitivityPanel 이 terminal 을 `wacc - 0.5%p` 로 clamp. DCFForm.onSubmit 이 `DCFContext` (params + resolved wacc + adjusted FCF + net debt) 도 함께 yield 해 panel 이 재유도 없이 사용. multiples / asset / combined 결과엔 미연결. |
+| 7 | `98a8101` | **vitest 인프라 0 → 시작** — `lib/format`, `lib/pricing`, `lib/csv-export`, `features/financial-analysis/health-scores`, `features/financial-analysis/risk-flags`, `features/valuation/calculators/dcf` 6 파일 32 테스트 ~150ms. `vitest.config` 가 `@` alias 를 `src/` 로 매핑해 Next.js tsconfig 와 일치. Component/hook/route 테스트는 보류 — 우선 안전망 lift 부터. |
+
+### 우선순위 결정 — 비용/리스크 대비 효과
+
+1. **재무 건전성 스코어 (Z/F/M)** — LLM 호출 0, 신뢰감 큰 향상, 1일 → Phase 1
+2. **Excel/CSV 내보내기** — 실무 채택률 직결, 1일 → Phase 2
+3. **분석당 토큰·비용 로깅 + 사용자별 일일 한도** — 보안 부채 G절과 한 묶음, 2~3일 → Phase 3
+4. **자동 risk flag** — 룰 기반, AI 비용 0, 사용자 반복 질문 선제 알림으로 전환 → Phase 4
+5. **공유 링크 (read-only)** — 협업 도구로 성격 확장 → Phase 5
+6. **시나리오/민감도 슬라이더** — DCF 의 신뢰도 한 단계 끌어올림 → Phase 6
+7. **테스트 인프라** — 시작 비용 1일, 이후 모든 변경의 안전망 → Phase 7
+
+외부 API 키 수급 의존 항목 (주가, 컨센서스, 다년도 DART, KSIC 매핑) 은 별도 트랙으로 분리. M&A 활용 신규 기능 후보 11개와 합쳐 백로그 유지.
+
+### 빌드 함정 — `PerformanceData` 의 인덱스 시그니처 누락
+
+CSV 내보내기 (Phase 2) 작성 중 `Record<string, unknown>` 으로 캐스팅 시 type error 발생 — Prisma/Zod 추론 타입 `PerformanceData` 가 명시적 인덱스 시그니처를 갖지 않아 직접 캐스팅 거부. `unknown as Record<...>` 2단계 캐스팅으로 우회 (코드 수정으로 해결, 추가 빌드 통과).
+
+### 일반 패턴 분리
+
+- 합성 스코어 (Z/F/M) + 룰 기반 risk flag 의 일반 지식 → [[financial-health-composite-scores]]
+- AI 토큰 사용량 기록 + per-user 일일 비용 한도 가드 패턴 → [[ai-token-usage-cost-guard]] (client-direct 경로의 보조 reporting endpoint 포함)
+
 ## 관련 맥락
 
 - 자산 보유 측의 [[japa-asset-dashboard]] 와는 별도 프로젝트. japa는 본인 자산 추적, finance-analysis-nextjs는 외부 기업 분석.
@@ -254,3 +301,4 @@ src/
 - 2026-04-30: 코드 깊이 분석 추가 — 4가지 구조적 결함 (AI 환각 + 수식 오류 / 단위 강제 부재 / 빈 인풋 → 가짜 데이터 5곳 / 스캔 PDF 침묵 실패) 식별, 4단계 우선순위 백로그 + M&A 기능 11개 후보 정리. 일반 패턴은 [[ai-valuation-trustworthiness]], [[pdf-text-extraction-vs-ocr]] 로 분리.
 - 2026-05-02: 운영성 결함 4가지 추가 — analyses 누적 / DELETE 경로 부재 / financial_statements 미사용 / provider 하드코딩. 관련 백로그 4개 추가. PDF 내보내기 (`pdf-generator.ts` 의 `downloadPdf`/`downloadFullReportPdf` + `html2canvas-pro`/`jspdf`) 가 이미 구현되어 있음을 확인 (출처: session-logs/20260501-233118-b6e0-*)
 - 2026-05-05: Vercel 60초 timeout 우회를 위한 임시 client-direct Anthropic 패턴 도입 사항 기록 (commit `215b9ff`). `/api/anthropic-config` + `lib/anthropic-browser.ts` + `proxy.ts` JSON 401 갱신. 일반 패턴은 [[vercel-timeout-browser-direct-api]] 로 분리. 회수 조건과 키 회전 의무 명시 (출처: session-logs/20260505-101659-115c-*)
+- 2026-05-13: 비판적 검토 7개 갭 + Phase 1~7 일괄 구현 (commit 7건: `a9568b9` `926567e` `44ff302` `9eefe34` `fbefdfa` `65c191c` `98a8101`). F-Score / CSV / 토큰 비용 가드 / risk flag / 공유 링크 / 시나리오 패널 / vitest 32 테스트. 일반 지식은 [[financial-health-composite-scores]], [[ai-token-usage-cost-guard]] 로 분리 (출처: session-logs/20260512-231800-c191-*)
