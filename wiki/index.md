@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-13T08:00:00+09:00
+updated: 2026-05-13T10:30:00+09:00
 ---
 
 # Wiki Index
@@ -61,6 +61,7 @@ updated: 2026-05-13T08:00:00+09:00
 - [[ssh-cli-toolkit-essentials]] — SSH 개발 환경의 CLI 필수 도구: tmux + ripgrep + fzf 우선 (Top 3) + bat/fd/lazygit/delta. mac/linux 양쪽 동일 명령. AI 가 만드는 `.md` 더미 + 코드 작업의 표준 워크플로 (`tmux new` → `rg --type md` → `glow -p $(fzf)` → `Ctrl+B d`)
 - [[claude-mcp-server-scope-and-add-json]] — Claude Code `claude mcp add` 의 4 함정: `-e KEY=VALUE` 의 셸 토큰 분해 모호함 → `add-json` 우회 / 기본 `local` scope 의 디렉터리 격리 → `-s user` 필수 / 새 MCP 는 세션 시작 시만 로드 → 재시작 / 외부 MCP + API key 등록은 자동 승인 거부. `~/.claude.json` 의 `mcpServers` vs `projects.<path>.mcpServers` 분기
 - [[ai-token-usage-cost-guard]] — AI 토큰 사용량 기록 + per-user 일일 비용 한도 가드 패턴: `usage_events` 테이블 + provider/model pricing (prefix 매칭 + provider default) + `ai-client` 가 `UsageInfo` 함께 반환 + 모든 entrypoint 한도 가드 + client-direct 우회 경로용 `/api/usage` reporting endpoint. UTC 자정 cutoff
+- [[prompt-schema-pipeline-coupling]] — LLM 프롬프트 출력 스키마와 다운스트림 validator / 빌더 / 집계 간 결합 관리 패턴. 8가지 결합점 인벤토리 + 안티패턴 (validator 복붙 / 단계별 검증 비대칭 / cron silent) + "옛 OR 신" 둘 다 받는 validator 마이그레이션 흐름 + 가시성 신호 (today's run 0 commits = error)
 
 ## 버그와 해결책 (bugs/)
 
@@ -75,6 +76,7 @@ updated: 2026-05-13T08:00:00+09:00
 - [[ndjson-stdout-parser-greedy-regex]] — AI CLI (cursor/claude -p) 의 stdout 파서가 NDJSON / envelope.result / fenced JSON 케이스에 깨짐. 탐욕 정규식 (`/\{[\s\S]*\}/`) 대신 단계적 4 경로 폴백 + 회귀 fixture. dev-blog 5/11 12토픽 누락 사고의 직접 원인
 - [[nextjs16-use-server-non-async-export]] — Next.js 16 Turbopack 부터 `"use server"` 파일이 async function 외 export (객체/상수) 거부 → runtime 에러로 페이지 깨짐. typecheck 미감지. type-only export 만 안전
 - [[grep-env-var-leak-to-chatlog]] — `grep "NOTION_API_KEY" ~/.zshrc` 진단 한 줄로 시크릿이 LLM 채팅 로그에 그대로 노출된 실 사고. 안전한 검증법은 `${#VAR}` / `[ -n "$VAR" ]` / `grep -q` 만 사용. 키는 즉시 폐기·회전
+- [[highlights-action-validator-schema-drift]] — dev-blog 의 LLM rewrite 출력 스키마 (`action` → `if`/`do`/`verify` 3분해) 변경이 publisher 5종 + weekly + 일부 rewrite validator 갱신과 비동기로 진행되어 5/13 launchd 잡의 10개 토픽 publish 가 모두 silent skip. validator 를 둘 중 하나 허용으로 완화 (build-site 와 동형), 49 테스트 통과 후 publish/rewrite 재실행으로 복구
 
 ## 요약 (summaries/)
 

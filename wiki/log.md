@@ -1,9 +1,34 @@
 ---
 title: Operation Log
-updated: 2026-05-13T08:00:00+09:00
+updated: 2026-05-13T10:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-13T10:30 — wiki-ingest (session-logs, ingested: false 10건)
+
+처리 1건 + 스킵 9건. 신규 페이지 2건 (bugs 1 + patterns 1), 기존 페이지 갱신 1건 (projects/dev-blog).
+
+- Source: session-logs/20260513-074737-a32f-*.md (cwd: dev-blog, "오늘날짜 포스팅이 안 보입니다. 오늘 동작 했는지 확인해 주세요" → launchd 잡 정상 실행됐으나 10개 토픽 모두 publish 단계 `Error: highlights[0].action required` 로 실패. 직전 commit `223ac17` 의 프롬프트 변경 (`action` → `if`/`do`/`verify` 3분해) 이 publisher 5종 + weekly + opensource rewrite validator 갱신과 비동기로 진행됨이 원인. 사용자 결정 "1번 진행 + 오늘것은 수동" → validator 를 build-site 와 동형으로 완화 (8 files +64/-14, 회귀 49/49 통과) + 8토픽 publish 직접 호출 + 2토픽 (opensource/opensource-curation) rewrite 부터 재실행 → 10토픽 5/13 분 복구. main push 는 자동 분류기에 막혀 사용자 직접 실행 안내. commit 2건 분리 (코드 vs 콘텐츠))
+  - **Created**: wiki/bugs/highlights-action-validator-schema-drift.md — publish validator 의 highlights[].action 스키마 표류 사례. 증상 (10토픽 동일 throw + git push 가 `nothing to push` 로 silent skip) + 근본 원인 (commit 223ac17 의 프롬프트만 갱신, validator 미갱신) + 영향 범위 매트릭스 (8 files 수정 필요) + 수정 (build-site 와 동형 validator: `action` 또는 `if`+`do`+`verify` 둘 중 하나 허용) + 복구 절차 (publish 직접 호출 8 + run-daily 재실행 2) + 재발 방지 3가지 (validator 공용 모듈 / 스키마 변경 PR 체크리스트 / 사전 dry-run schema 검증)
+  - **Created**: wiki/patterns/prompt-schema-pipeline-coupling.md — LLM 프롬프트 출력 스키마 ↔ 다운스트림 validator 결합 관리 패턴. 결합점 인벤토리 8가지 (프롬프트 본문/예시 JSON/rewrite/publish/builder/주간집계/회귀테스트/문서) + 흔한 안티패턴 3가지 (validator 복붙 / 단계별 검증 비대칭 / cron silent) + 권장 작업 순서 5단계 ("fixture 먼저 → 프롬프트 → dry-run → validator 완화 → deprecation") + "옛 OR 신" 둘 다 받는 validator 코드 + 가시성 신호 (today's run 0 commits → 명시적 비정상 종료). API 버전 헤더 관행과의 유추
+  - **Updated**: wiki/projects/dev-blog.md — "highlights[].action 스키마 표류 (2026-05-13)" 섹션 신설 (증상 / 영향 / 수정 / 복구 절차 / git push 보안 분류기 차단 관찰) + sources/related/updated/변경 이력 갱신
+
+- 스킵 9건 — 모두 자동 cron 작업 (assistant_turns: 0):
+  - session-logs/20260513-080024-b5c7-Reply-with-only--OK.md (cwd: research-wiki, 단순 OK ping)
+  - session-logs/20260513-080030-fed7-*.md (cwd: research-wiki, 논문 `Flow-OPD: On-Policy Distillation for Flow Matching Models` arXiv 2605.08063 자동 분석 요청, 응답 없음)
+  - session-logs/20260513-080123-c524-*.md (cwd: research-wiki, 논문 `MACE-Dance: Motion-Appearance Cascaded Experts for Music-Driven Dance Video Generation` arXiv 2512.18181 자동 분석 요청, 응답 없음)
+  - session-logs/20260513-090053-bd53-Reply-with-only--OK.md (cwd: oss-radar, 단순 OK ping)
+  - session-logs/20260513-090059-1ebd-*.md (cwd: oss-radar, GitHub `rtk-ai/rtk` (46714★ Rust CLI proxy) 자동 분석, 응답 없음)
+  - session-logs/20260513-090133-130b-*.md (cwd: oss-radar, GitHub `agno-agi/agno` (40085★ Python agent platform) 자동 분석, 응답 없음)
+  - session-logs/20260513-090215-8bd9-*.md (cwd: oss-radar, GitHub `hpcaitech/ColossalAI` 자동 분석, 응답 없음)
+  - session-logs/20260513-090256-da8f-*.md (cwd: oss-radar, GitHub `danielmiessler/Fabric` 자동 분석, 응답 없음)
+  - session-logs/20260513-090329-59af-*.md (cwd: oss-radar, GitHub `sickn33/antigravity-awesome-skills` 자동 분석, 응답 없음)
+  - 자동 cron 결과물은 research-wiki / oss-radar 프로젝트 측에 별도 저장. llm_wiki 측에는 응답이 없어 추출할 지식 없음 → ingested: true 만 표시
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음. Tips/ 의 PDF 들은 `.cache/extracted/` 추출 대기 (이 ingest 사이클 처리 대상 외). .cache/ 디렉터리 자체가 비어 있음
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/projects/dev-blog.md, wiki/index.md (신규 2 페이지 1줄씩 + updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 10개 session-log 파일 전체 (처리 1건 + 스킵 9건; 신규 페이지 2건 + 기존 페이지 갱신 1건)
 
 ## 2026-05-13T08:00 — wiki-ingest (session-logs, ingested: false 2건)
 
