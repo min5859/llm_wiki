@@ -769,3 +769,19 @@ updated: 2026-05-14T18:00:00+09:00
     — 한국 기업 재무분석 대시보드 (Next.js 16 + Prisma + 멀티 AI 프로바이더), PDF/JSON/DART API 입력, 12 슬라이드 + AI/수동 밸류에이션, M&A 활용 계획. 약점 4가지 (밸류에이션 신뢰도, JSON 통째 저장 + FinancialStatement 미사용, PDF 인식율, sessionStorage 탭 분리)
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 17개 session-log 파일 전체 (skip 12건, 처리 5건; 생성: projects 2건, analyses 3건, patterns 1건, bugs 2건; 업데이트: projects 1건)
+
+## 2026-05-15T00:00 — wiki-ingest (session-logs, ingested: false 2건)
+
+- Source: session-logs/20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md
+  - Project: disk-monitor (신규)
+  - Created: wiki/projects/disk-monitor.md
+    — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 핵심 설계 판단 4가지 (코드/데이터 분리, plist symlink 패턴, 자동 정리 금지·사용자 컨펌, 하루 한 스냅샷 덮어쓰기). 첫 baseline 스캔 + 캐시 정리 3.23G 회수
+  - Created: wiki/analyses/macos-disk-cleanup-cache-classification.md
+    — macOS 캐시 3 카테고리 분류 (자동 재생성 / 순수 회수 / 다음 사용 시 재다운로드) + Claude Desktop 의 9.8G footprint 분해 (vm_bundles 8.4G = Cowork Linux VM, ShipIt = Sparkle 업데이트 잔여물 등). depth 1 만 보고 결론 금지의 함정, 첫 운영 케이스 회수 표
+- Source: session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md
+  - Project: disk-monitor (이어지는 세션)
+  - Updated: wiki/projects/disk-monitor.md (rename 후속, plist 위치 이전, CLAUDE.md 신설 반영)
+  - Created: wiki/patterns/launchd-plist-symlink-from-project.md
+    — launchd plist 마스터를 프로젝트 폴더에 두고 `~/Library/LaunchAgents/` 는 symlink (Homebrew services 패턴). install 서브커맨드 구현 코드, `.gitignore` 필수 (절대 경로), rename 시 dangling symlink 함정, `launchctl list -  0` 출력 의미, 시크릿 분리 ([[launchd-secret-management]]) 와의 분담
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 2개 session-log 파일 전체 (생성: projects 1건, analyses 1건, patterns 1건)
