@@ -4,7 +4,7 @@ domain: personal
 sensitivity: public
 tags: ["project", "static-site", "newsletter", "claude-cli", "kernel", "lkml", "github-pages", "cron", "node20"]
 created: 2026-05-08
-updated: 2026-05-13
+updated: 2026-05-14
 sources:
   - "session-logs/20260507-225855-4c7c-현재-프로그램을-분석해-주세요.md"
   - "session-logs/20260510-070019-a130-#-Linux-Daily-Newsletter-Rewrite-당신은-리눅스-커널-개발자를-돕.md"
@@ -13,8 +13,9 @@ sources:
   - "session-logs/20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
   - "session-logs/20260512-093236-ee09-주제중에-오늘-5-12일-업데이트가-된것도-있고-안된것도-있습니다.-안된건-왜-안된건지-분.md"
   - "session-logs/20260513-074737-a32f-오늘날짜-포스팅이-안-보입니다.-오늘-동작-했는지-확인해-주세요.md"
+  - "session-logs/20260514-080604-8120-자동-파이프라인-상태-2026-05-14-1개-토픽-실패---9개-성공.-linux-gpu.md"
 confidence: high
-updated: 2026-05-13
+updated: 2026-05-14
 related:
   - "wiki/bugs/utc-iso-date-kst-rollover.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
@@ -172,6 +173,28 @@ Error: highlights[0].action required
 
 → 일반 패턴: [[prompt-schema-pipeline-coupling]] / 버그 페이지: [[highlights-action-validator-schema-drift]]
 
+## 알려진 함정 — rewrite 에 한자 두 글자 혼입 → quality-guard 정상 차단 (2026-05-14)
+
+5/14 launchd 잡은 10개 토픽 중 9개 성공, 1개 (`linux-gpu-ai`) 가 rewrite 단계에서 실패. status JSON 의 `steps: ['collect:True', 'draft:True', 'rewrite:False']` 로 어느 단계에서 깨졌는지 한 눈에 확인 가능 (단계별 status 메타의 가시성 가치 — 5/8 의 설계 강점 4번 항목이 실제로 진단을 빠르게 해줬다).
+
+원인은 `scripts/ai-rewrite-lore-lens.mjs` 가 호출하는 LLM rewrite 결과의 stdout (`data/generated/linux-gpu-ai/rewrite-stdout-latest.txt`) 에 한자 두 글자 "明文" (한국어 "명문" 의 일부가 한자로 출력됨) 이 혼입. `scripts/lib/quality-guard.mjs` 의 `auditPostQuality` 가 한국어 강제 가드로서 비-한글 CJK 문자를 검출해 차단 (= 의도된 동작, 5/12 의 4 가드와는 별개의 5번째 가드).
+
+**복구 절차** (4단계, ~3분):
+
+1. **stdout 직접 교정** — `data/generated/linux-gpu-ai/rewrite-stdout-{latest,2026-05-14}.txt` 의 한자 두 글자만 한글로 교정 (`Edit` 도구). LLM 을 다시 호출하지 않고 작은 부분만 수동 수정해 비용·재현성 모두 절약
+2. **rewritten JSON 재생성** — `/tmp/build-rewritten-linux-gpu-ai.mjs` 일회용 스크립트로 교정된 stdout 에서 rewritten JSON 을 재빌드. `ai-rewrite-lore-lens.mjs` 의 정상 흐름은 LLM 호출이 포함되므로 그 부분만 우회
+3. **publish 만 재실행** — `NEWSLETTER_DATE=2026-05-14 node scripts/publish-lore-lens.mjs linux-gpu-ai`. `markPublishOk` (5/12 추가된 헬퍼) 가 status JSON 을 in-place 갱신해 `ok=true`, `manualRepublishedAt` 마커 + `outputs.post` 경로 채움. cron-only 흐름과 수동 복구 흐름이 status 갱신을 공유하도록 설계된 게 살아남
+4. **빌드 + commit** — `npm run build` (10 topics, 63 posts) → `git add content/topics/linux-gpu-ai/posts/2026-05-14-linux-gpu-ai-daily.json logs/daily/linux-gpu-ai-latest-status.json` → commit `1f9db82`
+
+**일반 교훈**:
+
+- **부분 실패 격리가 작동** — 5/11 사고에서 도입한 토픽 `if !` 격리 ([[shell-set-eu-topic-isolation]]) 가 이번엔 실효성을 보였다. 1개 토픽이 실패해도 나머지 9개가 평시 게시. 격리 패턴이 빛을 발하는 첫 운영 사례
+- **status JSON 의 단계별 가시성이 진단 시간을 줄임** — `steps: ['collect:True', 'draft:True', 'rewrite:False']` 한 줄로 LLM 출력 검사가 시작점임을 즉시 알 수 있음. log 텍스트 grep 없이 status JSON 만으로 분류 가능
+- **quality-guard 의 정상 차단을 사고로 분류하지 말 것** — quality-guard 가 막은 것은 *결함 있는 콘텐츠의 게시* 를 막은 *의도된 동작*. 5/11 의 NDJSON 파서 깨짐·5/13 의 스키마 표류 와 달리 이번엔 코드 변경 없이 데이터만 교정하면 된다. 「가드 작동 = 코드 수정」 으로 오인해 가드를 완화하면 진짜 결함이 게시되는 회귀
+- **CJK 비한국어 혼입은 한국어 강제 프롬프트의 만성 함정** — 한국어 출력 강제 프롬프트라도 LLM 은 가끔 한자/일본어 가나/중국어 간체를 섞는다. 정독으로 잡기는 너무 후행이고 사전 가드 (`auditPostQuality` 의 CJK 비한글 검출) 가 비용 대비 효과 큼. 일반 가드 패턴으로 분리 → [[llm-content-quality-guards]] 5번째 가드 항목
+
+→ 일반 패턴: [[llm-content-quality-guards]] (5번째 가드 신설), [[shell-set-eu-topic-isolation]] (격리 패턴의 첫 운영 성공 사례)
+
 ## 변경 이력
 
 - 2026-05-08: 최초 작성. 사용자 머신 cron 에서 가동 중인 것을 사용자가 분석 요청. cron PATH 문제 + UTC/KST 날짜 버그 + GitHub Pages BASE_PATH 패턴 3건을 일반 페이지로 분리 (출처: session-logs/20260507-225855-4c7c-*)
@@ -179,3 +202,4 @@ Error: highlights[0].action required
 - 2026-05-12: 5/11 일일 파이프라인 사고와 콘텐츠 품질 회고 — (1) cursor 어댑터 NDJSON 파싱 깨짐 + `daily-deploy.sh` `set -eu` 연쇄 중단으로 12개 토픽 누락 사고 발생, 파서 4 경로 폴백 + 토픽 `if !` 격리로 수정 (commit 2cc5ff5). (2) 12개 게시본 정독에서 발견된 4 결함 (토픽 중복 / action 일반성 / opensource hallucination / 저신호일 부풀리기) 을 파이프라인 가드로 보강 (commit 2a4b2ec, 11 files +208/-8). README excerpt fetcher 신규 도입으로 OSS 토픽 hallucination 그라운딩, `signalLevel` 메타 노출. 일반 패턴은 [[ndjson-stdout-parser-greedy-regex]] / [[shell-set-eu-topic-isolation]] / [[llm-content-quality-guards]] 로 분리 (출처: session-logs/20260511-230001-14d5-*)
 - 2026-05-12 (2nd batch): `daily-deploy.sh` 자동화 누락 발견·수정. launchd 진입점이 linux/android/opensource 3개만 호출하고 있어 lens 8종 + opensource-curation 은 매일 silent 누락 (5/11 의 12개 토픽 게시는 수동 실행 결과였다). 9개 토픽 5/12 분을 수동 재생성 후 daily-deploy.sh 에 per-topic 루프 + `if !` 격리로 추가. 추가로 `run-all-kernel-lenses` 자체도 첫 lens 실패에서 멈추는 함정 발견 (per-topic 우회로 회피). 「토픽 진입점 vs 자동화 호출 목록」 분리에서 비롯되는 silent 누락 패턴은 일반 교훈으로 기록 (출처: session-logs/20260512-093236-ee09-*)
 - 2026-05-13: `highlights[].action` → `if`/`do`/`verify` 3분해 프롬프트 변경이 publisher / weekly / 일부 rewrite validator 갱신과 비동기로 진행돼 5/13 launchd 잡의 10개 토픽 publish 가 모두 실패. validator 5+2+1 군데를 `action` 또는 (`if`+`do`+`verify`) 둘 중 하나 허용으로 완화 (build-site 와 동형). 49/49 테스트 통과 후 8토픽은 publish 직접 호출, 2토픽 (opensource / opensource-curation) 은 rewrite 부터 재실행으로 복구. 일반 교훈은 [[prompt-schema-pipeline-coupling]], 버그 상세는 [[highlights-action-validator-schema-drift]] 로 분리 (출처: session-logs/20260513-074737-a32f-*)
+- 2026-05-14: 10개 토픽 중 1개 (`linux-gpu-ai`) 만 rewrite 실패, 나머지 9개 평시 게시 — 5/11 도입한 토픽 `if !` 격리의 첫 운영 성공 사례. 원인은 LLM rewrite stdout 에 한자 "明文" 두 글자 혼입 → `quality-guard.mjs` 의 `auditPostQuality` 가 정상 차단. 복구 4단계 (stdout 한자 두 글자만 한글 교정 → 일회용 스크립트로 rewritten JSON 재빌드 → publish 만 재실행 → build + commit `1f9db82`). `markPublishOk` 가 status JSON 을 in-place 갱신해 `ok=true` + `manualRepublishedAt` 마커. **교훈** — quality-guard 의 정상 차단을 「가드 완화」로 오대응 하지 말 것 (회귀 위험), CJK 비한국어 혼입은 한국어 강제 프롬프트의 만성 함정으로 사전 가드가 정독 회고보다 비용 효과적. 일반 패턴은 [[llm-content-quality-guards]] 5번째 가드로 분리 (출처: session-logs/20260514-080604-8120-*)

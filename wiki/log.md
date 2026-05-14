@@ -1,9 +1,33 @@
 ---
 title: Operation Log
-updated: 2026-05-13T10:30:00+09:00
+updated: 2026-05-14T09:10:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-14T09:10 — wiki-ingest (session-logs, ingested: false 10건)
+
+처리 1건 + 스킵 9건. 신규 페이지 0건, 기존 페이지 갱신 2건 (projects/dev-blog, analyses/llm-content-quality-guards).
+
+- Source: session-logs/20260514-080604-8120-*.md (cwd: dev-blog, "자동 파이프라인 상태 2026-05-14 1개 토픽 실패 / 9개 성공. linux-gpu-ai - rewrite 단계에서 실패" → status JSON 으로 단계별 검증 (steps: ['collect:True', 'draft:True', 'rewrite:False']) → rewrite stdout 에 한자 "明文" 두 글자 혼입 발견 → `quality-guard.mjs` 의 `auditPostQuality` 가 정상 차단했음을 확인 → 4단계 수동 복구 (stdout 두 글자 한글 교정 → 일회용 스크립트로 rewritten JSON 재빌드 → `NEWSLETTER_DATE=2026-05-14 node scripts/publish-lore-lens.mjs linux-gpu-ai` → `markPublishOk` 가 status JSON 을 `ok=true` + `manualRepublishedAt` 마커로 in-place 갱신) → `npm run build` (10 topics, 63 posts) → commit `1f9db82`. **5/11 도입한 `if !` 토픽 격리의 첫 운영 성공 사례**)
+  - **Updated**: wiki/projects/dev-blog.md — "rewrite 에 한자 두 글자 혼입 → quality-guard 정상 차단 (2026-05-14)" 섹션 신설 (status JSON 단계별 가시성의 진단 가치 + 4단계 복구 절차 + 4가지 일반 교훈: 격리 작동 / status 가시성 / quality-guard 정상 차단을 사고로 오대응 금지 / CJK 비한국어 혼입은 만성 함정). sources / updated / 변경 이력 갱신
+  - **Updated**: wiki/analyses/llm-content-quality-guards.md — 4가지 → 5가지 가드로 확장. 5번째 가드 "비-한글 CJK 차단" 추가 (발생 메커니즘 4가지 + 가드 5-1 post-generation 검출 [`HANGUL` / `NON_HANGUL_CJK` 정규식] + 가드 5-2 프롬프트 강조 + 가드 5-3 단계별 status 가시성과 짝 + 일반화: 다국어 콘텐츠의 모든 강제 언어). 적용 위치 표 5행으로 확장. 제목 / 도입부 / 변경 이력 갱신
+
+- 스킵 9건 — 모두 자동 cron 작업 (assistant_turns: 0):
+  - session-logs/20260514-080029-4c11-*.md (cwd: research-wiki, 단순 OK ping)
+  - session-logs/20260514-080036-bf79-*.md (cwd: research-wiki, 논문 `MemPrivacy: Privacy-Preserving Personalized Memory Management for Edge-Cloud Agents` arXiv 2605.09530 자동 분석 요청, 응답 없음)
+  - session-logs/20260514-080124-883c-*.md (cwd: research-wiki, 논문 `SenseNova-U1: Unifying Multimodal Understanding and Generation with NEO-unify Architecture` arXiv 2605.12500 자동 분석 요청, 응답 없음)
+  - session-logs/20260514-090057-b6b1-*.md (cwd: oss-radar, 단순 OK ping)
+  - session-logs/20260514-090107-7a41-*.md (cwd: oss-radar, GitHub `files-community/Files` (43479★ Windows file manager, C#) 자동 분석, 응답 없음)
+  - session-logs/20260514-090156-5144-*.md (cwd: oss-radar, GitHub `usebruno/bruno` (43754★ offline API client) 자동 분석, 응답 없음)
+  - session-logs/20260514-090224-74b0-*.md (cwd: oss-radar, GitHub `appsmithorg/appsmith` 자동 분석, 응답 없음)
+  - session-logs/20260514-090252-022b-*.md (cwd: oss-radar, GitHub `CorentinTh/it-tools` (38522★ Vue 개발자 도구) 자동 분석, 응답 없음)
+  - session-logs/20260514-090327-8d6a-*.md (cwd: oss-radar, GitHub `ShareX/ShareX` (37498★ C# screen capture) 자동 분석, 응답 없음)
+  - 자동 cron 결과물은 research-wiki / oss-radar 프로젝트 측에 별도 저장. llm_wiki 측에는 응답이 없어 추출할 지식 없음 → ingested: true 만 표시
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음. .cache/extracted/ 도 비어 있음 (PDF chunk 추출 대기 상태)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/projects/dev-blog.md, wiki/analyses/llm-content-quality-guards.md, wiki/index.md (dev-blog 라인 + llm-content-quality-guards 신규 인덱스 + updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 10개 session-log 파일 전체 (처리 1건 + 스킵 9건; 신규 페이지 0건 + 기존 페이지 갱신 2건)
 
 ## 2026-05-13T10:30 — wiki-ingest (session-logs, ingested: false 10건)
 

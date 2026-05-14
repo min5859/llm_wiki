@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-13T10:30:00+09:00
+updated: 2026-05-14T09:00:00+09:00
 ---
 
 # Wiki Index
@@ -29,7 +29,7 @@ updated: 2026-05-13T10:30:00+09:00
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입
 - [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
-- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드, BASE_PATH 자동 대응. Multi-topic 가동 (Linux + Android Kernel + OSS Trending) 확인됨
+- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드, BASE_PATH 자동 대응. Multi-topic 가동 (Linux + Android + Lens 8 + OSS Trending + OSS Curation = 10토픽). 5/14 1토픽 quality-guard 정상 차단 → stdout 교정·publish 재실행 4단계 복구 (격리 패턴 첫 운영 성공)
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 적용 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 15/30/45 / partial_profit ON / tighten_on_weakness ON)
 
@@ -137,3 +137,4 @@ updated: 2026-05-13T10:30:00+09:00
 - [[dca-trailing-stop-tuning]] — DCA·Trailing Stop 자동매매 튜닝 5 레버 (trailing 거리 / cooldown / max_round_days + 계단식 / partial profit / tighten on weakness) + 운영 로그 진단 6단계. 즉시 vs Paper 검증 vs 중기 분류, 부분 매도 멱등성 가드, 추세 필터 양면성
 - [[terminal-markdown-viewer-tools]] — 터미널·CLI 마크다운 뷰어 비교 (glow / mdcat / frogmouth / bat / neovim + render-markdown.nvim / markdown-preview.nvim). Mermaid SVG 의 터미널 본질적 한계 (코드블록 → ASCII → 외부 뷰어 → 인라인 이미지 4단계 우회). SSH 환경에서 Tauri/Electron GUI 부적합
 - [[financial-health-composite-scores]] — 재무 건전성 합성 스코어 3종 (Altman Z / Piotroski F / Beneish M) + 5 카테고리 (profitability/liquidity/leverage/efficiency/cash) 룰 기반 risk flag. LLM 호출 0, 한국 시장 적용 시 Z 의 절대값 데이터 누락 + Beneish 의 false positive + F 의 insufficient fallback 처리
+- [[llm-content-quality-guards]] — LLM 자동 콘텐츠 발행의 5가지 품질 가드 (토픽 중복 / action 일반성 / hallucination / 저신호 부풀리기 / 비-한글 CJK 혼입). 프롬프트 룰 + draft 메타 + publish 안전망의 defense-in-depth. CJK 혼입은 한국어 강제 프롬프트의 만성 함정 — `auditPostQuality` post-rewrite 검출 + stdout 교정·publish 재실행 4단계 복구
