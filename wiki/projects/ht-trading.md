@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-05-12"
+updated: "2026-05-14"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
@@ -15,6 +15,7 @@ sources:
   - "session-logs/20260507-224943-690c-익절-조건이-됐는데도-익절을-하지-않는-것-같습니다.-오늘자-매매로그를-확인해서-익절조건인.md"
   - "session-logs/20260510-195349-94ba-최근-몇일간-로글-분석해서-수익을-더-올릴수-있는-방안을-제안해-주세요.md"
   - "session-logs/20260511-230648-4621-종목-스코어링-산정-알고리즘을-수정한-후에-오늘-점수가-너무-낮게-나와서-종목-선정이-안.md"
+  - "session-logs/20260514-175837-5657-수익율을-더-개선할-방안을-찾으려고-합니다.md"
 confidence: "high"
 related:
   - "wiki/bugs/kis-cash-d2-settlement-buy-rejection.md"
@@ -24,6 +25,7 @@ related:
   - "wiki/analyses/scoring-system-ic-validation.md"
   - "wiki/analyses/scoring-version-comparison-methodology.md"
   - "wiki/analyses/dca-trailing-stop-tuning.md"
+  - "wiki/analyses/polling-interval-vs-bar-interval.md"
 ---
 
 # ht_trading — 알고리즘 트레이딩 프로젝트
@@ -458,3 +460,4 @@ V3 적용 효과 검증 핵심 지표: 점수 평균 차이 / cutoff 통과율 (
 - 2026-05-08: ScoringStrategy 매도 규칙 3건 수정 추가 — (1) `_peak_prices` setdefault 부트스트랩 (commit 60ba3a6) — `dict.get` 가 dict 미갱신으로 1개월간 트레일링 영구 비활성, 005930·004000 등 명백한 트리거 누락. (2) `on_order_submitted` `PendingBuy.limit_price` 유실 → G4-2 no-chase 정책 무력화 (commit 957cf8a). (3) Rule 4 데드크로스 익절 once-flag 추가 — 부분 매도 규칙이 조건 지속 시 누적 발동하던 문제 (commit 957cf8a). 신규 회귀 테스트 2 파일 8 cases. 일반 패턴은 [[dict-get-default-no-bootstrap]] / [[partial-sell-rule-idempotency]] 로 분리 (출처: session-logs/20260507-224943-690c-*)
 - 2026-05-10: 점수 알고리즘 V3 (IC 검증 기반 재설계) 섹션 신설. `n_stock_info` 별도 저장소 commit `0088d85` (technical 40→50 / fundamental 40→30 / EPS 절대값 → earnings_yield / ATR 신규). 검증 스크립트 `scripts/validate_score_ic.py` (commit `b507f2a`, +588) + 라이브 분석 스크립트 `scripts/analyze_live_period.py` (commit `9d69502`, +407). A/C/D 튜닝 적용 (commit `d0571c5`) — 체결률 (limit_price_ratio 1.0→1.005), 트레일링·단계익절 둔감화 (5%→4% + 18% tier 추가), 상대손절 완화 (15%→20%). B/E/F/G 는 `tasks/backlog.md`. 일반 사상은 [[scoring-system-ic-validation]] 으로 분리 (출처: session-logs/20260510-195349-94ba-*)
 - 2026-05-12: V3 적용 후 컷오프 캘리브레이션 (commit `50c929c`). V3 첫 적용일부터 컷오프 62 통과 종목 0건 → 매수 중단. V2/V3 30 매칭 종목 비교에서 Spearman ρ=+0.835 / Top-10 교집합 80% 로 **평행이동에 가까운 분포 이동 + 일부 reordering** (SK하이닉스 21→5위, 대한해운 22→9위 등) 확인. 컷오프 62 → 48 로 V3 분포 기준 일평균 5~10건 통과 (과거 빈도 회복). 임시 캘리브레이션이며 forward return 검증은 2~4주 라이브 데이터 누적 후 진행 예정. 백테스트로 V2/V3 비교가 불가능한 이유 (이중 점수 스케일 + 펀더/리서치 과거 시점 재현 불가) 명시. 일반 비교 방법론은 [[scoring-version-comparison-methodology]] 로 분리 (출처: session-logs/20260511-230648-4621-*)
+- 2026-05-14: 운영 주기 정합성 검토. launchd 가 `periodic --interval 10 --market domestic` 로 10분 단위 폴링, `config/trading.yaml: bar_interval: "1d"` 로 일봉 입력. 한국장 6.5h 동안 ~47회 폴링이 동일 일봉을 반복 평가 → 폴링 단축 (10→5분) 만으로는 알파 0 증가, API 호출만 2배. 폴링 주기 단축이 의미를 가지려면 `bar_interval` 도 분봉으로 함께 내려야 한다는 결론. 일봉 유지 시 진짜 레버는 진입/청산 타이밍 (시초가 회피, 종가 근처 분할). 일반 사상은 [[polling-interval-vs-bar-interval]] 으로 분리 (출처: session-logs/20260514-175837-5657-*)

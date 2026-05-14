@@ -1,9 +1,21 @@
 ---
 title: Operation Log
-updated: 2026-05-14T09:10:00+09:00
+updated: 2026-05-14T18:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-14T18:00 — wiki-ingest (session-logs, ingested: false 1건)
+
+처리 1건. 신규 페이지 1건 (analyses), 기존 페이지 갱신 1건 (projects/ht-trading).
+
+- Source: session-logs/20260514-175837-5657-*.md (cwd: ht_trading, "수익율을 더 개선할 방안을 찾으려고 합니다. 지금 한국장 열린 사간에 동작 주기가 몇분 단위 인가요?" → launchd plist + `scripts/run_live.py:30` 확인 결과 `periodic --interval 10 --market domestic` 으로 10분 폴링, `config/trading.yaml: bar_interval: "1d"` 로 일봉 입력. 한국장 6.5h 동안 ~47회 폴링이 동일 일봉을 47번 반복 평가하는 구조. 사용자 후속 "5분으로 하는게 어떨까요?" → 일봉을 유지하면 5분 폴링도 같은 시그널 94회 평가일 뿐 알파 0 증가 + API 호출만 2배 라는 결론. 폴링 주기 단축이 의미를 가지려면 `bar_interval` 도 함께 분봉으로 내려야 함. 일봉 유지 시 진짜 레버는 진입/청산 타이밍 (시초가 슬리피지 회피, 종가 근처 14:30~15:20 분할 매수). 사용자 진행 방향 미확정 — 일반 사상만 분리)
+  - **Created**: wiki/analyses/polling-interval-vs-bar-interval.md — 라이브 트레이딩 폴링 주기 (cycle interval) 와 봉 단위 (bar_interval) 의 정합성. 핵심 정의 (폴링 ≠ 시그널 갱신 주기, 시그널은 봉 단위에 묶임) + 안티패턴 (일봉 + 빠른 폴링은 같은 봉 반복 평가) + 폴링/봉 한 쌍 매트릭스 (4 시나리오) + 일봉 유지 시 진짜 레버 (시초가 회피 / 종가 분할 / VWAP/TWAP / 장중 1회 폴링) + 진단 체크리스트 5단계. 일반 패턴이므로 ht_trading 외 모든 자동매매 시스템에 적용
+  - **Updated**: wiki/projects/ht-trading.md — sources/related/updated 갱신, 변경 이력에 2026-05-14 항목 추가 (운영 주기 정합성 검토: 10분 폴링 + 일봉의 함정, 폴링 단축은 알파 0 증가, 폴링/봉 한 쌍 동시 조정 필요)
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음. .cache/extracted/ 도 없음
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- Updated: wiki/projects/ht-trading.md, wiki/analyses/polling-interval-vs-bar-interval.md (신규), wiki/index.md (analyses 섹션 + updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 1개 session-log 파일
 
 ## 2026-05-14T09:10 — wiki-ingest (session-logs, ingested: false 10건)
 
