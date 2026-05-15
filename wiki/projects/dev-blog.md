@@ -14,8 +14,9 @@ sources:
   - "session-logs/20260512-093236-ee09-주제중에-오늘-5-12일-업데이트가-된것도-있고-안된것도-있습니다.-안된건-왜-안된건지-분.md"
   - "session-logs/20260513-074737-a32f-오늘날짜-포스팅이-안-보입니다.-오늘-동작-했는지-확인해-주세요.md"
   - "session-logs/20260514-080604-8120-자동-파이프라인-상태-2026-05-14-1개-토픽-실패---9개-성공.-linux-gpu.md"
+  - "session-logs/20260516-002256-34e8-cursor-로-동작-시켜놓으니-10개-토픽중-하나씩-fail-이-발생-하는-듯합니다.-c.md"
 confidence: high
-updated: 2026-05-14
+updated: 2026-05-16
 related:
   - "wiki/bugs/utc-iso-date-kst-rollover.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
@@ -195,9 +196,37 @@ Error: highlights[0].action required
 
 → 일반 패턴: [[llm-content-quality-guards]] (5번째 가드 신설), [[shell-set-eu-topic-isolation]] (격리 패턴의 첫 운영 성공 사례)
 
-## 변경 이력
+## 기본 AI 어댑터 cursor → claude 일괄 전환 (2026-05-16)
 
-- 2026-05-08: 최초 작성. 사용자 머신 cron 에서 가동 중인 것을 사용자가 분석 요청. cron PATH 문제 + UTC/KST 날짜 버그 + GitHub Pages BASE_PATH 패턴 3건을 일반 페이지로 분리 (출처: session-logs/20260507-225855-4c7c-*)
+`cursor` 어댑터로 10개 토픽을 돌리던 중 매일 한두 토픽씩 산발적으로 실패하는 패턴이 관찰됨 (5/11 NDJSON 사고처럼 파서 깨짐이 아닌, cursor CLI 자체의 일시 실패). 사용자 결정으로 기본 어댑터를 `cursor` → `claude` 로 일괄 전환.
+
+격리 worktree (`.claude/worktrees/claude-adapter-default`) 에서 진행. 14개 파일 +21/-19:
+
+| 위치 | 변경 |
+|------|------|
+| `scripts/lib/ai-rewrite-adapter.mjs` | `normalizeDailyRewriteAdapter` 빈 입력 기본값 `cursor` → `claude`. `cursor-agent` 별칭은 그대로 `cursor` 로 매핑 유지 |
+| `scripts/ai-rewrite-{linux,android,opensource,opensource-curation}.mjs` | `resolveAiAdapter('cursor')` → `resolveAiAdapter('claude')` |
+| `scripts/weekly-linux.mjs` | 동일 |
+| `scripts/ai-rewrite-lore-lens.mjs` | `LENS_DEFAULT_ADAPTER = 'cursor'` → `'claude'` (lens 8종 일괄) |
+| `scripts/run-daily-{linux,android,opensource,opensource-curation,lore-lens}.mjs` | `rewriteScriptMap` fallback `rewrite:<topic>:cursor` → `rewrite:<topic>:claude` |
+| `scripts/run-daily-lore-lens.mjs` | `AI_ADAPTER` 분기에서 default `'cursor'` → `'claude'` (template / claude / cursor 3분기 유지) |
+| `scripts/ai-rewrite-adapter.test.mjs` | 빈 문자열 / undefined 입력이 `claude` 를 반환하도록 단언 갱신 + `cursor-agent` 별칭 회귀 유지 |
+| `docs/SCHEDULING.md` | 기본값 문구 "uses the Cursor adapter by default" → "uses the Claude adapter by default", 환경변수 설명 갱신 |
+
+회귀 테스트 66/66 통과 (`node --test scripts/ai-rewrite-adapter.test.mjs` 6 cases + `npm test` 전체 60).
+
+**환경변수 분기는 그대로 유지**:
+- `AI_ADAPTER=cursor|claude|template` per-invocation override 유지
+- `DAILY_REWRITE_ADAPTER=cursor` 로 cron 에서 cursor 강제 가능
+- `cursor-agent` 별칭도 그대로 cursor 로 정규화
+
+**일반 교훈**:
+
+- **`resolveAiAdapter` 의 첫 인자가 default 라는 점**이 이번 일괄 변경의 단일 진입점이 됐다. 어댑터 결정 로직을 한 함수에 응집해 둔 게 multi-script 환경에서의 정합 변경을 5분 작업으로 만들었다 (어댑터 분기를 각 스크립트가 if/else 로 가졌다면 14개 파일 모두 다른 분기 패턴이라 누락 위험 높음). LLM 어댑터처럼 N 곳에서 호출되는 결정 로직은 default 도 첫 인자에 위치시켜 두는 게 미래의 일괄 전환 비용을 낮춤.
+- **lens 의 LENS_DEFAULT_ADAPTER 상수처럼 모듈 상수로 default 를 빼둔 패턴**도 같은 가치 — 한 줄 변경으로 lens 8종 일괄 영향.
+- **테스트의 빈 입력 단언**이 default 변경의 첫 가드 — `normalizeDailyRewriteAdapter defaults empty to claude and maps cursor-agent to cursor` 한 테스트 케이스가 의도와 실 코드의 일치를 회귀 방지.
+
+
 - 2026-05-10: Multi-topic 전제가 실제로 정상 가동 중임을 확인 — Linux 외에 Android Kernel Daily Briefing 과 Open Source Trending Daily Briefing 의 2개 토픽이 매일 07:00 KST cron 으로 추가 발행 중. 토픽별 시스템 프롬프트는 각각 다른 큐레이션 정책을 정의: Linux 는 LKML maintainer/`fromMaintainer`/`maintainerComments` 메타로 머지 신호 추출 + ACK prefix 풀어쓰기, Android 는 `ANDROID:`/`FROMGIT:`/`FROMLIST:`/`BACKPORT:`/`UPSTREAM:` prefix 를 한국어로 풀고 GKI/ABI 영향에 가중, OSS Trending 은 HN frontpage hit 을 1순위 신호로 두고 별 100k+ long-tail giants 는 별도 카테고리로 격리. 공통 휴리스틱: 3-tier priority 분포 강제 (상 1~2 / 중 2 / 하 0~1), `implications`/`nextActions` 같은 LLM 의 자동 보충 섹션 금지, 데이터 부족 시 솔직한 fallback 표현. (출처: session-logs/20260510-070019-a130-* Linux, 20260510-070200-f6f1-* Android, 20260510-070412-fd9a-* OSS Trending)
 - 2026-05-12: 5/11 일일 파이프라인 사고와 콘텐츠 품질 회고 — (1) cursor 어댑터 NDJSON 파싱 깨짐 + `daily-deploy.sh` `set -eu` 연쇄 중단으로 12개 토픽 누락 사고 발생, 파서 4 경로 폴백 + 토픽 `if !` 격리로 수정 (commit 2cc5ff5). (2) 12개 게시본 정독에서 발견된 4 결함 (토픽 중복 / action 일반성 / opensource hallucination / 저신호일 부풀리기) 을 파이프라인 가드로 보강 (commit 2a4b2ec, 11 files +208/-8). README excerpt fetcher 신규 도입으로 OSS 토픽 hallucination 그라운딩, `signalLevel` 메타 노출. 일반 패턴은 [[ndjson-stdout-parser-greedy-regex]] / [[shell-set-eu-topic-isolation]] / [[llm-content-quality-guards]] 로 분리 (출처: session-logs/20260511-230001-14d5-*)
 - 2026-05-12 (2nd batch): `daily-deploy.sh` 자동화 누락 발견·수정. launchd 진입점이 linux/android/opensource 3개만 호출하고 있어 lens 8종 + opensource-curation 은 매일 silent 누락 (5/11 의 12개 토픽 게시는 수동 실행 결과였다). 9개 토픽 5/12 분을 수동 재생성 후 daily-deploy.sh 에 per-topic 루프 + `if !` 격리로 추가. 추가로 `run-all-kernel-lenses` 자체도 첫 lens 실패에서 멈추는 함정 발견 (per-topic 우회로 회피). 「토픽 진입점 vs 자동화 호출 목록」 분리에서 비롯되는 silent 누락 패턴은 일반 교훈으로 기록 (출처: session-logs/20260512-093236-ee09-*)
