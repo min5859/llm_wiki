@@ -7,9 +7,12 @@ created: "2026-05-10"
 updated: "2026-05-10"
 sources:
   - "session-logs/20260510-194933-8c5e-최근-몇일간-로그를-분석해서-수익율을-더-높이기-위한-전략을-추천해-주세요.md"
+  - "session-logs/20260515-231744-34b6-지금-python3.12-가-문서-폴더의-파일에-접근하려고-합니다.-라는-팝업창이-계속-뜨.md"
 confidence: high
+updated: 2026-05-16
 related:
   - "wiki/analyses/dca-trailing-stop-tuning.md"
+  - "wiki/analyses/macos-tcc-documents-popup-diagnosis.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/analyses/partial-sell-rule-idempotency.md"
 ---
