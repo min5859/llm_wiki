@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-15T00:00:00+09:00
+updated: 2026-05-15T10:00:00+09:00
 ---
 
 # Wiki Index
@@ -142,3 +142,5 @@ updated: 2026-05-15T00:00:00+09:00
 - [[macos-disk-cleanup-cache-classification]] — macOS 캐시 3 카테고리 (자동 재생성 / 순수 회수 / 다음 사용 시 재다운로드) + Claude Desktop 9.8G footprint 분해 (vm_bundles 8.4G = Cowork Linux VM, Cache_Data 1.2G, claude-code 본체 212M). depth 1 만 보고 결론 금지, 사용자 컨펌 워크플로우, 첫 운영 케이스 3.23G 회수
 - [[polling-interval-vs-bar-interval]] — 라이브 트레이딩 폴링 주기 (cycle interval) 와 봉 단위 (bar_interval) 의 정합성: 일봉 + 10분 폴링이면 47회 중복 평가, 폴링 단축은 알파 0 증가 + API 호출만 ↑. 폴링 단축이 의미를 가지려면 bar_interval 도 함께 분봉으로 내려야. 일봉 유지 시 진짜 레버는 진입/청산 타이밍 (시초가 회피, 종가 근처 분할)
 - [[llm-content-quality-guards]] — LLM 자동 콘텐츠 발행의 5가지 품질 가드 (토픽 중복 / action 일반성 / hallucination / 저신호 부풀리기 / 비-한글 CJK 혼입). 프롬프트 룰 + draft 메타 + publish 안전망의 defense-in-depth. CJK 혼입은 한국어 강제 프롬프트의 만성 함정 — `auditPostQuality` post-rewrite 검출 + stdout 교정·publish 재실행 4단계 복구
+- [[mint-lora-serving-infrastructure]] — MinT: 백만 LoRA 어댑터 학습·서빙 관리형 인프라. 어댑터 리비전 중심 재설계, Scale Up (Megatron + R3 router replay) / Scale Down (time-sliced 다정책) / Scale Out (3계층 캐시 10⁶ 정책). 4B 어댑터 핸드오프 18.3×, 다중 정책 GRPO 1.77× 가속
+- [[gin-vue-admin-mcp-fullstack]] — flipped-aurora/gin-vue-admin (24,673 stars): Go(Gin) + Vue 3 풀스택 엔터프라이즈 어드민. AI 코드 생성기 + Casbin 3단계 권한 + 내장 MCP 서버. MCP 가 IDE 를 넘어 백오피스 운영 인터페이스로 침투하는 신호

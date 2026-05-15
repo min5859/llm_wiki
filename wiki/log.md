@@ -5,6 +5,31 @@ updated: 2026-05-14T18:00:00+09:00
 
 # Operation Log
 
+## 2026-05-15T10:00 — wiki-ingest (session-logs, ingested: false 9건)
+
+처리 2건 + 스킵 7건. 신규 페이지 2건 (analyses), 기존 페이지 갱신 0건.
+
+- Source: session-logs/20260515-080036-c38d-*.md (cwd: research-wiki, 자동 cron 의 AI 논문 분석. 논문 "MinT — 백만 LoRA 어댑터 학습·서빙 관리형 인프라" 한국어 분석 리포트 1편 산출. 어댑터 리비전 중심 재설계 / Scale Up·Down·Out 세 축 / 4B 어댑터 핸드오프 18.3× · 다중 정책 GRPO 1.77× · 단일 엔진 100K 정책 · 카탈로그 10⁶)
+  - **Created**: wiki/analyses/mint-lora-serving-infrastructure.md — 어댑터 리비전 중심 훈련–서빙 재설계 + Megatron 분산 (R3 router replay) + 시간 분할 다정책 + 3계층 캐시. 결과 표 (10지표), 한계 4가지 (DSA 미완 / cold 직렬화 / rank-1 제한 / weak-locality p95 63s), 실무 적용 (다중 테넌트 SaaS / 지속 학습 / 비용 99% 절감), [[multi-llm-provider-adapter-pattern]] 과 비교축 명시
+
+- Source: session-logs/20260515-090332-3138-*.md (cwd: oss-radar, 자동 cron 의 OSS 분석. `flipped-aurora/gin-vue-admin` 24,673 stars 의 한국어 분석 리포트. Go+Vue 풀스택 어드민 + AI 코드 생성기 + Casbin 3단계 권한 + 내장 MCP)
+  - **Created**: wiki/analyses/gin-vue-admin-mcp-fullstack.md — 기술 스택 표 (Gin / GORM / Casbin / Vue 3 / Pinia / Viper / Swagger / MCP), 4가지 사용 시나리오, 주목 이유 (MCP 가 어드민에 박히는 신호 / Vibe Coding 부합), 라이선스·플러그인 마켓 주의점, [[oss-radar]] / [[claude-code-skills-plugins]] / [[claude-mcp-server-scope-and-add-json]] 상호 링크
+
+- 스킵 7건 — 모두 자동 cron 작업의 빈 응답 또는 단순 핑:
+  - session-logs/20260515-080023-260c-*.md (cwd: research-wiki, 단순 OK ping)
+  - session-logs/20260515-080144-d720-*.md (cwd: research-wiki, AI 논문 자동 분석 요청 — assistant_turns: 0, 응답 없음)
+  - session-logs/20260515-090051-b7bc-*.md (cwd: oss-radar, 단순 OK ping)
+  - session-logs/20260515-090057-7fda-*.md (cwd: oss-radar, scrcpy 분석 요청 — assistant_turns: 0)
+  - session-logs/20260515-090131-b4ab-*.md (cwd: oss-radar, gstack 분석 요청 — assistant_turns: 0)
+  - session-logs/20260515-090213-abcf-*.md (cwd: oss-radar, openclaude 분석 요청 — assistant_turns: 0)
+  - session-logs/20260515-090249-73ba-*.md (cwd: oss-radar, GitHub 레포 분석 요청 — assistant_turns: 0)
+
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음 (PDF 만 존재, .cache/extracted/ 없음)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- raw-sources/<subdir>/fetched/ 없음
+- Updated: wiki/analyses/mint-lora-serving-infrastructure.md (신규), wiki/analyses/gin-vue-admin-mcp-fullstack.md (신규), wiki/index.md (analyses 섹션 2건 추가 + updated 타임스탬프), wiki/log.md
+- Marked ingested: true — 9개 session-log 파일
+
 ## 2026-05-14T18:00 — wiki-ingest (session-logs, ingested: false 1건)
 
 처리 1건. 신규 페이지 1건 (analyses), 기존 페이지 갱신 1건 (projects/ht-trading).
