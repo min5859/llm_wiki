@@ -1,9 +1,32 @@
 ---
 title: Operation Log
-updated: 2026-05-14T18:00:00+09:00
+updated: 2026-05-16T13:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-16T13:30 — wiki-ingest (session-logs, ingested: false 5건)
+
+처리 4건 + 스킵 1건. 신규 페이지 2건 (analyses), 기존 페이지 갱신 2건 (projects/upbit-trading, projects/dev-blog).
+
+- Source: session-logs/20260515-231744-34b6-*.md (cwd: question, "python3.12 가 문서 폴더의 파일에 접근하려고 합니다 — 어디서 접근하려고 하는지 체크" → 5단계 진단 (`pgrep -lf python` 으로 후보 → `lsof -p` 로 Python.app 번들 인터프리터 PID 97336 확정, ht_trading 의 python3.13 / hermes 의 python3.11 은 버전 다름으로 제외 → cwd `/Users/wooki/project/toy/upbit_trading` 의 launchd `com.wooki.upbit-trading` 자식 → 코드에 Documents 참조 없음 → `fs_usage` 추적 시 아무것도 안 잡힘 (TCC 거부된 syscall) → 시스템 `/Library/Application Support/com.apple.TCC/TCC.db` 가 5/15 10:00:01 정시에 자동 변경된 흔적 = Apple 백그라운드 정책 푸시). "왜 갑자기" 의 가장 유력한 원인 = ① OS 본체 변경 없이 시스템 TCC.db 만 갱신 + ② 5/10 튜닝 커밋의 새 코드 경로가 며칠 만에 처음 호출. fs_usage / tccd 로그 추적은 정확한 라이브러리 미특정으로 끝나, 진단 절차와 일반 패턴만 영속화)
+  - **Created**: wiki/analyses/macos-tcc-documents-popup-diagnosis.md — 5단계 진단 절차 (PID Python.app 번들 탐지 / 부모·가동시점 / 코드 참조 / fs_usage / 시스템 TCC.db mtime). "왜 갑자기" 의 2 원인 (Apple 백그라운드 정책 푸시 / 며칠 만에 처음 호출된 코드 경로). 대응 옵션 표 4건 (설정 거부 / 인터프리터 교체 / 라이브러리 캐시 경로 우회 / 무시), 함정 5건 (venv 도 framework 상속 / fork 자식 별 PID / cron `*/30` 단명 / TCC 거부에도 봇 동작 / fs_usage 가 TCC 거부 호출 미감지). iTerm 셸 시나리오 [[macos-tcc-full-disk-access]] 와의 격리 명시
+  - **Updated**: wiki/projects/upbit-trading.md — "운영 잡음 — 갑작스러운 ~/Documents TCC 팝업 (2026-05-15)" 섹션 신설 (추적 결과 5건 + 봇 동작 무영향 + 실용적 대응), sources / updated / related / 변경 이력 갱신
+
+- Source: session-logs/20260515-235344-9737-*.md + 20260516-000703-e374-*.md (cwd: question 2건. ① "claude agents 의 기능이 뭔가요" + "ctrl+B 를 눌러도 아무런 화면 변경이 없습니다" — 서브에이전트 정의 (컨텍스트 격리·병렬·전문 역할·도구 제한) + 빌트인 4종 + AGENTS.md + 화면 전환 키 (`Esc` / `Ctrl+B` FleetView). ② "다른 창에 claude code 창을 여러개 띄워놨는데 왜 못찾나요" + "claude --bg 로 띄운것만 claude agent 에서 모니터링 가능한가요" — Claude Code 인스턴스는 각각 독립 프로세스라 IPC 경로 없음. 한 인스턴스 안의 자식만 보임. 다중 창 통합 5 경로 (공유 파일/git / memory 디렉터리 / `$CLAUDE_JOB_DIR` / MCP 외부 저장소 / tmux))
+  - **Created**: wiki/analyses/claude-code-tui-navigation-and-instance-isolation.md — 화면 전환 키 표 (`Esc` / `Ctrl+B` / `/config`) + 다중 인스턴스 격리 모델 (보이는 것 vs 안 보이는 것 표) + 다중 창 묶기 5 경로 표 + 트러블슈팅 4 시나리오 + 함정 4건 (`--bg` 의 부모-자식 오해 / 서브에이전트와 인스턴스 혼동 / `/config` 가 인스턴스가 아님 / memory 디렉터리는 자동 reload 안 됨). [[claude-code-basic-usage]] / [[claude-code-advanced]] / [[claude-code-agent-teams-tmux]] 와 상호 링크
+
+- Source: session-logs/20260516-002256-34e8-*.md (cwd: dev-blog, "cursor 로 동작 시켜놓으니 10개 토픽중 하나씩 fail 이 발생 하는 듯합니다. claude -p 를 사용하도록 변경해 주세요" → 격리 worktree (`.claude/worktrees/claude-adapter-default`) 에서 14개 파일 +21/-19. `resolveAiAdapter('cursor')` → `'claude'` (4개 ai-rewrite 스크립트 + weekly + lens), `LENS_DEFAULT_ADAPTER` 상수 변경, `normalizeDailyRewriteAdapter` 빈 입력 기본값 `cursor` → `claude`, `rewriteScriptMap` fallback `rewrite:<topic>:cursor` → `rewrite:<topic>:claude` (5개 run-daily), `AI_ADAPTER` 분기 default, docs/SCHEDULING.md 문구. `cursor-agent` 별칭 / `AI_ADAPTER` per-invocation override / `DAILY_REWRITE_ADAPTER` 환경변수 모두 유지. 회귀 테스트 66/66 통과)
+  - **Updated**: wiki/projects/dev-blog.md — "기본 AI 어댑터 cursor → claude 일괄 전환 (2026-05-16)" 섹션 신설 (14 파일 변경 표 + 환경변수 보존 사항 3건 + 일반 교훈 3건: `resolveAiAdapter` 첫 인자를 default 로 설계해 둔 응집이 일괄 변경 비용을 5분 작업으로 / 모듈 상수 default 패턴의 가치 / 빈 입력 회귀 테스트가 default 변경의 첫 가드). sources / updated / 변경 이력 갱신
+
+- 스킵 1건:
+  - session-logs/20260516-000529-7870-*.md (cwd: question, "이건 무슨 작업인가요?" — assistant_turns 0, 빈 세션. 의미 있는 산출 없음)
+
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음 (PDF 만 존재)
+- mcp-note 없음 — `type: mcp-note` 인 session-log 0건
+- raw-sources/<subdir>/fetched/ 없음, .cache/extracted/ 디렉터리 자체 없음
+- Updated: wiki/analyses/macos-tcc-documents-popup-diagnosis.md (신규), wiki/analyses/claude-code-tui-navigation-and-instance-isolation.md (신규), wiki/projects/upbit-trading.md, wiki/projects/dev-blog.md, wiki/index.md (analyses 2건 추가 + updated), wiki/log.md
+- Marked ingested: true — 5개 session-log 파일
 
 ## 2026-05-15T10:00 — wiki-ingest (session-logs, ingested: false 9건)
 
