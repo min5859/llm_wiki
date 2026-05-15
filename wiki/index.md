@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-15T10:00:00+09:00
+updated: 2026-05-16T13:30:00+09:00
 ---
 
 # Wiki Index
@@ -144,3 +144,5 @@ updated: 2026-05-15T10:00:00+09:00
 - [[llm-content-quality-guards]] — LLM 자동 콘텐츠 발행의 5가지 품질 가드 (토픽 중복 / action 일반성 / hallucination / 저신호 부풀리기 / 비-한글 CJK 혼입). 프롬프트 룰 + draft 메타 + publish 안전망의 defense-in-depth. CJK 혼입은 한국어 강제 프롬프트의 만성 함정 — `auditPostQuality` post-rewrite 검출 + stdout 교정·publish 재실행 4단계 복구
 - [[mint-lora-serving-infrastructure]] — MinT: 백만 LoRA 어댑터 학습·서빙 관리형 인프라. 어댑터 리비전 중심 재설계, Scale Up (Megatron + R3 router replay) / Scale Down (time-sliced 다정책) / Scale Out (3계층 캐시 10⁶ 정책). 4B 어댑터 핸드오프 18.3×, 다중 정책 GRPO 1.77× 가속
 - [[gin-vue-admin-mcp-fullstack]] — flipped-aurora/gin-vue-admin (24,673 stars): Go(Gin) + Vue 3 풀스택 엔터프라이즈 어드민. AI 코드 생성기 + Casbin 3단계 권한 + 내장 MCP 서버. MCP 가 IDE 를 넘어 백오피스 운영 인터페이스로 침투하는 신호
+- [[macos-tcc-documents-popup-diagnosis]] — 갑작스레 시작된 "python3.12 가 문서 폴더 접근" TCC 팝업 5단계 진단 절차 (PID Python.app 번들 탐지 / 부모·가동시점 / 코드 참조 / fs_usage / 시스템 TCC.db mtime). "왜 갑자기" 의 2 원인 (Apple 백그라운드 정책 푸시 / 며칠 만에 처음 호출된 코드 경로). iTerm 셸 → 다른 앱 sandbox 시나리오인 [[macos-tcc-full-disk-access]] 와 다른 격
+- [[claude-code-tui-navigation-and-instance-isolation]] — CC TUI 화면 전환 (`Esc` / `Ctrl+B` FleetView) + 다중 인스턴스 격리 모델 (각 CLI 가 독립 프로세스라 IPC 없음). 한 인스턴스 안의 자식 (서브에이전트·--bg·worktree) 만 모니터링 가능. `--bg` 가 부모-자식이 아닌 별도 인스턴스라는 함정, `/config` 가 인스턴스가 아니라는 오해, 다중 창 묶기 5가지 외부 경로 (파일·memory·CLAUDE_JOB_DIR·MCP·tmux)
