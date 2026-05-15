@@ -126,6 +126,22 @@ market_snapshots, portfolio_snapshots
 - **사전 실패 테스트 2건** (`test_infinite_buy.py` 의 `재시작 시 쿨다운 유지` / `InfiniteBuyStrategy 로직`) 은 변경 전부터 존재. 회귀 아님
 - 라이브 봇 재시작 직후 30~60초간 reconciliation·token cache 로드 출력 후 첫 거래 사이클 진입
 
+## 운영 잡음 — 갑작스러운 ~/Documents TCC 팝업 (2026-05-15)
+
+5/10 튜닝 커밋 직후 launchd 로 재기동된 라이브 봇 (PID 97336, `--strategy infinite_buy`) 이 5/15 자로 처음 "python3.12 가 문서 폴더의 파일에 접근하려고 합니다" 토스트 팝업을 띄우기 시작. 동일 봇이 70일 + 5일을 정상 가동하다 갑자기 발생한 케이스.
+
+추적 결과:
+- 용의 프로세스의 인터프리터 경로가 `/opt/homebrew/.../Python.framework/.../Resources/Python.app/Contents/MacOS/Python` — macOS TCC 가 이 번들 인터프리터를 "python3.12" 로 인식
+- 다른 후보 (ht_trading 의 python3.13, hermes 의 python3.11) 는 버전이 달라 제외
+- upbit_trading 코드 자체에는 `Documents` / `expanduser` / `Path.home()` 참조 없음 — 의존성 라이브러리 (matplotlib·HF·OpenAI·telegram-bot 류 캐시) 가 HOME traverse 중 새 게이트에 걸린 것으로 추정
+- 결정적 시그널: 시스템 `/Library/Application Support/com.apple.TCC/TCC.db` 가 5/15 10:00:01 정시에 자동 변경 — Apple 백그라운드 정책 푸시 흔적 (XProtect / 보안 정책 자동 동기화)
+- `fs_usage` / `tccd` 로그 추적에서는 정확한 호출 라이브러리 미특정 (TCC 거부된 syscall 이 fs_usage 에 안 잡힘)
+
+봇 동작 자체는 영향 없음 (의존성이 EACCES 를 흡수). 실용적 대응은 시스템 설정 → 개인정보 보호 → 파일 및 폴더 → `python3.12` 의 "문서 폴더" 토글을 거부로 두는 것 — 봇이 ~/Documents 를 정상 동작에 필요로 하지 않으므로 부작용 없음.
+
+> 진단 절차 (5단계) + 갑작스러운 발생 원인 ①② 의 일반 사상은 [[macos-tcc-documents-popup-diagnosis]] 참조.
+
 ## 변경 이력
 
 - 2026-05-10: 최초 작성 (session-logs/20260510-194933-8c5e). 70일 운영 분석 + 튜닝 A~E 즉시 적용 + 백로그 F/G + DB 스키마 + 진단 패턴 5건 정리. 일반 사상은 [[dca-trailing-stop-tuning]] 으로 분리
+- 2026-05-16: 5/15 자 ~/Documents TCC 팝업 잡음 관찰. 시스템 TCC.db 의 10:00:01 자동 변경 + Python.app 번들 인터프리터 인식 결합으로 추정. 봇 동작에는 영향 없음 (의존성 EACCES 흡수). 진단 절차는 [[macos-tcc-documents-popup-diagnosis]] 로 분리 (출처: session-logs/20260515-231744-34b6-*)
