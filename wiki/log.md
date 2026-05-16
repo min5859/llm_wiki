@@ -1,9 +1,30 @@
 ---
 title: Operation Log
-updated: 2026-05-16T13:30:00+09:00
+updated: 2026-05-16T14:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-16T14:30 — wiki-ingest (session-logs, ingested: false 17건)
+
+처리 3건 (의미 있는 산출), 스킵 14건 (헬스체크 / 자동 잡 빈 응답). 신규 페이지 2건 (projects/auto-pipe-blog, analyses/su-01-olympiad-reasoning), 기존 페이지 갱신 1건 (projects/dev-blog).
+
+- Source: session-logs/20260516-095909-4308-*.md (cwd: `/Users/wooki/project/git/wk/auto-pipe-blog`, "간단한 컨셉만 설명하면 자료조사부터 블로그에 포스팅할 수 있는 글로 만들어주는 프로그램을 만들 계획, CLAUDE.md 를 만들고 계획서 작성부터 먼저, 블로그는 velog 에 올릴 수 있는 형태, 다이어그램이나 그림까지 포함, AI 사용은 `claude -p` 또는 `agent -p`" → Phase 0 scaffold (commit `a9cbb0e`) + Phase 1 (commit `770b27f`, 5단계 파이프라인 + 7 prompts + 7 scripts + 첫 샘플) E2E 4분 검증)
+  - **Created**: wiki/projects/auto-pipe-blog.md — 신규 프로젝트 페이지. 파이프라인 (concept → 00-slug → 01-research → 02-outline → 03-draft → 05-assemble → post.md) + 6 가지 주요 설계 판단 (bash + `claude -p` stdin / `CALL_LLM_BACKEND` 어댑터 단일 진입점 / velog 자동 발행 1차 범위 외 / mermaid → mmdc → PNG / 단계별 산출물 디스크 보존 / 샘플 git 추적). Phase 1 E2E 검증 표 (MVCC/VACUUM 컨셉, 5 단계 시간 + 행 수). [[dev-blog]] / [[multi-llm-provider-adapter-pattern]] 와 상호 링크
+
+- Source: session-logs/20260516-120035-a415-*.md (cwd: dev-blog, "dev-blog 프로젝트의 AI provider 가 cursor 인가요? claude 인가요?" + "일단 ai provider 를 `claude -p` 로 변경" + "계속 1개씩 fail 이 발생하는 원인 뭔가요?" → 어댑터 일괄 변경 (cursor → claude) 은 0002 세션 ingest 와 중복이라 sources 추가만, 새 정보인 fail 원인 분석을 변경 이력에 추가. 5/16 android = gitiles `429 Too Many Requests` collect 실패, 5/15 linux-toolchain = `highlights[0].priority required` schema validation 실패. 매번 다른 토픽이 다른 단계에서 깨지는 구조 = 9 토픽 × 외부 호출 의존 → 일시 실패 확률의 곱)
+  - **Updated**: wiki/projects/dev-blog.md — sources 에 새 세션 추가, 변경 이력 "2026-05-16 (2nd batch)" 항목 신설 (fail 의 토픽별 다른 단계 / 다른 원인, 9 토픽 × 외부 호출 의존 구조, 근본 완화 후보 ① collect 429/네트워크 지수 backoff ② rewrite schema validation retry / default 채움). 미구현 (제안만 기록)
+
+- Source: session-logs/20260516-080028-7c79-*.md (cwd: `/Users/wooki/project/toy/research-wiki`, 자동 잡: "당신은 AI 연구 논문 분석 전문가입니다. 아래 논문을 읽고 한국어로 분석 — Achieving Gold-Medal-Level Olympiad Reasoning via Simple and Unified Scaling, arXiv 2605.13301" → Assistant 가 정상 응답, 1500자 분량 한국어 분석 산출. SU-01 모델의 4 단계 레시피 + 8 벤치마크 결과표 + 4 한계점 + 4 실무 적용 + 3 관련 논문)
+  - **Created**: wiki/analyses/su-01-olympiad-reasoning.md — SU-01 논문 분석 (arXiv 2605.13301). 4 단계 레시피 (역퍼플렉시티 SFT / Coarse RL GSPO / Refined RL DeepSeekMath-V2 보상 + 자기수정 20% + 경험재생 25% / TTS 30사이클 × 10회 100K 토큰), 8 벤치마크 결과표 (IMO-ProofBench 70.2% / IMO 2025 35점 동점 1위 / USAMO 2026 35점 340명 중 최고), 4 한계점, 4 실무 적용, 3 관련 논문 (DeepSeek-R1 / ExGRPO / Winning Gold at IMO 2025). 일반 교훈 (표준 컴포넌트 재배열만으로 SOTA / 실패-수정 vs 성공-재생 비율 디자인의 가치)
+
+- 스킵 14건:
+  - 헬스체크 4건: `Reply-with-only--OK` (080022, 090048) / `say-only-the-word-PONG` (120817) — 자동 잡 ping
+  - 자동 OSS 분석 5건 (090054 anthropics/skills, 090118 oven-sh/bun, 090151 mindsdb/minds-platform, 090219 langchain-ai/langgraph, 090244 mlflow/mlflow) — 모두 `assistant_turns: 0`, prompt 만 들어가고 응답 없음 (silent fail). raw-sources/papers/ 에 PDF 없음, 분석 산출도 없으므로 wiki 추가 항목 없음
+  - 자동 논문 분석 1건 (080121 δ-mem arXiv 2605.12357) — `assistant_turns: 0`, 응답 없음. 분석 산출 없음
+  - dev-blog Phase 0~2 후속 발행 4건 (120836 slug 생성 / 120842 자료조사 / 120945 글 구조 / 121027 본문 / 121142 velog frontmatter) — 모두 auto-pipe-blog 의 단계별 자동 prompt. 산출물은 각 단계의 단순 LLM 호출 결과 (slug 한 줄, research / outline / draft / post 본문). 의미 있는 *설계 판단*·*버그 수정*·*패턴*·*기술 선택* 없음. 모두 도구의 1회 호출
+
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음 (PDF/PPTX/TXT 만 존재). `.cache/extracted/` 디렉터리도 비어 있음 (PDF 추출 미실행)
 
 ## 2026-05-16T13:30 — wiki-ingest (session-logs, ingested: false 5건)
 

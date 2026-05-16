@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-16T13:30:00+09:00
+updated: 2026-05-16T14:30:00+09:00
 ---
 
 # Wiki Index
@@ -29,7 +29,8 @@ updated: 2026-05-16T13:30:00+09:00
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입
 - [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
-- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드, BASE_PATH 자동 대응. Multi-topic 가동 (Linux + Android + Lens 8 + OSS Trending + OSS Curation = 10토픽). 5/14 1토픽 quality-guard 정상 차단 → stdout 교정·publish 재실행 4단계 복구 (격리 패턴 첫 운영 성공)
+- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드, BASE_PATH 자동 대응. Multi-topic 가동 (Linux + Android + Lens 8 + OSS Trending + OSS Curation = 10토픽). 5/14 1토픽 quality-guard 정상 차단 → stdout 교정·publish 재실행 4단계 복구 (격리 패턴 첫 운영 성공). 기본 어댑터 cursor→claude 일괄 전환 (5/16, 14 files +21/-19, `resolveAiAdapter` 첫 인자 응집 덕에 5분 작업)
+- [[auto-pipe-blog]] — 컨셉 1개 → velog 글 자동화 파이프라인 (bash + `claude -p` stdin): 00-slug → 01-research → 02-outline → 03-draft → 05-assemble 5단계, skip-if-exists, `CALL_LLM_BACKEND=agent` 로 백엔드 전환. Phase 1 E2E ~4분 / 78줄 post.md / mermaid 2 블록
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 적용 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 15/30/45 / partial_profit ON / tighten_on_weakness ON)
 - [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 첫 운영 3.23G 회수
@@ -146,3 +147,4 @@ updated: 2026-05-16T13:30:00+09:00
 - [[gin-vue-admin-mcp-fullstack]] — flipped-aurora/gin-vue-admin (24,673 stars): Go(Gin) + Vue 3 풀스택 엔터프라이즈 어드민. AI 코드 생성기 + Casbin 3단계 권한 + 내장 MCP 서버. MCP 가 IDE 를 넘어 백오피스 운영 인터페이스로 침투하는 신호
 - [[macos-tcc-documents-popup-diagnosis]] — 갑작스레 시작된 "python3.12 가 문서 폴더 접근" TCC 팝업 5단계 진단 절차 (PID Python.app 번들 탐지 / 부모·가동시점 / 코드 참조 / fs_usage / 시스템 TCC.db mtime). "왜 갑자기" 의 2 원인 (Apple 백그라운드 정책 푸시 / 며칠 만에 처음 호출된 코드 경로). iTerm 셸 → 다른 앱 sandbox 시나리오인 [[macos-tcc-full-disk-access]] 와 다른 격
 - [[claude-code-tui-navigation-and-instance-isolation]] — CC TUI 화면 전환 (`Esc` / `Ctrl+B` FleetView) + 다중 인스턴스 격리 모델 (각 CLI 가 독립 프로세스라 IPC 없음). 한 인스턴스 안의 자식 (서브에이전트·--bg·worktree) 만 모니터링 가능. `--bg` 가 부모-자식이 아닌 별도 인스턴스라는 함정, `/config` 가 인스턴스가 아니라는 오해, 다중 창 묶기 5가지 외부 경로 (파일·memory·CLAUDE_JOB_DIR·MCP·tmux)
+- [[su-01-olympiad-reasoning]] — 30B-A3B (활성 3B) 모델이 「역퍼플렉시티 SFT + Coarse RL + Refined RL (DeepSeekMath-V2 보상 + 자기수정 20% / 경험재생 25% 버퍼) + TTS 30사이클 × 10회」 의 *컴포넌트 재배열* 만으로 IMO 2025 / USAMO 2026 금메달 (35점 동점 1위) 달성 (arXiv 2605.13301)
