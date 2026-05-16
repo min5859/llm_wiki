@@ -1,9 +1,30 @@
 ---
 title: Operation Log
-updated: 2026-05-16T14:30:00+09:00
+updated: 2026-05-17T07:30:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-17T07:30 — wiki-ingest (session-logs, ingested: false 20건)
+
+처리 4건 (의미 있는 산출), 스킵 16건 (블로그 자동 워크플로우 step별 LLM 1회 호출). 신규 페이지 2건 (`projects/auto-pipe-ppt`, `analyses/python-pptx-design-token-pipeline`), 기존 페이지 갱신 2건 (`projects/auto-pipe-blog`, `projects/finance-analysis-nextjs`).
+
+- Source: session-logs/20260516-212048-3947-*.md (cwd: `/Users/wooki/project/git/wk/auto-pipe-ppt`, "JSON/YAML/MD 콘텐츠 디스크립션과 수치를 업로드하면 자동으로 PPTX 를 생성. DESIGN.md 로 디자인 일관성, 샘플 PPT 퀄리티 수준" → 신규 프로젝트 git init → CLAUDE.md → tasks/todo.md → M0/M1/M2/M3 4 마일스톤. 결과물 commit 3건 (`f1cd8ab` M0+M1+M2 scaffold / `bb29394` 한글 폰트 ea/cs fix / `ed8d51c` M3 재무 컴포넌트 6종). 41건 테스트 그린, Apple/Minimalissimo 양쪽 정상 출력)
+  - **Created**: wiki/projects/auto-pipe-ppt.md — 신규 프로젝트 페이지. python-pptx + 절대좌표 도형 + OOXML 직접 작성 전략 (Claude Web/Desktop PPT 와 동일 방식), 디자인 토큰 이중 어댑터 (YAML frontmatter / CSS :root), role resolver (컴포넌트 ↔ 디자인별 토큰 이름 격리), 한글 폰트 ea/cs typeface fix, qlmanage 첫 슬라이드 시각 검증의 한계, KPI 값 wrap 함정. M0~M3 진행, M4 차트 / M5 재무 어댑터 미구현
+  - **Created**: wiki/analyses/python-pptx-design-token-pipeline.md — 일반 패턴 분리. PPTX 라이브러리 5종 비교 (python-pptx 1순위 + 콤보/레이더는 OOXML 직접 작성), 이중 입력 어댑터의 단일 트리 정규화, role resolver 의 코드 예시, 한글 ea/cs fix 의 OOXML 코드 (Apple SD Gothic Neo / Pretendard 권장), EMU 좌표 환산 (1px @96dpi = 9525 EMU 등), 시각 검증 (qlmanage 첫 페이지만 / CI 에 LibreOffice 헤드리스 필수)
+
+- Source: session-logs/20260516-{194006,194148,194156,194315,194401,194512,201219,203135,203141,203250,203333,203504,203556,224156}-*.md (cwd: auto-pipe-blog, 14건 모두 자동 파이프라인의 step별 prompt 호출 = slug / research / outline / draft / factcheck rewrite / velog publish 의 2 글 분량). 산출물 자체는 각 단계의 단순 LLM 호출이라 별도 wiki 페이지 없음. **다만 factcheck rewrite 단계와 velog publish 가동은 auto-pipe-blog 의 신규 기능**이므로 변경 이력에 반영
+- Source: session-logs/20260516-225709-62eb-*.md (cwd: auto-pipe-blog, "markdown 문서를 Notion 페이지로 변환·등록하는 비대화 모드 담당. parent ID 가 page 인지 database 인지 자동 판별 (retrieve-a-page → retrieve-a-database fallback), frontmatter 의 title/description/tags 파싱, 본문은 100 블록씩 patch-block-children 분할 추가, 로컬 이미지는 '수동 첨부 필요' 안내 paragraph 로 치환" → Playwright flaky 글이 Notion 페이지로 자동 등록)
+  - **Updated**: wiki/projects/auto-pipe-blog.md — Phase 3 (velog 자동 발행) 완료 표시 + Phase 3.5 (Notion publisher 자동 등록 워크플로우) 추가. 변경 이력에 5/16 factcheck rewrite + Notion publisher 2건 기록. sources 에 새 세션 4건 추가
+
+- Source: session-logs/20260516-223645-9081-*.md (cwd: finance-analysis-nextjs, "사이드 바에서 로딩된 json 인풋 파일을 다운로드 받을수 있는 기능을 추가해 주세요." → `src/components/layout/Sidebar.tsx` 의 "데이터 로드됨" 옆에 ⬇️ 버튼 추가, `companyData` → `{회사파일명}.json` Blob 다운로드, ESLint 통과, 단일 커밋 후 rebase push)
+  - **Updated**: wiki/projects/finance-analysis-nextjs.md — 변경 이력에 2026-05-16 사이드바 JSON 다운로드 버튼 추가 1줄 기록 (단일 변경, 새 분석 페이지는 불필요)
+
+- 스킵 16건:
+  - 단순 검색·검증 LLM 호출 3건 (`223957-b4d4` Playwright 버전 web search / `224718-1cc2` Notion API page search 테스트 / `070013-fe91` Linux Daily Newsletter Rewrite 자동 호출) — 모두 `assistant_turns: 0~1` 의 단발 호출, 산출물 없음
+  - auto-pipe-blog 파이프라인 step별 자동 LLM 호출 13건 (slug / research / outline / draft / factcheck / velog publish 의 2글 분량) — 단계별 단순 LLM 호출 결과. *새 설계 판단·기술 선택 없음*. factcheck rewrite + Notion publisher 라는 **신기능 추가** 자체는 위 변경 이력에 정리
+
+- raw-sources/ 의 신규 .md 없음 — articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 비어 있음 (PDF/PPTX/TXT 만 존재). `.cache/extracted/` 디렉터리도 없음 (PDF 추출 미실행)
 
 ## 2026-05-16T14:30 — wiki-ingest (session-logs, ingested: false 17건)
 
