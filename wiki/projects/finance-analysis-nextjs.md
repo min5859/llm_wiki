@@ -4,7 +4,7 @@ domain: personal
 sensitivity: internal
 tags: ["nextjs", "prisma", "ai-extract", "dart-api", "valuation", "ma", "pdf-extraction"]
 created: 2026-04-30
-updated: 2026-05-13
+updated: 2026-05-16
 sources:
   - "session-logs/20260430-174408-1a2e-*.md"
   - "session-logs/20260501-233118-b6e0-*.md"
@@ -302,3 +302,4 @@ CSV 내보내기 (Phase 2) 작성 중 `Record<string, unknown>` 으로 캐스팅
 - 2026-05-02: 운영성 결함 4가지 추가 — analyses 누적 / DELETE 경로 부재 / financial_statements 미사용 / provider 하드코딩. 관련 백로그 4개 추가. PDF 내보내기 (`pdf-generator.ts` 의 `downloadPdf`/`downloadFullReportPdf` + `html2canvas-pro`/`jspdf`) 가 이미 구현되어 있음을 확인 (출처: session-logs/20260501-233118-b6e0-*)
 - 2026-05-05: Vercel 60초 timeout 우회를 위한 임시 client-direct Anthropic 패턴 도입 사항 기록 (commit `215b9ff`). `/api/anthropic-config` + `lib/anthropic-browser.ts` + `proxy.ts` JSON 401 갱신. 일반 패턴은 [[vercel-timeout-browser-direct-api]] 로 분리. 회수 조건과 키 회전 의무 명시 (출처: session-logs/20260505-101659-115c-*)
 - 2026-05-13: 비판적 검토 7개 갭 + Phase 1~7 일괄 구현 (commit 7건: `a9568b9` `926567e` `44ff302` `9eefe34` `fbefdfa` `65c191c` `98a8101`). F-Score / CSV / 토큰 비용 가드 / risk flag / 공유 링크 / 시나리오 패널 / vitest 32 테스트. 일반 지식은 [[financial-health-composite-scores]], [[ai-token-usage-cost-guard]] 로 분리 (출처: session-logs/20260512-231800-c191-*)
+- 2026-05-16: 사이드바에 "데이터 로드됨" 표시 옆 ⬇️ JSON 다운로드 버튼 추가. 현재 메모리 로드된 `companyData` 를 `{회사파일명}.json` 으로 저장 (`src/components/layout/Sidebar.tsx:37`). 단일 커밋, ESLint 통과, rebase push. 출처: session-logs/20260516-223645-9081-*

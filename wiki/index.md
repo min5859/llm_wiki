@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-16T14:30:00+09:00
+updated: 2026-05-17T07:30:00+09:00
 ---
 
 # Wiki Index
