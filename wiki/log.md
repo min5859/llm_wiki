@@ -891,7 +891,7 @@ updated: 2026-05-17T10:00:00+09:00
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 2개 session-log 파일 전체 (생성: projects 1건, analyses 1건, patterns 1건)
 
-## 2026-05-18T22:00 — wiki-ingest (session-logs, ingested: false 2건)
+## 2026-05-18T22:00 — wiki-ingest (session-logs, ingested: false 4건)
 
 - Source: session-logs/20260517-204826-4fc6-주간-다이제스트는-언제-수행되나요.md
   - Project: dev-blog (운영 위치 확인)
@@ -904,5 +904,15 @@ updated: 2026-05-17T10:00:00+09:00
     — LLM 뉴스레터 rewrite 메타데이터 그라운딩 베스트 프랙티스 10 룰. candidateBodies 종류별 처리 (LKML commit message vs kernel.org 백포트 목록), history.previousVersion (v2→v3) vs previouslySeenAt (X일부터 추적) 차별, fromMaintainer (Linus/Greg KH/Andrew Morton) 권한 단서 자연스러운 삽입, maintainerComments excerpt 톤 3분류 (반대·보류/환영·머지/모호), action 「조건절+검증단서」 강제 + 부정 예시, 본문 4섹션 (릴리스·회귀보안·핵심변경·기타)·priority 상1~2/중2/하0~1 분포·summary 2문장 제약·implications/nextActions 금지, 입력 키 (id/topic/date/sources/draftMetadata) 보존·candidateBodies 출력 금지, 「독자 가정」 첫 줄 명시. 토픽 일반화 표 (Android 커널 / OSS Trending / 보안 어드바이저리 / 머신러닝 논문) 포함
   - Updated: wiki/projects/dev-blog.md
     — frontmatter sources 에 5/17 / 5/18 두 로그 추가 + related 에 신규 분석 페이지 링크. 변경 이력에 5/18 항목 추가. updated 2026-05-18
+- Source: session-logs/20260518-070202-63b9-#-Android-Kernel-Daily-Briefing-당신은-Android-커널-플랫폼.md
+  - Project: dev-blog (Android Daily Briefing 프롬프트)
+  - Note: 같은 launchd 사이클의 Android 토픽 prompt 본문, `assistant_turns: 0`
+  - Updated: wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md (Android 커널 ACK prefix 풀어쓰기 룰 + ACK 브랜치 한 줄 추적을 토픽 일반화 표에 보강)
+  - Updated: wiki/projects/dev-blog.md (frontmatter sources + 변경 이력 5/18 Android/OSS 항목)
+- Source: session-logs/20260518-070433-9bd5-#-Open-Source-Trending-Daily-Briefing-당신은-오픈소스-트렌드.md
+  - Project: dev-blog (OSS Trending Daily Briefing 프롬프트)
+  - Note: 같은 launchd 사이클의 OSS 토픽 prompt 본문, `assistant_turns: 0`
+  - Updated: wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md (룰 5 변형 추가 — action 3분해 `if`/`do`/`verify` 글자수 가이드라인 30/50/60자 / 룰 7a 신설 — title 형식 `{date} {핵심사건} — {토픽}` + 80자 headline 필드 / 토픽 일반화 표의 OSS 행 보강 (신규 60일 vs 활발 5k+ 7일내 push 분리))
+  - Updated: wiki/projects/dev-blog.md (frontmatter sources)
 - Updated: wiki/index.md, wiki/log.md
-- Marked ingested: true — 2개 session-log 파일 전체 (생성: analyses 1건, 업데이트: projects 1건)
+- Marked ingested: true — 4개 session-log 파일 전체 (생성: analyses 1건, 업데이트: projects 1건, analyses 1건 보강)
