@@ -27,6 +27,9 @@ sources:
   - "session-logs/20260518-070009-ddac-#-Linux-Daily-Newsletter-Rewrite-당신은-리눅스-커널-개발자를-돕.md"
   - "session-logs/20260518-070202-63b9-#-Android-Kernel-Daily-Briefing-당신은-Android-커널-플랫폼.md"
   - "session-logs/20260518-070433-9bd5-#-Open-Source-Trending-Daily-Briefing-당신은-오픈소스-트렌드.md"
+  - "session-logs/20260518-071049-b424-#-오픈소스-큐레이션-브리핑-당신은-오픈소스-큐레이터입니다.---오픈소스-큐레이션---파이.md"
+  - "session-logs/20260518-071258-b7e7-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260518-071614-9260-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
 confidence: high
 updated: 2026-05-18
 related:

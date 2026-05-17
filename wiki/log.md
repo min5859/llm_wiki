@@ -891,7 +891,7 @@ updated: 2026-05-17T10:00:00+09:00
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 2개 session-log 파일 전체 (생성: projects 1건, analyses 1건, patterns 1건)
 
-## 2026-05-18T22:00 — wiki-ingest (session-logs, ingested: false 4건)
+## 2026-05-18T22:00 — wiki-ingest (session-logs, ingested: false 7건)
 
 - Source: session-logs/20260517-204826-4fc6-주간-다이제스트는-언제-수행되나요.md
   - Project: dev-blog (운영 위치 확인)
@@ -914,5 +914,16 @@ updated: 2026-05-17T10:00:00+09:00
   - Note: 같은 launchd 사이클의 OSS 토픽 prompt 본문, `assistant_turns: 0`
   - Updated: wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md (룰 5 변형 추가 — action 3분해 `if`/`do`/`verify` 글자수 가이드라인 30/50/60자 / 룰 7a 신설 — title 형식 `{date} {핵심사건} — {토픽}` + 80자 headline 필드 / 토픽 일반화 표의 OSS 행 보강 (신규 60일 vs 활발 5k+ 7일내 push 분리))
   - Updated: wiki/projects/dev-blog.md (frontmatter sources)
+- Source: session-logs/20260518-071049-b424-#-오픈소스-큐레이션-브리핑-당신은-오픈소스-큐레이터입니다.---오픈소스-큐레이션---파이.md
+  - Project: dev-blog (OSS Curation 프롬프트, `topic: opensource-curation`)
+  - Note: 같은 launchd 사이클의 OSS Curation prompt 본문, `assistant_turns: 0`
+  - Updated: wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md (토픽 일반화 표에 OSS Curation 행 추가 — `analysisExcerpt` + `curationScore` + `hasAnalysis` 메타가 핵심 그라운딩 신호)
+  - Updated: wiki/projects/dev-blog.md (frontmatter sources)
+- Source: session-logs/20260518-071258-b7e7-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md
+- Source: session-logs/20260518-071614-9260-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md
+  - Project: dev-blog (Linux specialist list lens 프롬프트, 보안/도구체인/RT/GPU 등 렌즈 — 같은 sample template 의 lens별 발사)
+  - Note: 같은 launchd 사이클의 Linux Lens prompt 본문, `assistant_turns: 0`. 두 파일 모두 동일 prompt body (lens 토픽만 다름). linux-newsletter-ko.md 의 룰을 인용하면서 렌즈-specific 변형만 추가하는 구조
+  - Updated: wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md (토픽 일반화 표에 Linux Lens 행 추가, `draftMetadata.signalLevel` 의 「저신호일 summary prefix」 룰은 [[llm-content-quality-guards]] 가드 4 의 토픽-specific instantiation 임을 명시)
+  - Updated: wiki/projects/dev-blog.md (frontmatter sources)
 - Updated: wiki/index.md, wiki/log.md
-- Marked ingested: true — 4개 session-log 파일 전체 (생성: analyses 1건, 업데이트: projects 1건, analyses 1건 보강)
+- Marked ingested: true — 7개 session-log 파일 전체 (생성: analyses 1건, 업데이트: projects 1건; 동일 분석 페이지에 토픽 5종 그라운딩 룰 흡수)

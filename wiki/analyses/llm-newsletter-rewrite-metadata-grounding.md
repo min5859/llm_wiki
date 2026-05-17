@@ -11,6 +11,7 @@ sources:
   - "session-logs/20260518-070433-9bd5-#-Open-Source-Trending-Daily-Briefing-당신은-오픈소스-트렌드.md"
   - "session-logs/20260518-071049-b424-#-오픈소스-큐레이션-브리핑-당신은-오픈소스-큐레이터입니다.---오픈소스-큐레이션---파이.md"
   - "session-logs/20260518-071258-b7e7-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260518-071614-9260-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
 confidence: medium
 related:
   - "wiki/projects/dev-blog.md"
@@ -308,3 +309,4 @@ Android 커널 토픽 (ACK = Android Common Kernel) 의 commit message 는 prefi
 
 - 2026-05-18: 최초 작성. dev-blog 의 5/18 Linux Daily Newsletter Rewrite 프롬프트 (5/10 대비 진화) 본문에서 일반화. 핵심 추가 룰은 candidateBodies 종류별 처리, history.previousVersion vs previouslySeenAt 차별, fromMaintainer 단서 삽입, maintainerComments 톤 3분류 (출처: session-logs/20260518-070009-ddac-*.md)
 - 2026-05-18 (2nd): Android 와 OSS Trending 토픽의 동일 시점 프롬프트에서 추가 룰 흡수. 룰 5 의 변형 (action 3분해 `if`/`do`/`verify` + 글자수 30/50/60자), 룰 7a 신설 (title 형식 `{date} {핵심사건} — {토픽}` + headline 80자 필드), 토픽 일반화 표에 Android ACK prefix (ANDROID/FROMGIT/FROMLIST/BACKPORT/UPSTREAM) 풀어쓰기 룰 + OSS 의 신규(60일)/활발(5k+, 7일내 push) 구분 추가 (출처: session-logs/20260518-070202-63b9-*.md, 20260518-070433-9bd5-*.md)
+- 2026-05-18 (3rd): OSS Curation 과 Linux Lens 프롬프트도 같은 사이클에서 발사. 토픽 일반화 표에 OSS Curation 행 (`analysisExcerpt` + `curationScore` + `hasAnalysis` 메타) 과 Linux Lens 행 (메일링 리스트 컨텍스트 + `draftMetadata.signalLevel`) 신규 추가. 두 토픽 모두 5/13 부터 도입된 「2026-05 신규 출력 규칙」 (title 형식 / headline / action 3분해) 을 동일하게 채택. Linux Lens 의 「저신호일 summary prefix」 룰은 [[llm-content-quality-guards]] 가드 4 의 토픽-specific instantiation 으로 그쪽 참조 (출처: session-logs/20260518-071049-b424-*.md, 20260518-071258-b7e7-*.md)
