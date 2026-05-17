@@ -16,8 +16,15 @@ sources:
   - "session-logs/20260514-080604-8120-자동-파이프라인-상태-2026-05-14-1개-토픽-실패---9개-성공.-linux-gpu.md"
   - "session-logs/20260516-002256-34e8-cursor-로-동작-시켜놓으니-10개-토픽중-하나씩-fail-이-발생-하는-듯합니다.-c.md"
   - "session-logs/20260516-120035-a415-dev-blog-프로젝트의-AI-provider-가-cursor-인가요--claude-인가.md"
+  - "session-logs/20260517-071129-4e43-*.md"
+  - "session-logs/20260517-071310-baf5-*.md"
+  - "session-logs/20260517-071628-9f89-*.md"
+  - "session-logs/20260517-071853-f4a9-*.md"
+  - "session-logs/20260517-072103-9a09-*.md"
+  - "session-logs/20260517-072334-54e2-*.md"
+  - "session-logs/20260517-072621-5d31-*.md"
 confidence: high
-updated: 2026-05-16
+updated: 2026-05-17
 related:
   - "wiki/bugs/utc-iso-date-kst-rollover.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
@@ -235,3 +242,4 @@ Error: highlights[0].action required
 - 2026-05-16: 기본 AI 어댑터 `cursor` → `claude` 일괄 전환. cursor 가동 시 매일 한두 토픽씩 산발 실패하는 패턴이 트리거. 격리 worktree 에서 14개 파일 +21/-19 (`resolveAiAdapter('cursor')` → `'claude'`, `LENS_DEFAULT_ADAPTER` 상수, `normalizeDailyRewriteAdapter` 기본값, `rewriteScriptMap` fallback, docs). 회귀 테스트 66/66 통과. `AI_ADAPTER` / `DAILY_REWRITE_ADAPTER` 환경변수 override 와 `cursor-agent` 별칭은 그대로 유지. **`resolveAiAdapter` 의 첫 인자를 default 로 설계해 둔 응집이 14곳 일괄 변경을 5분 작업으로 만든 사례** (출처: session-logs/20260516-002256-34e8-*)
 - 2026-05-14: 10개 토픽 중 1개 (`linux-gpu-ai`) 만 rewrite 실패, 나머지 9개 평시 게시 — 5/11 도입한 토픽 `if !` 격리의 첫 운영 성공 사례. 원인은 LLM rewrite stdout 에 한자 "明文" 두 글자 혼입 → `quality-guard.mjs` 의 `auditPostQuality` 가 정상 차단. 복구 4단계 (stdout 한자 두 글자만 한글 교정 → 일회용 스크립트로 rewritten JSON 재빌드 → publish 만 재실행 → build + commit `1f9db82`). `markPublishOk` 가 status JSON 을 in-place 갱신해 `ok=true` + `manualRepublishedAt` 마커. **교훈** — quality-guard 의 정상 차단을 「가드 완화」로 오대응 하지 말 것 (회귀 위험), CJK 비한국어 혼입은 한국어 강제 프롬프트의 만성 함정으로 사전 가드가 정독 회고보다 비용 효과적. 일반 패턴은 [[llm-content-quality-guards]] 5번째 가드로 분리 (출처: session-logs/20260514-080604-8120-*)
 - 2026-05-16 (2nd batch): 「매일 1개씩 fail」 구조의 후속 진단 — 5/16 의 android 토픽은 `collect` 단계에서 gitiles `429 Too Many Requests` (rate-limit), 5/15 의 linux-toolchain 은 `rewrite` 단계에서 `highlights[0].priority required` (cursor 어댑터가 5 개 highlight 중 첫 highlight 의 priority 필드 누락). 매번 *다른* 토픽이 *다른* 단계에서 깨지는 이유는 9 토픽 × 외부 호출 (gitiles / lore.kernel.org / AI agent) 의존이라 토픽당 일시 실패 확률이 작아도 9 토픽 곱으로 매일 1개가 우연히 걸리는 구조. 근본 완화 후보는 ① `scripts/collect-*.mjs` 에 429 / 네트워크 오류에 대한 지수 backoff 재시도 ② `scripts/ai-rewrite-*.mjs` 의 schema validation 실패 시 1회 retry 또는 priority 등 필수 필드 누락 시 기본값 채움 — 둘 중 (a) 가 우선순위 (publish 단계에서 토픽 통째 skip 의 빈도가 더 높음). 미구현 (제안만 기록). (출처: session-logs/20260516-120035-a415-*)
+- 2026-05-17: 07:00 cron 잡 7건 전체 silent fail — 오픈소스 큐레이션 브리핑 1건 (`opensource-curation`) + Linux specialist list lens rewrite 6건 (각각 다른 렌즈 토픽) 이 모두 `assistant_turns: 0`. claude CLI 가 prompt 까지 받았으나 모델 호출이 무응답으로 끝나 산출물 0. 같은 날 08:00 research-wiki 의 논문 분석 2건 (Qwen-Image-2.0 / AnyFlow) 과 09:00 oss-radar 의 OSS 분석 5건도 일제히 동일 패턴. 동일 호스트 (wookiui-Macmini) 의 시간대별 cron 잡이 모두 무응답이라 토픽·렌즈·레포 단의 결함이 아니라 시스템 단 (claude CLI 모델 백엔드 / 네트워크 / OAuth 등) 원인으로 추정. 5/16 도 일부 (5건) 가 동일하게 silent fail 했었음 → 2일 연속 광범위 발생. **운영 관찰만 기록, 코드 변경 없음**. 산출물·post 게시 0. 광범위 silent fail 의 진단 신호: 「동일 시간대 모든 잡이 `assistant_turns: 0`」. 단발 silent fail (특정 토픽만) 과 구분되어야 함 (출처: session-logs/20260517-{071129,071310,071628,071853,072103,072334,072621}-*)

@@ -1,9 +1,24 @@
 ---
 title: Operation Log
-updated: 2026-05-17T07:30:00+09:00
+updated: 2026-05-17T10:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-17T10:00 — wiki-ingest (session-logs, ingested: false 16건)
+
+처리 0건 (의미 있는 산출 없음), 운영 관찰 기록 2건. 신규 페이지 0건, 기존 페이지 갱신 2건 (`projects/dev-blog`, `projects/oss-radar`). raw-sources/ 신규 .md 없음 (모든 PDF/PPTX 가 기존 wiki 페이지에 이미 매핑됨, articles/ books/ ideas/ papers/ transcripts/ 서브디렉터리에 .md 없음), `.cache/extracted/` 디렉터리 없음 (PDF 추출 미실행).
+
+- **16건 전체가 `assistant_turns: 0` silent fail 패턴** — 동일 호스트 (wookiui-Macmini) 의 3개 시간대 cron 잡이 일제히 모델 호출 무응답으로 끝남:
+  - 07:00–07:30 dev-blog 7건 = 오픈소스 큐레이션 브리핑 1 + Linux specialist list lens rewrite 6 (각각 다른 lens 토픽)
+  - 08:00–08:02 research-wiki 3건 = `Reply-with-only--OK` 헬스체크 1 + AI 논문 분석 2 (Qwen-Image-2.0 / AnyFlow)
+  - 09:00–09:03 oss-radar 6건 = `Reply-with-only--OK` 헬스체크 1 + OSS 레포 분석 5 (continuedev/cli, pinokiocomputer/program-pinokio, microsoft/awesome-copilot, OliveTin/OliveTin, photoprism/photoprism)
+- 5/16 에도 일부 (5건) 가 동일 silent fail 했었음 → **2일 연속 광범위 발생**. 5/16 의 단발성 silent fail 과 달리 5/17 은 헬스체크 OK 까지 응답 0이라 시스템 단 (claude CLI 모델 백엔드 / 네트워크 / OAuth) 원인 의심
+- **운영 관찰만 기록, 코드 변경·신규 분석 페이지 없음** — 추측이 아닌 사실로 wiki 에 넣을 정보가 부족 (원인 진단 불가)
+- **Updated**: wiki/projects/dev-blog.md — sources 에 5/17 07시대 7건 추가, 변경 이력에 「07:00 cron 잡 7건 전체 silent fail + 동일 호스트의 08:00 research-wiki 2건 + 09:00 oss-radar 5건도 동일 패턴 → 시스템 단 원인 의심」 한 단락 기록. 광범위 silent fail 의 진단 신호 (「동일 시간대 모든 잡이 `assistant_turns: 0`」) 를 단발 silent fail 과 구분해야 함을 명시
+- **Updated**: wiki/projects/oss-radar.md — sources 에 5/17 09시대 6건 추가, 변경 이력에 09:00 OSS 분석 5건 + 헬스체크 OK 1건 모두 silent fail 한 줄 기록. 토픽·레포 단 결함이 아님을 명시
+- raw-sources/ 신규 .md 없음 확인: articles/ 8개 PDF (Agent-Team-tmux / Claude Code 4월 tmux 불가 / Agent Teams 완전 도입 / Claude Code loop 완전 정복 / 기업보안 AWS-Bedrock / AI 쇼츠 / 토큰 절약 8가지 / wsl-vscode-tmux) 는 모두 기존 wiki/patterns/ 페이지에 이미 매핑 완료. Tips/ 도 동일. books/ ideas/ papers/ transcripts/ 비어 있음. `.cache/extracted/` 디렉터리 없음 (PDF chunk 추출 미실행 — 새로운 PDF 추출이 트리거되지 않음)
+- Marked ingested: true — 16개 session-log 파일 전체 (스킵 14건 = silent fail 의 본질이 system-level 이라 토픽별 의미 추출 불가, 운영 관찰 2건만 위 프로젝트 페이지 갱신으로 흡수)
 
 ## 2026-05-17T07:30 — wiki-ingest (session-logs, ingested: false 20건)
 

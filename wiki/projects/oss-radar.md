@@ -4,12 +4,18 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-04-30"
+updated: "2026-05-17"
 sources:
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
   - "session-logs/20260428-231551-12d1-현재-프로젝트를-실행시키려면-어떻게-해야-하나요.md"
   - "session-logs/20260430-134759-328e-지금-이-프로그램을-매일-오전-9시에-돌아가도록-설정해-두었는데-동작-하지-않는-것-같습니.md"
+  - "session-logs/20260517-090048-1b9a-Reply-with-only--OK.md"
+  - "session-logs/20260517-090054-75ca-*.md"
+  - "session-logs/20260517-090122-6f35-*.md"
+  - "session-logs/20260517-090150-c808-*.md"
+  - "session-logs/20260517-090223-159b-*.md"
+  - "session-logs/20260517-090258-7b96-*.md"
 confidence: "high"
 related:
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
@@ -185,3 +191,4 @@ fi
 - 2026-04-28: 최초 생성 — Phase 1~6 전체 구현 완료 기록
 - 2026-04-28: 자동화 스케줄 매주 월요일 → 매일 09:00 변경, GITHUB_TOKEN 보안 패턴, analyze.sh venv 버그 수정, 중복 방지 한계 3가지 추가
 - 2026-04-30: GITHUB_TOKEN 만료(401) → fine-grained PAT 재발급 + plist에서 `config/.env` 로 시크릿 분리. GitHub Search API의 `topic:` OR 미지원 발견 → 카테고리별 개별 쿼리로 우회 (Search 후보 0 → 422). 출처: session-logs/20260430-134759-328e-*
+- 2026-05-17: 09:00 cron 잡 전체 silent fail — `Reply-with-only--OK` 헬스체크 + 5건 OSS 레포 분석 (continuedev/cli, pinokiocomputer/program-pinokio, microsoft/awesome-copilot, OliveTin/OliveTin, photoprism/photoprism) 모두 `assistant_turns: 0`. claude CLI 가 시작은 했지만 모델 호출이 전부 무응답으로 끝남. 같은 시간대 dev-blog (07:00) / research-wiki (08:00) cron 도 광범위 silent fail 동시 발생 → 시스템 단 원인 의심 (특정 토픽·레포 결함이 아님). 산출물 없음, 코드 변경 없음, 운영 관찰만 기록. (출처: session-logs/20260517-090048-1b9a-* 외 5건)
