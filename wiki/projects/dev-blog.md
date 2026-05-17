@@ -23,8 +23,10 @@ sources:
   - "session-logs/20260517-072103-9a09-*.md"
   - "session-logs/20260517-072334-54e2-*.md"
   - "session-logs/20260517-072621-5d31-*.md"
+  - "session-logs/20260517-204826-4fc6-주간-다이제스트는-언제-수행되나요.md"
+  - "session-logs/20260518-070009-ddac-#-Linux-Daily-Newsletter-Rewrite-당신은-리눅스-커널-개발자를-돕.md"
 confidence: high
-updated: 2026-05-17
+updated: 2026-05-18
 related:
   - "wiki/bugs/utc-iso-date-kst-rollover.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
@@ -34,6 +36,7 @@ related:
   - "wiki/patterns/prompt-schema-pipeline-coupling.md"
   - "wiki/analyses/github-pages-base-path-pattern.md"
   - "wiki/analyses/llm-content-quality-guards.md"
+  - "wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md"
   - "wiki/patterns/launchd-secret-management.md"
   - "wiki/projects/kernel-digest.md"
 ---
@@ -84,14 +87,16 @@ public/                  ← 빌드 산출물 (HTML, RSS, search-index)
 ## 운영 흐름 (cron + GitHub Pages)
 
 ```
-[macOS cron] 매일 07:00 KST
-   └─ npm run daily:linux:publish
-        ├─ collect → draft → rewrite (claude -p) → publish
+[macOS launchd] 매일 07:00 KST  (~/Library/LaunchAgents/com.user.dev-blog.daily.plist)
+   └─ scripts/daily-deploy.sh
+        ├─ daily 10 토픽 (linux / android / opensource / lens 8 / opensource-curation)
+        ├─ scripts/weekly-linux.mjs  (W## 폴더 게시. 별도 cron 없이 daily 흐름 안에서 실행)
         └─ git push  ──→  [GitHub Actions: pages.yml]
                               └─ scripts/build-site.mjs
                                    └─ public/  →  GitHub Pages
 ```
 
+- **launchd 진입점은 단 하나**: `com.user.dev-blog.daily.plist` (`StartCalendarInterval: Hour=7, Minute=0`). 별도 weekly cron 없음 — 주간 다이제스트는 같은 daily 흐름 안에서 `weekly-linux.mjs` 가 호출
 - **cron 은 사용자 머신에서**: `claude -p` 가 사용자 구독 (Anthropic Pro / Max) 을 필요로 하므로 GitHub Actions 안에서는 못 씀
 - **빌드만 GitHub Actions 에서**: cron 끝에 `git push` → Actions 가 정적 빌드 + Pages 배포
 - 분리 이유는 *cron-on-laptop, deploy-via-actions* 패턴 — Claude 구독을 외부 CI 로 옮길 수 없는 모든 자동화 시스템의 표준 형태
@@ -243,3 +248,5 @@ Error: highlights[0].action required
 - 2026-05-14: 10개 토픽 중 1개 (`linux-gpu-ai`) 만 rewrite 실패, 나머지 9개 평시 게시 — 5/11 도입한 토픽 `if !` 격리의 첫 운영 성공 사례. 원인은 LLM rewrite stdout 에 한자 "明文" 두 글자 혼입 → `quality-guard.mjs` 의 `auditPostQuality` 가 정상 차단. 복구 4단계 (stdout 한자 두 글자만 한글 교정 → 일회용 스크립트로 rewritten JSON 재빌드 → publish 만 재실행 → build + commit `1f9db82`). `markPublishOk` 가 status JSON 을 in-place 갱신해 `ok=true` + `manualRepublishedAt` 마커. **교훈** — quality-guard 의 정상 차단을 「가드 완화」로 오대응 하지 말 것 (회귀 위험), CJK 비한국어 혼입은 한국어 강제 프롬프트의 만성 함정으로 사전 가드가 정독 회고보다 비용 효과적. 일반 패턴은 [[llm-content-quality-guards]] 5번째 가드로 분리 (출처: session-logs/20260514-080604-8120-*)
 - 2026-05-16 (2nd batch): 「매일 1개씩 fail」 구조의 후속 진단 — 5/16 의 android 토픽은 `collect` 단계에서 gitiles `429 Too Many Requests` (rate-limit), 5/15 의 linux-toolchain 은 `rewrite` 단계에서 `highlights[0].priority required` (cursor 어댑터가 5 개 highlight 중 첫 highlight 의 priority 필드 누락). 매번 *다른* 토픽이 *다른* 단계에서 깨지는 이유는 9 토픽 × 외부 호출 (gitiles / lore.kernel.org / AI agent) 의존이라 토픽당 일시 실패 확률이 작아도 9 토픽 곱으로 매일 1개가 우연히 걸리는 구조. 근본 완화 후보는 ① `scripts/collect-*.mjs` 에 429 / 네트워크 오류에 대한 지수 backoff 재시도 ② `scripts/ai-rewrite-*.mjs` 의 schema validation 실패 시 1회 retry 또는 priority 등 필수 필드 누락 시 기본값 채움 — 둘 중 (a) 가 우선순위 (publish 단계에서 토픽 통째 skip 의 빈도가 더 높음). 미구현 (제안만 기록). (출처: session-logs/20260516-120035-a415-*)
 - 2026-05-17: 07:00 cron 잡 7건 전체 silent fail — 오픈소스 큐레이션 브리핑 1건 (`opensource-curation`) + Linux specialist list lens rewrite 6건 (각각 다른 렌즈 토픽) 이 모두 `assistant_turns: 0`. claude CLI 가 prompt 까지 받았으나 모델 호출이 무응답으로 끝나 산출물 0. 같은 날 08:00 research-wiki 의 논문 분석 2건 (Qwen-Image-2.0 / AnyFlow) 과 09:00 oss-radar 의 OSS 분석 5건도 일제히 동일 패턴. 동일 호스트 (wookiui-Macmini) 의 시간대별 cron 잡이 모두 무응답이라 토픽·렌즈·레포 단의 결함이 아니라 시스템 단 (claude CLI 모델 백엔드 / 네트워크 / OAuth 등) 원인으로 추정. 5/16 도 일부 (5건) 가 동일하게 silent fail 했었음 → 2일 연속 광범위 발생. **운영 관찰만 기록, 코드 변경 없음**. 산출물·post 게시 0. 광범위 silent fail 의 진단 신호: 「동일 시간대 모든 잡이 `assistant_turns: 0`」. 단발 silent fail (특정 토픽만) 과 구분되어야 함 (출처: session-logs/20260517-{071129,071310,071628,071853,072103,072334,072621}-*)
+- 2026-05-17 (운영 위치 확인): 「주간 다이제스트는 언제 수행되나」 질의 — 별도 weekly cron 이 없고, `~/Library/LaunchAgents/com.user.dev-blog.daily.plist` 가 매일 07:00 (`StartCalendarInterval: Hour=7, Minute=0`) 로 trigger 되는 단일 진입점에서 `scripts/daily-deploy.sh` 가 `scripts/weekly-linux.mjs` 를 같이 호출. content/topics/linux/posts/`<YYYY>-W<NN>-linux-weekly.json` 은 daily 흐름 안에서 매일 생성되며, 주 단위 변동은 ISO 주 (Y-Wnn) 가 바뀌는 첫 날에 새 파일이 만들어지는 구조. **운영 사실 정리만, 코드 변경 없음** (출처: session-logs/20260517-204826-4fc6-*)
+- 2026-05-18: Linux Daily Newsletter Rewrite 프롬프트의 진화된 룰을 일반 분석으로 분리 — `candidateBodies` 종류별 처리 (LKML commit message vs kernel.org 백포트 목록), `history.previousVersion` vs `previouslySeenAt` 차별 (v2→v3 갱신 vs X일부터 추적), `fromMaintainer` 메인테이너 직접 발신 단서 자연스러운 삽입, `maintainerComments` excerpt 의 톤 3분류 (반대/보류·환영/머지·모호) 본문 한 줄 반영. 5/10 의 첫 도입 대비 시리즈 진척·발신자 권한·응답 톤을 직접 끌어쓰는 그라운딩 룰로 발전. 일반 패턴은 [[llm-newsletter-rewrite-metadata-grounding]] 로 분리. **코드 변경 없음** (프롬프트 본문 inspection 기반, 출처: session-logs/20260518-070009-ddac-*)
