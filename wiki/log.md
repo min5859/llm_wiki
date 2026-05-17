@@ -890,3 +890,19 @@ updated: 2026-05-17T10:00:00+09:00
     — launchd plist 마스터를 프로젝트 폴더에 두고 `~/Library/LaunchAgents/` 는 symlink (Homebrew services 패턴). install 서브커맨드 구현 코드, `.gitignore` 필수 (절대 경로), rename 시 dangling symlink 함정, `launchctl list -  0` 출력 의미, 시크릿 분리 ([[launchd-secret-management]]) 와의 분담
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 2개 session-log 파일 전체 (생성: projects 1건, analyses 1건, patterns 1건)
+
+## 2026-05-18T22:00 — wiki-ingest (session-logs, ingested: false 2건)
+
+- Source: session-logs/20260517-204826-4fc6-주간-다이제스트는-언제-수행되나요.md
+  - Project: dev-blog (운영 위치 확인)
+  - Updated: wiki/projects/dev-blog.md
+    — 「운영 흐름 (cron + GitHub Pages)」 섹션 보강. launchd 진입점 `~/Library/LaunchAgents/com.user.dev-blog.daily.plist` 가 단 하나이며 (`StartCalendarInterval: Hour=7, Minute=0`), 주간 다이제스트 (`weekly-linux.mjs` 의 `<YYYY>-W<NN>-linux-weekly.json`) 는 별도 weekly cron 없이 daily 흐름 안에서 같이 호출되는 구조 명시. 변경 이력에도 5/17 운영 위치 확인 항목 추가. 코드 변경 없음
+- Source: session-logs/20260518-070009-ddac-#-Linux-Daily-Newsletter-Rewrite-당신은-리눅스-커널-개발자를-돕.md
+  - Project: dev-blog (Linux Daily Newsletter Rewrite 프롬프트 진화)
+  - Note: 이 세션은 dev-blog 의 daily 파이프라인에서 외부 LLM (claude -p) 으로 자동 발사된 프롬프트 본문이라 `assistant_turns: 0` 이지만, 프롬프트 본문에 5/10 대비 진화한 메타 그라운딩 룰이 풍부히 포함되어 일반 분석으로 추출
+  - Created: wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md
+    — LLM 뉴스레터 rewrite 메타데이터 그라운딩 베스트 프랙티스 10 룰. candidateBodies 종류별 처리 (LKML commit message vs kernel.org 백포트 목록), history.previousVersion (v2→v3) vs previouslySeenAt (X일부터 추적) 차별, fromMaintainer (Linus/Greg KH/Andrew Morton) 권한 단서 자연스러운 삽입, maintainerComments excerpt 톤 3분류 (반대·보류/환영·머지/모호), action 「조건절+검증단서」 강제 + 부정 예시, 본문 4섹션 (릴리스·회귀보안·핵심변경·기타)·priority 상1~2/중2/하0~1 분포·summary 2문장 제약·implications/nextActions 금지, 입력 키 (id/topic/date/sources/draftMetadata) 보존·candidateBodies 출력 금지, 「독자 가정」 첫 줄 명시. 토픽 일반화 표 (Android 커널 / OSS Trending / 보안 어드바이저리 / 머신러닝 논문) 포함
+  - Updated: wiki/projects/dev-blog.md
+    — frontmatter sources 에 5/17 / 5/18 두 로그 추가 + related 에 신규 분석 페이지 링크. 변경 이력에 5/18 항목 추가. updated 2026-05-18
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 2개 session-log 파일 전체 (생성: analyses 1건, 업데이트: projects 1건)
