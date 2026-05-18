@@ -1,6 +1,6 @@
 ---
 title: Operation Log
-updated: 2026-05-17T10:00:00+09:00
+updated: 2026-05-18T23:30:00+09:00
 ---
 
 # Operation Log
@@ -927,3 +927,30 @@ updated: 2026-05-17T10:00:00+09:00
   - Updated: wiki/projects/dev-blog.md (frontmatter sources)
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 7개 session-log 파일 전체 (생성: analyses 1건, 업데이트: projects 1건; 동일 분석 페이지에 토픽 5종 그라운딩 룰 흡수)
+
+## 2026-05-18T23:30 — wiki-ingest (session-logs, ingested: false 14건, 자동 cron 후속 배치)
+
+- 대상 14건 모두 동일 호스트 (wookiui-Macmini) 의 5/18 07:19~09:03 자동 cron 결과물. 사람 결정·디버깅·구현 없이 prompt 발사 + 결과만 기록된 로그. 분류:
+  - dev-blog 사이클 (07:19~07:30 KST, 5건): Linux specialist list lens prompt 4건 (be69 / 6c93 / 3ef3 / 691d, lens 토픽만 다른 동일 sample template) + Linux Kernel Weekly Digest prompt 1건 (9857)
+  - alive 핑 (08:00 / 09:00 KST, 2건): research-wiki 와 oss-radar 의 "Reply with only: OK" 헬스체크
+  - research-wiki 사이클 (08:00 KST, 2건): AI 논문 분석 prompt (a73e Causal Forcing++, d399 다른 논문) — 매우 일반적인 「논문 분석」 템플릿 (한줄 요약 / 배경 / 방법론 / 결과 / 한계 / 적용성 / 관련 논문 + 1000~1500자), 신규 룰 없음
+  - oss-radar 사이클 (09:00~09:03 KST, 5건): OSS 레포 분석 prompt (153d microsoft/ai-agents-for-beginners 외 4건) — 「한줄 요약 / 주요 기능 / 사용 시나리오 / 기술 스택 / 주목 이유 / 실용성 평가 + 800~1200자」 템플릿 그대로, 신규 룰 없음
+- Source: session-logs/20260518-073052-9857-#-Linux-Kernel-Weekly-Digest-*.md (Linux Kernel Weekly Digest prompt)
+  - Project: dev-blog (`weekly-linux.mjs` 진입점, daily 흐름 안에서 매일 호출)
+  - Note: 일일 prompt 와 별개의 「주간 압축」 룰 4개를 정의 (`assistant_turns: 1`, file_edits: 1 — weekly JSON 생성). 일일 룰의 시간축 확장 변형
+  - Updated: wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md
+    — 「주간 다이제스트 변형 — 일일의 "압축" 모드」 섹션 신설. 주간 룰 W1 (같은 흐름 묶기 — "월: v2 → 수: 피드백 → 금: v3 보류" 식 진행 흐름 한 줄, 일일 룰 2 의 주 단위 확장), W2 (이번 주 3~5개 흐름만, 일일 룰 9 의 주간판, 28개 일일 후보의 평탄화 금지), W3 (국부 드라이버 제외, 일일 룰 8 그대로), W4 (dailies 배열 재포함 금지, 일일 룰 10 의 주간판). 「주간 = 일일의 압축, 합집합 아님」 일반 사상 정리
+- Source: session-logs/20260518-071926-be69-*.md / 072313-6c93-*.md / 072522-3ef3-*.md / 072906-691d-*.md (Linux specialist list lens prompt 4건)
+  - Project: dev-blog (lens 토픽 4종, 직전 22:00 ingest 의 lens 2건과 동일 prompt body)
+  - Note: 신규 룰 없음 (lens 토픽만 다른 sample template). 본 분석 페이지에는 sources 누적 가치 없어 생략, dev-blog 변경 이력으로만 추적
+  - Updated: wiki/projects/dev-blog.md (frontmatter sources 5건 추가 [lens 4건 + weekly 1건] + 변경 이력 「Lens 4 + Weekly Digest」 항목 + 「cron 정상 회복」 항목)
+- Source: session-logs/20260518-090051-c52b-*.md (alive 핑) + 20260518-090057-153d-*.md / 090130-8d3b-*.md / 090158-f59e-*.md / 090228-3568-*.md / 090304-cd1c-*.md (OSS 레포 분석 prompt 5건)
+  - Project: oss-radar
+  - Note: 5/17 의 광범위 silent fail (시스템 단 원인 의심) 후속, 5/18 cron 정상 회복 — prompt 발사 정상, `assistant_turns` 일부 0~1 분포. prompt 본문은 기존 OSS 분석 템플릿 그대로 (신규 룰 없음)
+  - Updated: wiki/projects/oss-radar.md (frontmatter sources 6건 추가 + 변경 이력 「2026-05-18 cron 정상 회복」 항목)
+- Source: session-logs/20260518-080019-b120-*.md (alive 핑) + 20260518-080025-a73e-*.md / 080126-d399-*.md (AI 논문 분석 prompt 2건)
+  - Project: research-wiki (wiki/projects/ 페이지 없음 — 5/17 dev-blog 변경 이력에서 "08:00 research-wiki 의 논문 분석" 형태로 간접 추적). 신규 페이지 생성하지 않음 (논문 분석은 research-wiki 별도 vault 로 누적되는 결과물이며 본 wiki 가 그 누적치를 다시 수집할 가치는 낮음)
+  - Note: 5/17 silent fail 후속, 5/18 정상 회복. 신규 룰 없음
+- Skipped: 자동 cron 결과물 자체를 본 wiki 에 페이지로 누적하지 않음 (research-wiki / oss-radar / dev-blog 라는 별도 시스템에 산출물이 누적되며, 본 wiki 는 *프롬프트 룰의 진화* 와 *운영 관찰* 만 추출). AI 논문 분석 / OSS 레포 분석 prompt 템플릿 자체는 일반적이라 신규 룰 흡수 없음
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 14개 session-log 파일 전체 (생성: 0건, 업데이트: analyses 1건 [주간 변형 섹션 신설] + projects 2건 [dev-blog 변경 이력 2항 + sources 5건, oss-radar 변경 이력 1항 + sources 6건])
