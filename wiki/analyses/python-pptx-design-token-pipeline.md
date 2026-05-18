@@ -2,10 +2,13 @@
 title: "python-pptx + 디자인 토큰 PPTX 자동 생성 패턴"
 domain: personal
 sensitivity: public
-tags: ["analysis", "pptx", "python-pptx", "ooxml", "design-tokens", "korean-font-fallback"]
+tags: ["analysis", "pptx", "python-pptx", "ooxml", "design-tokens", "korean-font-fallback", "chart-aspect-ratio", "ppt-quality-metrics"]
 created: 2026-05-17
-updated: 2026-05-17
+updated: 2026-05-18
 source_session: 20260516-212048-3947-json,-yaml,-markdown-형태의-컨텐츠-디스크립션과-수치등이-들어있는-자료를.md
+sources:
+  - "session-logs/20260516-212048-3947-json,-yaml,-markdown-형태의-컨텐츠-디스크립션과-수치등이-들어있는-자료를.md"
+  - "session-logs/20260518-232803-4c55-지금-프로그램으로-자동으로-생성된-out-samsung_full_apple.pptx,-ou.md"
 related:
   - "wiki/projects/auto-pipe-ppt.md"
   - "wiki/analyses/multi-llm-provider-adapter-pattern.md"
@@ -154,6 +157,111 @@ CI 에 LibreOffice 깔리는 게 사실상 필수. 로컬 개발은 PowerPoint/K
 
 디자인 토큰 시스템은 색·폰트뿐 아니라 **좌표·치수도 데이터로 다뤄야** 일관성이 깨지지 않는다.
 
+## PPTX 품질 객관 지표 (unzip 기반)
+
+생성 PPTX 의 품질을 LLM·디자이너의 주관 평가 없이 객관 지표로 비교하려면 **PPTX 를 zip 으로 풀어 슬라이드 XML 의 도형·텍스트·차트 메타를 직접 카운트** 한다. 외부 도구 없이 stdlib 만으로 가능 (`zipfile` + `xml.etree.ElementTree`).
+
+핵심 지표:
+
+| 지표 | 추출 방법 | 해석 |
+|---|---|---|
+| 슬라이드 수 | `ppt/slides/slide*.xml` 파일 수 | 정보량 |
+| 슬라이드당 도형 수 | `<p:sp>` 카운트 / 슬라이드 | 디자인 밀도. 정보형 1장 = 30~40, 데이터형 = 15~25 |
+| 글자 크기 단계 | `a:rPr/@sz` 의 unique 카운트 | **타이포 hierarchy** — 9단계 (8~80pt) = 완성도 高, 4~5단계 = 평탄 |
+| 도형색 종류 | `a:solidFill/a:srgbClr/@val` unique | **컬러 어휘** — 10색 이상 = 인포그래픽급, 5~7색 = 가벼움 |
+| 폰트 종류 | `<a:latin/@typeface>` unique | display + body 2 종이 표준 |
+| 차트 위치·크기 비율 | `<p:graphicFrame>` 의 `a:xfrm` (EMU → px) | 막대·콤보는 1.5~2.5, 레이더는 1.0 정사각 |
+| graphicFrame vs 사진 | `<p:graphicFrame>` vs `<p:pic>` | 차트 vs 이미지 비중 |
+
+샘플 PPT 와 자동 생성 PPT 의 진짜 차이가 어디서 오는지 — Claude/디자이너가 만든 인포그래픽 1장이 디자인 완성도가 높아 보이는 *객관적* 이유는:
+
+1. **컬러 어휘** — `AA2D00 / 0A2E0E / F5E9D4` 같은 채도 있는 카드 fill 이 시각 앵커. 자동 생성물이 `F5F5F7` 단일 회색 카드만 쓰면 단조로워 보임
+2. **타이포 단계** — 8/9/10/11/12/14/36/40/80pt 9단계의 hierarchy. 자동 생성물이 10pt 본문 100+회로 폭주하고 헤드라인 25/42pt 만 있으면 중간 단계 (14·18·24pt) 가 비어 평탄
+3. **디테일 소자** — 1px 디바이더 (`DDDDDD`), 12×12 컬러 칩 범례, 헤더 메뉴 텍스트 같은 잔여소자가 정돈된 인쇄물 느낌. 자동 생성물은 보통 누락
+
+다만 **총 정보가치는 자동 생성물이 보통 압승** — 인포그래픽 1장 vs 10장 구조 + 콤보차트·레이더 같은 고난도 차트는 비교 대상이 다르다. 1장당 디자인 완성도와 총 정보가치는 *분리해 평가*. 자동화 ROI 가 가장 높은 개선은 ① 컬러 카드 컴포넌트 ② 14/18pt 중간 타이포 단계 ③ 빈약한 슬라이드 (도형 < 10) 보강.
+
+## 차트 비율 함정 (가로로 너무 긴 차트)
+
+「풀폭 차트 + 좁은 높이」 는 자동 생성 PPT 의 자주 발생하는 함정. 1280×720 캔버스에서 좌우 마진만 64px 빼고 차트가 1152px 풀폭을 차지하면 높이는 220~260px 만 남는다. 차트 비율 4.4~5.2 의 슬림한 띠 형태가 되어 X축 라벨 + 범례 + 데이터 라벨이 들어갈 세로공간이 부족해 *답답한* 시각.
+
+### 차트 종류별 권장 비율 (w:h)
+
+| 차트 | 권장 비율 | 풀폭 1152px 일 때 권장 높이 | 자주 발생하는 실수 |
+|---|---|---|---|
+| **막대 / 컬럼 / 콤보 (이중축)** | 1.5 ~ 2.5 | 460~770 (불가능) | 풀폭 그대로 220~260 으로 펼침 |
+| **선그래프** | 1.5 ~ 2.5 | 460~770 (불가능) | 풀폭 그대로 펼침 |
+| **레이더** | **1.0 정사각** | 풀폭 부적합 | 가로로 늘려 타원형 왜곡 |
+| **파이 / 도넛** | **1.0 정사각** | 풀폭 부적합 | 가로로 늘려 타원형 |
+| **scatter** | 1.0 ~ 1.5 | — | — |
+
+풀폭 = 차트 부적합. **차트는 절대로 풀폭 점유하지 않는다** 가 1차 룰.
+
+### 좌우 split 패턴 (B+C)
+
+전통 인포그래픽이 풀폭 차트를 피하는 방법: `[차트 | 사이드 카드]` 의 7+5 분할 (또는 6+6).
+
+```
++---- 슬라이드 1152 ----+
+|                       |
+| [차트   620~700 ]  [Insight Card 380~470 ]  |
+|                       |
++----------------------+
+```
+
+차트 폭 ~660px / 사이드 카드 ~470px 로 두면 비율 ~2.0 의 정상치 + 차트 옆에 인사이트 카드가 같이 보여 가독성 ↑. 컴포넌트 시그니처:
+
+```python
+# 추천: Canvas 헬퍼로 split 분리
+def split(self, left_span: int, right_span: int) -> tuple[Box, Box]:
+    """12 컬럼 그리드를 left+right 로 쪼개 두 영역 (x, y, w, h) 를 반환."""
+    ...
+
+# 사용 (render.py)
+left, right = canvas.split(left_span=7, right_span=5)
+draw_chart(slide, ..., x_px=left.x, w_px=left.w)         # 차트
+draw_insight_card(slide, ..., x_px=right.x, w_px=right.w) # 카드
+```
+
+기존 `draw_chart` / `draw_insight` 는 위치 옵션을 받게 확장하되 기본은 풀폭 유지로 하위호환. 인사이트가 풀폭 한 줄로 깔리던 슬라이드를 카드 형태로 바꾸면 자연스럽게 **컬러 카드 컴포넌트** + **중간 타이포 단계 (14·18pt)** 도입의 자리도 생긴다 (위 PPT 품질 절의 결함 3종 중 2종이 동시 해소).
+
+### 레이더는 무조건 정사각
+
+레이더는 가로로 늘리면 축 간 각도가 왜곡돼 데이터 거짓말. 풀폭 영역의 가운데 정렬 + 정사각 (420×420) + 우측에 비교 카드:
+
+```
++---- 슬라이드 1152 ----+
+|       420×420 정사각  |     [비교 카드]
+|       (가운데 정렬)   |
++----------------------+
+```
+
+financial 프리셋 차원에서 차트 유형별 `aspect: "square"` / `"wide"` 메타를 두면, render 가 위치/크기 분기를 자동 처리할 수 있다.
+
+### 회귀 가드
+
+좌우 split 패턴 도입 후엔 회귀 테스트로 못박는다:
+
+```python
+def test_chart_aspect_ratio_within_bounds():
+    for slide in slides_with_chart:
+        w, h = chart_extent_px(slide)
+        ratio = w / h
+        if chart_type(slide) == "radar":
+            assert 0.9 <= ratio <= 1.1, f"radar must be square, got {ratio:.2f}"
+        else:
+            assert 1.5 <= ratio <= 2.5, f"chart too wide/narrow: {ratio:.2f}"
+
+def test_slide_not_sparse(slide_idx):
+    """빈약 슬라이드 회귀 방지 — 도형 ≥ 7, 글자 ≥ 150."""
+    shapes = root.findall(".//p:sp", NS)
+    chars = sum(len(t.text or "") for t in root.findall(".//a:t", NS))
+    assert len(shapes) >= 7, f"slide {slide_idx}: shapes {len(shapes)} (≥ 7 필요)"
+    assert chars >= 150, f"slide {slide_idx}: chars {chars} (≥ 150 필요)"
+```
+
+`≥ 15` 같은 너무 높은 임계값은 카드 디자인을 강제로 비대하게 만든다 — 실제 측정값보다 약간 위로 잡아 빈약 회귀만 막는 게 합리적. 카드 본문을 줄바꿈으로 분리하면 도형·글자 수가 자연 증가한다.
+
 ## 결론
 
 - **Claude 의 "PPT 생성 비결" 은 라이브러리가 아니라 절대좌표 + 컴포넌트 라이브러리** 이다. python-pptx 면 충분
@@ -162,6 +270,8 @@ CI 에 LibreOffice 깔리는 게 사실상 필수. 로컬 개발은 PowerPoint/K
 - **한글이 명조체로 떨어지면 `<a:ea>` / `<a:cs>` 미설정을 의심**. `Apple SD Gothic Neo` (macOS) / `Pretendard` (크로스플랫폼) 박기
 - macOS 자동 시각 검증은 qlmanage 의 첫 슬라이드만. 전체 페이지엔 LibreOffice 헤드리스가 사실상 필수
 - KPI 값 잘림은 카드 높이를 컬럼 전체에 걸쳐 사전 측정해 통일
+- **차트는 풀폭 점유 금지** — 막대·콤보는 비율 1.5~2.5 (좌우 split), 레이더는 정사각 (1.0). 회귀 테스트로 못박을 것
+- PPT 품질은 zip 풀어 도형·텍스트·차트 카운트로 *객관 측정* 가능. 자동 생성물의 부족분은 보통 ① 컬러 어휘 ② 타이포 단계 ③ 디테일 소자
 
 ## 관련 페이지
 

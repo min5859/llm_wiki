@@ -35,6 +35,8 @@ sources:
   - "session-logs/20260518-072522-3ef3-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
   - "session-logs/20260518-072906-691d-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
   - "session-logs/20260518-073052-9857-#-Linux-Kernel-Weekly-Digest-당신은-리눅스-커널-개발-주간-다이제스.md"
+  - "session-logs/20260518-232056-c7c2-오늘은-실패한-포스팅이-많은데-원인이-뭔지-분석해-주세요.md"
+  - "session-logs/20260519-070009-952a-#-Linux-Daily-Newsletter-Rewrite-당신은-리눅스-커널-개발자를-돕.md"
 confidence: high
 updated: 2026-05-18
 related:
@@ -44,6 +46,7 @@ related:
   - "wiki/patterns/cron-nvm-node-path-trap.md"
   - "wiki/patterns/shell-set-eu-topic-isolation.md"
   - "wiki/patterns/prompt-schema-pipeline-coupling.md"
+  - "wiki/patterns/llm-json-parse-retry-with-dump.md"
   - "wiki/analyses/github-pages-base-path-pattern.md"
   - "wiki/analyses/llm-content-quality-guards.md"
   - "wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md"

@@ -4,9 +4,10 @@ domain: personal
 sensitivity: public
 tags: ["project", "pptx", "python-pptx", "design-tokens", "ooxml", "claude-cli", "financial-report"]
 created: 2026-05-16
-updated: 2026-05-17
+updated: 2026-05-18
 sources:
   - "session-logs/20260516-212048-3947-json,-yaml,-markdown-형태의-컨텐츠-디스크립션과-수치등이-들어있는-자료를.md"
+  - "session-logs/20260518-232803-4c55-지금-프로그램으로-자동으로-생성된-out-samsung_full_apple.pptx,-ou.md"
 confidence: high
 related:
   - "wiki/analyses/python-pptx-design-token-pipeline.md"
@@ -127,6 +128,41 @@ LibreOffice (`brew install --cask libreoffice`, ~700MB) 가 없으면 페이지 
 - **qlmanage 는 첫 페이지만** — 2~N 페이지 자동 시각 회귀 검증 부재. LibreOffice 헤드리스가 사실상 필수
 - **재무 프리셋 어댑터 부재 (M5)** — `examples/samsung_summary.json` 같은 도메인 입력을 Deck 으로 자동 변환하는 어댑터가 없어 수동으로 schema 매핑
 
+## 차트 비율 정상화 + s9 빈약 보강 (2026-05-18, M6)
+
+생성된 `samsung_full_apple.pptx` 와 샘플 인포그래픽 (`ppt_sample/ev_market.pptx`, `travel_intro.pptx`) 을 unzip 메타 비교로 객관 측정한 결과 발견된 4 결함을 한 작업 (B+C) 으로 동시 해소.
+
+### 발견된 결함
+
+| # | 결함 | 측정 |
+|---|---|---|
+| 1 | **차트가 가로로 너무 김** | s2/3/5/7/8: **비율 4.43** (1152×260), s4: 4.80, s6: 5.24. 권장 1.5~2.5 |
+| 2 | **s9 (업계비교) 빈약** | 도형 4 / 텍스트 47자. 다른 슬라이드 (도형 20~33) 와 격차 |
+| 3 | **컬러 어휘 단조** | 도형색 7~8종, `F5F5F7` 단일 회색 카드만. 샘플은 10~11종 + 채도 있는 카드 |
+| 4 | **타이포 hierarchy 평탄** | 글자 크기 4~5단계 (10pt 117회 폭주). 샘플은 9단계 (8~80pt) |
+
+### 통합 작업 (B+C 한 번)
+
+| # | 변경 | 위치 | 비고 |
+|---|---|---|---|
+| 1 | `Canvas.split(left_span, right_span)` 헬퍼 신설 | `compose/canvas.py` | 7+5 split → 차트 ~660px / 카드 ~470px |
+| 2 | `Chart` / `Insight` 시그니처에 `x_px`/`w_px` 옵션 추가 | `compose/components/chart.py`, `insight.py` | 기본 풀폭 유지, override 가능 |
+| 3 | `render._draw_slide` 가 `[Chart, Insight]` 페어를 좌우 split 으로 처리 | `compose/render.py` | s6 의 `[Chart, Verdict, Insight]` 는 `[Chart, Insight, Verdict]` 로 순서 변경해 split 페어링 + Verdict 풀폭 양립 |
+| 4 | radar (s9) 정사각 (420×420) 분기 | `render.py` | 차트 폭 = 높이. 우측에 자동 생성 비교 Insight 카드 |
+| 5 | `insight_card` 변형 — accent color + 14/18pt 중간 타이포 | `compose/components/insight.py` | DESIGN.md 의 surface/hairline/radius 토큰 그대로 사용 (임의 색 금지) |
+| 6 | 차트 비율 가드 + s9 빈약 가드 회귀 테스트 추가 | `tests/test_m6_chart_split.py` | `assert 1.5 <= ratio <= 2.5` (radar 만 ~1.0), s9 도형 ≥ 7 / 글자 ≥ 150 |
+
+### 검증
+
+- 차트 비율: s2~s8 = 2.07~2.21 (이전 4.43~5.24), s9 = **1.00** 정사각 (이전 2.74)
+- s9 보강: 도형 4 → 8, 글자 47 → 158
+- 테스트: m6 12 / m5 14 / 전체 78 모두 그린
+
+### 일반 교훈
+
+「풀폭 차트 = 부적합」 이 1차 룰. 막대·콤보는 1.5~2.5, 레이더·파이는 정사각 1.0. 좌우 split 패턴 하나 도입으로 ① 차트 비율 ② 빈약 슬라이드 ③ 컬러 카드 ④ 중간 타이포 단계 4 결함이 동시 해소. 회귀 가드는 임계값을 *측정값보다 약간 위로* 설정 — 너무 높이면 강제로 카드를 비대하게 만들고, 너무 낮으면 회귀 못 막음. 일반 패턴은 [[python-pptx-design-token-pipeline]] 의 「PPTX 품질 객관 지표」/「차트 비율 함정」 두 절로 분리.
+
 ## 변경 이력
 
 - 2026-05-17: 신규 프로젝트 생성. M0/M1/M2/M3 진행. `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성 전략 확정. 한글 폰트 ea/cs fallback fix (L1). 재무 컴포넌트 6종 + 5장 데모. 일반 패턴은 [[python-pptx-design-token-pipeline]] 로 분리 (출처: session-logs/20260516-212048-3947-*)
+- 2026-05-18: 차트 비율 정상화 + s9 빈약 보강 (M6). 생성 PPT 와 샘플 인포그래픽을 unzip 메타로 비교해 4 결함 (차트 비율 4.43~5.24 / s9 도형 4개 / 컬러 어휘 단조 / 타이포 평탄) 발견. `Canvas.split(7, 5)` 헬퍼 + 차트/Insight 위치 옵션 + radar 정사각 + accent insight_card (DESIGN.md 토큰 그대로) + 차트 비율 가드 회귀 테스트 (`test_m6_chart_split.py`, 12 cases). 차트 비율 2.07~2.21 / s9 정사각 1.00 / s9 도형 4→8·글자 47→158. 전체 78 테스트 그린. 일반 패턴은 [[python-pptx-design-token-pipeline]] 의 「PPTX 품질 객관 지표」 + 「차트 비율 함정」 두 절로 분리 (출처: session-logs/20260518-232803-4c55-*)
