@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-18T23:30:00+09:00
+updated: 2026-05-19T20:00:00+09:00
 ---
 
 # Wiki Index
@@ -81,6 +81,7 @@ updated: 2026-05-18T23:30:00+09:00
 - [[nextjs16-use-server-non-async-export]] — Next.js 16 Turbopack 부터 `"use server"` 파일이 async function 외 export (객체/상수) 거부 → runtime 에러로 페이지 깨짐. typecheck 미감지. type-only export 만 안전
 - [[grep-env-var-leak-to-chatlog]] — `grep "NOTION_API_KEY" ~/.zshrc` 진단 한 줄로 시크릿이 LLM 채팅 로그에 그대로 노출된 실 사고. 안전한 검증법은 `${#VAR}` / `[ -n "$VAR" ]` / `grep -q` 만 사용. 키는 즉시 폐기·회전
 - [[highlights-action-validator-schema-drift]] — dev-blog 의 LLM rewrite 출력 스키마 (`action` → `if`/`do`/`verify` 3분해) 변경이 publisher 5종 + weekly + 일부 rewrite validator 갱신과 비동기로 진행되어 5/13 launchd 잡의 10개 토픽 publish 가 모두 silent skip. validator 를 둘 중 하나 허용으로 완화 (build-site 와 동형), 49 테스트 통과 후 publish/rewrite 재실행으로 복구
+- [[absolute-stop-loss-elif-dead-code]] — ht_trading `scoring_strategy.py` 의 절대 손절이 `if … elif` 분기 때문에 dead code. 라이브에서 벤치마크 (KOSPI) 가 항상 붙어 있어 `elif profit_pct <= -absolute_stop_loss_pct` 분기 도달 불가 → `absolute_stop_loss_pct: 0.10` 무효. 상대 손절 -15% → -20% 완화 (D 튜닝) 와 결합되어 *벤치마크 동반 하락기엔 어떤 손실도 컷 못 함*. 화신 -19% / GS -11% 미발동의 직접 원인
 
 ## 요약 (summaries/)
 

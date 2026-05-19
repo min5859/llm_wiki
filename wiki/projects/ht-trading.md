@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-05-18"
+updated: "2026-05-19"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
@@ -27,6 +27,7 @@ related:
   - "wiki/analyses/scoring-version-comparison-methodology.md"
   - "wiki/analyses/dca-trailing-stop-tuning.md"
   - "wiki/analyses/polling-interval-vs-bar-interval.md"
+  - "wiki/bugs/absolute-stop-loss-elif-dead-code.md"
 ---
 
 # ht_trading — 알고리즘 트레이딩 프로젝트
@@ -463,3 +464,4 @@ V3 적용 효과 검증 핵심 지표: 점수 평균 차이 / cutoff 통과율 (
 - 2026-05-12: V3 적용 후 컷오프 캘리브레이션 (commit `50c929c`). V3 첫 적용일부터 컷오프 62 통과 종목 0건 → 매수 중단. V2/V3 30 매칭 종목 비교에서 Spearman ρ=+0.835 / Top-10 교집합 80% 로 **평행이동에 가까운 분포 이동 + 일부 reordering** (SK하이닉스 21→5위, 대한해운 22→9위 등) 확인. 컷오프 62 → 48 로 V3 분포 기준 일평균 5~10건 통과 (과거 빈도 회복). 임시 캘리브레이션이며 forward return 검증은 2~4주 라이브 데이터 누적 후 진행 예정. 백테스트로 V2/V3 비교가 불가능한 이유 (이중 점수 스케일 + 펀더/리서치 과거 시점 재현 불가) 명시. 일반 비교 방법론은 [[scoring-version-comparison-methodology]] 로 분리 (출처: session-logs/20260511-230648-4621-*)
 - 2026-05-14: 운영 주기 정합성 검토. launchd 가 `periodic --interval 10 --market domestic` 로 10분 단위 폴링, `config/trading.yaml: bar_interval: "1d"` 로 일봉 입력. 한국장 6.5h 동안 ~47회 폴링이 동일 일봉을 반복 평가 → 폴링 단축 (10→5분) 만으로는 알파 0 증가, API 호출만 2배. 폴링 주기 단축이 의미를 가지려면 `bar_interval` 도 분봉으로 함께 내려야 한다는 결론. 일봉 유지 시 진짜 레버는 진입/청산 타이밍 (시초가 회피, 종가 근처 분할). 일반 사상은 [[polling-interval-vs-bar-interval]] 으로 분리 (출처: session-logs/20260514-175837-5657-*)
 - 2026-05-18: 현대해상(001450) 매매 거부 사례 — 5/18 09:31~15:20 동안 매 10분마다 BUY 시그널 (52점, 5주, 1/3분할) 이 생성됐지만 모두 `[리스크 거부] 매수 거부: 현대해상 — 리스크 조건 미충족` 으로 차단. 직전 라인의 `RiskManager: 최대 포지션 수 초과: 10/10` 가 결정 사유. **사이에 `max_positions: 5 → 10` 상향 조정이 있었음** (현재 `config/trading.yaml: max_positions: 10`). 그럼에도 장 내내 10종목 (대원강업/대한제분/삼진제약/삼성전자/화신/금호석유화학/GS/한화생명/비에이치/영원무역/동일고무벨트) 가득 → 신규 후보가 들어갈 슬롯 0. 예수금 3,240,679 원은 충분했지만 슬롯 부족이 결정적. **4/24 의 max_positions=5 거부 사례** ([[ht-trading]] 「2026-04-24 리스크 거부 사례 분석」 절) 와 *동일한 구조적 문제* — `max_positions` 만 상향해도 가득 차면 같은 패턴이 재발. 진짜 해결은 「**포지션 교체 (rotation) 로직**」 — 새 시그널 스코어가 기존 보유 최저점보다 높으면 교체. 미구현 (사용자 결정 대기, 백로그 후보). **운영 관찰만, 코드 변경 없음** (출처: session-logs/20260518-233131-6a41-*)
+- 2026-05-19: 같은 세션의 후속 질의 — 「화신 -19%, GS -11% 인데 왜 손절 안 되나」. `scoring_strategy.py:817~833` 의 매도 룰 4종 (상대 손절 / 절대 손절 / 보유기간 / 트레일링) 점검 결과 **절대 손절이 `if … elif` 구조 때문에 dead code** 라는 사실 발견. 벤치마크 (KOSPI 069500) 데이터가 라이브에서 항상 붙어 있어 `elif profit_pct <= -self.absolute_stop_loss_pct:` 분기는 도달 불가. `absolute_stop_loss_pct: 0.10` 설정값은 실효 없음. 게다가 V3 의 D 튜닝으로 `relative_stop_loss_pct: 0.15 → 0.20` 완화 (5/10 commit `d0571c5`) 이 결합돼, **벤치마크 동반 하락기엔 어떤 손실도 컷 못 함**. 화신 (-19%, 5/12 매수, 7일) 과 GS (-11%, 5/15 매수, 4일) 가 정확히 그 케이스. 권장 수정은 `elif` → `if` 로 절대 손절을 병행 검사 + `relative_stop_loss_pct` 0.15 환원 또는 `absolute_stop_loss_pct` 0.08 강화. 일반 교훈은 [[absolute-stop-loss-elif-dead-code]] 로 분리 (벤치마크 의존 손절은 fallback 이 아니라 "추가 가드" 로 설계 / 상대 손절 완화가 절대 손절 dead code 와 결합되면 손절 자체가 꺼진 상태). **사용자 확인까지 코드 변경은 미진행** (출처: session-logs/20260518-233131-6a41-*)

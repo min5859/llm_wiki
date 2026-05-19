@@ -37,8 +37,24 @@ sources:
   - "session-logs/20260518-073052-9857-#-Linux-Kernel-Weekly-Digest-당신은-리눅스-커널-개발-주간-다이제스.md"
   - "session-logs/20260518-232056-c7c2-오늘은-실패한-포스팅이-많은데-원인이-뭔지-분석해-주세요.md"
   - "session-logs/20260519-070009-952a-#-Linux-Daily-Newsletter-Rewrite-당신은-리눅스-커널-개발자를-돕.md"
+  - "session-logs/20260519-070235-f999-#-Android-Kernel-Daily-Briefing-당신은-Android-커널-플랫폼.md"
+  - "session-logs/20260519-070820-89b9-#-Android-Kernel-Daily-Briefing-당신은-Android-커널-플랫폼.md"
+  - "session-logs/20260519-071225-e4ab-#-Open-Source-Trending-Daily-Briefing-당신은-오픈소스-트렌드.md"
+  - "session-logs/20260519-071530-0239-#-Open-Source-Trending-Daily-Briefing-당신은-오픈소스-트렌드.md"
+  - "session-logs/20260519-072035-eb67-#-오픈소스-큐레이션-브리핑-당신은-오픈소스-큐레이터입니다.md"
+  - "session-logs/20260519-072717-a881-#-오픈소스-큐레이션-브리핑-당신은-오픈소스-큐레이터입니다.md"
+  - "session-logs/20260519-072829-a108-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-073334-ec00-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-073731-bb7c-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-074322-43c9-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-074723-c5d9-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-075328-9d97-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-075640-765e-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-080125-a0bd-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-080447-ed0d-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260519-080717-91ce-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
 confidence: high
-updated: 2026-05-18
+updated: 2026-05-19
 related:
   - "wiki/bugs/utc-iso-date-kst-rollover.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
@@ -268,3 +284,4 @@ Error: highlights[0].action required
 - 2026-05-18 (cron 정상 회복): 5/17 의 광범위 silent fail (07:00 dev-blog 7건 + 08:00 research-wiki 2건 + 09:00 oss-radar 5건 모두 `assistant_turns: 0`) 의 후속 — 5/18 같은 호스트의 동시간대 cron 잡은 모두 prompt body 가 정상적으로 발사·기록됐고 (`assistant_turns` 일부는 0~1 분포지만 prompt 자체는 도달), 광범위 silent fail 패턴은 사라짐. 시스템 단 원인 (claude CLI 모델 백엔드 / 네트워크 / OAuth) 이 1일 만에 자동 해소된 것으로 보임. **운영 관찰만, 코드 변경 없음**
 - 2026-05-18 (rewrite 어댑터 견고화, commit `a42d470`): 5/18 launchd 잡 10개 토픽 중 4개 (android, linux-arch-platform, linux-distro-stable, linux-gpu-ai) 가 `parseNewsletterJsonFromAiOutput()` (`scripts/lib/ai-rewrite-adapter.mjs:142`) 에서 동일하게 `Error: AI response did not contain JSON` 으로 죽음. collect·draft 는 모두 `code: 0` 정상 종료, `claude -p` 어댑터 호출 단계에서만 파싱 실패. 동일 `ai-rewrite-lore-lens.mjs` 를 쓰는 6개 lens 중 3개는 성공·3개는 실패라 **코드 버그가 아니라 어댑터의 확률적 실패** (모델이 일부 입력에 대해 JSON 외 텍스트를 섞어 반환). 8 files +157/-38 수정 — (1) `runAiAdapterAndParse(prompt, { defaultAdapter, logLabel, maxAttempts=2, failureDir, runner })` 신설: 어댑터 호출 + 파싱을 묶고 파싱 실패 시 `logs/ai-rewrite-failures/<ts>-<label>-attemptN.txt` 에 raw 텍스트 덤프 (헤더에 label/attempt/timestamp/error 메타) + stderr 경고 + 1회 재시도, 최종 실패는 원래 에러 throw. `AI_REWRITE_FAILURE_DIR` 환경변수 override. (2) newsletter rewrite 호출부 6곳 (opensource / linux / android / opensource-curation / lore-lens / weekly-linux) 일괄 치환. (3) 회귀 테스트 3건 (재시도 성공 / 끝까지 실패 / template null 경로) 추가, 10/10 그린. `parseNewsletterJsonFromAiOutput` / `runAiAdapterPrompt` 는 그대로 export 유지 (하위호환). 일반 패턴은 [[llm-json-parse-retry-with-dump]] 로 분리 (출처: session-logs/20260518-232056-c7c2-*)
 - 2026-05-19 (Linux Daily Newsletter Rewrite 프롬프트): 07:00 cron 의 정기 발사. session-log 본문은 system prompt 만 (assistant 응답 없음, cron 호출 자체로 prompt 도달만 기록). 신규 룰 없음 (5/18 의 [[llm-newsletter-rewrite-metadata-grounding]] 룰 동일). **운영 흔적, 코드 변경 없음** (출처: session-logs/20260519-070009-952a-*)
+- 2026-05-19 (07:00 cron 정상 사이클, 17건): 5/19 launchd 사이클 후속 — Android Kernel Daily Briefing 2건 (07:02 / 07:08), Open Source Trending Daily Briefing 2건 (07:12 / 07:15), 오픈소스 큐레이션 브리핑 2건 (07:20 / 07:27), Linux specialist list lens prompt 11건 (07:28~08:07, lens 토픽만 다른 동일 sample template — 보안·도구체인·RT/eBPF·GPU 등). 일부는 `assistant_turns: 1` 로 실제 파일 생성됨 (07:28 `linux-kernel-security` 보안 렌즈는 FPIN u8 카운터 wrap → DoS 보안 패치를 한 단어 사건으로 잡아 4 highlights · 80자 headline 가드 통과까지 4회 재편집해 완성, 07:37 / 07:47 / 07:56 / 08:01 등도 1턴 응답). **신규 룰 없음**, 모두 5/18 의 [[llm-newsletter-rewrite-metadata-grounding]] 룰 (W1~W4 주간 변형 / 5 변형 — action 3분해 / 7a — title·headline) 그대로 적용. 운영 관찰: 5/17 의 광범위 silent fail (시스템 단 원인 의심) 후 5/18·19 모두 prompt 발사 정상 — 시스템 단 결함은 자동 해소된 상태 유지. **코드 변경 없음** (출처: session-logs/20260519-{070235-f999, 070820-89b9, 071225-e4ab, 071530-0239, 072035-eb67, 072717-a881, 072829-a108, 073334-ec00, 073731-bb7c, 074322-43c9, 074723-c5d9, 075328-9d97, 075640-765e, 080125-a0bd, 080447-ed0d, 080717-91ce}-*)

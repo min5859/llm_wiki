@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-05-17"
+updated: "2026-05-19"
 sources:
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
@@ -22,6 +22,12 @@ sources:
   - "session-logs/20260518-090158-f59e-*.md"
   - "session-logs/20260518-090228-3568-*.md"
   - "session-logs/20260518-090304-cd1c-*.md"
+  - "session-logs/20260519-090053-4874-Reply-with-only--OK.md"
+  - "session-logs/20260519-090100-8b6f-*.md"
+  - "session-logs/20260519-090136-dc98-*.md"
+  - "session-logs/20260519-090206-1b85-*.md"
+  - "session-logs/20260519-090250-026d-*.md"
+  - "session-logs/20260519-090316-89f0-*.md"
 confidence: "high"
 related:
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
@@ -199,3 +205,4 @@ fi
 - 2026-04-30: GITHUB_TOKEN 만료(401) → fine-grained PAT 재발급 + plist에서 `config/.env` 로 시크릿 분리. GitHub Search API의 `topic:` OR 미지원 발견 → 카테고리별 개별 쿼리로 우회 (Search 후보 0 → 422). 출처: session-logs/20260430-134759-328e-*
 - 2026-05-17: 09:00 cron 잡 전체 silent fail — `Reply-with-only--OK` 헬스체크 + 5건 OSS 레포 분석 (continuedev/cli, pinokiocomputer/program-pinokio, microsoft/awesome-copilot, OliveTin/OliveTin, photoprism/photoprism) 모두 `assistant_turns: 0`. claude CLI 가 시작은 했지만 모델 호출이 전부 무응답으로 끝남. 같은 시간대 dev-blog (07:00) / research-wiki (08:00) cron 도 광범위 silent fail 동시 발생 → 시스템 단 원인 의심 (특정 토픽·레포 결함이 아님). 산출물 없음, 코드 변경 없음, 운영 관찰만 기록. (출처: session-logs/20260517-090048-1b9a-* 외 5건)
 - 2026-05-18: 09:00 cron 잡 재가동 — alive 핑 + 5건 OSS 레포 분석 (microsoft/ai-agents-for-beginners 등) prompt 가 모두 정상적으로 발사·기록됨. 5/17 의 광범위 silent fail 패턴은 사라짐 (시스템 단 원인이 1일 만에 해소). prompt 본문은 기존 「한줄 요약 / 주요 기능 / 사용 시나리오 / 기술 스택 / 주목 이유 / 실용성 평가 + 800~1200자」 템플릿 그대로 — 신규 룰 없음. **운영 관찰만, 코드 변경 없음** (출처: session-logs/20260518-090051-c52b-* 외 5건)
+- 2026-05-19: 09:00 cron 정상 사이클 (2일 연속). alive 핑 (`assistant_turns: 1`) + 5건 OSS 레포 분석 prompt (`assistant_turns` 0~1 분포). 분석 prompt 본문은 5/18 과 동일 템플릿. 신규 룰 없음. **운영 관찰만, 코드 변경 없음** (출처: session-logs/20260519-090053-4874-* 외 5건)

@@ -954,3 +954,37 @@ updated: 2026-05-18T23:30:00+09:00
 - Skipped: 자동 cron 결과물 자체를 본 wiki 에 페이지로 누적하지 않음 (research-wiki / oss-radar / dev-blog 라는 별도 시스템에 산출물이 누적되며, 본 wiki 는 *프롬프트 룰의 진화* 와 *운영 관찰* 만 추출). AI 논문 분석 / OSS 레포 분석 prompt 템플릿 자체는 일반적이라 신규 룰 흡수 없음
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 14개 session-log 파일 전체 (생성: 0건, 업데이트: analyses 1건 [주간 변형 섹션 신설] + projects 2건 [dev-blog 변경 이력 2항 + sources 5건, oss-radar 변경 이력 1항 + sources 6건])
+
+## 2026-05-19T20:00 — wiki-ingest (session-logs, ingested: false 27건)
+
+- 대상 27건 분류:
+  - **ht_trading 디버깅 (1건, 핵심)**: 5/18 23:31 시작된 「현대해상 매매 거부 원인 분석」 세션. 첫 질의는 max_positions 10/10 한도 — 이미 5/18 ingest 에서 기록됨. 같은 세션 5/19 09:29~09:34 의 후속 질의 「화신 -19%, GS -11% 인데 왜 손절을 안 하나」에서 **scoring_strategy.py:817~833 의 절대 손절 `elif` dead code** 발견 (벤치마크 항상 존재 → `elif profit_pct <= -absolute_stop_loss_pct:` 도달 불가, absolute_stop_loss_pct=0.10 설정값 무효). 상대 손절 V3 D 튜닝 (-15% → -20%) 과 결합되어 *벤치마크 동반 하락기 손절 전부 꺼짐*
+  - **단발 메모 1건**: 5/18 23:38 「자동화하면 좋은 것들」 — 14자 user prompt 만 있고 assistant 응답 없음. 후속 작업 없는 메모, ingest 가치 없음
+  - **dev-blog 07:00 cron 사이클 (17건)**: Linux Daily 1 + Android 2 + OSS Trending 2 + OSS Curation 2 + Linux specialist list lens 10. 일부 (보안 렌즈 등) 는 실제 게시 JSON 생성, 나머지는 prompt 발사만 기록 (`assistant_turns: 0`). 5/18 의 [[llm-newsletter-rewrite-metadata-grounding]] 룰 (W1~W4 주간 변형 / 5 변형 — action 3분해 / 7a — title·headline) 그대로 적용, **신규 룰 없음**. 5/17 의 광범위 silent fail 후 5/18·19 모두 정상 — 시스템 단 결함 해소 유지
+  - **research-wiki 08:00 cron (3건)**: alive 핑 + 2건 AI 논문 분석 prompt (`assistant_turns: 0`, 산출물 없음). prompt 본문은 기존 「한줄 요약 / 배경 / 방법론 / 결과 / 한계 / 적용성 / 관련 논문 + 1000~1500자」 템플릿 그대로
+  - **oss-radar 09:00 cron (6건)**: alive 핑 + 5건 OSS 레포 분석 prompt. prompt 본문은 기존 템플릿 그대로, 신규 룰 없음
+- Source: session-logs/20260518-233131-6a41-오늘-현대해상의-매매가-계속-거부되었는데-원인을-분석해-주세요.md (5/18~5/19 양일에 걸친 ht_trading 디버깅, 503 라인)
+  - Project: ht_trading
+  - Note: max_positions 한도 거부 (5/18 ingest 완료) + 절대 손절 elif dead code 발견 (5/19 ingest, **신규**). 권장 수정 `elif → if` 는 사용자 확인 대기로 미진행
+  - Created: wiki/bugs/absolute-stop-loss-elif-dead-code.md
+    — 위치 (scoring_strategy.py:817~833) / 분기 구조 / 발견 경위 (화신 -19%, GS -11% 미발동) / 매도 룰 4종 대조표 / 권장 패치 / 일반 교훈 (벤치마크 의존 손절은 fallback 이 아니라 "추가 가드", 상대 손절 완화 + 절대 손절 dead code = 손절 꺼짐, if/elif 의 상호 배타 의도 vs fallback 구분)
+  - Updated: wiki/projects/ht-trading.md (frontmatter `updated: 2026-05-19`, related 에 bug 페이지 추가, 변경 이력 「2026-05-19」 항목 — elif dead code 발견과 V3 D 튜닝 결합 효과)
+  - Updated: wiki/index.md (bugs 섹션에 [[absolute-stop-loss-elif-dead-code]] 항목 추가, frontmatter updated)
+- Source: session-logs/20260519-070009-952a-*.md 외 dev-blog cron 17건
+  - Project: dev-blog
+  - Note: 5/19 launchd 사이클의 정상 발사. Android 2 + OSS Trending 2 + OSS Curation 2 + Linux specialist list lens 10 + Weekly daily (이미 ingest 됨). 보안 렌즈 (07:28) 는 FPIN u8 카운터 wrap DoS 보안 패치를 핵심 사건으로 잡아 4 highlights · 80자 headline 가드 통과까지 4회 재편집해 완성한 사례 — 신규 룰 흡수 없음, 5/18 의 분석 페이지 룰 그대로 통과
+  - Updated: wiki/projects/dev-blog.md (frontmatter sources 17건 추가 + `updated: 2026-05-19` + 변경 이력 「2026-05-19 07:00 cron 정상 사이클, 17건」 항목)
+- Source: session-logs/20260519-080023-b933-Reply-with-only--OK.md + 080028-2446-*.md + 080116-a9a0-*.md (research-wiki 08:00 cron 3건)
+  - Project: research-wiki (별도 vault, 본 wiki 에 project 페이지 없음)
+  - Note: alive 핑 + 논문 분석 prompt 2건 모두 `assistant_turns: 0`. 본 wiki 에 페이지 생성하지 않음 (논문 분석 결과물은 research-wiki vault 에 누적). 본 ingest 에서는 wiki/log.md 의 기록으로만 추적
+  - Skipped: project 페이지 생성 보류 (5/18 ingest 와 동일 방침)
+- Source: session-logs/20260519-090053-4874-Reply-with-only--OK.md 외 oss-radar 6건
+  - Project: oss-radar
+  - Note: alive 핑 + 5건 OSS 레포 분석 prompt. 신규 룰 없음
+  - Updated: wiki/projects/oss-radar.md (frontmatter sources 6건 추가 + `updated: 2026-05-19` + 변경 이력 「2026-05-19 09:00 cron 정상 사이클 (2일 연속)」 항목)
+- Source: session-logs/20260518-233810-d326-자동화하면-좋은-것들.md
+  - Project: (없음, cwd=/Users/wooki/question)
+  - Note: 14자 user prompt 만 있고 assistant 응답 없음. 후속 작업 없는 단발 메모. ingest 대상 외이지만 ingested: true 로만 마킹
+  - Skipped: 페이지 생성·갱신 없음
+- Updated: wiki/index.md, wiki/log.md
+- Marked ingested: true — 27개 session-log 파일 전체 (생성: bugs 1건 [absolute-stop-loss-elif-dead-code], 업데이트: projects 3건 [ht-trading 변경 이력 + bugs related, dev-blog sources 17건 + 변경 이력, oss-radar sources 6건 + 변경 이력] + index 1건)
