@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-05-19"
+updated: "2026-05-20T11:00:00+09:00"
 sources:
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
@@ -28,11 +28,22 @@ sources:
   - "session-logs/20260519-090206-1b85-*.md"
   - "session-logs/20260519-090250-026d-*.md"
   - "session-logs/20260519-090316-89f0-*.md"
+  - "session-logs/20260520-081411-b945-현재-AI-provider-가-claude--p-로-되어-있는데-이것을-추가로-agent.md"
+  - "session-logs/20260520-090050-2ca8-Reply-with-only--OK.md"
+  - "session-logs/20260520-090056-d5ba-*.md"
+  - "session-logs/20260520-090135-b97d-*.md"
+  - "session-logs/20260520-090207-d50a-*.md"
+  - "session-logs/20260520-090256-d5cb-*.md"
+  - "session-logs/20260520-090323-1fc8-*.md"
+  - "session-logs/20260520-080026-642d-Reply-with-only--OK.md"
+  - "session-logs/20260520-080032-df25-*.md"
+  - "session-logs/20260520-080123-4d77-*.md"
 confidence: "high"
 related:
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
   - "wiki/patterns/launchd-secret-management.md"
   - "wiki/analyses/github-search-api-topic-or-limitation.md"
+  - "wiki/analyses/karpathy-claude-md-skills.md"
 ---
 
 # oss-radar — 주간 GitHub OSS 발굴 파이프라인
@@ -206,3 +217,6 @@ fi
 - 2026-05-17: 09:00 cron 잡 전체 silent fail — `Reply-with-only--OK` 헬스체크 + 5건 OSS 레포 분석 (continuedev/cli, pinokiocomputer/program-pinokio, microsoft/awesome-copilot, OliveTin/OliveTin, photoprism/photoprism) 모두 `assistant_turns: 0`. claude CLI 가 시작은 했지만 모델 호출이 전부 무응답으로 끝남. 같은 시간대 dev-blog (07:00) / research-wiki (08:00) cron 도 광범위 silent fail 동시 발생 → 시스템 단 원인 의심 (특정 토픽·레포 결함이 아님). 산출물 없음, 코드 변경 없음, 운영 관찰만 기록. (출처: session-logs/20260517-090048-1b9a-* 외 5건)
 - 2026-05-18: 09:00 cron 잡 재가동 — alive 핑 + 5건 OSS 레포 분석 (microsoft/ai-agents-for-beginners 등) prompt 가 모두 정상적으로 발사·기록됨. 5/17 의 광범위 silent fail 패턴은 사라짐 (시스템 단 원인이 1일 만에 해소). prompt 본문은 기존 「한줄 요약 / 주요 기능 / 사용 시나리오 / 기술 스택 / 주목 이유 / 실용성 평가 + 800~1200자」 템플릿 그대로 — 신규 룰 없음. **운영 관찰만, 코드 변경 없음** (출처: session-logs/20260518-090051-c52b-* 외 5건)
 - 2026-05-19: 09:00 cron 정상 사이클 (2일 연속). alive 핑 (`assistant_turns: 1`) + 5건 OSS 레포 분석 prompt (`assistant_turns` 0~1 분포). 분석 prompt 본문은 5/18 과 동일 템플릿. 신규 룰 없음. **운영 관찰만, 코드 변경 없음** (출처: session-logs/20260519-090053-4874-* 외 5건)
+- 2026-05-20 (AI provider 다중화 계획): `src/analyze.sh` 가 현재 `claude -p` 단일 호출이라 [[cursor-agent-cli-overview|cursor-agent]] 등 다른 print-mode CLI 로 옵셔널 전환 가능하도록 어댑터 레이어 도입을 계획. 두 CLI 모두 `-p/--print` (non-interactive), `--model`, `--output-format text|json` 호환 인터페이스를 갖고 있어 `MODEL`·`AI_AGENT` 환경변수 분기 한 곳으로 묶을 수 있음 (dev-blog 의 `resolveAiAdapter` 응집 패턴 참조). plan 파일 `~/.claude/plans/ai-provider-zazzy-elephant.md` 만 작성하고 실제 코드 변경은 보류. (출처: session-logs/20260520-081411-b945-*)
+- 2026-05-20 (09:00 cron): alive 핑 1건 + 5건 OSS 레포 분석 (affaan-m/ECC, multica-ai/andrej-karpathy-skills, HKUDS/CLI-Anything, frappe/erpnext, humanlayer/12factor-agents 추정). **`multica-ai/andrej-karpathy-skills` 1건만 `assistant_turns: 1` 로 실제 분석 완성**, 나머지 4건은 `assistant_turns: 0` (입력 길이·rate-limit·모델 단발 미응답 추정). 한 사이클 내에서 산발적 미응답이 다시 관찰됨 — 5/17 의 광범위 silent fail 과 달리 부분 실패 패턴. 산출물 1건은 [[karpathy-claude-md-skills]] 로 분리. **운영 관찰 + analyses 페이지 신설, 코드 변경 없음** (출처: session-logs/20260520-09005*-{d5ba,b97d,d50a,d5cb,1fc8}-*)
+- 2026-05-20 (companion: 08:00 research-wiki silent fail): 같은 호스트의 08:00 research-wiki cron 도 alive 핑 + 2건 논문 분석 prompt (arXiv 2605.18747 "Code as Agent Harness" / arXiv 2605.18401 "SkillsVote") 가 모두 `assistant_turns: 0` 으로 단발 무응답. 5/17 의 광범위 silent fail 과 달리 `dev-blog` 07:00 사이클은 13건 중 6건이 `assistant_turns: 1` 로 정상 (혼합 분포). **시스템 단 원인이 아니라 prompt 길이·rate-limit·모델 단발 미응답이 사이클별로 산발하는 부분 실패** 패턴이라는 진단 신호를 보강. 코드 변경 없음, 신규 분석 페이지 없음 (assistant turn 0 인 prompt 에서는 추출 가능한 산출물 부재). (출처: session-logs/20260520-080026-642d-*, 20260520-080032-df25-*, 20260520-080123-4d77-*)

@@ -1,9 +1,29 @@
 ---
 title: Operation Log
-updated: 2026-05-18T23:30:00+09:00
+updated: 2026-05-20T11:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-20T11:00 — wiki-ingest (session-logs, ingested: false 23건)
+
+처리 0건 (의미 있는 신규 산출 없음 — 23건 중 대부분이 이전 일자 ingest 사이클에서 이미 changelog 형태로 흡수됨), 운영 관찰 기록 1건. 신규 페이지 0건, 기존 페이지 갱신 2건 (`projects/oss-radar`, `index`). raw-sources/ 신규 .md 없음 (서브디렉터리 articles/ books/ ideas/ papers/ transcripts/ 비어 있음, Tips/ 8 PDF 모두 기존 wiki/patterns/ 페이지에 이미 매핑), `.cache/extracted/` 디렉터리 없음 (PDF chunk 추출 미실행).
+
+- **23건 분포**:
+  - 07:00–07:40 dev-blog 13건 (Linux Daily 1 + OSS Trending 1 + OSS Curation 2 + Linux specialist list lens 9) — `assistant_turns` 0~1 분포 혼합. 이미 `wiki/projects/dev-blog.md` 의 2026-05-20 changelog 항목으로 흡수 완료 (이전 사이클에서 처리)
+  - 08:00–08:01 research-wiki 3건 (alive ping + 논문 분석 2: arXiv 2605.18747 "Code as Agent Harness", arXiv 2605.18401 "SkillsVote") — 모두 `assistant_turns: 0` (silent fail). 산출물 없으므로 신규 분석 페이지 없음
+  - 08:14 oss-radar AI provider 다중화 계획 1건 — 이미 [[cursor-agent-cli-overview]] 신규 페이지 + `wiki/projects/oss-radar.md` 의 5/20 changelog 로 흡수 완료 (이전 사이클)
+  - 09:00–09:03 oss-radar 6건 (alive + OSS 분석 5: ECC / karpathy-skills / CLI-Anything / erpnext / 12-factor-agents) — `karpathy-skills` 1건만 `assistant_turns: 1` 로 [[karpathy-claude-md-skills]] 신규 페이지로 흡수 완료, 나머지 4건은 `assistant_turns: 0`. 이미 oss-radar 5/20 changelog 에 흡수 완료 (이전 사이클)
+
+- **이번 사이클의 신규 운영 관찰** — 08:00 research-wiki 2건의 silent fail 을 `oss-radar` 의 2026-05-20 changelog 에 companion observation 으로 추가. **부분 silent fail 패턴의 진단 신호 보강**: 같은 호스트의 dev-blog 07:00 사이클은 13건 중 6건 정상 (혼합), 08:00 research-wiki 는 2건 모두 silent, 09:00 oss-radar 는 5건 중 1건만 정상 — 시스템 단 (5/17 의 광범위 silent fail 같은) 원인이 아니라 prompt 길이 / rate-limit / 모델 단발 미응답이 사이클별로 산발하는 *부분 실패* 패턴
+
+- **index.md 누락 보정** — 최근 신규 페이지 3건 ([[cursor-agent-cli-overview]] / [[karpathy-claude-md-skills]] / [[llm-json-parse-retry-with-dump]]) 이 디스크에는 있으나 `wiki/index.md` 분석/패턴 섹션에 누락 → 한 줄씩 추가
+
+- **Updated**: `wiki/projects/oss-radar.md` — sources 에 5/20 08시대 3건 추가, 변경 이력에 「2026-05-20 (companion: 08:00 research-wiki silent fail)」 한 줄 기록 (부분 실패 패턴 진단 신호 보강), updated 타임스탬프 갱신
+- **Updated**: `wiki/index.md` — analyses 섹션에 [[cursor-agent-cli-overview]] / [[karpathy-claude-md-skills]] 한 줄씩 추가, patterns 섹션에 [[llm-json-parse-retry-with-dump]] 한 줄 추가, updated 갱신
+
+- raw-sources/ 신규 .md 없음 확인: articles/ books/ ideas/ papers/ transcripts/ 모든 서브디렉터리 .md 0건. `Tips/` 의 PDF 8개는 5/17 사이클에서 이미 매핑 완료. `.cache/extracted/` 디렉터리 없음 (PDF chunk 추출 미실행), raw-sources/<subdir>/fetched/ 없음, type: mcp-note 인 session-log 0건
+- Marked ingested: true — 23개 session-log 파일 전체 (의미 있는 신규 산출 0 — 대부분 이전 사이클 흡수, 추가 운영 관찰 1건만 oss-radar changelog 로 흡수)
 
 ## 2026-05-17T10:00 — wiki-ingest (session-logs, ingested: false 16건)
 

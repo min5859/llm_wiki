@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-19T20:00:00+09:00
+updated: 2026-05-20T11:00:00+09:00
 ---
 
 # Wiki Index
@@ -152,3 +152,6 @@ updated: 2026-05-19T20:00:00+09:00
 - [[su-01-olympiad-reasoning]] — 30B-A3B (활성 3B) 모델이 「역퍼플렉시티 SFT + Coarse RL + Refined RL (DeepSeekMath-V2 보상 + 자기수정 20% / 경험재생 25% 버퍼) + TTS 30사이클 × 10회」 의 *컴포넌트 재배열* 만으로 IMO 2025 / USAMO 2026 금메달 (35점 동점 1위) 달성 (arXiv 2605.13301)
 - [[python-pptx-design-token-pipeline]] — JSON/YAML + 디자인 토큰 → 편집 가능 PPTX 자동 생성 범용 패턴: PPTX 라이브러리 5종 비교 (python-pptx 1순위 + OOXML 직접 작성으로 콤보·레이더 보완), 이중 입력 어댑터 (YAML / CSS :root), role resolver, 한글 ea/cs typeface fix (`Apple SD Gothic Neo` 미설정 시 macOS 명조체로 fallback), EMU 좌표 환산, qlmanage 첫 슬라이드 한계 (CI 에 LibreOffice 헤드리스 필수), KPI wrap 함정
 - [[llm-newsletter-rewrite-metadata-grounding]] — LLM 뉴스레터 rewrite 의 메타데이터 그라운딩 베스트 프랙티스 10 룰: candidateBodies 종류별 처리 (commit message vs 백포트 목록), history.previousVersion vs previouslySeenAt 차별, fromMaintainer 권한 단서, maintainerComments 톤 3분류, action 조건절+검증단서 강제, 본문 4섹션·priority 분포·summary 2문장 제약, 입력 키 보존·candidateBodies 출력 금지. dev-blog Linux Daily Rewrite 프롬프트의 진화에서 일반화
+- [[cursor-agent-cli-overview]] — Cursor 의 비대화형 `cursor-agent -p`: `claude -p` 와 옵션 호환 (print / output-format / model / continue / resume), 멀티 모델 (gpt-5, sonnet-4) + `CURSOR_API_KEY` 인증. `resolveAiAdapter` 한 함수 분기로 claude/cursor 옵셔널 전환. provider 다중화는 *완화* 일 뿐 — fallback 체인 + retry-with-dump 와 같이 가야
+- [[karpathy-claude-md-skills]] — multica-ai/andrej-karpathy-skills (Karpathy CLAUDE.md 큐레이션): SKILL.md frontmatter 1줄 자동 로드, `code-organization` / `git-pre-commit` / `python-style` / `nanochat-design` 4 카테고리. CLAUDE.md 가 컨벤션 강제 인터페이스가 되어가는 흐름
+- [[llm-json-parse-retry-with-dump]] — LLM JSON 출력 파싱 실패의 1회 재시도 + 원문 덤프 패턴: `runAiAdapterAndParse(prompt, { logLabel, maxAttempts=2, failureDir })` 단일 진입점. 어댑터·파싱 묶음 + 파싱 실패 시 `logs/ai-rewrite-failures/<ts>-<label>-attemptN.txt` 에 raw 텍스트 덤프 → 사후 분석 가능. dev-blog 의 6 rewrite 호출부 일괄 적용 (5/18 commit `a42d470`)
