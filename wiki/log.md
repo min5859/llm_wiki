@@ -1008,3 +1008,21 @@ updated: 2026-05-20T11:00:00+09:00
   - Skipped: 페이지 생성·갱신 없음
 - Updated: wiki/index.md, wiki/log.md
 - Marked ingested: true — 27개 session-log 파일 전체 (생성: bugs 1건 [absolute-stop-loss-elif-dead-code], 업데이트: projects 3건 [ht-trading 변경 이력 + bugs related, dev-blog sources 17건 + 변경 이력, oss-radar sources 6건 + 변경 이력] + index 1건)
+
+## 2026-05-21T10:00 — wiki-ingest (session-logs, ingested: false 9건)
+
+- 대상 9건 분류 (전부 동일 호스트 wookiui-Macmini 의 5/21 자동 cron 사이클 결과물, 사람 결정·디버깅·구현 없음):
+  - **research-wiki 08:00 cron (3건, 전부 silent)**: alive 핑 1건 (`assistant_turns: 0`) + AI 논문 분석 prompt 2건 (arXiv 2605.13527 "MMSkills — Multimodal Skills for General Visual Agents" Shanghai Jiao Tong/Xiaohongshu / arXiv 2605.18739 "LongLive-2.0 — NVFP4 Parallel Infrastructure for Long Video Generation" NVIDIA, 둘 다 `assistant_turns: 0`). 3건 전부 미응답 종료, 산출물 0
+  - **oss-radar 09:00 cron (6건, 1/5 정상)**: alive 핑 (`assistant_turns: 1`) + 5건 OSS 레포 분석 prompt (freeCodeCamp/devdocs, explosion/spaCy, RSSNext/Folo, refinedev/refine, lapce/lapce). **Folo 1건만 `assistant_turns: 1` 로 응답 완성**, 나머지 4건은 단발 미응답. 5/20 의 「1/5 정상 + 4/5 단발 미응답」 부분 실패 분포가 2일 연속 재현
+- Source: session-logs/20260521-080025-9af9-Reply-with-only--OK.md (research-wiki alive 핑) + 080031-f864-*.md (MMSkills 논문 분석 prompt) + 080132-6917-*.md (LongLive-2.0 논문 분석 prompt)
+  - Project: research-wiki (별도 vault, 본 wiki 에 project 페이지 없음 — 5/18·19·20 ingest 와 동일 방침으로 페이지 생성 보류)
+  - Note: 3건 전부 `assistant_turns: 0` 으로 prompt 발사·미응답 종료. prompt 본문은 기존 「한줄 요약 / 배경 / 방법론 / 결과 / 한계 / 적용성 / 관련 논문 + 1000~1500자」 템플릿 그대로 (신규 룰 없음). 산출물 0
+  - Updated: wiki/projects/oss-radar.md (companion 항목 — 같은 호스트의 oss-radar 사이클이 1/5 정상이라 호스트·시스템 단 광범위 결함은 아니고, prompt 입력이 더 긴 research-wiki 쪽이 단발 미응답에 더 취약하다는 진단 신호로 묶어 기록)
+  - Skipped: 신규 페이지 생성 없음 (논문 분석 결과 0건, 추출 가능한 산출물 부재)
+- Source: session-logs/20260521-090055-7fda-Reply-with-only--OK.md (oss-radar alive 핑) + 090100-f8ec-*.md (devdocs) + 090133-b561-*.md (spaCy) + 090207-5ad9-*.md (Folo) + 090246-e375-*.md (refine) + 090328-c564-*.md (lapce)
+  - Project: oss-radar
+  - Note: alive 핑 + 5건 OSS 레포 분석 prompt. RSSNext/Folo 1건만 `assistant_turns: 1` 로 응답 완료, 나머지 4건 (devdocs / spaCy / refine / lapce) 은 단발 미응답. prompt 본문은 기존 OSS 분석 템플릿 그대로 (신규 룰 없음)
+  - Updated: wiki/projects/oss-radar.md (frontmatter sources 9건 추가 [oss-radar 6건 + research-wiki 3건 companion] + `updated: 2026-05-21T10:00:00+09:00` + 변경 이력 「2026-05-21 09:00 cron」 항목 + 「2026-05-21 companion: 08:00 research-wiki 전체 silent fail」 항목)
+- Skipped: 자동 cron 결과물 자체를 본 wiki 에 페이지로 누적하지 않음 (5/18·19·20 ingest 와 동일 방침). 신규 룰·코드 변경·버그·디버깅 신호 모두 없음
+- Updated: wiki/index.md (updated 갱신), wiki/log.md
+- Marked ingested: true — 9개 session-log 파일 전체 (생성: 0건, 업데이트: projects 1건 [oss-radar sources 9건 + 변경 이력 2항] + index 1건)
