@@ -4,15 +4,17 @@ domain: both
 sensitivity: public
 tags: ["analysis", "macos", "disk-cleanup", "cache", "claude-desktop", "homebrew", "playwright"]
 created: "2026-05-14"
-updated: "2026-05-14"
+updated: "2026-05-22"
 source_session: "20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md"
 sources:
   - "session-logs/20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md"
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
+  - "session-logs/20260522-234234-bc6e-disk-monitoring-내용을-분석해-주세요,.md"
 confidence: high
 related:
   - "wiki/projects/disk-monitor.md"
   - "wiki/analyses/anthropic-oauth-third-party-billing-trap.md"
+  - "wiki/patterns/disk-monitor-blind-spot-coverage.md"
 ---
 
 # macOS 디스크 정리 — 캐시 카테고리 분류 + Claude Desktop 의 vm_bundles 정체
@@ -131,11 +133,41 @@ echo "=== AFTER ===" && df -k / | awk 'NR==2{printf "free: %.2f G\n", $4/1024/10
 
 **보존 결정**: vm_bundles (Cowork 종종 사용), `claude-code/2.1.128`, `local-agent-mode-sessions/`, `~/Library/Caches/com.openai.codex`
 
+## HOME 아래 도구 캐시 (`~/Library` 밖)
+
+`~/Library/Caches` 만 보면 놓치는 큰 캐시 — 패키지 매니저 / 도구체인은 dotfile 디렉터리 (`~/.<도구>`) 를 쓴다.
+
+| 항목 | 정체 | 정리 명령 | 카테고리 |
+|---|---|---|---|
+| `~/.npm` | npm `_cacache` | `npm cache clean --force` | 자동 재생성 (다음 install 시) |
+| `~/.cache/uv` | uv wheel/source 캐시 | `uv cache clean` | 자동 재생성 |
+| `~/.cache/puppeteer` | Puppeteer 가 받은 Chrome | 수동 삭제 | 다음 사용 시 재다운로드 |
+| `~/.cache/huggingface` | HF Hub 모델 | 수동 삭제 | 다음 사용 시 재다운로드 |
+| `~/.cache/chroma` | Chroma 벡터 DB | **건드리지 말 것** | 실데이터일 가능성 |
+| `~/.cargo` | Rust registry 캐시 + 바이너리 | `cargo cache --autoclean` | 자동 재생성 |
+| `~/.rustup` | Rust toolchain 본체 | `rustup toolchain remove` 선별 | 다음 빌드 시 재다운로드 |
+| `~/.docker`, `~/.colima` | 컨테이너 디스크 이미지 | 도구별 prune | 데이터 + 캐시 혼재 |
+
+`disk_monitor` 의 기본 추적 경로에 `~/.npm` `~/.cache` `~/.nvm` `~/.cargo` `~/.rustup` 가 2026-05-22 보강 추가됨. 사각지대 진단 패턴은 [[disk-monitor-blind-spot-coverage]].
+
+### uv cache 의 stale `.lock`
+
+`uv cache clean` 이 `.lock` 때문에 실패할 때:
+
+```bash
+ps -eo pid,etime,command | grep [u]v   # 활성 프로세스 확인
+ls -la ~/.cache/uv/.lock                # mtime 확인
+```
+
+활성 uv 가 없고 lock 이 수 개월 전이면 `uv cache clean --force` 안전. 비정상 종료된 흔적.
+
 ## 관련 맥락
 
 - 디스크 모니터링 도구의 구체적 구현은 [[disk-monitor]]
+- 사각지대 진단 + `du` timeout fallback 은 [[disk-monitor-blind-spot-coverage]]
 - macOS Sparkle 자동 업데이트의 동작 방식 (ShipIt 캐시의 출처) 은 본 항목 외에는 정리된 페이지 없음 — 필요 시 신규 작성 후보
 
 ## 변경 이력
 
 - 2026-05-14: 최초 생성. disk_monitor 첫 운영 시 캐시 정리 + Claude Desktop vm_bundles 분석 기반 (출처: session-logs/20260514-215345, 20260514-220947)
+- 2026-05-22: HOME 아래 도구 캐시 (`~/.npm` `~/.cache/uv` 등) 카테고리 보강, uv `.lock` stale 처리 메모 추가 (출처: session-logs/20260522-234234-bc6e)
