@@ -4,16 +4,18 @@ domain: personal
 sensitivity: public
 tags: ["project", "disk-monitor", "macos", "launchd", "python", "cli"]
 created: "2026-05-14"
-updated: "2026-05-14"
+updated: "2026-05-22"
 sources:
   - "session-logs/20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md"
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
+  - "session-logs/20260522-234234-bc6e-disk-monitoring-내용을-분석해-주세요,.md"
 confidence: high
 related:
   - "wiki/patterns/launchd-plist-symlink-from-project.md"
   - "wiki/analyses/macos-disk-cleanup-cache-classification.md"
   - "wiki/patterns/launchd-secret-management.md"
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
+  - "wiki/patterns/disk-monitor-blind-spot-coverage.md"
 ---
 
 # disk_monitor — 일일 디스크 사용량 모니터링
@@ -112,6 +114,43 @@ python3 disk_monitor.py uninstall    # 해제 (symlink + 마스터 plist 양쪽 
 
 상세한 macOS 캐시 카테고리 분류와 Claude Desktop 디스크 분포는 [[macos-disk-cleanup-cache-classification]].
 
+## 두 번째 운영 회고 (2026-05-22)
+
+1주일 운영 후 처음 의미 있는 free 감소 (-18.4G, 123.6 → 105.2 GB) 가 나왔는데, **모니터링 경로 내 변화 합은 -1.4G**. **약 17G 가 사각지대에서 증가**한 셈이다. 패턴과 대응은 [[disk-monitor-blind-spot-coverage]] 로 일반화. 이 세션에서 코드/config 가 다음과 같이 보강됨.
+
+### 추적 경로 보강 (18 → 23)
+
+config 와 스크립트 기본값 양쪽에 추가:
+
+```
+~/.npm        # npm 캐시 (이번 케이스 7.2G → cleanup 후 1.9G)
+~/.cache      # uv, puppeteer, codex-runtimes 등 다양한 도구 (6.2G)
+~/.nvm        # Node 버전들 (1.0G)
+~/.cargo      # Rust registry 캐시 (240M)
+~/.rustup     # Rust toolchain (525M)
+```
+
+### `du` timeout fallback (disk_monitor.py:47)
+
+기존: `du -d 1 <path>` 가 timeout 나면 그 경로는 **통째로 누락**됨 → 변화 추적 불가.
+
+수정: timeout 시 `du -d 0 <path>` (루트 사이즈만) 로 재시도. depth=1 은 잃어도 루트 size 는 기록되어 diff 추적은 유지.
+
+이전 launchd 자동 스캔 (`scan.err`) 에 `! timeout: ~/Downloads`, `! timeout: ~/Library/Containers` 등 다발 — 비정상 부하 시점에 발생한 일시 현상으로 보임. fallback 도입 후엔 그래도 root size 는 잡힌다.
+
+### 회수 결과 (2026-05-22)
+
+- `npm cache clean --force` → 7.2G → 1.9G (**5.3G 회수**)
+- `uv cache clean --force` → 4.6G → 0B (**4.1G 회수**, stale `.lock` 무시)
+- 합 ~9.4G
+
+`uv cache` 의 `.lock` 파일이 stale 한 케이스 — `ps -eo pid,etime,command | grep [u]v` 에 활성 프로세스 없고 `.lock` mtime 이 수개월 전이면 `--force` 안전.
+
+### 비존재 폴더 오인
+
+`config.json` 에 있던 `~/Library/Developer`, `~/Library/Mobile Documents` 가 `! timeout` 으로 잡혀 사각지대로 의심됐지만 실제로는 **둘 다 폴더 자체가 없음** (Xcode 미설치, iCloud Drive 비활성). config 청소 후보.
+
 ## 변경 이력
 
 - 2026-05-14: 최초 생성. disk_monitor.py 작성, 첫 baseline 스냅샷, launchd 등록, plist 프로젝트 폴더 이전, 첫 캐시 정리 (3.23G 회수)
+- 2026-05-22: 1주일 운영 후 사각지대 발견 (`.npm` `.cache` 등), config 18→23 경로 확장, `du` timeout fallback (depth=0 재시도) 추가, `npm`/`uv` 캐시 정리로 9.4G 추가 회수 (출처: session-logs/20260522-234234-bc6e)
