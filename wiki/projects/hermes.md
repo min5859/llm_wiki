@@ -4,16 +4,18 @@ domain: personal
 sensitivity: public
 tags: ["project", "hermes", "ai-agent", "self-hosted", "telegram", "macos"]
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-05-23
 sources:
   - "session-logs/20260509-001610-307a-hermes-agent-를-설치했는데-메인-agent-말고-별도로-코딩-전용-agent를.md"
   - "session-logs/20260502-092045-628d-hermes-라는-opensource-agent-를-설치하려고하는데-조사좀-해-주세요.md"
+  - "session-logs/20260523-000054-480c-hermes-가-응답이-없습니다.md"
 confidence: high
 related:
   - "wiki/concepts/hermes-agent.md"
   - "wiki/analyses/multi-profile-cli-agent-isolation.md"
   - "wiki/analyses/personal-ai-agent-messaging-channels.md"
   - "wiki/analyses/anthropic-oauth-third-party-billing-trap.md"
+  - "wiki/patterns/long-lived-network-client-stuck-reconnect-loop.md"
 ---
 
 # hermes — 개인 머신 셋업 프로젝트
@@ -100,6 +102,13 @@ maccoder gateway uninstall
 - `gateway setup` 에서 첫 reconfigure 묻는 질문에 `n` 누르면 default 봇 토큰 재사용 → 두 봇 충돌. 반드시 `y`.
 - `client_secret_*.json` (Google OAuth) 등 secret 파일은 `.gitignore` 에 패턴 추가 (이번 세션에서 추가됨, commit `62aec7d`).
 
+## 운영 회고 (2026-05-23)
+
+`hermes gateway` 가 응답 없음 → 진단 결과 **Telegram reconnect loop** 갇힘. 망은 정상 (`ping api.telegram.org` 228ms, `curl` HTTP 302), `gateway` 프로세스만 과거 끊김 시점부터 retry loop 누적 (1→2→4→8→15s 백오프). `hermes gateway restart` 가 1차 조치. 단, 재시작 직후에도 같은 패턴이 한 번 더 잡혔으므로 라이브러리/OS 레벨 stuck 가능성 — 후속 조사 필요.
+
+일반 진단 패턴은 [[long-lived-network-client-stuck-reconnect-loop]].
+
 ## 변경 이력
 
 - 2026-05-09: 최초 생성. base hermes (default) 위에 코딩 전용 `maccoder` 프로필 추가, claude CLI 통합 / Telegram 별도 봇 / launchd 분리 plist. README + tasks/todo.md Review 섹션 commit `9feb783`, `62aec7d` (출처: session-logs/20260509-001610-307a-*)
+- 2026-05-23: gateway "응답 없음" 1건 — Telegram reconnect loop, 망 정상이었음. restart 1차 조치. 패턴 일반화는 [[long-lived-network-client-stuck-reconnect-loop]] (출처: session-logs/20260523-000054-480c)
