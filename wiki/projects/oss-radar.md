@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-05-21T10:00:00+09:00"
+updated: "2026-05-23T08:00:00+09:00"
 sources:
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
@@ -47,6 +47,24 @@ sources:
   - "session-logs/20260521-080025-9af9-Reply-with-only--OK.md"
   - "session-logs/20260521-080031-f864-*.md"
   - "session-logs/20260521-080132-6917-*.md"
+  - "session-logs/20260522-080023-e89d-Reply-with-only--OK.md"
+  - "session-logs/20260522-080031-e3ce-*.md"
+  - "session-logs/20260522-080133-111f-*.md"
+  - "session-logs/20260522-090050-487f-Reply-with-only--OK.md"
+  - "session-logs/20260522-090056-8451-*.md"
+  - "session-logs/20260522-090132-697f-*.md"
+  - "session-logs/20260522-090203-0570-*.md"
+  - "session-logs/20260522-090238-53dc-*.md"
+  - "session-logs/20260522-090310-65d6-*.md"
+  - "session-logs/20260523-080019-b4a0-Reply-with-only--OK.md"
+  - "session-logs/20260523-080025-b8b2-*.md"
+  - "session-logs/20260523-080120-509d-*.md"
+  - "session-logs/20260523-090052-4183-Reply-with-only--OK.md"
+  - "session-logs/20260523-090100-b1b9-*.md"
+  - "session-logs/20260523-090134-1ffc-*.md"
+  - "session-logs/20260523-090204-b8a1-*.md"
+  - "session-logs/20260523-090235-9ff4-*.md"
+  - "session-logs/20260523-090307-512e-*.md"
 confidence: "high"
 related:
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
@@ -231,3 +249,7 @@ fi
 - 2026-05-20 (companion: 08:00 research-wiki silent fail): 같은 호스트의 08:00 research-wiki cron 도 alive 핑 + 2건 논문 분석 prompt (arXiv 2605.18747 "Code as Agent Harness" / arXiv 2605.18401 "SkillsVote") 가 모두 `assistant_turns: 0` 으로 단발 무응답. 5/17 의 광범위 silent fail 과 달리 `dev-blog` 07:00 사이클은 13건 중 6건이 `assistant_turns: 1` 로 정상 (혼합 분포). **시스템 단 원인이 아니라 prompt 길이·rate-limit·모델 단발 미응답이 사이클별로 산발하는 부분 실패** 패턴이라는 진단 신호를 보강. 코드 변경 없음, 신규 분석 페이지 없음 (assistant turn 0 인 prompt 에서는 추출 가능한 산출물 부재). (출처: session-logs/20260520-080026-642d-*, 20260520-080032-df25-*, 20260520-080123-4d77-*)
 - 2026-05-21 (09:00 cron): alive 핑 1건 (`assistant_turns: 1`) + 5건 OSS 레포 분석 prompt (freeCodeCamp/devdocs, explosion/spaCy, RSSNext/Folo, refinedev/refine, lapce/lapce). 5건 중 **RSSNext/Folo 1건만 `assistant_turns: 1` 로 prompt 응답까지 완료**, 나머지 4건 (devdocs / spaCy / refine / lapce) 은 `assistant_turns: 0` 단발 미응답. 5/20 의 「1/5 정상 + 4/5 단발 미응답」 부분 실패 분포가 2일 연속 그대로 재현됨 — 시스템 단 광범위 결함은 아니지만 OSS 분석 prompt (800~1200자 한국어 강제) 가 단발 미응답에 특히 민감한 패턴이 정착 중. prompt 본문은 기존 「한줄 요약 / 주요 기능 / 사용 시나리오 / 기술 스택 / 주목 이유 / 실용성 평가」 템플릿 그대로 (신규 룰 없음). **운영 관찰만, 코드 변경 없음** (출처: session-logs/20260521-09005{5,1}-*, 09013{3}-*, 09020{7}-*, 09024{6}-*, 09032{8}-*)
 - 2026-05-21 (companion: 08:00 research-wiki 전체 silent fail): 같은 호스트의 08:00 research-wiki cron 은 alive 핑 1건 + 논문 분석 prompt 2건 (arXiv 2605.13527 "MMSkills — Multimodal Skills for General Visual Agents" / arXiv 2605.18739 "LongLive-2.0 — NVFP4 Parallel Infrastructure for Long Video Generation") 이 **3건 전부 `assistant_turns: 0`** 으로 발사·미응답 종료. 같은 시간대 oss-radar 09:00 사이클은 1/5 정상이라 호스트·시스템 단 광범위 결함은 아니고, prompt 길이가 더 긴 research-wiki (논문 본문 수만 자 입력) 쪽이 단발 미응답에 더 취약하다는 진단 신호. 5/20 의 「research-wiki 전체 미응답 + oss-radar 부분 정상」 분포가 그대로 반복됨. 산출물 0, 코드 변경 0. (출처: session-logs/20260521-080025-9af9-*, 080031-f864-*, 080132-6917-*)
+- 2026-05-22 (09:00 cron): alive 핑 1건 + 5건 OSS 레포 분석 prompt (Snailclimb/JavaGuide, trimstray/the-book-of-secret-knowledge, ChromeDevTools/chrome-devtools-mcp, multica-ai/multica, anthropics/claude-plugins-official). 6건 **전부 `assistant_turns: 0`** — 부분 실패가 아닌 사이클 단위 광범위 silent fail 재발 (5/17 패턴 회귀). 동일 호스트 08:00 research-wiki 도 3건 전부 silent fail 이라 시스템 단 광범위 결함 의심이 다시 켜짐. 산출물 0, 코드 변경 0. (출처: session-logs/20260522-090050-487f-*, 090056-8451-*, 090132-697f-*, 090203-0570-*, 090238-53dc-*, 090310-65d6-*)
+- 2026-05-22 (companion: 08:00 research-wiki 전체 silent fail): alive 핑 1건 + 논문 분석 prompt 2건 (arXiv 2605.11609 "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information" / arXiv 2605.19833 "Mega-ASR: Towards In-the-wild² Speech Recognition") 3건 전부 `assistant_turns: 0` — 5/21 와 동일. (출처: session-logs/20260522-080023-e89d-*, 080031-e3ce-*, 080133-111f-*)
+- 2026-05-23 (09:00 cron): alive 핑 1건 + 5건 OSS 레포 분석 prompt (yt-dlp/yt-dlp, Kong/kong, patchy631/ai-engineering-hub, wshobson/agents, facefusion/facefusion). 6건 **전부 `assistant_turns: 0`** — 2일 연속 광범위 silent fail. **5/22 와 5/23 두 사이클 연속 100% 미응답은 5/17 이후 처음**이며 시스템 단 (claude CLI 모델 백엔드 / 네트워크 / OAuth) 원인 의심 신호. 산출물 0, 코드 변경 0. (출처: session-logs/20260523-090052-4183-*, 090100-b1b9-*, 090134-1ffc-*, 090204-b8a1-*, 090235-9ff4-*, 090307-512e-*)
+- 2026-05-23 (companion: 08:00 research-wiki 전체 silent fail): alive 핑 1건 + 논문 분석 prompt 2건 (arXiv 2605.22355 "TransitLM: Map-Free Transit Route Generation" / arXiv 2605.22109 "Perception or Prejudice — MLLMs Beyond First Impressions of Personality") 3건 전부 `assistant_turns: 0`. 3일 연속 research-wiki 전체 미응답 — prompt 길이가 가장 긴 잡이 단발 미응답에 가장 취약하다는 일관된 패턴. 산출물 0, 코드 변경 0. (출처: session-logs/20260523-080019-b4a0-*, 080025-b8b2-*, 080120-509d-*)

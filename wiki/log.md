@@ -1,9 +1,25 @@
 ---
 title: Operation Log
-updated: 2026-05-20T11:00:00+09:00
+updated: 2026-05-23T08:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-23T08:00 — wiki-ingest (session-logs, ingested: false 23건)
+
+처리 0건 신규 페이지 (의미 있는 산출물 모두 이전 사이클에서 흡수 완료), 운영 관찰 4건 기록. 신규 페이지 0건, 기존 페이지 갱신 1건 (`projects/oss-radar`). raw-sources/ 신규 .md 없음 (서브디렉터리 articles/ books/ ideas/ papers/ transcripts/ 비어 있음, Tips/ 8 PDF 모두 기존 wiki/patterns/ 페이지에 이미 매핑), `.cache/extracted/` 디렉터리 없음 (PDF chunk 추출 미실행), `raw-sources/<subdir>/fetched/` 없음, `type: mcp-note` 인 session-log 0건.
+
+- **23건 분포**:
+  - 22:30–23:16 hermes/openclaw "응답 없음" 3건 (`23:07:45` openclaw / `23:08:19` hermes / `23:15:50` dev-blog 정지 요청) — 모두 `assistant_turns: 0` (사용자가 입력만 던지고 종료). 의미 있는 산출물 없음. 단 같은 이슈를 다음 0:00:54 hermes 480c 세션에서 자세히 분석함
+  - 23:42 disk-monitor 분석 1건 (`assistant_turns: 10`) — **이미 [[disk-monitor]] 의 2026-05-22 운영 회고 + [[disk-monitor-blind-spot-coverage]] 패턴으로 흡수 완료** (이전 사이클에서 처리). 사각지대 17G 추적·`du` timeout fallback·npm/uv 캐시 회수 9.4G 모두 페이지에 정리되어 있음
+  - 00:00 hermes 480c 1건 (`assistant_turns: 1`) — **이미 [[hermes]] 의 2026-05-23 운영 회고 + [[long-lived-network-client-stuck-reconnect-loop]] 패턴으로 흡수 완료**. Telegram reconnect loop 진단 (망 정상이지만 gateway 프로세스 재연결 루프 누적, `hermes gateway restart` 1차 조치)
+  - 08:00–08:01 research-wiki 3건 (5/22) + 3건 (5/23) — alive 핑 + 논문 분석 (5/22: arXiv 2605.11609 / 2605.19833, 5/23: arXiv 2605.22355 / 2605.22109) 모두 `assistant_turns: 0` (silent fail). 산출물 없음
+  - 09:00–09:03 oss-radar 6건 (5/22) + 6건 (5/23) — alive 핑 + OSS 레포 분석 (5/22: Snailclimb/JavaGuide, trimstray/the-book-of-secret-knowledge, ChromeDevTools/chrome-devtools-mcp, multica-ai/multica, anthropics/claude-plugins-official / 5/23: yt-dlp/yt-dlp, Kong/kong, patchy631/ai-engineering-hub, wshobson/agents, facefusion/facefusion) 모두 `assistant_turns: 0` (silent fail). 산출물 없음
+
+- **이번 사이클의 신규 운영 관찰** — 5/22 와 5/23 두 사이클 연속 oss-radar 09:00 + research-wiki 08:00 잡 **모두 100% silent fail** 재발. 이는 5/17 이후 처음 (5/18~5/21 은 부분 실패 또는 부분 정상). 즉 시스템 단 (claude CLI 모델 백엔드 / 네트워크 / OAuth) 원인 의심이 다시 켜짐. 이를 oss-radar 의 2026-05-22 / 2026-05-23 changelog 한 단락씩 흡수
+- **Updated**: `wiki/projects/oss-radar.md` — sources 에 5/22–5/23 21건 (08시대 6건 + 09시대 12건 + 헬스체크 3건) 추가, 변경 이력에 「2026-05-22 (09:00 cron + companion research-wiki)」 와 「2026-05-23 (09:00 cron + companion research-wiki)」 4 항목 추가 (2일 연속 100% silent fail = 5/17 이후 처음), updated 타임스탬프 갱신
+- raw-sources/ 신규 .md 없음 확인: 모든 서브디렉터리 (articles/ books/ ideas/ papers/ transcripts/) .md 0건. Tips/ 의 PDF 8개도 기존 매핑 유지. `.cache/extracted/` 디렉터리 없음, fetched/ 디렉터리 없음, type: mcp-note 인 session-log 0건
+- Marked ingested: true — 23개 session-log 파일 전체 (의미 있는 신규 산출 0 — disk-monitor 와 hermes 의 본격 분석 2건은 이전 사이클에서 이미 페이지에 흡수, 나머지 21건은 silent fail / 단발 종료)
 
 ## 2026-05-20T11:00 — wiki-ingest (session-logs, ingested: false 23건)
 
