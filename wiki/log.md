@@ -1,9 +1,18 @@
 ---
 title: Operation Log
-updated: 2026-05-23T19:00:00+09:00
+updated: 2026-05-24T10:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-24T10:00 — wiki-ingest (session-logs, ingested: false 1건)
+
+처리 0건 (의미 있는 신규 산출 없음). 신규 페이지 0건, 기존 페이지 갱신 0건. raw-sources/ 신규 .md 없음 (서브디렉터리 articles/ books/ ideas/ papers/ transcripts/ 비어 있음), `.cache/extracted/` 디렉터리 없음, `raw-sources/<subdir>/fetched/` 없음, `type: mcp-note` 인 session-log 0건.
+
+- **1건 분포**:
+  - 22:59 kakao-db 1건 — "Command Line Tools for Xcode 26.5" 가 무엇인지, 업데이트해야 하는지에 대한 단순 Q&A. 설계 판단·버그 수정·패턴·기술 선택에 해당하지 않으므로 wiki 페이지 생성 스킵
+- raw-sources/ 신규 .md 없음 확인, `.cache/extracted/` 없음, fetched/ 없음, type: mcp-note 0건
+- Marked ingested: true — 1개 session-log 파일
 
 ## 2026-05-23T19:00 — wiki-ingest (session-logs, ingested: false 2건)
 
