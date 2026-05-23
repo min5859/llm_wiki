@@ -1,9 +1,19 @@
 ---
 title: Operation Log
-updated: 2026-05-23T08:00:00+09:00
+updated: 2026-05-23T19:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-23T19:00 — wiki-ingest (session-logs, ingested: false 2건)
+
+처리 0건 (의미 있는 신규 산출 없음). 신규 페이지 0건, 기존 페이지 갱신 0건. raw-sources/ 신규 .md 없음 (서브디렉터리 articles/ books/ ideas/ papers/ transcripts/ 비어 있음), `.cache/extracted/` 디렉터리 없음, `raw-sources/<subdir>/fetched/` 없음, `type: mcp-note` 인 session-log 0건.
+
+- **2건 분포**:
+  - 18:50 research-wiki 1건 — Claude/Codex/Cursor Agent CLI의 non-interactive 모드 비교 탐색 (`--help` 출력 확인). 계획 파일 작성으로 종료, 구현 없음. 기존 [[cursor-agent-cli-overview]] / [[multi-llm-provider-adapter-pattern]] 에 CLI 비교 지식 이미 수록. 탐색적 시행착오로 스킵
+  - 18:57 research-wiki 1건 (`assistant_turns: 0`) — "Reply with just OK" 테스트 프롬프트. 산출물 없음
+- raw-sources/ 신규 .md 없음 확인, `.cache/extracted/` 없음, fetched/ 없음, type: mcp-note 0건
+- Marked ingested: true — 2개 session-log 파일 전체
 
 ## 2026-05-23T08:00 — wiki-ingest (session-logs, ingested: false 23건)
 
