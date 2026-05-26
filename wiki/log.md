@@ -1061,3 +1061,21 @@ updated: 2026-05-24T10:00:00+09:00
 - Skipped: 자동 cron 결과물 자체를 본 wiki 에 페이지로 누적하지 않음 (5/18·19·20 ingest 와 동일 방침). 신규 룰·코드 변경·버그·디버깅 신호 모두 없음
 - Updated: wiki/index.md (updated 갱신), wiki/log.md
 - Marked ingested: true — 9개 session-log 파일 전체 (생성: 0건, 업데이트: projects 1건 [oss-radar sources 9건 + 변경 이력 2항] + index 1건)
+
+## 2026-05-27 — wiki-ingest (session-logs, ingested: false 5건)
+
+- 대상 5건 분류:
+  - **20260525-221758-68ef** (hi, dev-blog): 단발 hi 메시지, 산출물 없음 → 스킵
+  - **20260526-231733-1640** (hi, finance-analysis-nextjs): 단발 hi 메시지, 산출물 없음 → 스킵
+  - **20260526-231909-27e3** (login/hi, ht_trading): 단발 login·hi, 산출물 없음 → 스킵
+  - **20260525-031658-92f2** (Linux Kernel Weekly Digest, dev-blog): 05-25 03:16 KST 자동 주간 다이제스트 실행. 5/19~5/23 일일 브리핑 → 주간 JSON 생성. `rewriteAdapter: cursor`, `generator: scripts/draft-linux.mjs`. Linux 7.1-rc5 / 7.0.10 / 5.10.257 트래킹 정상. 코드 변경 없음
+  - **20260526-232119-548d** (현재 수익 없는 종목 유지 기간, ht_trading): 백로그 E 항목 부분 적용 — `stale_holding_days: 10 → 15` (commit `513c7a7`). Rule6 보유 기간 손절 임계 확장. `profit_pct < -0.02` 조건은 미포함. launchd plist 재시작 확인
+- Source: session-logs/20260525-031658-92f2-*
+  - Project: dev-blog
+  - Updated: wiki/projects/dev-blog.md (sources 1건 추가 + updated 2026-05-25 + 변경 이력 2026-05-25 운영 항목)
+- Source: session-logs/20260526-232119-548d-*
+  - Project: ht_trading
+  - Updated: wiki/projects/ht-trading.md (sources 1건 추가 + updated 2026-05-26 + 백로그 E 부분 적용 완료 표시 + 변경 이력 2026-05-26 항목)
+- Skipped: 단발 hi/login 3건 (산출물·설계 판단·버그 없음)
+- Updated: wiki/index.md (updated 갱신), wiki/log.md
+- Marked ingested: true — 5개 session-log 파일 전체 (생성: 0건, 업데이트: projects 2건 [ht-trading, dev-blog] + index 1건)

@@ -66,8 +66,9 @@ sources:
   - "session-logs/20260520-073528-5706-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
   - "session-logs/20260520-073659-991c-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
   - "session-logs/20260520-074033-3915-#-Linux-specialist-list-lens-—-Newsletter-rewrite.md"
+  - "session-logs/20260525-031658-92f2-#-Linux-Kernel-Weekly-Digest-당신은-리눅스-커널-개발-주간-다이제스.md"
 confidence: high
-updated: 2026-05-20
+updated: 2026-05-25
 related:
   - "wiki/bugs/utc-iso-date-kst-rollover.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
@@ -299,3 +300,4 @@ Error: highlights[0].action required
 - 2026-05-19 (Linux Daily Newsletter Rewrite 프롬프트): 07:00 cron 의 정기 발사. session-log 본문은 system prompt 만 (assistant 응답 없음, cron 호출 자체로 prompt 도달만 기록). 신규 룰 없음 (5/18 의 [[llm-newsletter-rewrite-metadata-grounding]] 룰 동일). **운영 흔적, 코드 변경 없음** (출처: session-logs/20260519-070009-952a-*)
 - 2026-05-20 (07:00 cron 정상 사이클, 13건): Linux Daily Newsletter Rewrite 1건 (07:00, `assistant_turns: 1` 로 「파일이 이미 작성·검수 완료된 상태」 로그 — daily-deploy 의 멱등성 확인), Open Source Trending Daily Briefing 1건 (07:02), 오픈소스 큐레이션 브리핑 2건 (07:09 / 07:13, 07:09 는 `assistant_turns: 1` 로 「브리핑 JSON 작성을 시작합니다」 응답만 기록 — 산출물은 stdout 파일로 직접 출력됨), Linux specialist list lens 9건 (07:14~07:40, 5/19 와 동일 sample template — 보안·도구체인·RT/eBPF·GPU 등 lens 토픽만 변경, `assistant_turns` 0~1 분포). 신규 룰 없음, 모두 5/18 의 [[llm-newsletter-rewrite-metadata-grounding]] 룰 적용. 운영 관찰 — 5/19·20 연속 정상 발사 사이클로 5/17 광범위 silent fail 의 시스템 단 원인은 완전 해소. **코드 변경 없음** (출처: session-logs/20260520-{070014, 070245, 070934, 071312, 071446, 071656, 072033, 072415, 072807, 073030, 073528, 073659, 074033}-*)
 - 2026-05-19 (07:00 cron 정상 사이클, 17건): 5/19 launchd 사이클 후속 — Android Kernel Daily Briefing 2건 (07:02 / 07:08), Open Source Trending Daily Briefing 2건 (07:12 / 07:15), 오픈소스 큐레이션 브리핑 2건 (07:20 / 07:27), Linux specialist list lens prompt 11건 (07:28~08:07, lens 토픽만 다른 동일 sample template — 보안·도구체인·RT/eBPF·GPU 등). 일부는 `assistant_turns: 1` 로 실제 파일 생성됨 (07:28 `linux-kernel-security` 보안 렌즈는 FPIN u8 카운터 wrap → DoS 보안 패치를 한 단어 사건으로 잡아 4 highlights · 80자 headline 가드 통과까지 4회 재편집해 완성, 07:37 / 07:47 / 07:56 / 08:01 등도 1턴 응답). **신규 룰 없음**, 모두 5/18 의 [[llm-newsletter-rewrite-metadata-grounding]] 룰 (W1~W4 주간 변형 / 5 변형 — action 3분해 / 7a — title·headline) 그대로 적용. 운영 관찰: 5/17 의 광범위 silent fail (시스템 단 원인 의심) 후 5/18·19 모두 prompt 발사 정상 — 시스템 단 결함은 자동 해소된 상태 유지. **코드 변경 없음** (출처: session-logs/20260519-{070235-f999, 070820-89b9, 071225-e4ab, 071530-0239, 072035-eb67, 072717-a881, 072829-a108, 073334-ec00, 073731-bb7c, 074322-43c9, 074723-c5d9, 075328-9d97, 075640-765e, 080125-a0bd, 080447-ed0d, 080717-91ce}-*)
+- 2026-05-25 (03:16 Weekly Digest 자동 생성): Linux Kernel Weekly Digest 주간 압축 실행 — 5/19~5/23 일일 브리핑 2건 (2026-05-21: mm/vmalloc·iommu/vt-d 시리즈, 2026-05-23: Linux 7.0.10 stable 대량 백포트) 을 입력으로 주간 다이제스트 JSON 생성. draftMetadata 의 `rewriteAdapter: "cursor"` (cursor 어댑터가 여전히 운영 중), `generator: "scripts/draft-linux.mjs"`, `promptTemplate: "prompts/linux-newsletter-ko.md"`. Linux 7.1-rc5 mainline / 7.0.10 stable / 5.10.257 longterm 3개 릴리스 트래킹 정상. **운영 관찰, 코드 변경 없음** (출처: session-logs/20260525-031658-92f2-*)
