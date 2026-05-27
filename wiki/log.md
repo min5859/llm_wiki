@@ -1079,3 +1079,20 @@ updated: 2026-05-24T10:00:00+09:00
 - Skipped: 단발 hi/login 3건 (산출물·설계 판단·버그 없음)
 - Updated: wiki/index.md (updated 갱신), wiki/log.md
 - Marked ingested: true — 5개 session-log 파일 전체 (생성: 0건, 업데이트: projects 2건 [ht-trading, dev-blog] + index 1건)
+
+## 2026-05-28 — wiki-ingest (session-logs, ingested: false 3건)
+
+- 대상 3건 분류:
+  - **20260527-213708-7369** (SK스퀘어 매수 거부, ht_trading): 리스크 거부 텔레그램 알림 세부 사유 추가 구현
+  - **20260527-225019-71d3** (AI provider 선택, kakao-db): AI provider 다중화 구현 (claude/cursor/codex)
+  - **20260527-231107-7699** (AI coding agent 블로그 조사, dev-blog): 탐색/조사 단계만, 최종 결론·구현 없음 → 스킵
+- Source: session-logs/20260527-213708-7369-*
+  - Project: ht_trading
+  - Updated: wiki/projects/ht-trading.md (sources 1건 추가 + updated 2026-05-27 + 리스크 거부 텔레그램 알림 세부 사유 섹션 신설 + 설계 변경 이력 2026-05-27 항목)
+- Source: session-logs/20260527-225019-71d3-*
+  - Project: kakao-db
+  - Updated: wiki/projects/kakao-db.md (sources 1건 추가 + updated 2026-05-27 + AI provider 다중화 섹션 신설 + 변경 이력 2026-05-27 항목)
+  - Updated: wiki/analyses/multi-llm-provider-adapter-pattern.md (Shell 스크립트 기반 AI CLI 어댑터 패턴 섹션 추가 + 변경 이력 2026-05-27 항목)
+- Skipped: 탐색/조사 단계 1건 (dev-blog, 최종 결론·구현 없음)
+- Updated: wiki/index.md (updated 갱신 + ht-trading / kakao-db 요약 업데이트), wiki/log.md
+- Marked ingested: true — 3개 session-log 파일 전체 (생성: 0건, 업데이트: projects 2건 [ht-trading, kakao-db] + analyses 1건 [multi-llm-provider-adapter-pattern] + index 1건)

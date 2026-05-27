@@ -4,7 +4,7 @@ domain: both
 sensitivity: public
 tags: ["llm", "multi-provider", "adapter-pattern", "openai", "anthropic", "gemini", "abstraction"]
 created: 2026-05-03
-updated: 2026-05-03
+updated: 2026-05-27
 sources:
   - "session-logs/20260503-100914-b80f-*.md"
 confidence: high
@@ -115,6 +115,93 @@ DB 저장으로 넘어갈 때:
 
 복잡한 에이전트 워크플로우 (도구 호출 체인, RAG, 멀티턴 메모리) 가 필요해지면 그때 LangChain 등으로 마이그레이션하면 된다 — 어댑터 인터페이스가 명확하면 마이그레이션 범위도 작다.
 
+## Shell 스크립트 기반 AI CLI 어댑터 패턴
+
+웹 앱이 아니라 cron / launchd 자동화 Shell 스크립트에서 AI CLI 를 추상화할 때 적용하는 변형 패턴. SDK 대신 CLI 바이너리(`claude`, `agent`/Cursor CLI, `codex`)를 래핑한다.
+
+### 환경 변수 설계
+
+```bash
+KAKAO_AI_PROVIDER="${KAKAO_AI_PROVIDER:-codex}"   # claude | cursor | codex
+KAKAO_AI_MODEL="${KAKAO_AI_MODEL:-}"              # 빈 값이면 각 CLI 기본 모델
+```
+
+provider 선택을 환경 변수로 추출하면 cron job 의 LaunchAgent plist 에서 `EnvironmentVariables` 만 바꿔 재배포 없이 전환 가능.
+
+### Provider별 CLI 호출 방식 차이
+
+| Provider | 바이너리 | 입력 방식 | 출력 방식 | 주요 플래그 |
+|----------|---------|---------|---------|-----------|
+| claude | `claude` | 프롬프트를 마지막 인자로 | stdout | `-p --output-format text [--model MODEL]` |
+| cursor | `agent` | 프롬프트를 마지막 인자로 | stdout | `-p --force --output-format text [--model MODEL]` |
+| codex | `codex` | stdin (`printf ... \| codex exec -`) | 임시 파일 | `-o <tmpfile> --ephemeral [-m MODEL]` |
+
+codex 만 입출력 방식이 달라 함수로 흡수:
+
+```bash
+ai_run_claude() {
+  local prompt="$1"
+  local args=(-p --output-format text)
+  [ -n "$AI_MODEL" ] && args+=(--model "$AI_MODEL")
+  env -u CLAUDECODE claude "${args[@]}" "$prompt"   # 중첩 세션 방지
+}
+
+ai_run_cursor() {
+  local prompt="$1"
+  local args=(-p --force --output-format text)
+  [ -n "$AI_MODEL" ] && args+=(--model "$AI_MODEL")
+  agent "${args[@]}" "$prompt"
+}
+
+ai_run_codex() {
+  local prompt="$1"
+  local tmpfile; tmpfile=$(mktemp)
+  local args=(exec - -o "$tmpfile" --ephemeral)
+  [ -n "$AI_MODEL" ] && args+=(-m "$AI_MODEL")
+  printf "%s" "$prompt" | codex "${args[@]}"
+  cat "$tmpfile"; rm -f "$tmpfile"
+}
+
+ai_run() {
+  case "${AI_PROVIDER}" in
+    claude) ai_run_claude "$1" ;;
+    cursor) ai_run_cursor "$1" ;;
+    codex)  ai_run_codex  "$1" ;;
+    *)      echo "Unknown AI provider: ${AI_PROVIDER}" >&2; return 1 ;;
+  esac
+}
+```
+
+### claude 중첩 세션 방지
+
+cron 또는 Claude Code 세션 안에서 `claude -p` 를 호출하면 `CLAUDECODE` 환경변수가 이미 설정된 상태라 세션 중첩 오류가 발생할 수 있다. `env -u CLAUDECODE claude ...` 로 해당 변수를 제거하고 호출한다.
+
+### 레거시 호환 전략
+
+기존에 `KAKAO_AI_BIN` + `KAKAO_AI_EXTRA_ARGS` 방식으로 CLI 를 직접 지정했던 경우:
+
+```bash
+if [ -n "${KAKAO_AI_BIN:-}" ]; then
+  # 레거시 경로: 구형 동작 그대로
+  $KAKAO_AI_BIN ${KAKAO_AI_EXTRA_ARGS:-} "$prompt"
+else
+  ai_run "$prompt"
+fi
+```
+
+이전 설정 사용자가 새 변수로 마이그레이션할 때까지 중단 없이 동작한다.
+
+### SDK 패턴과의 비교
+
+| 항목 | SDK 직접 (TypeScript/Python) | CLI 래핑 (Shell) |
+|------|------------------------------|-----------------|
+| 의존성 | provider SDK npm/pip 패키지 | 바이너리만 (PATH 에 설치) |
+| 인증 | API 키 환경변수 또는 설정 파일 | CLI 가 자체 관리 (claude login 등) |
+| 구독 요금 | API 사용량 과금 | CLI 구독 요금제 (정액) |
+| 에러 처리 | 예외 / 상태 코드 | exit code + stderr |
+| 병렬성 | async/await | 배경 실행 + wait |
+| 적합 use-case | 웹 앱, 서버 | cron / launchd 자동화, 스크립트 |
+
 ## 관련 맥락
 
 - 본 패턴은 [[japa-asset-dashboard]] 의 `/ai` 페이지 멀티 LLM 도입 사례에서 추출
@@ -124,3 +211,4 @@ DB 저장으로 넘어갈 때:
 ## 변경 이력
 
 - 2026-05-03: 최초 생성. japa 프로젝트의 멀티 LLM 도입 사례에서 일반화 (출처: session-logs/20260503-100914-b80f-*).
+- 2026-05-27: Shell 스크립트 기반 AI CLI 어댑터 패턴 섹션 추가 — kakao-db 의 cron 자동화 multi-provider 구현에서 일반화 (출처: session-logs/20260527-225019-71d3-*).
