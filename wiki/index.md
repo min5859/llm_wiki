@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-05-28T00:00:00+09:00
+updated: 2026-05-30T00:00:00+09:00
 ---
 
 # Wiki Index
@@ -19,7 +19,7 @@ updated: 2026-05-28T00:00:00+09:00
 ## 프로젝트 (projects/)
 
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
-- [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점), 버그 수정 4건(datetime.now/RSI/TrailingSell/split throttle), 백로그 B1-B4. V3 점수 알고리즘 (IC 검증 기반 재설계: 양봉/거래량 가중 ↑ MA ↓ EPS 절대값 → earnings_yield) + A/C/D 튜닝 (체결률 / 트레일링 둔감화 / 상대손절 완화). 리스크 거부 텔레그램 알림 세부 사유 (6가지 조건별 수치 포함) 추가
+- [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점). KIS API 서킷브레이커 (연속 5회 오류 시 주문 중지). 추가매수 재개 조건 (저점 반등 +3% AND 기술점수 회복). n_stock_info V3 리버트 → EPS/캔들만 선택적 재적용 (모멘텀 충돌 회피). screener min_score 62 복원. 거래대금 TOP 10 텔레그램 추가.
 - [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅
 - [[oss-radar]] — 주간 GitHub OSS 발굴 파이프라인: discover→fetch→analyze→publish 6단계, star_velocity 스코어링, env -u CLAUDECODE 중첩세션 방지, GitHub topic OR 미지원 우회, config/.env 시크릿 분리
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
@@ -29,12 +29,12 @@ updated: 2026-05-28T00:00:00+09:00
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입. AI provider 다중화 (KAKAO_AI_PROVIDER: claude/cursor/codex, 기본 codex)
 - [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
-- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드, BASE_PATH 자동 대응. Multi-topic 가동 (Linux + Android + Lens 8 + OSS Trending + OSS Curation = 10토픽). 5/14 1토픽 quality-guard 정상 차단 → stdout 교정·publish 재실행 4단계 복구 (격리 패턴 첫 운영 성공). 기본 어댑터 cursor→claude 일괄 전환 (5/16, 14 files +21/-19, `resolveAiAdapter` 첫 인자 응집 덕에 5분 작업)
+- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드. Multi-topic 가동 (11토픽). `lib/run-daily-pipeline.mjs` 로 6개 run-daily 스크립트 공통화 (~700줄→~150줄). `lib/collect-utils.mjs` readJson 추출. 기본 어댑터 cursor→claude 일괄 전환.
 - [[auto-pipe-blog]] — 컨셉 1개 → velog 글 자동화 파이프라인 (bash + `claude -p` stdin): 00-slug → 01-research → 02-outline → 03-draft → 05-assemble 5단계, skip-if-exists, `CALL_LLM_BACKEND=agent` 로 백엔드 전환. Phase 1 E2E ~4분 / 78줄 post.md / mermaid 2 블록. Phase 3.5 Notion publisher 추가 (parent page/database 자동 판별, 100블록 분할, 로컬 이미지 안내 paragraph 치환) + factcheck rewrite 단계 추가
 - [[auto-pipe-ppt]] — JSON/YAML → 디자인 토큰 기반 멀티슬라이드 PPTX 자동 생성 (Python + `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성). 1차 타겟 재무제표 10장. M0/M1/M2/M3 완료 (41건 테스트 그린): 토큰 이중 어댑터 (YAML / CSS :root), role resolver, 한글 폰트 ea/cs fix, 재무 컴포넌트 6종 (KPI/Insight/Verdict/ScoreCard/Conclusion/Table). M4 차트 5종 / M5 재무 어댑터 미구현
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 적용 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 15/30/45 / partial_profit ON / tighten_on_weakness ON)
-- [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 첫 운영 3.23G 회수
+- [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장
 
 ## 설계 판단 (decisions/)
 
@@ -155,3 +155,5 @@ updated: 2026-05-28T00:00:00+09:00
 - [[cursor-agent-cli-overview]] — Cursor 의 비대화형 `cursor-agent -p`: `claude -p` 와 옵션 호환 (print / output-format / model / continue / resume), 멀티 모델 (gpt-5, sonnet-4) + `CURSOR_API_KEY` 인증. `resolveAiAdapter` 한 함수 분기로 claude/cursor 옵셔널 전환. provider 다중화는 *완화* 일 뿐 — fallback 체인 + retry-with-dump 와 같이 가야
 - [[karpathy-claude-md-skills]] — multica-ai/andrej-karpathy-skills (Karpathy CLAUDE.md 큐레이션): SKILL.md frontmatter 1줄 자동 로드, `code-organization` / `git-pre-commit` / `python-style` / `nanochat-design` 4 카테고리. CLAUDE.md 가 컨벤션 강제 인터페이스가 되어가는 흐름
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 출력 파싱 실패의 1회 재시도 + 원문 덤프 패턴: `runAiAdapterAndParse(prompt, { logLabel, maxAttempts=2, failureDir })` 단일 진입점. 어댑터·파싱 묶음 + 파싱 실패 시 `logs/ai-rewrite-failures/<ts>-<label>-attemptN.txt` 에 raw 텍스트 덤프 → 사후 분석 가능. dev-blog 의 6 rewrite 호출부 일괄 적용 (5/18 commit `a42d470`)
+- [[api-circuit-breaker-trading-pattern]] — 외부 API 연속 오류 시 주문 중지 서킷브레이커 패턴: 연속 N회 임계치 카운터 + `api_halted` 플래그 + `submit_order` 선두 차단 + 캐시 TTL 경고 + 텔레그램 halt/회복 1회 알림. ht_trading KIS 구현에서 일반화 (2026-05-30)
+- [[scoring-version-comparison-methodology]] — 알고리즘 교체 후 컷오프 캘리브레이션 vs 진짜 알파 변화 판정: Spearman ρ + Top-N 교집합 2지표, 백테스트의 한계. V3 리버트 결정 추가 (모멘텀 전략 vs IC 검증 집단 충돌, 선택적 재적용 EPS→earnings_yield + 캔들 세분화)

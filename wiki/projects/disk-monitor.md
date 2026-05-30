@@ -4,11 +4,12 @@ domain: personal
 sensitivity: public
 tags: ["project", "disk-monitor", "macos", "launchd", "python", "cli"]
 created: "2026-05-14"
-updated: "2026-05-22"
+updated: "2026-05-30"
 sources:
   - "session-logs/20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md"
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
   - "session-logs/20260522-234234-bc6e-disk-monitoring-내용을-분석해-주세요,.md"
+  - "session-logs/20260530-103829-7786-이번주-disk-monitoring-내용-분석해주세요.md"
 confidence: high
 related:
   - "wiki/patterns/launchd-plist-symlink-from-project.md"
@@ -150,7 +151,51 @@ config 와 스크립트 기본값 양쪽에 추가:
 
 `config.json` 에 있던 `~/Library/Developer`, `~/Library/Mobile Documents` 가 `! timeout` 으로 잡혀 사각지대로 의심됐지만 실제로는 **둘 다 폴더 자체가 없음** (Xcode 미설치, iCloud Drive 비활성). config 청소 후보.
 
+## 세 번째 운영 회고 (2026-05-30)
+
+### 이번 주 (5/24~5/30) 디스크 여유 공간 추이
+
+| 날짜 | 여유 공간 | 변화 |
+|------|-----------|------|
+| 5/24 | 123.3G | — |
+| 5/25 | 123.3G | +0.0G |
+| 5/26 | 123.2G | -0.1G |
+| 5/27 | 123.1G | -0.2G |
+| 5/28 | 122.2G | -0.9G |
+| **5/29** | **117.4G** | **-4.8G** ⚠️ |
+| 5/30 | 116.9G | -0.5G |
+
+### 5/29 급감 (-4.77G) 원인 분석
+
+- **모니터링 경로 내 변화**: +0.8G (`.npm` 캐시 증가)
+- **free 감소**: -4.77G → **약 5.5G 가 모니터링 밖 경로에서 증가**
+- 원인: `~/project/git/wk/wide` 프로젝트 시작 → `src-tauri` 빌드 아티팩트 4.2G (Tauri 앱의 Rust 컴파일 산물)
+
+**발견 패턴**: `tracked 경로 변화량 << free 감소량` = 사각지대가 주 원인. 프로젝트 디렉터리가 config 에 없을 때 빌드 아티팩트가 silent 하게 쌓인다.
+
+### 모니터링 경로 대폭 확장 (23 → 31개)
+
+개발 도구 캐시/데이터 경로 8개 신규 추가:
+
+| 경로 | 크기 | 내용 |
+|------|------|------|
+| `~/project` | 17G | 개발 프로젝트 전체 (wide 등) |
+| `~/.hermes` | 5.7G | Hermes 에이전트 profiles/캐시 |
+| `~/.local` | 1.8G | pip/uv/pipx 패키지 |
+| `~/.openclaw` | 951M | OpenClaw npm/extensions |
+| `~/.bun` | 547M | Bun 런타임 + 패키지 |
+| `~/.codex` | 250M | Codex CLI 캐시 |
+| `~/.cursor` | 114M | Cursor IDE 설정/캐시 |
+| `~/.claude` | 1.0G | Claude Code transcript/설정 |
+
+**총 사각지대 해소**: ~26G → 내일부터 `report` 에 이 경로들이 모두 반영됨.
+
+### 베이스라인 재설정
+
+신규 경로 포함 스캔 실행 → `2026-05-30.json` (31개 경로, free 116.5G) 이 새 baseline.
+
 ## 변경 이력
 
 - 2026-05-14: 최초 생성. disk_monitor.py 작성, 첫 baseline 스냅샷, launchd 등록, plist 프로젝트 폴더 이전, 첫 캐시 정리 (3.23G 회수)
 - 2026-05-22: 1주일 운영 후 사각지대 발견 (`.npm` `.cache` 등), config 18→23 경로 확장, `du` timeout fallback (depth=0 재시도) 추가, `npm`/`uv` 캐시 정리로 9.4G 추가 회수 (출처: session-logs/20260522-234234-bc6e)
+- 2026-05-30: 5/29 -4.77G 급감 분석 (wide/src-tauri 빌드 아티팩트가 사각지대). 개발 도구 경로 8개 추가 (~/project, ~/.hermes, ~/.local, ~/.openclaw, ~/.bun, ~/.codex, ~/.cursor, ~/.claude — 총 ~26G 해소). 신규 경로 포함 베이스라인 재설정 (출처: session-logs/20260530-103829-7786)

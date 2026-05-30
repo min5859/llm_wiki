@@ -1,9 +1,31 @@
 ---
 title: Operation Log
-updated: 2026-05-24T10:00:00+09:00
+updated: 2026-05-30T18:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-30T18:00 — wiki-ingest (session-logs, ingested: false 3건)
+
+처리 session-log 3건. 신규 페이지 1건, 기존 페이지 갱신 5건.
+
+- **3건 분포**:
+  - 10:38 disk_monitor — 이번 주 디스크 모니터링 분석. 5/29 -4.77G 급감 원인(wide/src-tauri 빌드 아티팩트), 개발 도구 경로 8개 추가 (~26G 사각지대 해소). `wiki/projects/disk-monitor.md` 갱신
+  - 11:02 ht_trading — KIS API 서킷브레이커 구현, 추가매수 재개 조건 변경, n_stock_info V3 리버트+선택적 재적용, screener min_score 62 복원, 거래대금 순위 추가. `wiki/projects/ht-trading.md` 대규모 갱신, `wiki/analyses/scoring-version-comparison-methodology.md` 갱신
+  - 11:28 dev-blog — `lib/run-daily-pipeline.mjs` 공통화(~700줄→~150줄), `lib/collect-utils.mjs` 추출. `wiki/projects/dev-blog.md` 갱신
+
+- **신규 페이지 1건** (Phase I — 범용 지식):
+  - `wiki/analyses/api-circuit-breaker-trading-pattern.md` — API 서킷브레이커 패턴 (ht_trading KIS 구현에서 일반화)
+
+- **갱신 페이지 5건**:
+  - `wiki/projects/disk-monitor.md` — 5/30 운영 회고 + 경로 확장 추가
+  - `wiki/projects/ht-trading.md` — min_score 복원, 서킷브레이커, 반등 조건, V3 리버트, 거래대금 순위
+  - `wiki/projects/dev-blog.md` — run-daily-pipeline.mjs 리팩토링 섹션 추가
+  - `wiki/analyses/scoring-version-comparison-methodology.md` — V3 리버트 결정 섹션 추가
+  - `wiki/index.md` — 프로젝트 요약 3건 갱신, 분석 페이지 2건 추가
+
+- raw-sources/ 신규 .md 없음, `.cache/extracted/` 없음, fetched/ 없음, type: mcp-note 0건
+- Marked ingested: true — 3개 session-log 파일 전체
 
 ## 2026-05-24T10:00 — wiki-ingest (session-logs, ingested: false 1건)
 
