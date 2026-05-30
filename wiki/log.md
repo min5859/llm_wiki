@@ -1,9 +1,23 @@
 ---
 title: Operation Log
-updated: 2026-05-30T18:00:00+09:00
+updated: 2026-05-31T00:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-05-31T00:00 — wiki-ingest (session-logs, ingested: false 1건)
+
+처리 session-log 1건. 신규 페이지 0건, 기존 페이지 갱신 2건.
+
+- **1건 분포**:
+  - 20260530-203624-b2b6 ht_trading — 시각 가드 09:30 원복 + trailing stop activation 4%→3%, distance 전 구간 2%p 축소
+
+- **갱신 페이지 2건**:
+  - `wiki/projects/ht-trading.md` — 시각 가드 섹션 신설, trailing_tiers 파라미터 튜닝 이력 표 추가, 설계 변경 이력 2행 추가, sources 추가
+  - `wiki/index.md` — ht-trading 요약 갱신 (시각 가드, trailing_tiers 현재 설정 반영)
+
+- raw-sources/ 신규 .md 없음, `.cache/extracted/` 없음, fetched/ 없음, type: mcp-note 0건
+- Marked ingested: true — 1개 session-log 파일
 
 ## 2026-05-30T18:00 — wiki-ingest (session-logs, ingested: false 3건)
 

@@ -19,7 +19,7 @@ updated: 2026-05-30T00:00:00+09:00
 ## 프로젝트 (projects/)
 
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
-- [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점). KIS API 서킷브레이커 (연속 5회 오류 시 주문 중지). 추가매수 재개 조건 (저점 반등 +3% AND 기술점수 회복). n_stock_info V3 리버트 → EPS/캔들만 선택적 재적용 (모멘텀 충돌 회피). screener min_score 62 복원. 거래대금 TOP 10 텔레그램 추가.
+- [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점). KIS API 서킷브레이커 (연속 5회 오류 시 주문 중지). 추가매수 재개 조건 (저점 반등 +3% AND 기술점수 회복). n_stock_info V3 리버트 → EPS/캔들만 선택적 재적용 (모멘텀 충돌 회피). screener min_score 62 복원. 거래대금 TOP 10 텔레그램 추가. 시각 가드 09:30 (매수/매도 공통). trailing stop activation 3%, tiers {3%,2%}/{12%,4%}/{22%,8%}.
 - [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅
 - [[oss-radar]] — 주간 GitHub OSS 발굴 파이프라인: discover→fetch→analyze→publish 6단계, star_velocity 스코어링, env -u CLAUDECODE 중첩세션 방지, GitHub topic OR 미지원 우회, config/.env 시크릿 분리
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
