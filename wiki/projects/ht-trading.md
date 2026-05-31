@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-05-30"
+updated: "2026-06-01"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
@@ -21,6 +21,7 @@ sources:
   - "session-logs/20260527-213708-7369-오늘-SK-스퀘어-매수-거부가-발행-했는데-원인이-뭔지-로그를-살펴봐-주세요.md"
   - "session-logs/20260530-110224-e6bb-ht_trading은-min_score=48에서-하루-종일-후보-0개였습니다.-현재-시장.md"
   - "session-logs/20260530-203624-b2b6-얼마전-매수매도-시작-시간을-9시30분에서-매도는-9시10분,-매수는-10시-로-변경했는데.md"
+  - "session-logs/20260531-211232-de76-지금-프로그램에서-몇가지종목은-지정해서-무한-매수법으로-운용하려고-합니다.-현재-구조를-파.md"
 confidence: "high"
 related:
   - "wiki/bugs/kis-cash-d2-settlement-buy-rejection.md"
@@ -630,6 +631,125 @@ V3 적용 효과 검증 핵심 지표: 점수 평균 차이 / cutoff 통과율 (
 미국: OverseasAPI.get_volume_rank() 응답 price × volume 계산
 ```
 
+## 무한 매수법 (InfiniteBuying) 전략 활성화 (2026-05-31)
+
+161580.KQ 종목을 하루 1주씩 평균단가 이하일 때 분할 매수하고, 수익 3% 달성 후 tiered trailing stop으로 자동 매도하는 전략을 `scoring_kospi`와 독립적으로 동시 운용.
+
+commit: `34b1a88 feat: 무한매수법 전략 활성화`
+
+### 설계 결정: Signal.bypass_position_check 플래그 (Option C 선택)
+
+무한 매수법은 포지션이 계속 누적되므로 RiskManager의 30% 누적 포지션 한도에 의해 조기 차단됨. 3가지 아키텍처 옵션 중 Option C를 채택:
+
+| 옵션 | 접근 | 결정 |
+|------|------|------|
+| **A: 전역 한도 상향** | `max_position_pct: 0.30 → 0.70` | ❌ scoring_kospi까지 70%까지 투자 가능해져 의도치 않은 리스크 확대 |
+| **B: 전략별 RiskManager** | `risk_overrides` + LiveEngine 분기 | ❌ LiveEngine 구조 변경이 크고 복잡도 높음 |
+| **C: Signal 플래그** | `Signal.bypass_position_check: bool = False` | ✅ backward compatible, 최소 범위 변경 |
+
+**구현**: `Signal.bypass_position_check = True` 로 설정된 신호는 `RiskManager._validate_buy()` 에서 누적 포지션 비율 체크(30% 한도)만 건너뜀. 현금 확인·단일 주문금액 체크는 그대로 유지. `scoring_kospi` 신호는 `bypass_position_check = False` (default) 이므로 영향 없음.
+
+### InfiniteBuying Tiered Trailing Stop
+
+수익 3% 달성 시 고점 추적 시작. `ScoringStrategy`의 `trailing_tiers`보다 훨씬 타이트한 거리:
+
+| 수익 구간 | 고점 대비 하락 시 매도 |
+|---------|-----------------|
+| 3% ~ 7% | **1%** |
+| 7% ~ 15% | **2%** |
+| 15% 이상 | **3%** |
+
+```yaml
+# config/strategies/infinite_buying.yaml
+trailing_activation_pct: 0.03
+trailing_tiers:
+  - {from: 0.03, to: 0.07, distance: 0.01}
+  - {from: 0.07, to: 0.15, distance: 0.02}
+  - {from: 0.15, to: 999, distance: 0.03}
+```
+
+> ScoringStrategy의 trailing_tiers({3%,2%}/{12%,4%}/{22%,8%})보다 타이트한 이유: 매도 후 사이클 리셋 → 재진입 가능 구조이므로 조기 익절이 유리.
+
+매도 후 `buy_count=0`, `_peak_prices[symbol]` 제거 → 다음 하락 시 재매수 사이클 자동 시작.
+
+### ScoringStrategy.exclude_codes 기능 추가
+
+`on_bar` 진입 시 지정 종목을 스킵해 scoring과 InfiniteBuying의 동일 종목 중복 진입 방지.
+
+```yaml
+# config/strategies/scoring.yaml
+exclude_codes:
+  - "161580"   # 무한매수법 운용 종목 격리
+```
+
+### _limit_buy_signals 우선순위 변경
+
+기존: 사이클당 최대 3개 BUY 신호 (점수순)
+변경: **이미 포지션이 있는 종목의 BUY(= 추가매수)는 3개 제한 제외**, 신규 BUY만 점수순 3개 제한
+
+```python
+add_buys = [(s, sig) for s, sig in buys if sig.symbol in self._cached_positions]
+new_buys = [(s, sig) for s, sig in buys if sig.symbol not in self._cached_positions]
+new_buys.sort(key=_buy_score, reverse=True)
+return sells + add_buys + new_buys[:self._MAX_BUY_SIGNALS]
+```
+
+### max_positions 11로 조정
+
+`config/trading.yaml`: `max_positions: 11` (scoring_kospi 10종목 + 무한매수법 1종목)
+
+### 변경 파일 요약 (9파일)
+
+| 파일 | 변경 내용 |
+|------|-----------|
+| `core/models.py` | `Signal`에 `bypass_position_check: bool = False` 추가 |
+| `risk/manager.py` | bypass 플래그 True 시 누적 포지션 한도 체크 스킵 |
+| `engine/live_engine.py` | `_limit_buy_signals` 추가매수 우선 통과 로직 |
+| `strategy/base.py` | `buy()` 메서드에 `bypass_position_check` 파라미터 추가 |
+| `infinite_buying.py` | 1주 고정 매수 + tiered trailing stop 전체 재구현 |
+| `scoring_strategy.py` | `exclude_codes` 지원 추가 |
+| `infinite_buying.yaml` | trailing_tiers, num_splits: 40 |
+| `scoring.yaml` | `exclude_codes: ["161580"]` 추가 |
+| `trading.yaml` | `infinite_buying_kosdaq` 활성화, `max_positions: 11` |
+
+신규 테스트 19개: `test_infinite_buying_trailing.py` 12개 + `test_scoring_exclude_codes.py` 7개. 전부 통과.
+
+### 종목 추가/변경 방법
+
+**같은 파라미터**로 운용: `config/trading.yaml` (symbols) + `config/strategies/scoring.yaml` (exclude_codes) 두 곳만 수정.
+
+**종목별 파라미터 분리** 필요 시: 전략 인스턴스를 별도 등록 + 별도 `.yaml` 파일 사용.
+
+```yaml
+# 별도 파라미터 예시
+- name: "infinite_buying_035720"
+  class: "ht_trading.strategy.builtin.infinite_buying.InfiniteBuying"
+  params_file: "strategies/infinite_buying_035720.yaml"
+  symbols:
+    - market: "KOSDAQ"
+      codes: ["035720"]
+```
+
+> **주의**: KOSPI 종목은 `market: "KOSPI"`, KOSDAQ 종목은 `market: "KOSDAQ"` 으로 지정.
+
+## 휴장 대기 중 생존 로그 (2026-05-31, commit bcf5d74)
+
+주말/공휴일에 프로세스 정상 대기인지 크래시인지 구분 불가 문제를 해결. 장외 대기 루프에 1시간마다 heartbeat 로그 추가.
+
+```python
+# live_engine.py 장외 대기 루프 (5줄 변경)
+wait_end = time.monotonic() + wait_seconds
+last_log = time.monotonic()
+while self._running and time.monotonic() < wait_end:
+    time.sleep(1)
+    if time.monotonic() - last_log >= 3600:
+        remaining = (wait_end - time.monotonic()) / 60
+        logger.info("휴장 대기 중 (프로세스 정상). 개장까지 %.0f분.", remaining)
+        last_log = time.monotonic()
+```
+
+확인 방법: 로그에 `"휴장 대기 중 (프로세스 정상)"` 가 1시간마다 찍히면 정상. 없으면 프로세스 중단 의심.
+
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260422-230939-22f1 에서 추출)
@@ -646,4 +766,5 @@ V3 적용 효과 검증 핵심 지표: 점수 평균 차이 / cutoff 통과율 (
 - 2026-05-27: 리스크 거부 텔레그램 알림 세부 사유 추가. `RiskManager.last_reject_reason` 속성 추가, 6가지 거부 조건별 수치 포함 메시지 설정, `live_engine.py` 알림에 포함. 12 테스트 통과. SK스퀘어 2차 분할 매수 시도가 누적 포지션 30% 한도 초과로 정상 거부된 사례 확인 (출처: session-logs/20260527-213708-7369-*)
 - 2026-05-30: KIS API 서킷브레이커 구현 — 연속 오류 5회 시 주문 중지 + 텔레그램 알림 (commit `32a1451`). 추가매수 재개 조건 개선 — 드로다운 초과 시 저점 반등 +3% AND 기술점수 20/40 이상으로 허용 (commit `7e752ed`, 테스트 8개 추가). n_stock_info V3 리버트 (commit `afea220`) + 선택적 재적용 (EPS→earnings_yield, 캔들 세분화) — 모멘텀 전략과 충돌하는 신고가 역전/거래량 역전/MA 페이드는 V2 유지. screener min_score 48→62 복원 (V2 분포 기준). 거래대금 TOP 10 텔레그램 알림 추가 (출처: session-logs/20260530-110224-e6bb-*)
 - 2026-05-30 (2nd, 20:36~21:46): 시각 가드 매수/매도 09:30 원복 (commit `tune: 매수/매도 시각 가드 10:00/09:10 → 09:30 원복`). trailing stop activation 4%→3%, distance 전 구간 2%p 축소 — tier1 {4%,4%}→{3%,2%}, tier2 {12%,6%}→{12%,4%}, tier3 {22%,10%}→{22%,8%} (commit `tune: trailing stop 활성화 4%→3%, distance 전 구간 2%p 축소`). 시각 가드 섹션 신설, trailing_tiers 파라미터 튜닝 이력 표 추가 (출처: session-logs/20260530-203624-b2b6-*)
+- 2026-05-31: 무한매수법(InfiniteBuying) 전략 활성화 (commit `34b1a88`). Signal.bypass_position_check 플래그 도입(Option C — 최소 범위 변경), ScoringStrategy.exclude_codes 추가, _limit_buy_signals 추가매수 우선 통과, Tiered Trailing Stop (3→1%/7→2%/15→3%). max_positions: 11 (scoring 10 + 무한매수 1). 휴장 대기 중 1시간마다 생존 로그 추가 (commit `bcf5d74`). 신규 테스트 19개 통과 (출처: session-logs/20260531-211232-de76-*)
 - 2026-05-19: 같은 세션의 후속 질의 — 「화신 -19%, GS -11% 인데 왜 손절 안 되나」. `scoring_strategy.py:817~833` 의 매도 룰 4종 (상대 손절 / 절대 손절 / 보유기간 / 트레일링) 점검 결과 **절대 손절이 `if … elif` 구조 때문에 dead code** 라는 사실 발견. 벤치마크 (KOSPI 069500) 데이터가 라이브에서 항상 붙어 있어 `elif profit_pct <= -self.absolute_stop_loss_pct:` 분기는 도달 불가. `absolute_stop_loss_pct: 0.10` 설정값은 실효 없음. 게다가 V3 의 D 튜닝으로 `relative_stop_loss_pct: 0.15 → 0.20` 완화 (5/10 commit `d0571c5`) 이 결합돼, **벤치마크 동반 하락기엔 어떤 손실도 컷 못 함**. 화신 (-19%, 5/12 매수, 7일) 과 GS (-11%, 5/15 매수, 4일) 가 정확히 그 케이스. 권장 수정은 `elif` → `if` 로 절대 손절을 병행 검사 + `relative_stop_loss_pct` 0.15 환원 또는 `absolute_stop_loss_pct` 0.08 강화. 일반 교훈은 [[absolute-stop-loss-elif-dead-code]] 로 분리 (벤치마크 의존 손절은 fallback 이 아니라 "추가 가드" 로 설계 / 상대 손절 완화가 절대 손절 dead code 와 결합되면 손절 자체가 꺼진 상태). **사용자 확인까지 코드 변경은 미진행** (출처: session-logs/20260518-233131-6a41-*)

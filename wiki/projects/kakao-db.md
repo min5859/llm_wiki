@@ -2,12 +2,13 @@
 title: "kakao-db — Mac KakaoTalk 로컬 DB + LOCO 어댑터 (Rust)"
 domain: personal
 sensitivity: internal
-tags: ["kakao", "kakaotalk", "rust", "sqlcipher", "loco", "personal-memory", "M0", "M1"]
+tags: ["kakao", "kakaotalk", "rust", "sqlcipher", "loco", "personal-memory", "M0", "M1", "M6"]
 created: "2026-05-06"
-updated: "2026-05-27"
+updated: "2026-06-01"
 sources:
   - "session-logs/20260505-235703-d859-https---www.gpters.org-dev-post-kakaotalk-macro-er.md"
   - "session-logs/20260527-225019-71d3-지금-프로그램의-AI-provider-로-어떤걸-사용하고-있나요.md"
+  - "session-logs/20260531-231806-c04d-kakao-요약을-웹-페이지로-호스팅하려면-어떻게-하면-되나요.md"
 confidence: medium
 related:
   - "wiki/projects/kakao-mem.md"
@@ -112,6 +113,32 @@ ai_run_codex() {
 
 → Shell 스크립트 기반 AI CLI 어댑터 일반 패턴: [[multi-llm-provider-adapter-pattern]]
 
+## M6-new 웹 호스팅 — 현황 (2026-05-31)
+
+`dashboard.html` (27,961줄)이 **완전한 self-contained** 파일임을 확인. 외부 JS/CSS 의존성 없음, 모든 내용 인라인. 파일 하나만 배포하면 모든 기능 동작.
+
+### 호스팅 옵션 비교
+
+| 옵션 | 방법 | 접근 제어 |
+|------|------|----------|
+| **GitHub Pages** | repo push → 자동 배포 | private repo = 유료, 또는 공개 |
+| **Cloudflare Pages** | repo 연결 또는 `wrangler pages deploy` | Zero Trust Access로 본인만 접근 (이메일 OTP) |
+| **직접 업로드** | `wrangler pages deploy <dir>` | 위와 동일 |
+
+**권장**: Cloudflare Pages + Zero Trust Access (이메일 OTP policy).
+
+`scripts/deploy-dashboard.sh` 및 `run-summary.sh` stage 5 (KAKAO_DEPLOY_REPO 설정 시 자동 push) 구현 이미 완료.
+
+### 남은 셋업 (사용자 1회 작업)
+
+1. 비공개 GitHub repo 생성 (`wooki/kakao-dashboard-private` 등)
+2. Cloudflare Pages → Connect to Git 연결 (자동 배포)
+3. Zero Trust → Access → 본인 이메일 OTP policy
+4. LaunchAgent plist의 `EnvironmentVariables`에 `KAKAO_DEPLOY_REPO=<repo url>` 추가
+5. `launchctl unload/load` 재로드 후 다음 export 시 자동 push 검증
+
+> **선택**: `KAKAO_DASHBOARD_PASSWORD_HASH` 클라이언트 비번 게이트 추가, 또는 Vercel / Tailscale Funnel 대체 호스팅 검토.
+
 ## 관련 맥락
 
 - [[kakao-mem]] — Python + `kakaocli` 의존 자매 프로젝트. `kakao-db` 는 그 한계 우회.
@@ -123,3 +150,4 @@ ai_run_codex() {
 
 - 2026-05-06: 최초 생성 (session-logs/20260505-235703-d859) — M0 완료 / M1 진입 / 5 결정 / inspect 휴리스틱 / 운영 모드 기록
 - 2026-05-27: AI provider 다중화 추가 — `KAKAO_AI_PROVIDER` 환경변수로 claude/cursor/codex 선택, 기본값 codex, provider별 Shell 함수 추상화, 레거시 KAKAO_AI_BIN 하위 호환 유지 (session-logs/20260527-225019-71d3-*)
+- 2026-06-01: M6-new 웹 호스팅 현황 추가 — dashboard.html self-contained 확인, Cloudflare Pages + Zero Trust Access 권장, 남은 셋업 5단계 기록 (session-logs/20260531-231806-c04d-*)

@@ -1,9 +1,28 @@
 ---
 title: Operation Log
-updated: 2026-05-31T00:00:00+09:00
+updated: 2026-06-01T00:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-06-01T00:00 — wiki-ingest (session-logs, ingested: false 3건)
+
+처리 session-log 3건. 신규 페이지 0건, 기존 페이지 갱신 4건.
+
+- **3건 분포**:
+  - 20260531-211232-de76 ht_trading — 무한매수법(InfiniteBuying) 전략 활성화 (Signal.bypass_position_check, Tiered Trailing Stop, exclude_codes, _limit_buy_signals 우선순위, 휴장 생존 로그)
+  - 20260531-231806-c04d kakao-db — M6-new 웹 호스팅: dashboard.html self-contained 확인, Cloudflare Pages 권장
+  - 20260601-031736-c8c8 dev-blog — Linux Kernel Weekly Digest 자동 실행 (assistant turns: 0, 설계 변경 없음) → wiki 페이지 변경 없이 ingested: true 처리
+
+- **갱신 페이지 4건**:
+  - `wiki/projects/ht-trading.md` — InfiniteBuying 활성화 섹션 추가, 휴장 생존 로그, 변경 이력 추가, sources 추가
+  - `wiki/projects/kakao-db.md` — M6-new 웹 호스팅 현황 섹션 추가, sources 추가
+  - `wiki/analyses/dca-trailing-stop-tuning.md` — 재진입 가능 구조 vs 포지션 유지 구조 trailing distance 비교 추가
+  - `wiki/index.md` — ht-trading, kakao-db 요약 갱신
+
+- **Phase I (범용 분석)**: InfiniteBuying vs ScoringStrategy trailing_tiers 비교를 dca-trailing-stop-tuning.md 에 편입 (별도 페이지 불필요)
+- raw-sources/ 신규 .md 없음, `.cache/extracted/` 없음, fetched/ 없음, type: mcp-note 0건
+- Marked ingested: true — 3개 session-log 파일 전체
 
 ## 2026-05-31T00:00 — wiki-ingest (session-logs, ingested: false 1건)
 

@@ -4,7 +4,7 @@ domain: personal
 sensitivity: public
 tags: ["analysis", "trading", "dca", "trailing-stop", "tuning", "infinite-buy"]
 created: "2026-05-10"
-updated: "2026-05-10"
+updated: "2026-06-01"
 source_session: "20260510-194933-8c5e-최근-몇일간-로그를-분석해서-수익율을-더-높이기-위한-전략을-추천해-주세요.md"
 confidence: high
 related:
@@ -39,6 +39,15 @@ DCA (Dollar-Cost Averaging) + Trailing Stop 조합 자동매매에서, **운영 
 | **진단 신호**: 청산 분포가 +3~5% 에 응집 | **진단 신호**: 청산 시점이 고점 후 며칠 지연 |
 
 → 일반 권장 범위: **2.5~3.0%** (1.5~2.0% 는 너무 타이트). 단, "최소 보장 수익률" (예: 3.0%) 을 함께 두어 손실 청산 방지.
+
+**매도 후 재진입 가능 구조에서는 더 타이트한 거리가 적절**: ht_trading InfiniteBuying 전략은 매도 후 사이클 리셋 → 다음 하락 시 재매수로 이어지므로 조기 익절이 유리. ScoringStrategy(포지션 유지 구조)와 비교:
+
+| 전략 | Tier 1 | Tier 2 | Tier 3 | 특성 |
+|------|--------|--------|--------|------|
+| ScoringStrategy | 3%→2% | 12%→4% | 22%→8% | 포지션 유지 / 큰 추세 추적 |
+| InfiniteBuying | 3%→**1%** | 7%→**2%** | 15%→**3%** | 매도 후 재진입 / 조기 확정 OK |
+
+> **패턴**: 매도=사이클 종료+재진입 가능 구조면 trailing distance를 타이트하게 설정해도 손해가 아님. 매도=포지션 소멸 구조면 큰 추세를 놓칠 위험이 있어 느슨하게 설정 필요.
 
 ### 2. 매수 쿨다운 (DCA 회전율)
 
@@ -135,3 +144,4 @@ InfiniteBuyStrategy 초기화: 분할=40, 목표수익=5.0%, 라운드예산=3,8
 ## 변경 이력
 
 - 2026-05-10: 최초 작성 (session-logs/20260510-194933-8c5e-*.md). Upbit 무한매수법 5 레버 튜닝 사례를 일반화. ht_trading 의 trailing/단계익절 튜닝과 같은 사상
+- 2026-06-01: InfiniteBuying (재진입 가능 구조) vs ScoringStrategy (포지션 유지 구조) trailing_tiers 비교 추가. "매도 후 재진입 가능 → 타이트한 거리 적절" 설계 원칙 추가 (session-logs/20260531-211232-de76-*)
