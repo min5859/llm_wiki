@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-06-01"
+updated: "2026-06-03"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
@@ -22,6 +22,8 @@ sources:
   - "session-logs/20260530-110224-e6bb-ht_trading은-min_score=48에서-하루-종일-후보-0개였습니다.-현재-시장.md"
   - "session-logs/20260530-203624-b2b6-얼마전-매수매도-시작-시간을-9시30분에서-매도는-9시10분,-매수는-10시-로-변경했는데.md"
   - "session-logs/20260531-211232-de76-지금-프로그램에서-몇가지종목은-지정해서-무한-매수법으로-운용하려고-합니다.-현재-구조를-파.md"
+  - "session-logs/20260601-074556-75cf-스코링-전략에서-매수를-3분할로-하고-있는데-3분할-인터벌이-얼마로-되어-있나요.md"
+  - "session-logs/20260602-221627-322d-아래-개선제안-사항을-검토해서-반영하는게-합리적인지-판단해-주세요.md"
 confidence: "high"
 related:
   - "wiki/bugs/kis-cash-d2-settlement-buy-rejection.md"
@@ -33,6 +35,7 @@ related:
   - "wiki/analyses/dca-trailing-stop-tuning.md"
   - "wiki/analyses/polling-interval-vs-bar-interval.md"
   - "wiki/bugs/absolute-stop-loss-elif-dead-code.md"
+  - "wiki/projects/n-stock-info.md"
 ---
 
 # ht_trading — 알고리즘 트레이딩 프로젝트
@@ -767,4 +770,6 @@ while self._running and time.monotonic() < wait_end:
 - 2026-05-30: KIS API 서킷브레이커 구현 — 연속 오류 5회 시 주문 중지 + 텔레그램 알림 (commit `32a1451`). 추가매수 재개 조건 개선 — 드로다운 초과 시 저점 반등 +3% AND 기술점수 20/40 이상으로 허용 (commit `7e752ed`, 테스트 8개 추가). n_stock_info V3 리버트 (commit `afea220`) + 선택적 재적용 (EPS→earnings_yield, 캔들 세분화) — 모멘텀 전략과 충돌하는 신고가 역전/거래량 역전/MA 페이드는 V2 유지. screener min_score 48→62 복원 (V2 분포 기준). 거래대금 TOP 10 텔레그램 알림 추가 (출처: session-logs/20260530-110224-e6bb-*)
 - 2026-05-30 (2nd, 20:36~21:46): 시각 가드 매수/매도 09:30 원복 (commit `tune: 매수/매도 시각 가드 10:00/09:10 → 09:30 원복`). trailing stop activation 4%→3%, distance 전 구간 2%p 축소 — tier1 {4%,4%}→{3%,2%}, tier2 {12%,6%}→{12%,4%}, tier3 {22%,10%}→{22%,8%} (commit `tune: trailing stop 활성화 4%→3%, distance 전 구간 2%p 축소`). 시각 가드 섹션 신설, trailing_tiers 파라미터 튜닝 이력 표 추가 (출처: session-logs/20260530-203624-b2b6-*)
 - 2026-05-31: 무한매수법(InfiniteBuying) 전략 활성화 (commit `34b1a88`). Signal.bypass_position_check 플래그 도입(Option C — 최소 범위 변경), ScoringStrategy.exclude_codes 추가, _limit_buy_signals 추가매수 우선 통과, Tiered Trailing Stop (3→1%/7→2%/15→3%). max_positions: 11 (scoring 10 + 무한매수 1). 휴장 대기 중 1시간마다 생존 로그 추가 (commit `bcf5d74`). 신규 테스트 19개 통과 (출처: session-logs/20260531-211232-de76-*)
+- 2026-06-01: 분할 매수 인터벌 설계 — 복잡한 날짜 분기 로직 대신 **기존 시각 가드와의 조합으로 단순화**. 2·3분할 간격을 "다음날 09:30"으로 하려고 처음엔 `_can_add_split` 에 라이브/백테스트 날짜 분기 로직을 새로 짰으나 (테스트 다수 수정 필요), 사용자가 "가격(시간 임계)을 충분히 키우면 장이 종료돼 자동으로 다음날로 넘어가지 않나"라고 지적. 장 마지막 체결(15:30)~다음날 첫 매수(09:30) 간격이 18시간이므로 `min_split_interval_minutes: 1080` (18시간) 으로 두면 기존 `_try_buy` 의 09:30 시각 가드와 맞물려 어느 시각 체결이든 다음날 09:30 에 매수된다. 복잡한 분기 구현을 전부 `git restore` 로 리셋하고 단순 분(分) 기반 로직 복원 + yaml 값 하나만 변경 (commit, 2 files 3 insertions). 부수 발견: T9 테스트는 HEAD 에서도 `elapsed < 0` 으로 드로다운 체크에 미도달하던 잠재 버그라 `bar.dt` 를 1080분 이후로 수정. **교훈: 새 분기 로직을 짜기 전에 기존 가드와의 조합을 먼저 본다 — 가장 단순한 구현이 정답일 때가 많다** (출처: session-logs/20260601-074556-75cf-*)
+- 2026-06-02: KIS `get_balance()` 중복 호출 제거 (perf, commit `1b301c3`). 사용자 제안은 "장중 10분마다 잔고 조회를 주문 직전·직후로 줄이자"였으나, 분석 결과 **더 근본적인 중복 호출**이 선행 문제: `_refresh_cache()` 1회가 `get_cash()`/`get_equity()`/`get_positions()` 를 호출하는데 셋 모두 독립적으로 `domestic.get_balance()` 를 부른다 (3배). 사이클당 강제 초기화 2회 + 주문 전후 스냅샷까지 최대 8회/10분 사이클. → `_get_domestic_balance()` 2초 TTL dedup 캐시 래퍼로 연속 호출 시 API 1회만. 주문 전후 `_safe_balance_snapshot()` 은 신선한 값이 필요해 캐시 우회 유지, 실패 시 캐시 미저장으로 서킷브레이커 카운터 영향 없음. **교훈: 호출 빈도를 줄이기 전에 1회당 실제 API 호출 수(중복 통합)부터 본다**. 부수로 기존 실패 TC 4건 수정 (commit `cf93d47`) — ① `test_multiple_symbols_parallel` 의 `assert_called_once()` 가 라운드완료+체결완료 2이벤트 정상 발생을 1회로 잘못 가정 → `assert_called()`, ② `_daily_cache` 기능이 나중에 추가되며 `kis_historical_cache` 3건이 `_try_last_good()` fallback 경로 대신 `_daily_cache` 히트로 조용히 성공 → 해당 호출 전 `_daily_cache.clear()`. **교훈: 새 캐시/경로를 추가하면 기존 테스트가 검증하려던 경로를 우회해 통과/실패가 뒤집힐 수 있다**. 코드 변경 반영에는 launchd 서비스 재시작 필요 (`launchctl kickstart -k gui/$(id -u)/com.wooki.ht-trading`) — 휴장 대기 중이라 매매 중단 없이 안전 (출처: session-logs/20260602-221627-322d-*)
 - 2026-05-19: 같은 세션의 후속 질의 — 「화신 -19%, GS -11% 인데 왜 손절 안 되나」. `scoring_strategy.py:817~833` 의 매도 룰 4종 (상대 손절 / 절대 손절 / 보유기간 / 트레일링) 점검 결과 **절대 손절이 `if … elif` 구조 때문에 dead code** 라는 사실 발견. 벤치마크 (KOSPI 069500) 데이터가 라이브에서 항상 붙어 있어 `elif profit_pct <= -self.absolute_stop_loss_pct:` 분기는 도달 불가. `absolute_stop_loss_pct: 0.10` 설정값은 실효 없음. 게다가 V3 의 D 튜닝으로 `relative_stop_loss_pct: 0.15 → 0.20` 완화 (5/10 commit `d0571c5`) 이 결합돼, **벤치마크 동반 하락기엔 어떤 손실도 컷 못 함**. 화신 (-19%, 5/12 매수, 7일) 과 GS (-11%, 5/15 매수, 4일) 가 정확히 그 케이스. 권장 수정은 `elif` → `if` 로 절대 손절을 병행 검사 + `relative_stop_loss_pct` 0.15 환원 또는 `absolute_stop_loss_pct` 0.08 강화. 일반 교훈은 [[absolute-stop-loss-elif-dead-code]] 로 분리 (벤치마크 의존 손절은 fallback 이 아니라 "추가 가드" 로 설계 / 상대 손절 완화가 절대 손절 dead code 와 결합되면 손절 자체가 꺼진 상태). **사용자 확인까지 코드 변경은 미진행** (출처: session-logs/20260518-233131-6a41-*)

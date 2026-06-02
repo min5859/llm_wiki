@@ -1,9 +1,28 @@
 ---
 title: Operation Log
-updated: 2026-06-01T00:00:00+09:00
+updated: 2026-06-03T00:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-06-03 — wiki-ingest (session-logs, ingested: false 4건)
+
+처리 session-log 4건 (ht_trading 2건 + n_stock_info 2건). 신규 페이지 3건, 기존 페이지 갱신 2건.
+
+- **분류**:
+  - **20260601-074556-75cf** (ht_trading): 분할 매수 인터벌 설계 — 복잡한 날짜 분기 대신 `min_split_interval_minutes: 1080` + 기존 09:30 시각 가드 조합으로 단순화
+  - **20260602-221627-322d** (ht_trading): KIS `get_balance()` 중복 호출 제거 (3회→1회, 2초 TTL dedup 캐시) + 기존 실패 TC 4건 수정 (`_daily_cache` 경로 우회, `assert_called_once` 오가정)
+  - **20260602-223325-f11f** (n_stock_info): 프로젝트 분석 — EPS→EY 라벨 동기화, 안정성 게이트, 섹터 상대 PER 착수
+  - **20260602-230501-585d** (n_stock_info): 리포트 업종 PER 표시 + 섹터 상대 PER 완료 + 백테스트 하네스 + 전체 scored 저장 + config 튜닝
+- Source: session-logs/20260601-074556-75cf-*, 20260602-221627-322d-* (ht_trading)
+  - Updated: wiki/projects/ht-trading.md (sources 2건 + related 1건 [n-stock-info] + updated 2026-06-03 + 변경 이력 2항목 [분할 인터벌 단순화 / get_balance dedup + TC 4건])
+- Source: session-logs/20260602-223325-f11f-*, 20260602-230501-585d-* (n_stock_info)
+  - Created: wiki/projects/n-stock-info.md (신규 프로젝트 페이지 — 아키텍처, 스코어링, 6개 설계 판단)
+  - Created: wiki/analyses/eps-vs-earnings-yield.md (범용 — EPS 절대값 고가주 편향 vs EY 정규화)
+  - Created: wiki/analyses/stock-screening-score-design.md (범용 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향)
+- Skipped: lint·포맷·오타 수정, 탐색적 시행착오 (분할 인터벌 날짜 분기 구현→리셋 과정은 최종 결론만 기록)
+- Updated: wiki/index.md (updated 갱신 + n-stock-info 프로젝트 + eps-vs-earnings-yield / stock-screening-score-design 분석 2건), wiki/log.md
+- Marked ingested: true — 4개 session-log 파일 전체 (생성: projects 1건 [n-stock-info] + analyses 2건, 업데이트: projects 1건 [ht-trading] + index 1건)
 
 ## 2026-06-01T00:00 — wiki-ingest (session-logs, ingested: false 3건)
 

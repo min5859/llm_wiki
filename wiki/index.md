@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-01T00:00:00+09:00
+updated: 2026-06-03T00:00:00+09:00
 ---
 
 # Wiki Index
@@ -20,6 +20,7 @@ updated: 2026-06-01T00:00:00+09:00
 
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
 - [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점). KIS API 서킷브레이커 (연속 5회 오류 시 주문 중지). 추가매수 재개 조건 (저점 반등 +3% AND 기술점수 회복). n_stock_info V3 리버트 → EPS/캔들만 선택적 재적용 (모멘텀 충돌 회피). screener min_score 62 복원. 거래대금 TOP 10 텔레그램 추가. 시각 가드 09:30 (매수/매도 공통). trailing stop activation 3%, tiers {3%,2%}/{12%,4%}/{22%,8%}. **무한매수법(InfiniteBuying) 활성화**: Signal.bypass_position_check 플래그, exclude_codes 종목 격리, Tiered Trailing Stop (3→1%/7→2%/15→3%), max_positions 11.
+- [[n-stock-info]] — 네이버 금융 기반 종목 스크리닝·스코어링·텔레그램 리포트 (Python, collectors→analyzers→reporters→db). 100점 스코어링(40기술+40기본+20리서치). 2026-06-02 세션: EPS→EY 라벨 동기화, 안정성 게이트 분리(적자·고부채 점수 무관 제외), 섹터 상대 PER(네이버 동일업종 PER 외부 벤치마크), 백테스트 하네스(Rank IC+분위 스프레드, 생존 편향 노출), 전체 scored 저장(idempotent DELETE-INSERT), 데이터 기반 config 튜닝(병목은 상한이 아니라 min_score 컷오프 → 65→55)
 - [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅
 - [[oss-radar]] — 주간 GitHub OSS 발굴 파이프라인: discover→fetch→analyze→publish 6단계, star_velocity 스코어링, env -u CLAUDECODE 중첩세션 방지, GitHub topic OR 미지원 우회, config/.env 시크릿 분리
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
@@ -157,3 +158,5 @@ updated: 2026-06-01T00:00:00+09:00
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 출력 파싱 실패의 1회 재시도 + 원문 덤프 패턴: `runAiAdapterAndParse(prompt, { logLabel, maxAttempts=2, failureDir })` 단일 진입점. 어댑터·파싱 묶음 + 파싱 실패 시 `logs/ai-rewrite-failures/<ts>-<label>-attemptN.txt` 에 raw 텍스트 덤프 → 사후 분석 가능. dev-blog 의 6 rewrite 호출부 일괄 적용 (5/18 commit `a42d470`)
 - [[api-circuit-breaker-trading-pattern]] — 외부 API 연속 오류 시 주문 중지 서킷브레이커 패턴: 연속 N회 임계치 카운터 + `api_halted` 플래그 + `submit_order` 선두 차단 + 캐시 TTL 경고 + 텔레그램 halt/회복 1회 알림. ht_trading KIS 구현에서 일반화 (2026-05-30)
 - [[scoring-version-comparison-methodology]] — 알고리즘 교체 후 컷오프 캘리브레이션 vs 진짜 알파 변화 판정: Spearman ρ + Top-N 교집합 2지표, 백테스트의 한계. V3 리버트 결정 추가 (모멘텀 전략 vs IC 검증 집단 충돌, 선택적 재적용 EPS→earnings_yield + 캔들 세분화)
+- [[eps-vs-earnings-yield]] — EPS 절대값 점수의 고가주 편향 (같은 EPS도 비싼 주식이 부당하게 유리) → EY(EPS/주가 비율)로 정규화해 종목 간 비교 가능. "스케일 다른 절대값을 점수 차원에 직접 매핑하지 마라"의 일반 원리 (거래량·시총·매출도 동일)
+- [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 3함정: ① 단순 합산이 결함을 가린다 → 안정성은 가산점 아닌 **게이트**(적자·고부채 점수 무관 제외, None 통과, watchlist 우회) ② 절대 임계값 섹터 편향 → **외부 벤치마크** 상대화 (후보군 내부 상대화는 표본·선택 편향 함정) ③ 백테스트 **생존 편향** — 승자(고점수 재등장)만 저장하면 IC 왜곡 → 전체 universe 저장이 선결
