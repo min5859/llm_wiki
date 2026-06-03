@@ -4,9 +4,10 @@ domain: both
 sensitivity: public
 tags: ["pattern", "disk-monitoring", "macos", "du", "homedir-caches", "diagnosis"]
 created: "2026-05-22"
-updated: "2026-05-22"
+updated: "2026-06-03"
 sources:
   - "session-logs/20260522-234234-bc6e-disk-monitoring-내용을-분석해-주세요,.md"
+  - "session-logs/20260603-150720-5764-디스크-모니터링-상태를-체크해-주세요.-최근-용량이-많이-줄어든것-같습니다.md"
 confidence: high
 related:
   - "wiki/projects/disk-monitor.md"
@@ -50,6 +51,7 @@ disk_blind_spot ≈ ΔFree(전체) - Σ Δsize(추적경로)
 - **Time Machine local snapshots** — `tmutil listlocalsnapshots /` 로 확인. APFS 상에서 보이지 않는 free 잠금
 - **APFS purgeable 공간** — `df` 의 free 와 Finder 의 "사용 가능" 가 불일치하는 주요 원인. `system_profiler SPStorageDataType` 으로 확인
 - **`/private/var/folders/...`** — XPC 캐시, 일부 앱은 여기에 누적
+- **macOS 업데이트 준비물** — OS 업데이트 다운로드(~2G 페이로드) + `com.apple.os.update-*` / `MSUPrepareUpdate` **준비 스냅샷**이 합쳐 흔히 10~16G 점유. `/Library/Updates` 는 보통 비어 있고 실제 페이로드·스냅샷은 `/System/Volumes/Update` 등 추적 밖. `tmutil listlocalsnapshots /` 에 `com.apple.os.update-*` 가 보이고 `softwareupdate --list` 에 대기 업데이트가 있으면 이것. **설치(재시작)하면 자연 회수**되며 사용자 파일 정리로 풀 양이 아니다 (강제 삭제는 재다운로드되므로 금지)
 
 ## `du` 의 trap: timeout 시 통째 누락
 
@@ -67,6 +69,24 @@ def du(path, timeout_s):
 ```
 
 `depth=1` 분해는 잃어도 root size 는 보존 → 일별 diff 가 계속 의미를 가진다.
+
+### 더 나쁜 함정: 완전 실패 시 조용한 누락 (2026-06-03)
+
+`depth=0` 재시도마저 timeout 으로 완전 실패하면 `du_bytes` 가 `{}` 를 반환 → 그 경로가 스냅샷에서 **조용히 사라진다**(`None`). 게다가 `report` 가 "추적 경로 합계" 와 "free 변화" 를 **대조하지 않으면**, "16G 줄었는데 추적 증가는 1.3G" 같은 거대한 갭이 **눈에 안 보인다**. 측정 실패가 곧 "변화 없음" 으로 위장된다.
+
+**보완 3가지 (단일 파일·의존성 0 유지)**:
+
+1. **측정 실패 가시화** — `du_bytes` 가 성공 여부(`ok`)를 함께 반환. `scan` 이 실패 경로를 스냅샷의 `errors` 필드에 기록 + 경고 출력. (실패 경로는 `0` 으로 기록하지 말고 diff 에서 **제외** — `ok=False`)
+2. **진단 공식을 코드에 내장** — `report` 가 `free Δ` vs `추적 top-level 합계 Δ` 를 대조해 한 줄로:
+   ```
+   Free: 117.0G → 101.9G (-15.1G)
+   Tracked Δ (top-level):  +1.2G                          ← 사용자 영역 실제 증가
+   Unaccounted Δ (system/purgeable/untracked):  +13.9G    ← 사각지대 (업데이트/purgeable 등)
+   ```
+   사각지대 크기가 매 report 에 자동으로 드러나, 사람이 매번 빼볼 필요가 없다.
+3. **스냅샷에 `roots` 기록** — 어떤 경로를 측정했는지 스냅샷에 명시. 구버전 스냅샷(roots/errors 없음)과의 diff 는 fallback 동작.
+
+> 원리: **측정 실패를 0/누락으로 침묵 처리하면 안 된다.** 실패는 명시적으로 기록하고, 부분합은 항상 전체(free)와 대조해 설명 안 되는 갭을 드러내라. (LLM publish 의 silent skip 가시화 [[prompt-schema-pipeline-coupling]] 와 같은 결.)
 
 ## 진단 워크플로우
 
@@ -100,6 +120,14 @@ def du(path, timeout_s):
 - 회수: `npm cache clean --force` 5.3G + `uv cache clean --force` 4.1G = 9.4G
 - 코드 변경: `du` timeout fallback (`depth=0` 재시도), config 18 → 23 경로
 
+## 사례 (2026-06-03, [[disk-monitor]])
+
+- ΔFree = -16.2G (125.6 → 109.5G) 하루 만에 급감. 추적 top-level 증가는 합쳐 ~1.3G (최대 항목 `Caches/...claudefordesktop.ShipIt` +670M = Claude Desktop 업데이트 잔재, safe). home 내 최근 2일 1GB+ 신규 파일 없음.
+- 정체: **macOS Tahoe 26.5.1 업데이트가 다운로드되어 설치 대기(restart) 중.** `tmutil listlocalsnapshots /` 에 `com.apple.os.update-*` / `MSUPrepareUpdate` 3개, `softwareupdate --list` 에 대기 업데이트. 페이로드 ~2G + 준비 스냅샷이 free 점유. 5/22 -9.7G→5/23 +22.3G 출렁임도 같은 업데이트 사이클로 추정.
+- 회복: 업데이트 설치(재시작)하면 자연 회수. 사용자 파일 정리 대상 아님.
+- 코드 보완: `du_bytes` 성공여부 반환 + `errors`/`roots` 스냅샷 필드, `report` 에 Tracked vs Unaccounted 갭 표시, `/Library/Updates` 추적 추가. (이번 사건이 갭 표시 한 줄로 설명됨)
+
 ## 변경 이력
 
 - 2026-05-22: 최초 생성. disk_monitor 두 번째 운영 회고 기반 (출처: session-logs/20260522-234234-bc6e)
+- 2026-06-03: macOS 업데이트 준비물 사각지대 추가. `du` 완전 실패 시 조용한 누락 함정 + 보완 3가지(측정 실패 가시화 `errors`, 진단 공식 코드 내장 `Unaccounted Δ`, `roots` 기록). 2026-06-03 사례(-16G = macOS Tahoe 26.5.1 업데이트 준비) (출처: session-logs/20260603-150720-5764)

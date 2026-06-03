@@ -4,9 +4,10 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "openclaw", "ai-agent", "telegram", "automation", "npm"]
 created: "2026-04-23"
-updated: "2026-05-07"
+updated: "2026-06-03"
 sources:
   - "session-logs/20260423-113736-72aa-openclaw-를-업데이트-하려고-합니다.-가이드를-알려주세요.md"
+  - "session-logs/20260603-140159-fbbf-지금-openclaw가-응답이-없는-것-같습니다.-왜-응답이-없는지-확인해-주세요.md"
   - "session-logs/20260423-194609-6b61-코딩전용-openclaw-agent-를-추가했는데-텔레그램으로-메세지를-보내면-응답이-없습.md"
   - "session-logs/20260426-120703-304f-현재-프로젝트는-openclaw-라는-Agent-를-사용해서-자산관리-웹앱을-구현해보고-있.md"
   - "session-logs/20260426-121630-14c3-https---bongman.tistory.com-1341-위-웹페이지-내용을-요약해-주세.md"
@@ -20,6 +21,8 @@ related:
   - "wiki/analyses/openclaw-acp-runtime-internals.md"
   - "wiki/bugs/openclaw-coder-silent-3-layer.md"
   - "wiki/decisions/openclaw-coder-default-model-codex.md"
+  - "wiki/analyses/oauth-refresh-token-rotation-multi-client.md"
+  - "wiki/projects/hermes.md"
 ---
 
 # OpenClaw — AI 에이전트 자동화 도구
@@ -328,6 +331,18 @@ return {
 
 운영 정책: 일반 메시지는 embedded 모델 (Codex) 로 즉시 응답. Anthropic Claude 는 `/acp spawn --bind here` 명시 호출 시에만 사용. ACP wrapper 가 user-level Claude.ai connector / MCP 를 모두 상속하므로 보안적으로 신뢰된 사용자만 ACP 호출 권장.
 
+## 2026-06-03 전 토픽 응답 무 사건 (Codex OAuth refresh token 쟁탈)
+
+OpenClaw 가 모든 텔레그램 토픽에서 응답이 끊긴 사건. 5/7 의 3계층(plugins.allow/좀비 task/anthropic 403) 과 **다른 새 원인** — openai-codex provider 인증 실패.
+
+- **증상**: Telegram `in:1m ago, out:6h ago` (메시지는 받지만 응답 못 냄). raw log 에 `FailoverError: No available auth profile for openai-codex (all in cooldown or unavailable)` 48회, main·temp 등 모든 lane.
+- **함정**: `openclaw models status` 는 codex 토큰 2개를 `ok, expires in 41h/33h` 로 표시. 하지만 이건 **로컬 만료시각**일 뿐 — 실제로는 서버측에서 토큰 무효화(`token has been invalidated`, 401). fallback 체인이 `gpt-5.5→gpt-5.3-codex→gpt-5.4` 로 **셋 다 openai-codex** 라 provider 하나 죽으면 전멸.
+- **진짜 원인**: 같은 Codex OAuth 계정(`min5859@gmail.com`)을 OpenClaw·Hermes(·codex CLI)가 공유하는데, Codex refresh token 은 **회전형(일회용)**. 11일째 돌던 Hermes 가 토큰을 회전시켜 OpenClaw 토큰을 무효화 → 14:17 OpenClaw 재로그인 → 14:29 Hermes 가 다시 회전 → 재발하는 **핑퐁**.
+- **해결**: 클라이언트별 **독립 device-flow OAuth 등록** (`openclaw models auth login --provider openai-codex` + Hermes 도 따로). 각자 독립 refresh token 체인 → 쟁탈 소멸.
+- **부차**: anthropic OAuth 403 은 `lane=cron-nested`(08:00 뉴스 스크랩 cron, claude-sonnet)에서만이고 텔레그램 응답무와 무관. 5/7 에 "정리 권장" 한 만료 `sk-ant-o...` 토큰이 그대로 남아 매일 cron 실패 중 — 이월 권장.
+
+일반 메커니즘·진단·공유 방식 비교는 [[oauth-refresh-token-rotation-multi-client]]. (Hermes 쪽 동일 사건은 [[hermes]])
+
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260423-113736-72aa에서 추출)
@@ -335,3 +350,4 @@ return {
 - 2026-04-26: ACP permissionMode 스키마 제약, asset-dashboard git 분리 구조 추가 (세션 로그 20260426-120703-304f, 20260426-121630-14c3)
 - 2026-04-26: asset-dashboard Phase 2/3 완료 기록, Yahoo Finance 연동 상세, Prisma Decimal 직렬화 버그 수정 패턴 추가 (세션 로그 20260426-141208-ad61, 20260426-184740-49b5)
 - 2026-05-07: 코더 응답 무 사건 (3계층 디버깅) 섹션 추가, 모델 정책 변경 (Anthropic → Codex). 자세한 분석은 별도 페이지로 분리 (세션 로그 20260507-011504-7932)
+- 2026-06-03: 전 토픽 응답 무 사건 (Codex OAuth refresh token 쟁탈) 섹션 추가. OpenClaw·Hermes 가 동일 Codex OAuth 공유 + 회전형 토큰 → 핑퐁. 진단 함정(status "ok expires" 는 로컬 만료시각, 서버측 무효화는 raw log 401), fallback 이 같은 provider 뿐이면 무의미. 해결은 클라이언트별 독립 device-flow 등록. 일반 분석은 [[oauth-refresh-token-rotation-multi-client]] (세션 로그 20260603-140159-fbbf)

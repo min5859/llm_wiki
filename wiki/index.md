@@ -21,7 +21,7 @@ updated: 2026-06-03T00:00:00+09:00
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
 - [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점). KIS API 서킷브레이커 (연속 5회 오류 시 주문 중지). 추가매수 재개 조건 (저점 반등 +3% AND 기술점수 회복). n_stock_info V3 리버트 → EPS/캔들만 선택적 재적용 (모멘텀 충돌 회피). screener min_score 62 복원. 거래대금 TOP 10 텔레그램 추가. 시각 가드 09:30 (매수/매도 공통). trailing stop activation 3%, tiers {3%,2%}/{12%,4%}/{22%,8%}. **무한매수법(InfiniteBuying) 활성화**: Signal.bypass_position_check 플래그, exclude_codes 종목 격리, Tiered Trailing Stop (3→1%/7→2%/15→3%), max_positions 11.
 - [[n-stock-info]] — 네이버 금융 기반 종목 스크리닝·스코어링·텔레그램 리포트 (Python, collectors→analyzers→reporters→db). 100점 스코어링(40기술+40기본+20리서치). 2026-06-02 세션: EPS→EY 라벨 동기화, 안정성 게이트 분리(적자·고부채 점수 무관 제외), 섹터 상대 PER(네이버 동일업종 PER 외부 벤치마크), 백테스트 하네스(Rank IC+분위 스프레드, 생존 편향 노출), 전체 scored 저장(idempotent DELETE-INSERT), 데이터 기반 config 튜닝(병목은 상한이 아니라 min_score 컷오프 → 65→55)
-- [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅
+- [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅. 6/3 전 토픽 응답 무 = Hermes 와 공유하는 Codex OAuth refresh token 쟁탈(핑퐁) → 클라이언트별 독립 device-flow 등록으로 해결
 - [[oss-radar]] — 주간 GitHub OSS 발굴 파이프라인: discover→fetch→analyze→publish 6단계, star_velocity 스코어링, env -u CLAUDECODE 중첩세션 방지, GitHub topic OR 미지원 우회, config/.env 시크릿 분리
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
 - [[japa-asset-dashboard]] — 1인 전용 자산 통합 대시보드: Next.js 16 + Prisma + Supabase + Yahoo Finance + 멀티 LLM, Supabase Auth 매직 링크 + RHF/Zod 폼 + BUY/SELL Transaction 추적 (가중평균 + realizedGain 동결)
@@ -33,9 +33,9 @@ updated: 2026-06-03T00:00:00+09:00
 - [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드. Multi-topic 가동 (11토픽). `lib/run-daily-pipeline.mjs` 로 6개 run-daily 스크립트 공통화 (~700줄→~150줄). `lib/collect-utils.mjs` readJson 추출. 기본 어댑터 cursor→claude 일괄 전환.
 - [[auto-pipe-blog]] — 컨셉 1개 → velog 글 자동화 파이프라인 (bash + `claude -p` stdin): 00-slug → 01-research → 02-outline → 03-draft → 05-assemble 5단계, skip-if-exists, `CALL_LLM_BACKEND=agent` 로 백엔드 전환. Phase 1 E2E ~4분 / 78줄 post.md / mermaid 2 블록. Phase 3.5 Notion publisher 추가 (parent page/database 자동 판별, 100블록 분할, 로컬 이미지 안내 paragraph 치환) + factcheck rewrite 단계 추가
 - [[auto-pipe-ppt]] — JSON/YAML → 디자인 토큰 기반 멀티슬라이드 PPTX 자동 생성 (Python + `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성). 1차 타겟 재무제표 10장. M0/M1/M2/M3 완료 (41건 테스트 그린): 토큰 이중 어댑터 (YAML / CSS :root), role resolver, 한글 폰트 ea/cs fix, 재무 컴포넌트 6종 (KPI/Insight/Verdict/ScoreCard/Conclusion/Table). M4 차트 5종 / M5 재무 어댑터 미구현
-- [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇
+- [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇. 6/3 codex 토큰 만료(복사 import → 회전 충돌) → `hermes auth add openai-codex --type oauth` 자체 device-flow 재인증
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 적용 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 15/30/45 / partial_profit ON / tighten_on_weakness ON)
-- [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장
+- [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장. 6/3: -16G 급감 = macOS Tahoe 업데이트 준비물(추적 밖). 코드 보완 — 측정 실패 가시화(`errors`/`roots`), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적
 
 ## 설계 판단 (decisions/)
 
@@ -82,6 +82,7 @@ updated: 2026-06-03T00:00:00+09:00
 - [[nextjs16-use-server-non-async-export]] — Next.js 16 Turbopack 부터 `"use server"` 파일이 async function 외 export (객체/상수) 거부 → runtime 에러로 페이지 깨짐. typecheck 미감지. type-only export 만 안전
 - [[grep-env-var-leak-to-chatlog]] — `grep "NOTION_API_KEY" ~/.zshrc` 진단 한 줄로 시크릿이 LLM 채팅 로그에 그대로 노출된 실 사고. 안전한 검증법은 `${#VAR}` / `[ -n "$VAR" ]` / `grep -q` 만 사용. 키는 즉시 폐기·회전
 - [[highlights-action-validator-schema-drift]] — dev-blog 의 LLM rewrite 출력 스키마 (`action` → `if`/`do`/`verify` 3분해) 변경이 publisher 5종 + weekly + 일부 rewrite validator 갱신과 비동기로 진행되어 5/13 launchd 잡의 10개 토픽 publish 가 모두 silent skip. validator 를 둘 중 하나 허용으로 완화 (build-site 와 동형), 49 테스트 통과 후 publish/rewrite 재실행으로 복구
+- [[kis-holiday-detection-bsop-date]] — ht_trading 공휴일 휴장 판정이 삼성전자 현재가 `bsop_date`(영업일자) 비교 방식이라 공휴일에도 당일 날짜 반환 → 휴장 감지 실패, KIS `APBK0919` 주문 거부 반복. KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체. 부가: 6시간째 떠 있던 라이브 데몬이 옛 코드 보유 → 재시작 필수
 - [[absolute-stop-loss-elif-dead-code]] — ht_trading `scoring_strategy.py` 의 절대 손절이 `if … elif` 분기 때문에 dead code. 라이브에서 벤치마크 (KOSPI) 가 항상 붙어 있어 `elif profit_pct <= -absolute_stop_loss_pct` 분기 도달 불가 → `absolute_stop_loss_pct: 0.10` 무효. 상대 손절 -15% → -20% 완화 (D 튜닝) 와 결합되어 *벤치마크 동반 하락기엔 어떤 손실도 컷 못 함*. 화신 -19% / GS -11% 미발동의 직접 원인
 
 ## 요약 (summaries/)
@@ -138,6 +139,7 @@ updated: 2026-06-03T00:00:00+09:00
 - [[supabase-magic-link-single-user-allowlist]] — 1인용 Next.js 앱의 자체 비밀번호 → Supabase Auth 매직 링크 + `OWNER_EMAIL` allowlist 교체. 4-Gate (UI / send-magic-link PRIMARY / Supabase OTP / callback SECONDARY) + email enumeration 방지 (generic 200 응답) + cron 라우트 분리
 - [[news-driven-market-signal-framework]] — 다일자 뉴스 코퍼스 → 시장 시그널 추출의 7-축 (매크로/지정학/시장흐름/섹터/기업이벤트/수급심리/톤) + 3-시나리오 (확률 가중 base/neutral/risk) + 섹터 비중 + 체크포인트. 일자별 병렬 서브에이전트 분해
 - [[llm-news-prediction-pitfalls]] — LLM 시장 예측 6가지 함정 (검증 결여 / 확률 직관 / selection bias / stale 속도 / 자문 회색지대 / 단일 인과 추론). 결과 영속화 부적절, 방법론·함정만 영속화
+- [[oauth-refresh-token-rotation-multi-client]] — 회전형(rotating) OAuth refresh token 을 같은 계정으로 여러 클라이언트(OpenClaw·Hermes·codex CLI)가 각자 복사해 쓰면 한쪽 갱신이 다른 쪽을 무효화하는 핑퐁. 진단 함정 (`status` 의 "ok expires" 는 로컬 만료시각, 서버측 무효화는 raw log 401), fallback 이 같은 provider 뿐이면 무의미, 공유 방식 4비교 (복사 위험 / 파일 참조 / symlink / 독립 device-flow=정답)
 - [[multi-profile-cli-agent-isolation]] — CLI agent 멀티 프로필 셋업의 4함정: OAuth 토큰 공유는 symlink (refresh-token 회전 충돌 회피) / Keychain 인증은 HOME 격리에 깨짐 → wrapper 로 HOME 복원 / hermes 등 agent 는 `.bashrc`·`.bash_profile` 만 source (zsh init 무시) / `--clone` 후 `.env` reconfigure 필수
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 4결정: 한국 양도세 표준 가중평균 (수수료 취득원가 포함) / SELL row 의 `realizedGain` 컬럼 동결 / 거래 삭제는 효과 역연산 / 계좌·거래 통화 일치 시에만 cashBalance 자동 갱신. MVP/풀구현/입력만 점진 도입
 - [[scoring-system-ic-validation]] — 트레이딩 스코어 시스템의 IC (Information Coefficient) 검증 방법론: Pearson/Spearman, 컴포넌트별 분해, cutoff 시뮬레이션, AND vs OR 게이팅, regime 안정성. 한국 시장 검증 결과 (단기 모멘텀/RSI 안정구간 음수 IC, 양봉·거래량 sweet 최강 알파)

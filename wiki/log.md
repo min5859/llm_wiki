@@ -5,6 +5,28 @@ updated: 2026-06-03T00:00:00+09:00
 
 # Operation Log
 
+## 2026-06-03 (2nd) — wiki-ingest (session-logs, ingested: false 4건)
+
+처리 session-log 4건 (ht_trading 1 + openclaw 1 + hermes 1 + disk_monitor 1). 신규 페이지 2건, 기존 페이지 갱신 5건. (raw-sources / .cache/extracted / mcp-note 대상 없음)
+
+- **분류**:
+  - **20260603-135643-1e3b** (ht_trading): 공휴일 휴장 판정 버그 — `bsop_date` 비교가 공휴일에도 당일 날짜 반환해 오판 → KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체. 6시간째 떠 있던 라이브 데몬이 옛 코드 보유 → 재시작 필수
+  - **20260603-140159-fbbf** (openclaw): 전 토픽 응답 무 = Codex OAuth refresh token 쟁탈. status "ok expires" 함정, raw log 401 이 진단 키, fallback 이 같은 provider 뿐이면 무의미
+  - **20260603-143737-7275** (hermes): codex 토큰 만료 — 복사(import) 구조라 회전 충돌. `hermes auth add ... --type oauth` 자체 device-flow 재인증
+  - **20260603-150720-5764** (disk_monitor): -16G 급감 = macOS Tahoe 26.5.1 업데이트 준비물(추적 밖). 측정 실패 가시화(`errors`/`roots`) + report Unaccounted 갭 라인 + `/Library/Updates` 추적 코드 보완
+- 신규 (140159 + 143737 → 공통 주제 1 페이지):
+  - Created: wiki/analyses/oauth-refresh-token-rotation-multi-client.md (범용 — 회전형 OAuth refresh token 다중 클라이언트 쟁탈 메커니즘, 진단 함정, 공유 방식 4비교)
+  - Created: wiki/bugs/kis-holiday-detection-bsop-date.md (ht_trading 공휴일 판정 버그 + 데몬 재시작 교훈)
+- 갱신 5건:
+  - wiki/projects/ht-trading.md (sources/related/updated + 버그 수정 항목 + 변경 이력)
+  - wiki/projects/openclaw.md (sources/related/updated + Codex OAuth 쟁탈 사건 섹션 + 변경 이력)
+  - wiki/projects/hermes.md (sources/related/updated + 운영 회고 섹션 + 변경 이력)
+  - wiki/projects/disk-monitor.md (sources/updated + 네 번째 운영 회고 섹션 + 변경 이력)
+  - wiki/patterns/disk-monitor-blind-spot-coverage.md (sources/updated + macOS 업데이트 사각지대 + 측정 실패 가시화/Unaccounted 갭 + 2026-06-03 사례)
+- Skipped: lint·포맷·오타, 탐색적 시행착오 (분할 인터벌 류 없음; OpenClaw 14:29 스냅샷 오판→사용자 실관측으로 정정한 과정은 최종 결론만 기록)
+- Updated: wiki/index.md (분석 1 + 버그 1 신규 + disk-monitor/openclaw/hermes 요약 갱신), wiki/log.md
+- Marked ingested: true — 4개 session-log 파일 전체
+
 ## 2026-06-03 — wiki-ingest (session-logs, ingested: false 4건)
 
 처리 session-log 4건 (ht_trading 2건 + n_stock_info 2건). 신규 페이지 3건, 기존 페이지 갱신 2건.
