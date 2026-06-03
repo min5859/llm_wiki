@@ -90,6 +90,7 @@ updated: 2026-06-03T00:00:00+09:00
 
 ## 분석 (analyses/)
 
+- [[zed-editor]] — Rust 기반 고속 코드 에디터: macOS/Windows/Linux 설치, SSH 원격 개발, AI provider(Claude/GPT/Gemini/Ollama) 연결 내장
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent의 미실행 작업 캐치업 동작 (cron과의 차이)
 - [[everything-claude-code]] — affaan-m/everything-claude-code (170k stars): 48 agents + 182 skills + AgentShield 102 룰 + Continuous Learning v2 + ECC 2.0 alpha (Rust) — Claude Code 하네스 성능 시스템
 - [[nextjs-vercel-supabase-deployment]] — Next.js + Vercel + Supabase 통합 배포 7가지 결정: GitHub App 연동, 업로드 한도, force-dynamic, Pooler 모드 (Direct vs Transaction vs Session), 환경변수 import, .next/.gitignore
