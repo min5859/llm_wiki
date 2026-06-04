@@ -1,9 +1,18 @@
 ---
 title: Operation Log
-updated: 2026-06-03T00:00:00+09:00
+updated: 2026-06-05T00:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-06-05 — wiki-ingest (session-logs, ingested: false 1건)
+
+처리 session-log 1건 (ht_trading). 신규 페이지 1건 (bug), 기존 페이지 갱신 2건 (index / ht-trading 프로젝트). (raw-sources / .cache/extracted / mcp-note 대상 없음 — raw-sources 서브디렉터리에 신규 .md 없고 .cache/extracted 비어 있음)
+
+- **분류**:
+  - **20260604-232009-b35a** (ht_trading): 전량 청산 직후 재매수 버그 — 트레일링스톱 전량매도 후 같은 종목을 10분 만에 재매수 (신세계 15:10→15:20). 분할 추가매수 throttle (`min_split_interval_minutes` 18h) 이 첫 매수를 면제하므로 flat 재진입 경로에 가드 전무. 전량 청산만 매도시각 기록 + `_try_buy` flat 재진입 시 `reentry_cooldown_minutes`(60) 검사로 수정 (commit `70634aa`, 신규 테스트 6 + 전략 114건 통과, launchd 재시작 반영)
+- **신규**: [[reentry-after-full-liquidation-no-cooldown]] (bugs)
+- **갱신**: index.md (bugs 섹션), [[ht-trading]] (변경 이력 + sources/related)
 
 ## 2026-06-03 (2nd) — wiki-ingest (session-logs, ingested: false 4건)
 
