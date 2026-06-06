@@ -1,9 +1,24 @@
 ---
 title: Operation Log
-updated: 2026-06-06T00:00:00+09:00
+updated: 2026-06-07T00:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-06-07 — wiki-ingest (session-logs, ingested: false 3건)
+
+처리 session-log 3건 (upbit_trading 개선검토 1 + dev-blog 뉴스레터 research/write 2). 신규 페이지 2건, 기존 갱신 4건.
+
+- Source: session-logs/20260606-210943-6534-* (upbit_trading 개선사항 검토 — PAUSED 알림 / 추세필터 / volume 게이트)
+  - Created: wiki/analyses/backtest-timeframe-sensitivity.md — 추세필터 효과의 봉 간격 의존성(4시간봉 ON 우세 ↔ 30분봉 OFF 우세) + 공정 비교(동일 OHLCV 주입) + `%`vs`%p` + 수익률-MDD 트레이드오프 방법론 일반화
+  - Created: wiki/bugs/round-winrate-exit-type-undercount.md — 라운드 승률 집계가 종료유형 일부(target/stop_loss)만 분류 → 승률 0% 왜곡, profit>0 기준+exit_breakdown 으로 수정 (commit b947351)
+  - Updated: wiki/projects/upbit-trading.md (sources/related/updated 갱신 + 「2026-06-06 개선 검토」 섹션 신설: ①PAUSED 6h 알림 ③저거래량 DCA 제동 신규 / 추세필터 토글 후 30분봉 백테스트로 OFF 복원 / launchd 봇 중지 + 진단패턴 ⑤ 재검증 결과 반영 + 변경 이력)
+  - Updated: wiki/patterns/launchd-plist-symlink-from-project.md (「영구 비활성화 — unload 만으로는 부족」 섹션 신설: 재부팅 재로드 차단 = symlink 제거)
+  - Updated: wiki/analyses/dca-trailing-stop-tuning.md (추세필터 양면성에 봉 간격 의존성 한 줄 + backtest-timeframe-sensitivity 교차 링크)
+- Source: session-logs/20260606-215548-51ee-* (Linux Daily Research Dossier), 20260606-220340-4106-* (Newsletter Write from Dossier)
+  - Skipped (운영 흔적, 코드 변경 없음): 이미 문서화된 dev-blog research/write 분리 파이프라인(commits da60cec~9f2ccad, [[research-write-agent-separation]])의 일상 실행. `git.kernel.org` Anubis 봇 차단 사실도 dev-blog 2026-06-06 변경이력에 기수록. 신규 지식 없음
+- Updated: wiki/index.md (updated 갱신 + 신규 analysis/bug 등재 + upbit-trading / launchd-plist / dca-trailing 요약 갱신), wiki/log.md
+- Marked ingested: true — 3개 session-log 전체 (생성 2건 [analyses 1, bugs 1] + 업데이트 projects 1 / patterns 1 / analyses 1 / index 1)
 
 ## 2026-06-06 — wiki-ingest (session-logs, ingested: false 3건)
 

@@ -4,7 +4,7 @@ domain: both
 sensitivity: public
 tags: ["launchd", "macos", "plist", "symlink", "homebrew", "project-layout"]
 created: "2026-05-14"
-updated: "2026-05-14"
+updated: "2026-06-07"
 sources:
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
 confidence: high
@@ -140,6 +140,31 @@ $ launchctl list | grep com.user.disk-monitor
 
 실제 첫 실행 후 종료 코드가 0 이 아니면 `scan.err` 확인.
 
+## 영구 비활성화 — `unload` 만으로는 부족하다
+
+잡을 **당분간/영구 중지**하려면 `launchctl unload` 한 번으로는 안 된다. `RunAtLoad`/`KeepAlive` 가 켜진 plist 는 **재부팅 시 macOS 가 `~/Library/LaunchAgents/` 의 plist 를 다시 자동 로드**하므로, unload 는 현재 세션에서만 멈춘 것이다.
+
+이 symlink 패턴에서는 **재부팅 자동 시작을 막는 것이 곧 symlink 제거**다 (원본 plist 는 프로젝트 폴더에 보존되므로 원복이 한 줄):
+
+```bash
+# 1) 현재 실행 중지
+launchctl unload ~/Library/LaunchAgents/com.user.foo.plist
+
+# 2) 재부팅 자동 시작 차단 — LaunchAgents 의 symlink 만 제거 (원본은 보존)
+rm ~/Library/LaunchAgents/com.user.foo.plist
+
+# 원복: symlink 재생성 + load
+ln -s "$(pwd)/config/com.user.foo.plist" ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.user.foo.plist
+```
+
+체크리스트:
+- **중지 전 원본 plist 존재를 확인**한다 (`ls config/com.user.foo.plist`). symlink 만 지우고 원본이 살아 있어야 무손실 원복.
+- 여러 잡이 떠 있으면 `launchctl list | grep -iE "foo|bar"` 로 **대상만 콕 집어** 확인하고, 다른 프로젝트의 잡(예: 같은 머신의 다른 trading 봇)은 건드리지 않는다.
+- 중지 후 `ps aux | grep <entrypoint>` 로 잔여 프로세스가 완전히 종료됐는지 확인한다.
+
+> Homebrew 의 `brew services stop` 도 동일 구조 — 프로세스 중지 + LaunchAgents symlink 제거.
+
 ## 활용 사례
 
 - `disk_monitor` 프로젝트의 plist install 로직 ([[disk-monitor]])
@@ -153,3 +178,4 @@ $ launchctl list | grep com.user.disk-monitor
 ## 변경 이력
 
 - 2026-05-14: 최초 생성. disk_monitor 의 plist 위치 이전 사례 기반 (출처: session-logs/20260514-220947-2eee)
+- 2026-06-07: 「영구 비활성화 — unload 만으로는 부족」 섹션 추가. `RunAtLoad`/`KeepAlive` plist 는 재부팅 시 재로드되므로 LaunchAgents symlink 제거가 곧 자동 시작 차단 (원본 plist 보존 → 무손실 원복). upbit_trading 봇 당분간 중지 사례 (출처: session-logs/20260606-210943-6534-*)

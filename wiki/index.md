@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-06T00:00:00+09:00
+updated: 2026-06-07T00:00:00+09:00
 ---
 
 # Wiki Index
@@ -34,7 +34,7 @@ updated: 2026-06-06T00:00:00+09:00
 - [[auto-pipe-blog]] — 컨셉 1개 → velog 글 자동화 파이프라인 (bash + `claude -p` stdin): 00-slug → 01-research → 02-outline → 03-draft → 05-assemble 5단계, skip-if-exists, `CALL_LLM_BACKEND=agent` 로 백엔드 전환. Phase 1 E2E ~4분 / 78줄 post.md / mermaid 2 블록. Phase 3.5 Notion publisher 추가 (parent page/database 자동 판별, 100블록 분할, 로컬 이미지 안내 paragraph 치환) + factcheck rewrite 단계 추가
 - [[auto-pipe-ppt]] — JSON/YAML → 디자인 토큰 기반 멀티슬라이드 PPTX 자동 생성 (Python + `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성). 1차 타겟 재무제표 10장. M0/M1/M2/M3 완료 (41건 테스트 그린): 토큰 이중 어댑터 (YAML / CSS :root), role resolver, 한글 폰트 ea/cs fix, 재무 컴포넌트 6종 (KPI/Insight/Verdict/ScoreCard/Conclusion/Table). M4 차트 5종 / M5 재무 어댑터 미구현
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇. 6/3 codex 토큰 만료(복사 import → 회전 충돌) → `hermes auth add openai-codex --type oauth` 자체 device-flow 재인증
-- [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 적용 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 15/30/45 / partial_profit ON / tighten_on_weakness ON)
+- [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 / partial_profit ON / tighten ON). 2026-06-06: PAUSED 6h 텔레그램 알림 + 저거래량 DCA 제동 신규, 추세필터 ON/OFF 백테스트 재검증 결과 30분봉(운영 봉)에서 OFF 우세 → OFF 유지, launchd 봇 당분간 중지
 - [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장. 6/3: -16G 급감 = macOS Tahoe 업데이트 준비물(추적 밖). 코드 보완 — 측정 실패 가시화(`errors`/`roots`), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적
 
 ## 설계 판단 (decisions/)
@@ -66,7 +66,7 @@ updated: 2026-06-06T00:00:00+09:00
 - [[claude-mcp-server-scope-and-add-json]] — Claude Code `claude mcp add` 의 4 함정: `-e KEY=VALUE` 의 셸 토큰 분해 모호함 → `add-json` 우회 / 기본 `local` scope 의 디렉터리 격리 → `-s user` 필수 / 새 MCP 는 세션 시작 시만 로드 → 재시작 / 외부 MCP + API key 등록은 자동 승인 거부. `~/.claude.json` 의 `mcpServers` vs `projects.<path>.mcpServers` 분기
 - [[ai-token-usage-cost-guard]] — AI 토큰 사용량 기록 + per-user 일일 비용 한도 가드 패턴: `usage_events` 테이블 + provider/model pricing (prefix 매칭 + provider default) + `ai-client` 가 `UsageInfo` 함께 반환 + 모든 entrypoint 한도 가드 + client-direct 우회 경로용 `/api/usage` reporting endpoint. UTC 자정 cutoff
 - [[prompt-schema-pipeline-coupling]] — LLM 프롬프트 출력 스키마와 다운스트림 validator / 빌더 / 집계 간 결합 관리 패턴. 8가지 결합점 인벤토리 + 안티패턴 (validator 복붙 / 단계별 검증 비대칭 / cron silent) + "옛 OR 신" 둘 다 받는 validator 마이그레이션 흐름 + 가시성 신호 (today's run 0 commits = error)
-- [[launchd-plist-symlink-from-project]] — launchd plist 마스터를 프로젝트 폴더에 두고 `~/Library/LaunchAgents/` 는 symlink (Homebrew services 패턴). 프로젝트 열었을 때 plist 가 보임·잊지 않음. install 서브커맨드 구현, `.gitignore` 필수 (절대 경로 박힘), rename 함정, `launchctl list` 출력 의미
+- [[launchd-plist-symlink-from-project]] — launchd plist 마스터를 프로젝트 폴더에 두고 `~/Library/LaunchAgents/` 는 symlink (Homebrew services 패턴). 프로젝트 열었을 때 plist 가 보임·잊지 않음. install 서브커맨드 구현, `.gitignore` 필수 (절대 경로 박힘), rename 함정, `launchctl list` 출력 의미. **영구 비활성화는 unload 만으로 부족 — RunAtLoad/KeepAlive plist 는 재부팅 시 재로드되므로 symlink 제거가 곧 자동 시작 차단** (원본 plist 보존 → 무손실 원복)
 
 ## 버그와 해결책 (bugs/)
 
@@ -84,6 +84,7 @@ updated: 2026-06-06T00:00:00+09:00
 - [[highlights-action-validator-schema-drift]] — dev-blog 의 LLM rewrite 출력 스키마 (`action` → `if`/`do`/`verify` 3분해) 변경이 publisher 5종 + weekly + 일부 rewrite validator 갱신과 비동기로 진행되어 5/13 launchd 잡의 10개 토픽 publish 가 모두 silent skip. validator 를 둘 중 하나 허용으로 완화 (build-site 와 동형), 49 테스트 통과 후 publish/rewrite 재실행으로 복구
 - [[kis-holiday-detection-bsop-date]] — ht_trading 공휴일 휴장 판정이 삼성전자 현재가 `bsop_date`(영업일자) 비교 방식이라 공휴일에도 당일 날짜 반환 → 휴장 감지 실패, KIS `APBK0919` 주문 거부 반복. KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체. 부가: 6시간째 떠 있던 라이브 데몬이 옛 코드 보유 → 재시작 필수
 - [[reentry-after-full-liquidation-no-cooldown]] — ht_trading `ScoringStrategy` 가 트레일링스톱·손절 전량 청산 직후 같은 종목을 즉시 재매수 (신세계 15:10 매도 → 15:20 재매수, 10분). 분할 추가매수 throttle (`min_split_interval_minutes` 18h) 이 첫 매수를 면제하므로 flat 재진입 경로엔 가드 전무. 전량 청산만 매도시각 기록 + `_try_buy` flat 재진입 시 `reentry_cooldown_minutes`(60) 검사로 수정 (commit 70634aa)
+- [[round-winrate-exit-type-undercount]] — upbit_trading 백테스트 리포트가 라운드 종료 유형을 `target`/`stop_loss` 로만 분류해 trailing_stop/time_exit/partial 종료가 누락 → "승률 0%, 목표달성 0회" 왜곡 (평균 수익률은 양수인 모순이 단서). `profit>0` 기준 승률 + `exit_breakdown` 별도 집계로 수정 (commit `b947351`). 통계 집계 분류가 enum 일부만 커버할 때의 일반 함정
 - [[absolute-stop-loss-elif-dead-code]] — ht_trading `scoring_strategy.py` 의 절대 손절이 `if … elif` 분기 때문에 dead code. 라이브에서 벤치마크 (KOSPI) 가 항상 붙어 있어 `elif profit_pct <= -absolute_stop_loss_pct` 분기 도달 불가 → `absolute_stop_loss_pct: 0.10` 무효. 상대 손절 -15% → -20% 완화 (D 튜닝) 와 결합되어 *벤치마크 동반 하락기엔 어떤 손실도 컷 못 함*. 화신 -19% / GS -11% 미발동의 직접 원인
 
 ## 요약 (summaries/)
@@ -92,6 +93,7 @@ updated: 2026-06-06T00:00:00+09:00
 
 ## 분석 (analyses/)
 
+- [[backtest-timeframe-sensitivity]] — 추세필터·지표 신호의 손익 효과는 백테스트 봉 간격에 따라 뒤집힌다 (4시간봉 ON 압승 ↔ 30분봉 OFF 우세; 고빈도 봉일수록 SMA/크로스 노이즈). 검증은 반드시 운영 봉/주기로. 공정 비교(동일 OHLCV 1회 fetch 후 주입), `%` vs `%p` 구분, 수익률-MDD 트레이드오프 방법론
 - [[research-write-agent-separation]] — LLM 콘텐츠 파이프라인의 research/write 분리: 진짜 레버는 단계 쪼개기가 아니라 조사 단계에 도구(WebFetch/WebSearch/git log)를 줘 입력 깊이 천장을 깨는 것. dossier 계약(모든 claim=evidence URL)이 hallucination 가드를 구조화, template/codex 결정론적 fallback. 실측: LWN 5·CVE 2건 등 13 evidence 로 700자 천장 돌파. 함정: 200자 quote 절단·RESEARCH_RAW_PATH 복구·Anubis 봇 차단·"배관 완료≠품질 완료"
 - [[qualcomm-camera-kernel-isp]] — Qualcomm 카메라 커널(cam_isp/CAMSS) 구조·소스 입수·Exynos 비교: 커널 드라이버는 GPL 공개(opensource.samsung.com tar / CodeLinaro git clone)지만 CamX-CHI HAL 은 독점. cam_isp 골격(IFE/VFE/CSID, csid_pxl/rdi 리소스, SOF/EPOCH/BUBBLE 상태기계). Exynos = 삼성 Pablo(구 FIMC-IS), 칩(Snapdragon vs Exynos)별로 ISP 가 갈림
 - [[zed-editor]] — Rust 기반 고속 코드 에디터: macOS/Windows/Linux 설치, SSH 원격 개발, AI provider(Claude/GPT/Gemini/Ollama) 연결 내장
@@ -146,7 +148,7 @@ updated: 2026-06-06T00:00:00+09:00
 - [[multi-profile-cli-agent-isolation]] — CLI agent 멀티 프로필 셋업의 4함정: OAuth 토큰 공유는 symlink (refresh-token 회전 충돌 회피) / Keychain 인증은 HOME 격리에 깨짐 → wrapper 로 HOME 복원 / hermes 등 agent 는 `.bashrc`·`.bash_profile` 만 source (zsh init 무시) / `--clone` 후 `.env` reconfigure 필수
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 4결정: 한국 양도세 표준 가중평균 (수수료 취득원가 포함) / SELL row 의 `realizedGain` 컬럼 동결 / 거래 삭제는 효과 역연산 / 계좌·거래 통화 일치 시에만 cashBalance 자동 갱신. MVP/풀구현/입력만 점진 도입
 - [[scoring-system-ic-validation]] — 트레이딩 스코어 시스템의 IC (Information Coefficient) 검증 방법론: Pearson/Spearman, 컴포넌트별 분해, cutoff 시뮬레이션, AND vs OR 게이팅, regime 안정성. 한국 시장 검증 결과 (단기 모멘텀/RSI 안정구간 음수 IC, 양봉·거래량 sweet 최강 알파)
-- [[dca-trailing-stop-tuning]] — DCA·Trailing Stop 자동매매 튜닝 5 레버 (trailing 거리 / cooldown / max_round_days + 계단식 / partial profit / tighten on weakness) + 운영 로그 진단 6단계. 즉시 vs Paper 검증 vs 중기 분류, 부분 매도 멱등성 가드, 추세 필터 양면성
+- [[dca-trailing-stop-tuning]] — DCA·Trailing Stop 자동매매 튜닝 5 레버 (trailing 거리 / cooldown / max_round_days + 계단식 / partial profit / tighten on weakness) + 운영 로그 진단 6단계. 즉시 vs Paper 검증 vs 중기 분류, 부분 매도 멱등성 가드, 추세 필터 양면성 (효과는 봉 간격 따라 뒤집힘 → 운영 봉 검증 필수)
 - [[terminal-markdown-viewer-tools]] — 터미널·CLI 마크다운 뷰어 비교 (glow / mdcat / frogmouth / bat / neovim + render-markdown.nvim / markdown-preview.nvim). Mermaid SVG 의 터미널 본질적 한계 (코드블록 → ASCII → 외부 뷰어 → 인라인 이미지 4단계 우회). SSH 환경에서 Tauri/Electron GUI 부적합
 - [[financial-health-composite-scores]] — 재무 건전성 합성 스코어 3종 (Altman Z / Piotroski F / Beneish M) + 5 카테고리 (profitability/liquidity/leverage/efficiency/cash) 룰 기반 risk flag. LLM 호출 0, 한국 시장 적용 시 Z 의 절대값 데이터 누락 + Beneish 의 false positive + F 의 insufficient fallback 처리
 - [[macos-disk-cleanup-cache-classification]] — macOS 캐시 3 카테고리 (자동 재생성 / 순수 회수 / 다음 사용 시 재다운로드) + Claude Desktop 9.8G footprint 분해 (vm_bundles 8.4G = Cowork Linux VM, Cache_Data 1.2G, claude-code 본체 212M). depth 1 만 보고 결론 금지, 사용자 컨펌 워크플로우, 첫 운영 케이스 3.23G 회수

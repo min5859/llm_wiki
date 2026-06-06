@@ -4,13 +4,14 @@ domain: personal
 sensitivity: public
 tags: ["analysis", "trading", "dca", "trailing-stop", "tuning", "infinite-buy"]
 created: "2026-05-10"
-updated: "2026-06-01"
+updated: "2026-06-07"
 source_session: "20260510-194933-8c5e-최근-몇일간-로그를-분석해서-수익율을-더-높이기-위한-전략을-추천해-주세요.md"
 confidence: high
 related:
   - "wiki/projects/upbit-trading.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/analyses/scoring-system-ic-validation.md"
+  - "wiki/analyses/backtest-timeframe-sensitivity.md"
 ---
 
 # DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
@@ -121,6 +122,8 @@ tighten_on_weakness_enabled: True
 
 → ON/OFF 만으로 결정하지 말고 임계값 완화로 spectrum 조정.
 
+> **추세필터 효과는 봉 간격(timeframe)에 따라 뒤집힌다.** 4시간봉에서는 하락장 ON 압승(+7~10%p)이지만, 30분봉(노이즈 큰 고빈도 봉)에서는 ON이 오히려 손해다. **반드시 운영 봉으로 검증**하고 다른 봉의 백테스트 결론을 그대로 적용하지 말 것. MDD는 어느 봉에서도 ON이 낮다(방어적 설정). 검증 방법론·표는 [[backtest-timeframe-sensitivity]] 참조.
+
 ## "라이브 봇 재시작" 안전 체크리스트
 
 config 변경은 봇 init 시점에만 로드된다. 적용을 위한 launchctl 재기동 후 다음을 로그에서 확인:
@@ -140,8 +143,10 @@ InfiniteBuyStrategy 초기화: 분할=40, 목표수익=5.0%, 라운드예산=3,8
 - [[scoring-system-ic-validation]] — 종목 *진입* 룰의 검증 (이 페이지는 진입 후 *청산* 룰 튜닝)
 - [[partial-sell-rule-idempotency]] — 부분 매도 누적 발동 방지의 일반 원칙
 - [[utc-iso-date-kst-rollover]] — KST 날짜 새벽 시점 cron 실행과 동일 사상 (시점성 데이터 처리)
+- [[backtest-timeframe-sensitivity]] — 추세필터·지표 효과의 봉 간격 의존성과 공정 비교 방법론
 
 ## 변경 이력
 
 - 2026-05-10: 최초 작성 (session-logs/20260510-194933-8c5e-*.md). Upbit 무한매수법 5 레버 튜닝 사례를 일반화. ht_trading 의 trailing/단계익절 튜닝과 같은 사상
 - 2026-06-01: InfiniteBuying (재진입 가능 구조) vs ScoringStrategy (포지션 유지 구조) trailing_tiers 비교 추가. "매도 후 재진입 가능 → 타이트한 거리 적절" 설계 원칙 추가 (session-logs/20260531-211232-de76-*)
+- 2026-06-07: 추세 필터 양면성에 「봉 간격에 따라 효과 뒤집힘」 한 줄 + [[backtest-timeframe-sensitivity]] 교차 링크 추가 (출처: session-logs/20260606-210943-6534-*)
