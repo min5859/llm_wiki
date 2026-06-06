@@ -1,9 +1,21 @@
 ---
 title: Operation Log
-updated: 2026-06-05T00:00:00+09:00
+updated: 2026-06-06T00:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-06-06 — wiki-ingest (session-logs, ingested: false 3건)
+
+처리 session-log 3건 (dev-blog 2 + galaxy/Qualcomm ISP 1). 신규 페이지 2건(analyses), 기존 페이지 갱신 3건(index / log / dev-blog 프로젝트). (raw-sources / .cache/extracted / mcp-note 대상 없음 — raw-sources 서브디렉터리에 신규 .md 없고 .cache/extracted 비어 있음, mcp-note 0건)
+
+- **분류**:
+  - **20260606-151702-d243** + **20260606-184227-1875** (dev-blog): research/write 에이전트 분리 PoC. 파이프라인을 `collect→draft→research→rewrite→build` 로 확장, dossier 계약(모든 claim=evidence URL)으로 hallucination 가드 구조화. claude 도구 조사가 LWN 5·CVE 2건 등 13 evidence 수집(700자 천장 돌파). 함정: 200자 quote 절단+RESEARCH_RAW_PATH 복구, git.kernel.org Anubis 봇 차단, "배관 완료≠품질 완료". commits da60cec~9f2ccad.
+  - **20260606-170440-643f** (galaxy/cowork): Qualcomm 카메라 커널 cam_isp 구조 분석 — CodeLinaro camera-kernel(64M) 클론 확인. 커널은 GPL 공개(samsung tar / CLO git) vs CamX-CHI HAL 독점 경계, cam_isp 골격(IFE/VFE/CSID·리소스 acquire·SOF/EPOCH/BUBBLE 상태기계), Exynos Pablo(구 FIMC-IS) 비교. cam_isp↔Pablo 정밀 대조는 미완.
+- **신규**: [[research-write-agent-separation]] (analyses), [[qualcomm-camera-kernel-isp]] (analyses)
+- **갱신**: index.md (analyses 섹션 + updated), [[dev-blog]] (sources 2건 + related 1건 + research/write 분리 섹션 + 변경 이력 2026-06-06 + updated)
+- **Skipped**: Finder 경로 확인 방법(자명한 macOS 단축키, 범용 지식 가치 낮음)
+- **Marked ingested: true** — 3개 session-log 파일 전체 (생성: analyses 2건, 갱신: projects 1건 [dev-blog] + index 1건)
 
 ## 2026-06-05 — wiki-ingest (session-logs, ingested: false 1건)
 
