@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-07T00:00:00+09:00
+updated: 2026-06-07T10:00:00+09:00
 ---
 
 # Wiki Index
@@ -18,6 +18,7 @@ updated: 2026-06-07T00:00:00+09:00
 
 ## 프로젝트 (projects/)
 
+- [[agent-weekly]] — Claude 대화 기록 기반 주간보고 자동작성 에이전트(아이디어 구체화 단계). gieok 의 "Hook→로그→스케줄 LLM→Wiki→Git" 파이프라인을 골격으로 차용, 주간 집계 LLM 호출로 치환. 원천 데이터로 [[claude-code-session-jsonl-format]] 활용 가능
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
 - [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점). KIS API 서킷브레이커 (연속 5회 오류 시 주문 중지). 추가매수 재개 조건 (저점 반등 +3% AND 기술점수 회복). n_stock_info V3 리버트 → EPS/캔들만 선택적 재적용 (모멘텀 충돌 회피). screener min_score 62 복원. 거래대금 TOP 10 텔레그램 추가. 시각 가드 09:30 (매수/매도 공통). trailing stop activation 3%, tiers {3%,2%}/{12%,4%}/{22%,8%}. **무한매수법(InfiniteBuying) 활성화**: Signal.bypass_position_check 플래그, exclude_codes 종목 격리, Tiered Trailing Stop (3→1%/7→2%/15→3%), max_positions 11.
 - [[n-stock-info]] — 네이버 금융 기반 종목 스크리닝·스코어링·텔레그램 리포트 (Python, collectors→analyzers→reporters→db). 100점 스코어링(40기술+40기본+20리서치). 2026-06-02 세션: EPS→EY 라벨 동기화, 안정성 게이트 분리(적자·고부채 점수 무관 제외), 섹터 상대 PER(네이버 동일업종 PER 외부 벤치마크), 백테스트 하네스(Rank IC+분위 스프레드, 생존 편향 노출), 전체 scored 저장(idempotent DELETE-INSERT), 데이터 기반 config 튜닝(병목은 상한이 아니라 min_score 컷오프 → 65→55)
@@ -93,6 +94,7 @@ updated: 2026-06-07T00:00:00+09:00
 
 ## 분석 (analyses/)
 
+- [[claude-code-session-jsonl-format]] — Claude Code 네이티브 세션 로그 `~/.claude/projects/<encoded-cwd>/<session-uuid>.jsonl` 포맷: cwd 슬래시→하이픈 인코딩, 1세션=1파일, type 분기(user/assistant/attachment/ai-title/last-prompt/mode/permission-mode/file-history-snapshot), `message.content` str|array 양면, user 레코드 키, `timestamp` UTC(Z)→KST 변환 함정. 주간보고·기억 에이전트의 원천 데이터(gieok `.md` 정제본 vs jsonl 원본 시크릿 노출차)
 - [[backtest-timeframe-sensitivity]] — 추세필터·지표 신호의 손익 효과는 백테스트 봉 간격에 따라 뒤집힌다 (4시간봉 ON 압승 ↔ 30분봉 OFF 우세; 고빈도 봉일수록 SMA/크로스 노이즈). 검증은 반드시 운영 봉/주기로. 공정 비교(동일 OHLCV 1회 fetch 후 주입), `%` vs `%p` 구분, 수익률-MDD 트레이드오프 방법론
 - [[research-write-agent-separation]] — LLM 콘텐츠 파이프라인의 research/write 분리: 진짜 레버는 단계 쪼개기가 아니라 조사 단계에 도구(WebFetch/WebSearch/git log)를 줘 입력 깊이 천장을 깨는 것. dossier 계약(모든 claim=evidence URL)이 hallucination 가드를 구조화, template/codex 결정론적 fallback. 실측: LWN 5·CVE 2건 등 13 evidence 로 700자 천장 돌파. 함정: 200자 quote 절단·RESEARCH_RAW_PATH 복구·Anubis 봇 차단·"배관 완료≠품질 완료"
 - [[qualcomm-camera-kernel-isp]] — Qualcomm 카메라 커널(cam_isp/CAMSS) 구조·소스 입수·Exynos 비교: 커널 드라이버는 GPL 공개(opensource.samsung.com tar / CodeLinaro git clone)지만 CamX-CHI HAL 은 독점. cam_isp 골격(IFE/VFE/CSID, csid_pxl/rdi 리소스, SOF/EPOCH/BUBBLE 상태기계). Exynos = 삼성 Pablo(구 FIMC-IS), 칩(Snapdragon vs Exynos)별로 ISP 가 갈림

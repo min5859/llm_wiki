@@ -1,9 +1,21 @@
 ---
 title: Operation Log
-updated: 2026-06-07T00:00:00+09:00
+updated: 2026-06-07T10:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-06-07 — wiki-ingest (session-logs, ingested: false 1건)
+
+처리 session-log 1건 (agent-weekly 주간보고 에이전트 아이디어 구체화 + gieok/네이티브 jsonl 조사). 신규 페이지 2건, index/log 갱신.
+
+- Source: session-logs/20260607-095133-951f-* (agent-weekly — 주간보고 자동작성 에이전트 아이디어 구체화)
+  - 세션 성격: 탐색(gieok 구조 분석 + CC 네이티브 `~/.claude/projects/*.jsonl` 포맷 조사). 구현·아키텍처 확정은 미완 → 최종 조사 결론만 영속화
+  - Created: wiki/analyses/claude-code-session-jsonl-format.md (CC 네이티브 세션 로그 jsonl 포맷 — 경로 인코딩·type 분기·user 레코드 키·UTC→KST 함정. 범용 지식 우선)
+  - Created: wiki/projects/agent-weekly.md (신규 프로젝트 기록. gieok 파이프라인 차용 구조 + 현황)
+- Skipped: rtk ls 빈출력 시행착오, README/스크립트 단순 열람 (설계 판단·버그 없음)
+- Updated: wiki/index.md (분석·프로젝트 항목 2건 추가 + updated 갱신), wiki/log.md
+- Marked ingested: true — session-logs/20260607-095133-951f-* 1건
 
 ## 2026-06-07 — wiki-ingest (session-logs, ingested: false 3건)
 
