@@ -1240,3 +1240,20 @@ updated: 2026-06-07T10:00:00+09:00
 - Skipped: 탐색/조사 단계 1건 (dev-blog, 최종 결론·구현 없음)
 - Updated: wiki/index.md (updated 갱신 + ht-trading / kakao-db 요약 업데이트), wiki/log.md
 - Marked ingested: true — 3개 session-log 파일 전체 (생성: 0건, 업데이트: projects 2건 [ht-trading, kakao-db] + analyses 1건 [multi-llm-provider-adapter-pattern] + index 1건)
+
+## 2026-06-08 — wiki-ingest (session-logs, ingested: false 30건)
+
+- 대상: 2026-06-07~06-08 dev-blog 자동 뉴스레터/리서치 dossier 세션 30건 (Linux Daily / Linux Kernel Lens / Linux Kernel Weekly Digest / Android Kernel / Opensource Trending / Opensource Curation / AI Coding Agents). 6개 테마로 중복 다수, 대부분 `assistant_turns: 0` (뉴스레터 생성 입력 dossier만 포함).
+- 처리 방식: 테마별 서브에이전트 병렬 추출 후, **세션 로그에 grounding 된 durable·범용 지식만** 선별. 일일 릴리스/단일 패치/백포트 목록 등 휘발성 뉴스는 전량 스킵.
+- 생성 (analyses/concepts/patterns):
+  - wiki/patterns/test-driven-agent-loop.md — 강건한 테스트 스위트로 코딩 에이전트 자율 위임 (JustHTML 포팅, verified, high). 출처: session-logs/20260608-033356-dbf4-*
+  - wiki/analyses/openai-codex-cli-overview.md — OpenAI Codex CLI + 로컬 Gemma 4 연결 실험 (first-pass 신뢰도, Apple Silicon Flash Attention freeze). 출처: session-logs/20260608-033356-dbf4-*
+  - wiki/concepts/slab-no-merge-cross-cache-hardening.md — SLAB_NO_MERGE 로 cross-cache heap exploitation 차단 (slab.rst 문서화 패치, verified quote, medium). 출처: session-logs/20260608-034007-c12f-*
+- 갱신:
+  - wiki/concepts/claude-code-skills-plugins.md — 벤더 간 스킬 메커니즘 수렴(OpenAI skills 2025-12 도입) 섹션 추가. 출처: session-logs/20260608-033356-dbf4-*
+- 스킵 (grounding/durability 미달):
+  - Opensource Trending/Curation: dossier 가 후보 repo 목록만 포함(검증 evidence 없음). 서브에이전트 자체 WebFetch 결과(zerolang/pg_durable/bumblebee 등)는 세션 로그 근거 아니라 grounding 원칙상 제외.
+  - Android Kernel: GKI 심볼 확장 1건 외 전량 단일 패치/버그픽스 휘발성.
+  - Linux Daily / Kernel Lens(반복 회차) / Weekly Digest: SLAB_NO_MERGE 외 전량 릴리스·단일 드라이버 패치·백포트 목록 휘발성.
+- Updated: wiki/index.md (updated 갱신 + concepts/patterns/analyses 3건 추가), wiki/log.md
+- Marked ingested: true — 30개 session-log 파일 전체 (생성: 3건 [patterns 1, analyses 1, concepts 1] + 갱신: concepts 1 + index 1)

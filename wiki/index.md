@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-07T10:00:00+09:00
+updated: 2026-06-08T13:00:00+09:00
 ---
 
 # Wiki Index
@@ -15,6 +15,7 @@ updated: 2026-06-07T10:00:00+09:00
 - [[ai-agent-basics]] — LLM+프롬프트+도구 3계층 구조, 자율도 5레벨, 하네스 엔지니어링의 6요소
 - [[ai-usage-philosophy]] — 언어화 능력·컨텍스트 설계·리버럴 아츠의 AI 활용 3가지 핵심 원칙
 - [[hermes-agent]] — Nous Research 의 self-hosted personal AI agent: persistent memory + skill 자가생성 + Telegram/Discord/Slack 다중 게이트웨이 + 200+ LLM provider
+- [[slab-no-merge-cross-cache-hardening]] — 리눅스 커널 SLUB 캐시 병합과 SLAB_NO_MERGE: 보안 민감 캐시를 병합에서 제외해 cross-cache heap exploitation 차단. slab_nomerge / RANDOM_KMALLOC_CACHES / TYPESAFE_BY_RCU 다층 방어
 
 ## 프로젝트 (projects/)
 
@@ -69,6 +70,8 @@ updated: 2026-06-07T10:00:00+09:00
 - [[prompt-schema-pipeline-coupling]] — LLM 프롬프트 출력 스키마와 다운스트림 validator / 빌더 / 집계 간 결합 관리 패턴. 8가지 결합점 인벤토리 + 안티패턴 (validator 복붙 / 단계별 검증 비대칭 / cron silent) + "옛 OR 신" 둘 다 받는 validator 마이그레이션 흐름 + 가시성 신호 (today's run 0 commits = error)
 - [[launchd-plist-symlink-from-project]] — launchd plist 마스터를 프로젝트 폴더에 두고 `~/Library/LaunchAgents/` 는 symlink (Homebrew services 패턴). 프로젝트 열었을 때 plist 가 보임·잊지 않음. install 서브커맨드 구현, `.gitignore` 필수 (절대 경로 박힘), rename 함정, `launchctl list` 출력 의미. **영구 비활성화는 unload 만으로 부족 — RunAtLoad/KeepAlive plist 는 재부팅 시 재로드되므로 symlink 제거가 곧 자동 시작 차단** (원본 plist 보존 → 무손실 원복)
 
+- [[test-driven-agent-loop]] — 강건한 테스트 스위트로 코딩 에이전트에 대규모 작업 자율 위임. JustHTML 포팅 실증(Codex CLI+GPT-5.2, 8프롬프트→9,000줄, html5lib-tests 9,200 통과). API 우선 설계 + 결정론적 검증 게이트가 핵심
+
 ## 버그와 해결책 (bugs/)
 
 - [[node-modules-symlink-copy-prisma]] — node_modules 폴더 카피 시 .bin/prisma 심볼릭 링크 풀려서 wasm ENOENT, rm -rf node_modules && npm install 로 재생성, cp -a / rsync -aH 예방
@@ -94,6 +97,7 @@ updated: 2026-06-07T10:00:00+09:00
 
 ## 분석 (analyses/)
 
+- [[openai-codex-cli-overview]] — OpenAI 터미널 경량 코딩 에이전트(Rust ~96%, ChatGPT 플랜/API 키). custom provider 로 로컬 Gemma 4 연결 실험: 로컬은 속도보다 first-pass 신뢰도가 중요, Apple Silicon Flash Attention freeze(>500 토큰) 함정. Claude Code 대안 비교축
 - [[claude-code-session-jsonl-format]] — Claude Code 네이티브 세션 로그 `~/.claude/projects/<encoded-cwd>/<session-uuid>.jsonl` 포맷: cwd 슬래시→하이픈 인코딩, 1세션=1파일, type 분기(user/assistant/attachment/ai-title/last-prompt/mode/permission-mode/file-history-snapshot), `message.content` str|array 양면, user 레코드 키, `timestamp` UTC(Z)→KST 변환 함정. 주간보고·기억 에이전트의 원천 데이터(gieok `.md` 정제본 vs jsonl 원본 시크릿 노출차)
 - [[backtest-timeframe-sensitivity]] — 추세필터·지표 신호의 손익 효과는 백테스트 봉 간격에 따라 뒤집힌다 (4시간봉 ON 압승 ↔ 30분봉 OFF 우세; 고빈도 봉일수록 SMA/크로스 노이즈). 검증은 반드시 운영 봉/주기로. 공정 비교(동일 OHLCV 1회 fetch 후 주입), `%` vs `%p` 구분, 수익률-MDD 트레이드오프 방법론
 - [[research-write-agent-separation]] — LLM 콘텐츠 파이프라인의 research/write 분리: 진짜 레버는 단계 쪼개기가 아니라 조사 단계에 도구(WebFetch/WebSearch/git log)를 줘 입력 깊이 천장을 깨는 것. dossier 계약(모든 claim=evidence URL)이 hallucination 가드를 구조화, template/codex 결정론적 fallback. 실측: LWN 5·CVE 2건 등 13 evidence 로 700자 천장 돌파. 함정: 200자 quote 절단·RESEARCH_RAW_PATH 복구·Anubis 봇 차단·"배관 완료≠품질 완료"
