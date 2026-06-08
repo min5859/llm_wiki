@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-08T13:00:00+09:00
+updated: 2026-06-09T12:00:00+09:00
 ---
 
 # Wiki Index
@@ -98,6 +98,7 @@ updated: 2026-06-08T13:00:00+09:00
 ## 분석 (analyses/)
 
 - [[openai-codex-cli-overview]] — OpenAI 터미널 경량 코딩 에이전트(Rust ~96%, ChatGPT 플랜/API 키). custom provider 로 로컬 Gemma 4 연결 실험: 로컬은 속도보다 first-pass 신뢰도가 중요, Apple Silicon Flash Attention freeze(>500 토큰) 함정. Claude Code 대안 비교축
+- [[claude-code-source-leak-internals]] — 2026-03 Claude Code npm 소스맵 누출이 드러낸 내부 설계: anti-distillation(가짜 tool 주입), undercover 모드(내부 코드네임 제거·force-OFF 없음), frustration regex, 미출시 KAIROS 모드. + 에이전트 품질 회귀의 정량 측정법(Read:Edit 비율·인터럽트율) + skills 의 크로스툴 표준 수렴(OpenAI Codex CLI 가 파일시스템 skill 채택). confidence medium
 - [[claude-code-session-jsonl-format]] — Claude Code 네이티브 세션 로그 `~/.claude/projects/<encoded-cwd>/<session-uuid>.jsonl` 포맷: cwd 슬래시→하이픈 인코딩, 1세션=1파일, type 분기(user/assistant/attachment/ai-title/last-prompt/mode/permission-mode/file-history-snapshot), `message.content` str|array 양면, user 레코드 키, `timestamp` UTC(Z)→KST 변환 함정. 주간보고·기억 에이전트의 원천 데이터(gieok `.md` 정제본 vs jsonl 원본 시크릿 노출차)
 - [[backtest-timeframe-sensitivity]] — 추세필터·지표 신호의 손익 효과는 백테스트 봉 간격에 따라 뒤집힌다 (4시간봉 ON 압승 ↔ 30분봉 OFF 우세; 고빈도 봉일수록 SMA/크로스 노이즈). 검증은 반드시 운영 봉/주기로. 공정 비교(동일 OHLCV 1회 fetch 후 주입), `%` vs `%p` 구분, 수익률-MDD 트레이드오프 방법론
 - [[research-write-agent-separation]] — LLM 콘텐츠 파이프라인의 research/write 분리: 진짜 레버는 단계 쪼개기가 아니라 조사 단계에 도구(WebFetch/WebSearch/git log)를 줘 입력 깊이 천장을 깨는 것. dossier 계약(모든 claim=evidence URL)이 hallucination 가드를 구조화, template/codex 결정론적 fallback. 실측: LWN 5·CVE 2건 등 13 evidence 로 700자 천장 돌파. 함정: 200자 quote 절단·RESEARCH_RAW_PATH 복구·Anubis 봇 차단·"배관 완료≠품질 완료"

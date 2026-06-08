@@ -1,9 +1,22 @@
 ---
 title: Operation Log
-updated: 2026-06-07T10:00:00+09:00
+updated: 2026-06-09T12:00:00+09:00
 ---
 
 # Operation Log
+
+## 2026-06-09 — wiki-ingest (session-logs, ingested: false 22건)
+
+처리 session-log 22건 — 전부 dev-blog 일일 뉴스레터 cron 실행(2026-06-09). 신규 페이지 1건, 기존 갱신 1건. (raw-sources/.cache/extracted/mcp-note 대상 없음 — raw-sources 서브디렉터리에 .md 무, fetched/ 없음, .cache/extracted 비어 있음, mcp-note 0건)
+
+- **분류**: 대부분 `assistant_turns` 0~1 로 잘린 cron 실행(입력 프롬프트·dossier 만 존재, 최종 산출물 미포함).
+- **Created**: wiki/analyses/claude-code-source-leak-internals.md — AI Coding Agents dossier(274e research + 06f7 newsletter)에서 지속 가치 있는 검증 지식만 분리. 2026-03 Claude Code npm 소스맵 누출이 드러낸 anti-distillation(가짜 tool 주입)·undercover 모드(내부 코드네임 제거, force-OFF 없음)·frustration regex·미출시 KAIROS. + 에이전트 품질 회귀 정량 측정법(Read:Edit 비율 6.6→2.0·인터럽트 12배, verified:false 라 추정 표현). + skills 크로스툴 표준 수렴(OpenAI Codex CLI `--enable skills`). confidence medium(dossier 다수 evidence verified:false / openQuestions 존재)
+- **Updated**: wiki/analyses/karpathy-claude-md-skills.md (「skills 의 크로스툴 표준 수렴」 절 + 교차 링크 + sources/related/updated 갱신)
+- **Skipped (일회성 일일 뉴스, 신규 지식 없음)**: 선례(log.md 2026-06-06/07 dev-blog Linux dossier Skip) 동일 적용
+  - Linux Daily / Linux Kernel Lens (×다수) — lore/ACK 일일 커널 패치(IMA late_initcall_sync, KVM plane scheduling, nvkm firmware 등). 봇 차단(Anubis)·일자별 패치라 영속 wiki 지식 아님. 파이프라인 설계는 [[research-write-agent-separation]] 에 기수록
+  - Android Kernel Newsletter — ACK android16-6.12 일일 커밋(f2fs cleancache, fuse-bpf, pKVM reloc, AutoFDO 6.12.77 등). 벤더 트리 일일 변경, 영속성 낮음
+  - Opensource Trending / Curation — GitHub 후보 목록(다수 미검증) + 일부 릴리스 노트(SurrealDB 3.1.3, Chroma 1.5.9, supervision 0.28.0 SAM3, gpt-pilot deprecated→Pythagora.ai). 버전별 릴리스성 정보라 일회성. "33.7k star 인기 레포가 사실상 deprecated" 같은 큐레이션 신호만 기록 가치 있으나 단독 페이지엔 빈약 → Skip
+- **Marked ingested: true** — 22개 session-log 전체
 
 ## 2026-06-07 — wiki-ingest (session-logs, ingested: false 1건)
 
