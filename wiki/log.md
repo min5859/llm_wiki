@@ -1270,3 +1270,16 @@ updated: 2026-06-09T12:00:00+09:00
   - Linux Daily / Kernel Lens(반복 회차) / Weekly Digest: SLAB_NO_MERGE 외 전량 릴리스·단일 드라이버 패치·백포트 목록 휘발성.
 - Updated: wiki/index.md (updated 갱신 + concepts/patterns/analyses 3건 추가), wiki/log.md
 - Marked ingested: true — 30개 session-log 파일 전체 (생성: 3건 [patterns 1, analyses 1, concepts 1] + 갱신: concepts 1 + index 1)
+
+## 2026-06-10 — wiki-ingest (session-logs, ingested: false 21건)
+
+- 대상: 2026-06-10 03:00~04:06 KST dev-blog 자동 뉴스레터 cron 사이클 21건 (Research Dossier 10건 + Newsletter Write 10건 + 무관 1건은 이미 ingested). 6개 테마: Linux Daily / Linux Kernel Lens(6렌즈) / Android Kernel / Opensource Trending / Opensource Curation / AI Coding Agents.
+- 처리 방식: 6/8 와 동일 — 세션 로그에 grounding 된 durable·범용 지식만 선별, 휘발성·미검증 뉴스는 전량 스킵. 직접 분석 후 판단 (핵심 파이프라인 지식은 [[research-write-agent-separation]] / [[llm-newsletter-rewrite-metadata-grounding]] / [[prompt-schema-pipeline-coupling]] / [[dev-blog]] 에 이미 충실히 기록돼 있어 신규 페이지 불필요).
+- 신규 durable 지식: **없음**. Newsletter Write 10건이 전부 `assistant_turns: 0` (write 단계 silent fail) 로 산출물 0건. Research Dossier 중 완성본은 `linux-arch-platform` 1건(RISC-V/Exynos 5 entry)뿐이며, 미검증(confidence: medium) 휘발성 커널 패치라 wiki 사실로 기록 부적합.
+- 증분 = 운영 관찰 (dev-blog.md 변경 이력 2026-06-10 항목에 기록):
+  - research(dossier)→write(newsletter) 2단계 분리가 6/6 PoC 에서 **실제 cron 사이클로 통합** (03:00 사이클, Dossier 10건 + Write 10건 짝지어 발사).
+  - Newsletter Write 10건 전부 `assistant_turns: 0` — write 단계에 국한된 silent fail 재발 (dossier 입력은 정상 주입).
+  - Anubis 봇 차단이 `git.kernel.org` 단발(6/6)에서 `lore.kernel.org` 전반으로 확대 + 미래 날짜로 WebSearch 교차검증도 실패 → 대부분 lens 가 입력 cover letter 를 1차 근거로 confidence medium 강등.
+- 스킵 (durability/검증 미달): 시의성 커널 패치·릴리스(7.1-rc7 등)·미검증 dossier entry 전량. 오픈소스 트렌딩/큐레이션·AI 코딩 에이전트 dossier 는 후보 조사 미완성 또는 무응답.
+- Updated: wiki/projects/dev-blog.md (frontmatter updated 2026-06-10 + 변경 이력 2026-06-10 항목), wiki/index.md (updated 갱신 + dev-blog 요약 보강), wiki/log.md
+- Marked ingested: true — 21개 session-log 파일 전체 (생성: 0건, 갱신: projects 1건 [dev-blog] + index 1건)
