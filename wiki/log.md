@@ -1,6 +1,6 @@
 ---
 title: Operation Log
-updated: 2026-06-09T12:00:00+09:00
+updated: 2026-06-11T12:00:00+09:00
 ---
 
 # Operation Log
@@ -1283,3 +1283,15 @@ updated: 2026-06-09T12:00:00+09:00
 - 스킵 (durability/검증 미달): 시의성 커널 패치·릴리스(7.1-rc7 등)·미검증 dossier entry 전량. 오픈소스 트렌딩/큐레이션·AI 코딩 에이전트 dossier 는 후보 조사 미완성 또는 무응답.
 - Updated: wiki/projects/dev-blog.md (frontmatter updated 2026-06-10 + 변경 이력 2026-06-10 항목), wiki/index.md (updated 갱신 + dev-blog 요약 보강), wiki/log.md
 - Marked ingested: true — 21개 session-log 파일 전체 (생성: 0건, 갱신: projects 1건 [dev-blog] + index 1건)
+
+## 2026-06-11 — wiki-ingest (session-logs, ingested: false 23건)
+
+- 대상: 2026-06-11 03:00~04:12 KST dev-blog 자동 뉴스레터 cron 사이클 23건 (Research Dossier 11건 + Newsletter Write 12건). 6테마: Linux Daily / Android Kernel / Opensource Trending / Opensource Curation / AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍. **6/10 과 동일 패턴의 이틀째 반복**.
+- 처리 방식: 3개 subagent 병렬 분석 후, 6/10 과 동일 기준 적용 — grounding 된 durable·범용 지식만 선별, 휘발성·미검증·무응답 산출물은 전량 스킵. write 세션에서 추출되는 "메타데이터 거버넌스 룰" 은 전부 system prompt 명세(실제 출력 아님)이며 이미 [[llm-newsletter-rewrite-metadata-grounding]] 에 기록된 것과 동일 → 신규 페이지 불필요.
+- 검증한 신규성: Newsletter Write 12건 전부 `assistant_turns: 0` 확인(6/10 의 write silent fail 이 이틀 연속 고착). Research Dossier 중 `opensource-curation`·`ai-coding-agents` 도 무응답. 유일한 신규 grounding 관찰은 Opensource Trending dossier 의 자기 인지 — "WebFetch 가 GitHub 404 페이지에서 환각했을 가능성" + 신규 repo 교차검증 시도.
+- 신규 durable 지식: **신규 페이지 0건**. 증분 2건만 기존 페이지에 흡수:
+  - **WebFetch 404 환각** (도구 신뢰성 함정, 6/10 에 없던 새 관찰) → [[research-write-agent-separation]] 구현 함정에 항목 추가. 봇차단과 다른 축의 "도구가 돌려준 텍스트 ≠ 검증된 사실" 레이어.
+  - **write 단계 silent fail 이틀 연속 고착** → [[dev-blog]] 변경 이력 2026-06-11 운영 관찰.
+- 스킵 (durability/검증 미달): 시의성 커널 패치·릴리스·미검증(medium) dossier entry·무응답 write 산출물 전량.
+- Updated: wiki/analyses/research-write-agent-separation.md (구현 함정 1건 + 변경 이력 + frontmatter updated/sources), wiki/projects/dev-blog.md (변경 이력 2026-06-11 + frontmatter updated/sources), wiki/index.md (updated + research-write·dev-blog 요약 보강), wiki/log.md
+- Marked ingested: true — 23개 session-log 파일 전체 (생성: 0건, 갱신: analyses 1건 [research-write-agent-separation] + projects 1건 [dev-blog] + index 1건)

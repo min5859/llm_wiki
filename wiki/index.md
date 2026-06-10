@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-10T12:00:00+09:00
+updated: 2026-06-11T12:00:00+09:00
 ---
 
 # Wiki Index
@@ -32,7 +32,7 @@ updated: 2026-06-10T12:00:00+09:00
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입. AI provider 다중화 (KAKAO_AI_PROVIDER: claude/cursor/codex, 기본 codex). M6-new: dashboard.html self-contained 확인, Cloudflare Pages + Zero Trust Access 권장
 - [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
-- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드. Multi-topic 가동 (11토픽). `lib/run-daily-pipeline.mjs` 로 6개 run-daily 스크립트 공통화 (~700줄→~150줄). `lib/collect-utils.mjs` readJson 추출. 기본 어댑터 cursor→claude 일괄 전환. research(dossier)→write(newsletter) 2단계 분리가 6/10 cron 운영에 통합 (03:00 사이클), Anubis 봇 차단이 lore.kernel.org 전반으로 확대.
+- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드. Multi-topic 가동 (11토픽). `lib/run-daily-pipeline.mjs` 로 6개 run-daily 스크립트 공통화 (~700줄→~150줄). `lib/collect-utils.mjs` readJson 추출. 기본 어댑터 cursor→claude 일괄 전환. research(dossier)→write(newsletter) 2단계 분리가 6/10 cron 운영에 통합 (03:00 사이클), Anubis 봇 차단이 lore.kernel.org 전반으로 확대. write 단계 silent fail(`assistant_turns: 0`) 6/10·6/11 이틀 연속 고착, WebFetch GitHub 404 환각 관찰.
 - [[auto-pipe-blog]] — 컨셉 1개 → velog 글 자동화 파이프라인 (bash + `claude -p` stdin): 00-slug → 01-research → 02-outline → 03-draft → 05-assemble 5단계, skip-if-exists, `CALL_LLM_BACKEND=agent` 로 백엔드 전환. Phase 1 E2E ~4분 / 78줄 post.md / mermaid 2 블록. Phase 3.5 Notion publisher 추가 (parent page/database 자동 판별, 100블록 분할, 로컬 이미지 안내 paragraph 치환) + factcheck rewrite 단계 추가
 - [[auto-pipe-ppt]] — JSON/YAML → 디자인 토큰 기반 멀티슬라이드 PPTX 자동 생성 (Python + `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성). 1차 타겟 재무제표 10장. M0/M1/M2/M3 완료 (41건 테스트 그린): 토큰 이중 어댑터 (YAML / CSS :root), role resolver, 한글 폰트 ea/cs fix, 재무 컴포넌트 6종 (KPI/Insight/Verdict/ScoreCard/Conclusion/Table). M4 차트 5종 / M5 재무 어댑터 미구현
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇. 6/3 codex 토큰 만료(복사 import → 회전 충돌) → `hermes auth add openai-codex --type oauth` 자체 device-flow 재인증
@@ -101,7 +101,7 @@ updated: 2026-06-10T12:00:00+09:00
 - [[claude-code-source-leak-internals]] — 2026-03 Claude Code npm 소스맵 누출이 드러낸 내부 설계: anti-distillation(가짜 tool 주입), undercover 모드(내부 코드네임 제거·force-OFF 없음), frustration regex, 미출시 KAIROS 모드. + 에이전트 품질 회귀의 정량 측정법(Read:Edit 비율·인터럽트율) + skills 의 크로스툴 표준 수렴(OpenAI Codex CLI 가 파일시스템 skill 채택). confidence medium
 - [[claude-code-session-jsonl-format]] — Claude Code 네이티브 세션 로그 `~/.claude/projects/<encoded-cwd>/<session-uuid>.jsonl` 포맷: cwd 슬래시→하이픈 인코딩, 1세션=1파일, type 분기(user/assistant/attachment/ai-title/last-prompt/mode/permission-mode/file-history-snapshot), `message.content` str|array 양면, user 레코드 키, `timestamp` UTC(Z)→KST 변환 함정. 주간보고·기억 에이전트의 원천 데이터(gieok `.md` 정제본 vs jsonl 원본 시크릿 노출차)
 - [[backtest-timeframe-sensitivity]] — 추세필터·지표 신호의 손익 효과는 백테스트 봉 간격에 따라 뒤집힌다 (4시간봉 ON 압승 ↔ 30분봉 OFF 우세; 고빈도 봉일수록 SMA/크로스 노이즈). 검증은 반드시 운영 봉/주기로. 공정 비교(동일 OHLCV 1회 fetch 후 주입), `%` vs `%p` 구분, 수익률-MDD 트레이드오프 방법론
-- [[research-write-agent-separation]] — LLM 콘텐츠 파이프라인의 research/write 분리: 진짜 레버는 단계 쪼개기가 아니라 조사 단계에 도구(WebFetch/WebSearch/git log)를 줘 입력 깊이 천장을 깨는 것. dossier 계약(모든 claim=evidence URL)이 hallucination 가드를 구조화, template/codex 결정론적 fallback. 실측: LWN 5·CVE 2건 등 13 evidence 로 700자 천장 돌파. 함정: 200자 quote 절단·RESEARCH_RAW_PATH 복구·Anubis 봇 차단·"배관 완료≠품질 완료"
+- [[research-write-agent-separation]] — LLM 콘텐츠 파이프라인의 research/write 분리: 진짜 레버는 단계 쪼개기가 아니라 조사 단계에 도구(WebFetch/WebSearch/git log)를 줘 입력 깊이 천장을 깨는 것. dossier 계약(모든 claim=evidence URL)이 hallucination 가드를 구조화, template/codex 결정론적 fallback. 실측: LWN 5·CVE 2건 등 13 evidence 로 700자 천장 돌파. 함정: 200자 quote 절단·RESEARCH_RAW_PATH 복구·Anubis 봇 차단·WebFetch 404 환각(도구가 돌려준 텍스트≠검증된 사실)·"배관 완료≠품질 완료"
 - [[qualcomm-camera-kernel-isp]] — Qualcomm 카메라 커널(cam_isp/CAMSS) 구조·소스 입수·Exynos 비교: 커널 드라이버는 GPL 공개(opensource.samsung.com tar / CodeLinaro git clone)지만 CamX-CHI HAL 은 독점. cam_isp 골격(IFE/VFE/CSID, csid_pxl/rdi 리소스, SOF/EPOCH/BUBBLE 상태기계). Exynos = 삼성 Pablo(구 FIMC-IS), 칩(Snapdragon vs Exynos)별로 ISP 가 갈림
 - [[zed-editor]] — Rust 기반 고속 코드 에디터: macOS/Windows/Linux 설치, SSH 원격 개발, AI provider(Claude/GPT/Gemini/Ollama) 연결 내장
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent의 미실행 작업 캐치업 동작 (cron과의 차이)
