@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-11T12:00:00+09:00
+updated: 2026-06-12T08:00:00+09:00
 ---
 
 # Wiki Index
@@ -87,7 +87,7 @@ updated: 2026-06-11T12:00:00+09:00
 - [[grep-env-var-leak-to-chatlog]] — `grep "NOTION_API_KEY" ~/.zshrc` 진단 한 줄로 시크릿이 LLM 채팅 로그에 그대로 노출된 실 사고. 안전한 검증법은 `${#VAR}` / `[ -n "$VAR" ]` / `grep -q` 만 사용. 키는 즉시 폐기·회전
 - [[highlights-action-validator-schema-drift]] — dev-blog 의 LLM rewrite 출력 스키마 (`action` → `if`/`do`/`verify` 3분해) 변경이 publisher 5종 + weekly + 일부 rewrite validator 갱신과 비동기로 진행되어 5/13 launchd 잡의 10개 토픽 publish 가 모두 silent skip. validator 를 둘 중 하나 허용으로 완화 (build-site 와 동형), 49 테스트 통과 후 publish/rewrite 재실행으로 복구
 - [[kis-holiday-detection-bsop-date]] — ht_trading 공휴일 휴장 판정이 삼성전자 현재가 `bsop_date`(영업일자) 비교 방식이라 공휴일에도 당일 날짜 반환 → 휴장 감지 실패, KIS `APBK0919` 주문 거부 반복. KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체. 부가: 6시간째 떠 있던 라이브 데몬이 옛 코드 보유 → 재시작 필수
-- [[reentry-after-full-liquidation-no-cooldown]] — ht_trading `ScoringStrategy` 가 트레일링스톱·손절 전량 청산 직후 같은 종목을 즉시 재매수 (신세계 15:10 매도 → 15:20 재매수, 10분). 분할 추가매수 throttle (`min_split_interval_minutes` 18h) 이 첫 매수를 면제하므로 flat 재진입 경로엔 가드 전무. 전량 청산만 매도시각 기록 + `_try_buy` flat 재진입 시 `reentry_cooldown_minutes`(60) 검사로 수정 (commit 70634aa)
+- [[reentry-after-full-liquidation-no-cooldown]] — ht_trading `ScoringStrategy` 가 트레일링스톱·손절 전량 청산 직후 같은 종목을 즉시 재매수 (신세계 15:10 매도 → 15:20 재매수, 10분). 분할 추가매수 throttle (`min_split_interval_minutes` 18h) 이 첫 매수를 면제하므로 flat 재진입 경로엔 가드 전무. 전량 청산만 매도시각 기록 + `_try_buy` flat 재진입 시 `reentry_cooldown_minutes` 검사로 수정 (commit 70634aa). 후속(6/11): 60분은 분할 throttle(다음날)과 비대칭이라 같은날 휩쏘 잔존 → 1080분으로 정렬 (commit c4cc530)
 - [[round-winrate-exit-type-undercount]] — upbit_trading 백테스트 리포트가 라운드 종료 유형을 `target`/`stop_loss` 로만 분류해 trailing_stop/time_exit/partial 종료가 누락 → "승률 0%, 목표달성 0회" 왜곡 (평균 수익률은 양수인 모순이 단서). `profit>0` 기준 승률 + `exit_breakdown` 별도 집계로 수정 (commit `b947351`). 통계 집계 분류가 enum 일부만 커버할 때의 일반 함정
 - [[absolute-stop-loss-elif-dead-code]] — ht_trading `scoring_strategy.py` 의 절대 손절이 `if … elif` 분기 때문에 dead code. 라이브에서 벤치마크 (KOSPI) 가 항상 붙어 있어 `elif profit_pct <= -absolute_stop_loss_pct` 분기 도달 불가 → `absolute_stop_loss_pct: 0.10` 무효. 상대 손절 -15% → -20% 완화 (D 튜닝) 와 결합되어 *벤치마크 동반 하락기엔 어떤 손실도 컷 못 함*. 화신 -19% / GS -11% 미발동의 직접 원인
 
@@ -159,7 +159,7 @@ updated: 2026-06-11T12:00:00+09:00
 - [[terminal-markdown-viewer-tools]] — 터미널·CLI 마크다운 뷰어 비교 (glow / mdcat / frogmouth / bat / neovim + render-markdown.nvim / markdown-preview.nvim). Mermaid SVG 의 터미널 본질적 한계 (코드블록 → ASCII → 외부 뷰어 → 인라인 이미지 4단계 우회). SSH 환경에서 Tauri/Electron GUI 부적합
 - [[financial-health-composite-scores]] — 재무 건전성 합성 스코어 3종 (Altman Z / Piotroski F / Beneish M) + 5 카테고리 (profitability/liquidity/leverage/efficiency/cash) 룰 기반 risk flag. LLM 호출 0, 한국 시장 적용 시 Z 의 절대값 데이터 누락 + Beneish 의 false positive + F 의 insufficient fallback 처리
 - [[macos-disk-cleanup-cache-classification]] — macOS 캐시 3 카테고리 (자동 재생성 / 순수 회수 / 다음 사용 시 재다운로드) + Claude Desktop 9.8G footprint 분해 (vm_bundles 8.4G = Cowork Linux VM, Cache_Data 1.2G, claude-code 본체 212M). depth 1 만 보고 결론 금지, 사용자 컨펌 워크플로우, 첫 운영 케이스 3.23G 회수
-- [[polling-interval-vs-bar-interval]] — 라이브 트레이딩 폴링 주기 (cycle interval) 와 봉 단위 (bar_interval) 의 정합성: 일봉 + 10분 폴링이면 47회 중복 평가, 폴링 단축은 알파 0 증가 + API 호출만 ↑. 폴링 단축이 의미를 가지려면 bar_interval 도 함께 분봉으로 내려야. 일봉 유지 시 진짜 레버는 진입/청산 타이밍 (시초가 회피, 종가 근처 분할)
+- [[polling-interval-vs-bar-interval]] — 라이브 트레이딩 폴링 주기 (cycle interval) 와 봉 단위 (bar_interval) 의 정합성: 일봉 + 10분 폴링이면 47회 중복 평가, 폴링 단축은 알파 0 증가 + API 호출만 ↑. 폴링 단축이 의미를 가지려면 bar_interval 도 함께 분봉으로 내려야. 일봉 유지 시 진짜 레버는 진입/청산 타이밍 (시초가 회피, 종가 근처 분할). **예외**: 트레일링/손절은 `bar.close` 가 아닌 실시간 평가가(`pos.current_price`, 매 사이클 강제 갱신) 기반이라 일봉이어도 폴링 단축(10→2분)이 청산 해상도를 높인다
 - [[llm-content-quality-guards]] — LLM 자동 콘텐츠 발행의 5가지 품질 가드 (토픽 중복 / action 일반성 / hallucination / 저신호 부풀리기 / 비-한글 CJK 혼입). 프롬프트 룰 + draft 메타 + publish 안전망의 defense-in-depth. CJK 혼입은 한국어 강제 프롬프트의 만성 함정 — `auditPostQuality` post-rewrite 검출 + stdout 교정·publish 재실행 4단계 복구
 - [[mint-lora-serving-infrastructure]] — MinT: 백만 LoRA 어댑터 학습·서빙 관리형 인프라. 어댑터 리비전 중심 재설계, Scale Up (Megatron + R3 router replay) / Scale Down (time-sliced 다정책) / Scale Out (3계층 캐시 10⁶ 정책). 4B 어댑터 핸드오프 18.3×, 다중 정책 GRPO 1.77× 가속
 - [[gin-vue-admin-mcp-fullstack]] — flipped-aurora/gin-vue-admin (24,673 stars): Go(Gin) + Vue 3 풀스택 엔터프라이즈 어드민. AI 코드 생성기 + Casbin 3단계 권한 + 내장 MCP 서버. MCP 가 IDE 를 넘어 백오피스 운영 인터페이스로 침투하는 신호

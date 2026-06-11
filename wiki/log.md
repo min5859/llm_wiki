@@ -1295,3 +1295,16 @@ updated: 2026-06-11T12:00:00+09:00
 - 스킵 (durability/검증 미달): 시의성 커널 패치·릴리스·미검증(medium) dossier entry·무응답 write 산출물 전량.
 - Updated: wiki/analyses/research-write-agent-separation.md (구현 함정 1건 + 변경 이력 + frontmatter updated/sources), wiki/projects/dev-blog.md (변경 이력 2026-06-11 + frontmatter updated/sources), wiki/index.md (updated + research-write·dev-blog 요약 보강), wiki/log.md
 - Marked ingested: true — 23개 session-log 파일 전체 (생성: 0건, 갱신: analyses 1건 [research-write-agent-separation] + projects 1건 [dev-blog] + index 1건)
+
+## 2026-06-12 — wiki-ingest (session-logs, ingested: false 23건)
+
+- 대상: 두 부류. **(A) ht_trading 엔지니어링 검토 1건** (20260611-231312-ba46, "외부 개선 제안 7건 타당성 검토") + **(B) dev-blog 자동 뉴스레터 cron 22건** (2026-06-12 03:00~04:02 KST, Research Dossier 11 + Newsletter Write 11). 6테마: Linux Daily / Android Kernel / Opensource Trending / Opensource Curation / AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍. **6/10·6/11 과 동일 패턴의 사흘째 반복**.
+- 처리 방식: 2개 subagent 병렬 트리아지. (A) 는 전 ht_trading 위키 대조 후 신규 durable 지식만 선별, (B) 는 6/10·6/11 기준 그대로 — grounding 된 durable·범용 지식만, 휘발성·미검증 뉴스는 전량 스킵.
+- **(A) ht_trading 검토 — 신규 durable 지식 3건 (모두 기존 페이지 흡수, 신규 페이지 0건):**
+  - **폴링 단축의 예외** → [[polling-interval-vs-bar-interval]] 「실시간 가격 기반 청산」 절 신설. 트레일링/손절은 `bar.close` 가 아닌 `pos.current_price`(매 사이클 강제 갱신) 트리거라 일봉이어도 폴링 10→2분 단축이 청산 해상도를 높임 (commit `1bb80f1`). 초기 오판을 사용자 지적으로 정정한 케이스.
+  - **flat 재진입 쿨다운 60→1080 비대칭 정정** → [[reentry-after-full-liquidation-no-cooldown]] 「후속 정정」 절. 분할 throttle(다음날)과 비대칭이라 같은날 휩쏘 잔존 → 1080분 정렬 (commit `c4cc530`). 교훈: 같은 위험을 덮는 두 가드는 타이밍을 일치시켜라.
+  - **MARKET 매도 EOD 체결 검증** → [[ht-trading]] 변경 이력. submit 즉시 FILLED 가정 공백 보완, `get_daily_orders` SELL 일반화 + 미체결 경고 (commit `1cb9be2`, 테스트 231건). 반려 2건(ATR 동적 트레일링·종목별 로깅)은 전제가 이미 구현돼 있어 무효 — 교훈: 제안 전제를 현 코드에 대조 후 판단, 백로그 문서는 드리프트한다.
+- **(B) dev-blog cron — 신규 durable 지식 0건.** subagent 정밀 스캔: prompt-injection 시도 0건, "error/fail/crash" 키워드는 전부 fetched 커널 커밋 본문(xfs/NFC/qrtr 등) 내부의 토픽일 뿐 파이프라인 정상. Linux Kernel Lens 6회 반복은 cron 테스트가 아니라 **서브시스템별 렌즈 분기**(Rust GEM/shmem, xfs+mptcp+qrtr, bpf selftests, dmem cgroup 등)로 설계상 의도된 변주. 파이프라인 지식은 [[dev-blog]]/[[research-write-agent-separation]]/[[prompt-schema-pipeline-coupling]] 에 이미 충실.
+- 스킵: dev-blog 22건의 시의성 일일 뉴스 콘텐츠 전량 (durability 미달).
+- Updated: wiki/analyses/polling-interval-vs-bar-interval.md (예외 절 + 변경 이력 + frontmatter updated), wiki/bugs/reentry-after-full-liquidation-no-cooldown.md (후속 정정 절 + 변경 이력 + updated), wiki/projects/ht-trading.md (설계 변경 이력 3행 + 변경 이력 2026-06-11 + frontmatter updated), wiki/index.md (updated + polling·reentry 요약 보강), wiki/log.md
+- Marked ingested: true — 23개 session-log 파일 전체 (생성: 0건, 갱신: analyses 1 [polling] + bugs 1 [reentry] + projects 1 [ht-trading] + index 1)
