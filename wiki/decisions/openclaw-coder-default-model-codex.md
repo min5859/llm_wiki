@@ -29,6 +29,8 @@ related:
 
 코더의 fallback 이 0개라 OAuth 거부가 곧 silent 침묵으로 이어짐. 단순한 fallback 추가만으로는 코더의 정체성 ("Claude Opus 4.6") 이 깨짐.
 
+> **후속 (2026-06 보고)**: 이 organization-level 차단은 이후 더 강화돼, 구독의 third-party 하네스 라우팅 차단 + **커밋 메시지의 "OpenClaw" 문자열 스캔으로 거부/추가과금**까지 보고됐다. 프로젝트명이 OpenClaw 라 1st-party Claude Code 작업도 영향권 — 자세히 [[anthropic-oauth-third-party-billing-trap]] "정책 강화" 절.
+
 ## 결정 이유
 
 - **신뢰성**: main agent 는 codex 라 같은 OAuth 거부 영향 없음. 코더도 같은 모델로 통일하면 인증 단일화로 운영 안정성 확보.
@@ -72,4 +74,5 @@ openclaw models status --agent coder | grep -E "Default|Fallbacks"
 
 ## 변경 이력
 
+- 2026-06-13: "후속 (2026-06 보고)" 노트 추가 — 차단 정책이 커밋 메시지 "OpenClaw" 문자열 스캔 거부/과금으로 강화됐다는 보고 교차링크 ([[anthropic-oauth-third-party-billing-trap]]). 출처: session-logs/20260613-033132-ea91-*
 - 2026-05-07: 최초 작성 (세션 로그 20260507-011504-7932)

@@ -1308,3 +1308,15 @@ updated: 2026-06-11T12:00:00+09:00
 - 스킵: dev-blog 22건의 시의성 일일 뉴스 콘텐츠 전량 (durability 미달).
 - Updated: wiki/analyses/polling-interval-vs-bar-interval.md (예외 절 + 변경 이력 + frontmatter updated), wiki/bugs/reentry-after-full-liquidation-no-cooldown.md (후속 정정 절 + 변경 이력 + updated), wiki/projects/ht-trading.md (설계 변경 이력 3행 + 변경 이력 2026-06-11 + frontmatter updated), wiki/index.md (updated + polling·reentry 요약 보강), wiki/log.md
 - Marked ingested: true — 23개 session-log 파일 전체 (생성: 0건, 갱신: analyses 1 [polling] + bugs 1 [reentry] + projects 1 [ht-trading] + index 1)
+
+## 2026-06-13 — wiki-ingest (session-logs, ingested: false 23건)
+
+- 대상: 2026-06-13 03:00~04:08 KST dev-blog 자동 뉴스레터 cron 23건 (Research Dossier 11 + Newsletter Write 12). 6테마: Linux Daily / Android Kernel / Opensource Trending / Opensource Curation / AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍. **6/10·6/11·6/12 와 동일 패턴의 나흘째 반복**. mcp-note·raw-sources·.cache/extracted 신규분 없음.
+- 처리 방식: 1개 subagent 로 11개 dossier 정밀 트리아지 + AI 코딩 에이전트 dossier 직접 정독. 기존 선례(6/10~6/12)와 동일 기준 — grounding 된 durable·범용 지식만 선별, 시의성 커널/OSS 뉴스(특정 버전·패치·CVE)는 전량 스킵. 단일 일일 패치를 "패턴 페이지"로 승격하는 과잉추출 배제.
+- **6/13 의 차이점**: 직전 이틀(6/11·6/12) 무응답이던 **AI 코딩 에이전트 dossier 가 이번엔 완성**되어 유일한 신규 durable 신호 발생.
+- 신규 durable 지식: **신규 페이지 0건**. 증분 1클러스터만 기존 페이지에 흡수:
+  - **Anthropic third-party 차단 정책 강화** (서드파티 하네스 라우팅 차단 + 커밋 메시지 "OpenClaw"/"Hermes" 문자열 스캔 → 거부/추가과금, + enforceAvailableModels v2.1.175 managed 거버넌스) → [[anthropic-oauth-third-party-billing-trap]] "정책 강화" 절 신설. 사용자 프로젝트명이 OpenClaw 라 1st-party Claude Code 작업이 직접 영향권 → [[openclaw-coder-default-model-codex]] 에 후속 노트 + 교차링크. 신뢰도 medium(원 출처 Theo X 게시물, Anthropic 공식 미확인).
+  - skills 의 크로스툴 표준 수렴은 6/9 에 이미 [[karpathy-claude-md-skills]]/[[claude-code-source-leak-internals]] 에 기록됨 → 6/13 dossier 는 동일 simonwillison 출처 재확인일 뿐 신규성 없어 스킵.
+- 스킵 (durability/검증 미달): Linux Kernel Lens 6렌즈·Linux Daily·Android Kernel·Opensource Trending/Curation dossier 의 시의성 일일 커널/OSS 뉴스 전량(서브에이전트가 10개 "패턴 후보" 제안했으나, 단일 패치 1건에서 일반 패턴을 날조하는 셈이라 기각). Newsletter Write 산출물은 dossier 의 포맷 재작성이라 신규 지식 없음.
+- Updated: wiki/analyses/anthropic-oauth-third-party-billing-trap.md (정책 강화 절 + 변경 이력 + frontmatter sources/updated/related), wiki/decisions/openclaw-coder-default-model-codex.md (후속 노트 + 변경 이력), wiki/index.md (updated + billing-trap 요약 보강), wiki/log.md
+- Marked ingested: true — 23개 session-log 파일 전체 (생성: 0건, 갱신: analyses 1 [billing-trap] + decisions 1 [openclaw-codex] + index 1)

@@ -4,12 +4,16 @@ domain: personal
 sensitivity: public
 tags: ["analysis", "anthropic", "claude", "oauth", "billing", "third-party-cli", "hermes", "subscription"]
 created: 2026-05-02
-updated: 2026-05-02
-source_session: "20260502-092045-628d-hermes-라는-opensource-agent-를-설치하려고하는데-조사좀-해-주세요.md"
+updated: 2026-06-13
+sources:
+  - "session-logs/20260502-092045-628d-hermes-라는-opensource-agent-를-설치하려고하는데-조사좀-해-주세요.md"
+  - "session-logs/20260613-033132-ea91-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md"
 confidence: medium
 related:
   - "wiki/concepts/hermes-agent.md"
   - "wiki/concepts/claude-code-overview.md"
+  - "wiki/decisions/openclaw-coder-default-model-codex.md"
+  - "wiki/projects/openclaw.md"
 ---
 
 # Anthropic OAuth 의 third-party 빌링 함정
@@ -63,6 +67,27 @@ third-party CLI / agent 가 「Claude OAuth 로그인」 옵션을 제공하면 
 
 ChatGPT / Codex 구독에는 이런 함정이 (현재까지) 보고되지 않았다. **OAuth 라는 표면이 같다고 빌링 정책까지 같다고 가정하지 말 것.**
 
+## 정책 강화 (2026-06 보고): 서브스크립션의 third-party 하네스 라우팅 차단 + 커밋 문자열 스캔
+
+2026-05 의 "OAuth 빌링 pool 분리" 는 그 후 더 공격적으로 굳어진 것으로 보고된다. 2026-04 시행으로 **Claude Pro/Max 구독이 OpenClaw·Cline 등 비공식(third-party) 하네스를 통한 라우팅을 더 이상 허용하지 않는다**는 분석이 있고, 그 운영상 부작용으로 **git 커밋 메시지에 경쟁 하네스명("OpenClaw"·"Hermes") 문자열이 있으면 Claude Code 가 요청을 거부하거나 Max 구독 대신 pay-as-you-go 로 과금**하는 동작이 보고됐다.
+
+```text
+"if you have a recent commit that mentions OpenClaw in a json blob,
+ Claude Code will either refuse your request or bill you extra money"
+ — HN 47963204 (2095점), 원 출처 Theo X 게시물
+"Claude Pro and Max subscriptions can no longer route through third-party
+ harnesses like OpenClaw, Cline, or any agent runtime that isn't an
+ official Anthropic product" — mindstudio.ai 분석글
+```
+
+> **신뢰도 주의 (medium)**: 원 출처가 Theo 의 X 게시물이라 직접 검증이 어렵고, 거부/과금 동작의 재현 범위와 Anthropic 공식 입장·수정 여부는 미확정이다. 다만 본 페이지가 정리한 "1st-party 한정 보장" 정책 방향과 일관된다.
+
+**이 사용자에게 직접 영향**: 본인 프로젝트명이 [[openclaw]] 라서, 그 repo 에서 Claude Code(1st-party 하네스)로 작업할 때 커밋 메시지·diff·설정 JSON 에 "OpenClaw" 문자열이 섞이면 위 거부/과금이 트리거될 소지가 있다. [[openclaw-coder-default-model-codex]] 에서 이미 겪은 organization-level OAuth 403 차단(2026-05-07)과 같은 정책 축의 연장선. 작업 거부·예상 외 과금이 보이면 커밋 문자열을 먼저 의심할 것.
+
+### 곁가지: managed 모델 거버넌스 강화 (enforceAvailableModels, v2.1.175)
+
+같은 "1st-party/관리형 통제 강화" 흐름의 또 다른 신호. Claude Code v2.1.175 의 `enforceAvailableModels` 관리형 설정은 `availableModels` 허용목록이 Default 모델까지 제약하게 만들고(허용 안 된 Default 는 첫 허용 모델로 폴백), **user/project 설정이 관리형 허용목록을 넓힐 수 없게** 한다. 팀·엔터프라이즈 관리자가 모델 사용을 강제하는 거버넌스용. (출처: dev-blog 2026-06-13 AI 코딩 에이전트 dossier, github.com/anthropics/claude-code v2.1.175 릴리스)
+
 ## 결론
 
 - "OAuth 로그인 = 내 구독 재사용" 이 항상 성립하는 게 아니다. **Anthropic 은 third-party OAuth 를 의도적으로 별도 pool 로 라우팅**
@@ -77,4 +102,5 @@ ChatGPT / Codex 구독에는 이런 함정이 (현재까지) 보고되지 않았
 
 ## 변경 이력
 
+- 2026-06-13: "정책 강화 (2026-06 보고)" 절 추가 — 구독의 third-party 하네스 라우팅 차단 + 커밋 메시지 "OpenClaw"/"Hermes" 문자열 스캔 거부/과금 보고, enforceAvailableModels(v2.1.175) governance 곁가지, [[openclaw]]·[[openclaw-coder-default-model-codex]] 교차링크. (출처: session-logs/20260613-033132-ea91-* AI 코딩 에이전트 dossier)
 - 2026-05-02: 최초 생성. Hermes Agent 조사 중에 드러난 Anthropic OAuth third-party 빌링 함정 정리 (출처: session-logs/20260502-092045-628d-*)
