@@ -1320,3 +1320,15 @@ updated: 2026-06-11T12:00:00+09:00
 - 스킵 (durability/검증 미달): Linux Kernel Lens 6렌즈·Linux Daily·Android Kernel·Opensource Trending/Curation dossier 의 시의성 일일 커널/OSS 뉴스 전량(서브에이전트가 10개 "패턴 후보" 제안했으나, 단일 패치 1건에서 일반 패턴을 날조하는 셈이라 기각). Newsletter Write 산출물은 dossier 의 포맷 재작성이라 신규 지식 없음.
 - Updated: wiki/analyses/anthropic-oauth-third-party-billing-trap.md (정책 강화 절 + 변경 이력 + frontmatter sources/updated/related), wiki/decisions/openclaw-coder-default-model-codex.md (후속 노트 + 변경 이력), wiki/index.md (updated + billing-trap 요약 보강), wiki/log.md
 - Marked ingested: true — 23개 session-log 파일 전체 (생성: 0건, 갱신: analyses 1 [billing-trap] + decisions 1 [openclaw-codex] + index 1)
+
+## 2026-06-13 (2) — wiki-ingest (session-logs, ingested: false 1건)
+
+- 대상: **session-log 1건** (20260613-164818-fc2f, ht_dde 신규 프로젝트 — DDE+엑셀 점수판을 KIS REST 스캐너 + 종이거래 + 웹 대시보드로 구현). frontmatter 기준 `ingested: false` 는 이 1건뿐(20260607-095133 은 본문에 "ingested: false" 문자열만 있고 frontmatter 는 true). mcp-note 0건, raw-sources/ 신규 .md 0건(PDF/txt/pptx 만 존재, .cache/extracted 비어 있음 → 대상 외).
+- 처리 방식: 세션 전문(1498줄) 정독. 탐색 시행착오·완료 보고 반복은 버리고, 설계 판단·기술 선택·발견·미해결만 선별. 기존 풍부한 trading/launchd 위키와 중복 회피 위해 관련 페이지(ht-trading·stock-screening-score-design·launchd-plist-symlink·kis-holiday-detection·oauth-refresh-token-rotation 등) 사전 대조.
+- 신규 페이지 **3건**:
+  - **[[ht-dde]]** (projects) — 프로젝트 기록. 아키텍처(universe/indicators/scoring/scanner + paper/web 2차), 7개 핵심 설계판단(YAML 점수식·순수함수 test-first·타임프레임 독립·토큰캐시 공유·종이거래·3전략 종목당1회 조회 공유·launchd 데몬), 발견(체결강도 inquire-ccnl·휴장 chk-holiday·포트5000 AirPlay), 미해결(appkey 공유 rate limit). cwd 전체경로 미기재(프로젝트명만).
+  - **[[launchd-daemon-vs-cron-periodic]]** (analyses, Phase I 범용) — 상시 데몬 vs 단발 배치 판별 기준. 데몬은 launchd KeepAlive(SuccessfulExit=false)+ThrottleInterval, 자체 스케줄러와 cron 이중 주기 충돌 회피, "언제 일하나"는 앱 책임. 단발은 개인 Mac 이면 launchd 캐치업(↔ cron 스킵). 포트5000·`&` 함정.
+  - **[[shared-broker-appkey-token-cache]]** (decisions) — 단일 appkey 발급 owner 1개 + 캐시 consumer N개, rate limit appkey 합산 → 사전 필터(60~70%↓)+throttle/주기 분담. OAuth 회전토큰 쟁탈([[oauth-refresh-token-rotation-multi-client]])과 메커니즘 구분.
+- 스킵: graphify·git init 절차, 완료 보고 반복, "--loop/--top 설명" 같은 단발 Q&A, 탐색 중 빈 ls 출력 등.
+- Updated: wiki/projects/ht-dde.md (생성), wiki/analyses/launchd-daemon-vs-cron-periodic.md (생성), wiki/decisions/shared-broker-appkey-token-cache.md (생성), wiki/index.md (projects+decisions+analyses 각 1행 추가 + updated), wiki/log.md
+- Marked ingested: true — session-log 1건 (20260613-164818-fc2f). 생성 3건(projects 1 + analyses 1 + decisions 1), 갱신: index 1.

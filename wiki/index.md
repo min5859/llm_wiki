@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-13T08:00:00+09:00
+updated: 2026-06-13T18:40:00+09:00
 ---
 
 # Wiki Index
@@ -37,11 +37,13 @@ updated: 2026-06-13T08:00:00+09:00
 - [[auto-pipe-ppt]] — JSON/YAML → 디자인 토큰 기반 멀티슬라이드 PPTX 자동 생성 (Python + `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성). 1차 타겟 재무제표 10장. M0/M1/M2/M3 완료 (41건 테스트 그린): 토큰 이중 어댑터 (YAML / CSS :root), role resolver, 한글 폰트 ea/cs fix, 재무 컴포넌트 6종 (KPI/Insight/Verdict/ScoreCard/Conclusion/Table). M4 차트 5종 / M5 재무 어댑터 미구현
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇. 6/3 codex 토큰 만료(복사 import → 회전 충돌) → `hermes auth add openai-codex --type oauth` 자체 device-flow 재인증
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 / partial_profit ON / tighten ON). 2026-06-06: PAUSED 6h 텔레그램 알림 + 저거래량 DCA 제동 신규, 추세필터 ON/OFF 백테스트 재검증 결과 30분봉(운영 봉)에서 OFF 우세 → OFF 유지, launchd 봇 당분간 중지
+- [[ht-dde]] — DDE+엑셀 점수판을 KIS REST 로 옮긴 실시간 매수후보 스캐너 + 종이거래 비교 대시보드. [[ht-trading]] 자매(주문 0, 시세만). 점수식 YAML 외부화 / 지표 순수함수 test-first / 타임프레임 독립 / 토큰캐시 공유 / 3전략 동시비교(종목당 1회 조회 공유) / Flask+폴링 launchd 데몬. 발견: 체결강도는 inquire-ccnl(tday_rltv), 휴장 판정은 chk-holiday, 포트 5000 AirPlay 충돌→5050. 미해결: appkey 공유 rate limit(사전필터 권장)
 - [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장. 6/3: -16G 급감 = macOS Tahoe 업데이트 준비물(추적 밖). 코드 보완 — 측정 실패 가시화(`errors`/`roots`), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적
 
 ## 설계 판단 (decisions/)
 
 - [[openclaw-coder-default-model-codex]] — OpenClaw 코더 default 모델을 Anthropic Claude Opus → Codex GPT-5.5 로 변경. Anthropic OAuth organization 차단 + fallback 0개로 인한 silent 침묵 회피. Claude Opus 는 `/acp spawn --bind here` 명시 호출 시에만 사용
+- [[shared-broker-appkey-token-cache]] — 같은 KIS appkey 를 두 프로세스(실거래+모니터링)가 쓸 때: ① 발급 owner 1개 + 캐시 consumer N개(분당 1회 발급 제한 회피, 후순위는 기존 .token_cache.json 재사용) ② rate limit 은 appkey 합산이라 사전 필터로 호출량 60~70% 감소 + throttle/주기 분담(EGW00201 초과 회피)
 
 ## 패턴 (patterns/)
 
@@ -105,6 +107,7 @@ updated: 2026-06-13T08:00:00+09:00
 - [[qualcomm-camera-kernel-isp]] — Qualcomm 카메라 커널(cam_isp/CAMSS) 구조·소스 입수·Exynos 비교: 커널 드라이버는 GPL 공개(opensource.samsung.com tar / CodeLinaro git clone)지만 CamX-CHI HAL 은 독점. cam_isp 골격(IFE/VFE/CSID, csid_pxl/rdi 리소스, SOF/EPOCH/BUBBLE 상태기계). Exynos = 삼성 Pablo(구 FIMC-IS), 칩(Snapdragon vs Exynos)별로 ISP 가 갈림
 - [[zed-editor]] — Rust 기반 고속 코드 에디터: macOS/Windows/Linux 설치, SSH 원격 개발, AI provider(Claude/GPT/Gemini/Ollama) 연결 내장
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent의 미실행 작업 캐치업 동작 (cron과의 차이)
+- [[launchd-daemon-vs-cron-periodic]] — "주기 실행=cron" 아님. 상시 데몬(웹서버·폴링 루프·자체 스케줄러)은 launchd KeepAlive(SuccessfulExit=false)+ThrottleInterval, 단발 배치만 cron/StartCalendarInterval. 판별질문: 계속 살아 있어야 하나 vs 한 번 돌고 끝나나. "언제 일하나"는 앱이 판단(장외 idle), launchd 는 살아있게만. 포트5000 AirPlay·`&` 터미널 종속 함정
 - [[everything-claude-code]] — affaan-m/everything-claude-code (170k stars): 48 agents + 182 skills + AgentShield 102 룰 + Continuous Learning v2 + ECC 2.0 alpha (Rust) — Claude Code 하네스 성능 시스템
 - [[nextjs-vercel-supabase-deployment]] — Next.js + Vercel + Supabase 통합 배포 7가지 결정: GitHub App 연동, 업로드 한도, force-dynamic, Pooler 모드 (Direct vs Transaction vs Session), 환경변수 import, .next/.gitignore
 - [[github-search-api-topic-or-limitation]] — GitHub Repository Search API의 topic: 한정자는 OR 연산자 미지원, 카테고리별 N번 쿼리 + full_name dedupe 우회 (oss-radar Search 후보 0 → 422)
