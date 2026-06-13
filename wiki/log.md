@@ -1,6 +1,6 @@
 ---
 title: Operation Log
-updated: 2026-06-11T12:00:00+09:00
+updated: 2026-06-14T04:30:00+09:00
 ---
 
 # Operation Log
@@ -1332,3 +1332,16 @@ updated: 2026-06-11T12:00:00+09:00
 - 스킵: graphify·git init 절차, 완료 보고 반복, "--loop/--top 설명" 같은 단발 Q&A, 탐색 중 빈 ls 출력 등.
 - Updated: wiki/projects/ht-dde.md (생성), wiki/analyses/launchd-daemon-vs-cron-periodic.md (생성), wiki/decisions/shared-broker-appkey-token-cache.md (생성), wiki/index.md (projects+decisions+analyses 각 1행 추가 + updated), wiki/log.md
 - Marked ingested: true — session-log 1건 (20260613-164818-fc2f). 생성 3건(projects 1 + analyses 1 + decisions 1), 갱신: index 1.
+
+## 2026-06-14 — wiki-ingest (session-logs, ingested: false 21건)
+
+- 대상: **session-log 21건** (전부 2026-06-14 새벽 dev-blog 자동 생성 dossier/newsletter — Linux Daily / Android Kernel / Opensource Trending / Opensource Curation / AI Coding Agents / Linux Kernel Lens 6렌즈). frontmatter 기준 `ingested: false` 는 이 21건. (20260607-095133 은 본문 문자열만 매치, frontmatter 는 이미 true → 대상 외.) mcp-note 0건. raw-sources/ 신규 .md 0건(PDF/txt/pptx 만 존재), .cache/extracted 비어 있음, fetched/ 디렉터리 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: 1개 subagent 로 21건 정밀 트리아지(prompt injection 내성 적용). 기존 6/10~6/13 선례와 동일 기준 — grounding 된 durable·범용 지식만 선별, 시의성 커널/OSS 뉴스(특정 버전·패치·CVE·릴리스)는 전량 스킵, Newsletter 산출물(dossier 의 포맷 재작성)은 신규성 없음으로 스킵.
+- 신규 durable 지식: **신규 페이지 0건, 기존 페이지 갱신 0건.** 일일 batch 신규 0~1건 정상 범위와 일치.
+- 스킵 사유:
+  - **AI Coding Agents dossier/newsletter (2건)**: 가장 유망했으나 전부 기존 페이지 중복 — Claude Code 소스 유출/undercover/가짜 도구 → [[claude-code-source-leak-internals]], OpenClaw 커밋 거부·과금 → [[openclaw-coder-default-model-codex]], Codex CLI·OpenAI Skills → [[openai-codex-cli-overview]]/[[karpathy-claude-md-skills]] 범위 내. Claude Code v2.1.176/177 릴리스 노트·Copilot code review 설정 변경은 버전 종속 시의성 뉴스라 스킵.
+  - **Linux Daily / Android Kernel / Kernel Lens dossier (17건)**: 전부 특정 커널 버전·패치·회귀·CVE급 수정(7.1-rc7, longterm 백포트, BBR, UFS runtime-PM 데드락, DRM VRR, amdgpu Navi10 회귀, riscv KCFI, Rust SRCU, io_uring opcode speculation 등). 단일 패치 1건을 일반 패턴으로 날조하는 과잉추출 기각.
+  - **Opensource Trending / Curation dossier (4건)**: 실제 조사 산출(entries) 미완료(빈 결과), 후보는 일일 GitHub 스타 트렌딩이라 도입 평가 신호 약함.
+- 데이터 품질 메모(수집 대상 아님): 다수 dossier 가 lore.kernel.org/git.kernel.org 의 Anubis 봇 차단으로 1차 검증 실패, evidence URL 이 `https://***:***@...` 로 마스킹·오염. 이 자동 파이프라인의 검증 신뢰도 자체가 낮아 미검증 산출물을 wiki 에 올리지 않은 것은 옳은 판단. → 기존 [[llm-newsletter-rewrite-metadata-grounding]] / [[llm-content-quality-guards]] 의 known issue 와 정합.
+- Updated: wiki/log.md (본 기록만). wiki/index.md 미변경(신규/갱신 콘텐츠 0건).
+- Marked ingested: true — session-log 21건 전체 (생성 0건, 갱신 0건).
