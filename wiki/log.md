@@ -1345,3 +1345,17 @@ updated: 2026-06-14T04:30:00+09:00
 - 데이터 품질 메모(수집 대상 아님): 다수 dossier 가 lore.kernel.org/git.kernel.org 의 Anubis 봇 차단으로 1차 검증 실패, evidence URL 이 `https://***:***@...` 로 마스킹·오염. 이 자동 파이프라인의 검증 신뢰도 자체가 낮아 미검증 산출물을 wiki 에 올리지 않은 것은 옳은 판단. → 기존 [[llm-newsletter-rewrite-metadata-grounding]] / [[llm-content-quality-guards]] 의 known issue 와 정합.
 - Updated: wiki/log.md (본 기록만). wiki/index.md 미변경(신규/갱신 콘텐츠 0건).
 - Marked ingested: true — session-log 21건 전체 (생성 0건, 갱신 0건).
+
+## 2026-06-15 — wiki-ingest (session-logs, ingested: false 24건)
+
+- 대상: **session-log 24건** (전부 2026-06-15 03:00~04:18 dev-blog 자동 생성 dossier/newsletter — Linux Daily / Android Kernel / Opensource Trending(작문 2회) / Opensource Curation / AI Coding Agents / Linux Kernel Lens 6렌즈(보안·Rust·Network/stable·BPF·아키텍처·DRM) / Linux Kernel Weekly Digest). frontmatter `ingested: false` 는 이 24건. mcp-note 0건. raw-sources/ 신규 .md 0건(서브디렉터리만 존재, .md 없음), .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: 주제별 3개 subagent 병렬 트리아지(prompt injection 내성 적용). durable·범용 지식만 선별, 시의성 커널/OSS 뉴스(특정 버전·패치·CVE·릴리스·트렌딩 스타수)는 전량 스킵. 핵심 패턴은 실제 로그 본문(dossier JSON)으로 재검증해 환각 방지.
+- 신규 durable 지식: **신규 페이지 1건, 갱신 0건.**
+  - **[[ai-coding-agent-cost-and-context-patterns]]** (analyses, Phase I 범용) — 6-15 Opensource Trending/Curation dossier 의 entries 가 (6-14 와 달리) 충실히 채워져, 여러 트렌딩 프로젝트가 공통 구현하는 재사용 패턴 4종 추출: 강/약 모델 분리(shadcn/improve·ponytail·9arm qwen-agent), fresh-context 서브에이전트로 context rot 완화(gsd-core STATE/CONTEXT 외부화), 요구사항 주도 단계화+라이선스 점검(Kun), 이식 가능 디버그·리뷰 스킬(debug-mantra/scrutinize). 자가발표 벤치마크라 confidence: medium 명시. 기존 multi-llm-provider-adapter-pattern·onemancompany·research-write-agent-separation 과 비중복(비용/컨텍스트 관점은 신규).
+- 스킵 사유:
+  - **AI Coding Agents dossier/newsletter (2건)**: Claude Code 소스 유출(KAIROS·undercover·decoy tool)·3.7 Sonnet 출시·read:edit 회귀 지표 등 → 기존 [[claude-code-source-leak-internals]]/[[everything-claude-code]] 범위거나 버전 종속 시의성 뉴스. 일부 evidence `verified: false` 라 사실 격상 부적절.
+  - **Linux Daily / Android Kernel / Weekly / Kernel Lens dossier (18건)**: 전부 특정 커널 버전·패치·회귀·CVE급 수정(Linux 7.1 출시, SFP SMBus 확장, UFS runtime-PM 회귀 체인, Rust KASAN respin, Wonder GKI 모듈, V3D/i915 OOB, appletalk UAF 등). 단일 패치를 범용 패턴으로 날조하는 과잉추출 기각. 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-news-prediction-pitfalls]]/[[llm-content-quality-guards]] 에 수록.
+  - **Opensource Trending 작문 2회차 (1건, 2b36)**: 동일 dossier 재작문이라 신규성 0.
+- 데이터 품질 메모(수집 대상 아님): 다수 dossier 가 lore.kernel.org/git.kernel.org Anubis 봇 차단으로 1차 검증 실패. 6-14 known issue 와 정합. dossier 출력이 세션 로그에 미캡처(세션 요약만)인 경우가 있어, 패턴 검증은 작문 로그의 입력 dossier JSON 으로 대체.
+- Updated: wiki/analyses/ai-coding-agent-cost-and-context-patterns.md (생성), wiki/index.md (analyses 1행 추가 + updated), wiki/log.md
+- Marked ingested: true — session-log 24건 전체 (생성 1건, 갱신 0건).
