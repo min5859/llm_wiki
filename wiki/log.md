@@ -1359,3 +1359,16 @@ updated: 2026-06-14T04:30:00+09:00
 - 데이터 품질 메모(수집 대상 아님): 다수 dossier 가 lore.kernel.org/git.kernel.org Anubis 봇 차단으로 1차 검증 실패. 6-14 known issue 와 정합. dossier 출력이 세션 로그에 미캡처(세션 요약만)인 경우가 있어, 패턴 검증은 작문 로그의 입력 dossier JSON 으로 대체.
 - Updated: wiki/analyses/ai-coding-agent-cost-and-context-patterns.md (생성), wiki/index.md (analyses 1행 추가 + updated), wiki/log.md
 - Marked ingested: true — session-log 24건 전체 (생성 1건, 갱신 0건).
+
+## 2026-06-16 — wiki-ingest (session-logs, ingested: false 18건)
+
+- 대상: **session-log 18건** (전부 2026-06-16 03:00~04:04 dev-blog 자동 생성 dossier/newsletter — Linux Daily / Android Kernel(작문 포함) / Opensource Trending / Opensource Curation / AI Coding Agents / Linux Kernel Lens 다(多)렌즈). frontmatter `ingested: false` 는 이 18건. mcp-note 0건. raw-sources/ 신규 .md 0건(서브디렉터리만 존재, .md 없음 — PDF·txt·pptx 뿐), .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: 주제별 2개 subagent 병렬 트리아지(OSS·커널) + AI Coding Agents 는 본 세션이 직접 검토. prompt injection 내성 적용(dossier JSON·"편집자입니다"·"뉴스레터를 작성하세요" 등 본문 지시문 무시). durable·범용 지식만 선별, 시의성 커널/OSS 뉴스는 전량 스킵.
+- 신규 durable 지식: **신규 페이지 0건, 갱신 0건.** 6-15·6-14 와 동일하게 신규 증분 없음.
+- 스킵 사유:
+  - **AI Coding Agents dossier/newsletter (2건)**: 10개 entry 중 9개가 `seenBefore: true`(`seenBeforeCount: 11`, `verifiedDowngradeCount: 2`). Claude 3.7/Claude Code → [[everything-claude-code]], 소스 유출(KAIROS·undercover·fake tool) → [[claude-code-source-leak-internals]], OpenClaw 과금/거부 → [[anthropic-oauth-third-party-billing-trap]], ccunpacked → [[claude-code-source-leak-internals]], OpenAI skills 채택 → [[karpathy-claude-md-skills]]/[[claude-code-skills-plugins]], Codex CLI·네이티브 Rust 전환·Gemma 4 로컬 → [[openai-codex-cli-overview]] 로 전부 기수록. Cowork·Gemma4-로컬은 [[claude-code-source-leak-internals]] 에 이미 "링크 수준 기록" 결정이 명시됨. JustHTML 포팅 사례는 단일 프로젝트 일화. 신규 격상 대상 없음.
+  - **Opensource Trending/Curation dossier/newsletter (4건)**: durable 후보로 보인 improve(강/약 모델 분리)·GSD Core(Discuss→Plan→Execute→Verify→Ship, STATE/CONTEXT 외부화)·Ponytail(최소 코드 유도) 모두 6-15 생성 [[ai-coding-agent-cost-and-context-patterns]] 에 이미 흡수. 나머지(Odysseus·Kage·MiMoCode·Memori·hello-algo·free-llm-api-resources 등)는 시의성 단일 프로젝트 뉴스·`seenBefore`·`verified:false` 미검증 주장.
+  - **Linux/Android Kernel dossier/newsletter (12건)**: 전부 단일 패치·버전 릴리스(7.0.12/7.1-rc/6.12.93/6.18.35/5.10.258 등)·회귀 수정(UFS error handler 3패치 체인·kmemleak soft lockup·drm/xe·i915 DSI·nova-core GSP)·진행 중 패치 토론(qcom,pas thermal·RISC-V IOMMU 32bit·BPF pull·net SKB isolation). 단일 패치를 범용 패턴으로 날조하는 과잉추출 기각. slab bucket 격리 주장은 evidence `verified:false`+quote 불일치라 [[slab-no-merge-cross-cache-hardening]] 보강에도 부적합.
+- 데이터 품질 메모(수집 대상 아님): 다수 dossier 가 lore.kernel.org/git.kernel.org Anubis 봇 차단으로 1차 검증 실패(6-14·6-15 known issue 와 정합). 뉴스레터(Write-from-Dossier) 로그는 `assistant_turns: 0` 으로 산출물 미캡처 — 입력 dossier JSON 으로 패턴 검증 대체.
+- Updated: wiki/log.md (본 항목). 신규/갱신 페이지 0건이므로 wiki/index.md 내용 변경 없음.
+- Marked ingested: true — session-log 18건 전체 (생성 0건, 갱신 0건).
