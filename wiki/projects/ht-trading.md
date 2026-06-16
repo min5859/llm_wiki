@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-06-11"
+updated: "2026-06-17"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
@@ -26,6 +26,8 @@ sources:
   - "session-logs/20260602-221627-322d-아래-개선제안-사항을-검토해서-반영하는게-합리적인지-판단해-주세요.md"
   - "session-logs/20260603-135643-1e3b-오늘은-공휴일이라-휴장인데-동작을-하고있습니다.-공휴일에는-동작하지-않도록-해-줘.md"
   - "session-logs/20260604-232009-b35a-•-신세계는-15-10-매도-후-15-20-재매수로-10분-만에-재진입했습니다.-트레일링스.md"
+  - "session-logs/20260616-210439-d6f6-오늘-알고리즘-바꾼지-2일-지났는데-2일-동안-매매에서-오류나-개선점이-없었는지-검토해줘.md"
+  - "session-logs/20260616-225148-21a4-아래-사항은-오늘-로그에서-나온-사항들인데-개선할만한-포인트가-있을까--•-BUY-0106.md"
 confidence: "high"
 related:
   - "wiki/bugs/kis-holiday-detection-bsop-date.md"
@@ -40,6 +42,8 @@ related:
   - "wiki/bugs/absolute-stop-loss-elif-dead-code.md"
   - "wiki/bugs/reentry-after-full-liquidation-no-cooldown.md"
   - "wiki/projects/n-stock-info.md"
+  - "wiki/patterns/notification-dedup-throttle.md"
+  - "wiki/analyses/averaging-down-vs-momentum-add-on.md"
 ---
 
 # ht_trading — 알고리즘 트레이딩 프로젝트
@@ -796,4 +800,6 @@ while self._running and time.monotonic() < wait_end:
 - 2026-05-19: 같은 세션의 후속 질의 — 「화신 -19%, GS -11% 인데 왜 손절 안 되나」. `scoring_strategy.py:817~833` 의 매도 룰 4종 (상대 손절 / 절대 손절 / 보유기간 / 트레일링) 점검 결과 **절대 손절이 `if … elif` 구조 때문에 dead code** 라는 사실 발견. 벤치마크 (KOSPI 069500) 데이터가 라이브에서 항상 붙어 있어 `elif profit_pct <= -self.absolute_stop_loss_pct:` 분기는 도달 불가. `absolute_stop_loss_pct: 0.10` 설정값은 실효 없음. 게다가 V3 의 D 튜닝으로 `relative_stop_loss_pct: 0.15 → 0.20` 완화 (5/10 commit `d0571c5`) 이 결합돼, **벤치마크 동반 하락기엔 어떤 손실도 컷 못 함**. 화신 (-19%, 5/12 매수, 7일) 과 GS (-11%, 5/15 매수, 4일) 가 정확히 그 케이스. 권장 수정은 `elif` → `if` 로 절대 손절을 병행 검사 + `relative_stop_loss_pct` 0.15 환원 또는 `absolute_stop_loss_pct` 0.08 강화. 일반 교훈은 [[absolute-stop-loss-elif-dead-code]] 로 분리 (벤치마크 의존 손절은 fallback 이 아니라 "추가 가드" 로 설계 / 상대 손절 완화가 절대 손절 dead code 와 결합되면 손절 자체가 꺼진 상태). **사용자 확인까지 코드 변경은 미진행** (출처: session-logs/20260518-233131-6a41-*)
 - 2026-06-04: 전량 청산 직후 재매수 방지 — flat 재진입 쿨다운 추가 (commit `70634aa`). 신세계(004170) 가 15:10 트레일링스톱 전량매도 → 15:20 재매수로 10분 만에 재진입한 사례. 원인은 분할 추가매수 throttle (`min_split_interval_minutes` 18h) 이 첫 매수(`splits_done==0`)를 면제하므로 전량 청산 → flat → 다음 사이클 `_try_buy` 재진입 경로에 가드가 전혀 없었던 것. 매도 시각을 기록하는 상태(`_entry_dates` 는 진입일만)도 부재. 수정: `reentry_cooldown_minutes`(기본 60) 파라미터 + `_last_sell_time` 상태, 매도 5개 지점 모두 `_record_full_sell()` 경유로 `sell_qty >= pos.qty` 전량 청산만 시각 기록 (부분 익절·데드크로스 제외), `_try_buy` flat 재진입 시에만 쿨다운 검사, `get_state`/`set_state` 영속화 (ISO, 하위 호환), `scoring.yaml` 에 `reentry_cooldown_minutes: 60` 등록. `0` 으로 비활성화. 신규 테스트 6 cases + 전략 테스트 114건 통과 후 launchd 재시작 반영. 일반 교훈은 [[reentry-after-full-liquidation-no-cooldown]] 로 분리 (throttle 이 덮는/면제하는 경로를 명시 확인, 상태 전이 부작용으로 가드가 리셋되는 경로 의심) (출처: session-logs/20260604-232009-b35a-*)
 - 2026-06-11: 외부 개선 제안 7건 타당성 검토 후 3건 적용 (session-logs/20260611-231312-ba46-*). **(1) flat 재진입 쿨다운 60 → 1080분** (commit `c4cc530`) — 분할 throttle(`min_split_interval_minutes`)은 같은날 재매수를 다음날(1080분)까지 막는데 전량청산 후 재진입은 60분만 막던 **비대칭 가드**. 전량 트레일링 청산 → 60분 후 반등 재매수 → 재손절의 같은날 휩쏘가 여전히 가능했음. 두 가드가 같은 위험(재매수)을 덮으므로 1080분(다음날)으로 정렬. (2) **폴링 10분 → 2분 단축** (commit `1bb80f1`) — 초기엔 "일봉이라 폴링 단축 무의미"로 판단했으나 사용자 지적으로 정정: 트레일링스톱은 `bar.close` 가 아니라 `pos.current_price`(매 사이클 강제 갱신)로 트리거되므로 폴링 해상도가 곧 청산 해상도. 시그널 알파는 안 늘지만 청산 타이밍 개선. 일반 사상은 [[polling-interval-vs-bar-interval]] 예외 절로 분리. (3) **MARKET 매도 EOD 체결 검증** (commit `1cb9be2`) — MARKET 매도를 submit 시점에 즉시 `FILLED` 로 가정하던 공백 발견. `get_daily_orders` 를 `sll_buy_dvsn`/`ccld_dvsn` 필터로 일반화(기본값 불변 → 재시작 정합성 영향 없음, 테스트로 고정)하고 SELL 측 파싱 + EOD 체결 요약(체결/미체결 카운트, 미체결 주문별 경고를 로그+텔레그램)을 추가. 신규 테스트 7건, 총 231건 통과. **검토에서 2건은 전제가 틀려 반려** — ② ATR 동적 트레일링(이미 수익 구간별 tier 적용 중), ⑥ 종목별 상세 로깅(`_format_position_lines` 가 이미 종목별 수량/평단/현재가/수익률 로깅). `tasks/backlog.md`(5/10자) 가 현 `scoring.yaml` 과 괴리(문서 split 60 vs 실제 1080 등) — **교훈: 제안의 전제를 현 코드/설정에 대조한 뒤 타당성을 판단하라, 백로그 문서는 코드와 드리프트한다**. launchd 재시작으로 반영
+- 2026-06-16 (2nd, 22:51~23:17): **지정가 비율 환원** — `limit_price_ratio: 1.005 → 0.995` (commit `config: revert limit_price_ratio to below-current (1.005->0.995)`). 화신(010690) 상한가 초과 주문 거부 반복이 원인. 5/10 튜닝 A 에서 체결률 개선 목적으로 현재가 +0.5%(marketable limit)로 바꿨으나, **상한가 도달 종목은 `현재가 × 1.005` 가 상한가를 넘어 KIS 가 거부** (no-chase 캡은 직전 실패가 자체가 상한가 초과라 막지 못함). 원 설계(strategy-guards design.md = `bar.close × 0.99`)대로 현재가 -0.5% 로 환원해 구조적으로 상한가를 안 넘게 함. KIS 잔고조회 500 은 재시도·예수금 캐시 폴백으로 graceful 처리 중 → 우리 버그 아님, 로그 노이즈만(5xx 소진 시 traceback→WARNING 권고). 보류된 후속안: `_compute_limit_price` 에 `min(base, 상한가 stck_mxpr)` 캡 + 상한가 근접 추격 금지 게이트 (출처: session-logs/20260616-225148-21a4-*)
+- 2026-06-16: 거부 알림 폭주 dedup + 분할 폴백 기술 게이트 제거 (3 commits). **(1) 거부 알림 dedup** (commit `621be66`) — 보유가 한도(11)에 차자 매 ~2분 사이클마다 새 후보가 전부 거부되고 거부 1건당 무조건 텔레그램 발송 → 하루 **239건** 폭주(같은 종목 종일 반복). `_notify` 에 `dedup_key=(종목,사유)` 추가, **로그는 매 사이클 그대로 남기고 텔레그램만 당일 1회**, 날짜 변경 시 리셋. 사유 바뀌면 재알림. 일반 패턴은 [[notification-dedup-throttle]]. **(2) EOD 요약** (commit `84e15f6`) — dedup 으로 가려진 "한도로 보류된 후보 N종목"을 마감 스냅샷에 1건 추가. **(3) 분할 폴백 기술 게이트 제거** (commit `dd3d1b7`) — 보유 종목이 당일 스크리너 후보에 없을 때 남은 분할을 막던 40점 기술 컷(≥25)을 제거. 진입은 0/80/20(기술 폐기)인데 추가매수만 순수 기술로 막는 **철학 불일치** 탓에 펀더로 산 SK스퀘어(기술 22/40)가 무음 정체하던 것. 이제 `_can_add_split`(18시간 + 평단 -5% 드로다운 가드)·수량>0 만 통과 조건. 독립 40점 모드(백테스트)·드로다운 회복 판정의 `buy_min_score` 는 그대로. 일반 사상은 [[averaging-down-vs-momentum-add-on]]. engine 53 + strategy 120, 총 244 테스트 통과. **라이브 데몬(PID 55874)은 옛 코드 보유 → SIGTERM 후 launchd KeepAlive 재기동(PID 197, com.wooki.ht-trading)으로 반영 — 휴장 대기 중이라 매매 중단 없음** (출처: session-logs/20260616-210439-d6f6-*)
 - 2026-06-03: 공휴일 휴장 판정 실패 버그 수정 (commit `2b17aba`). `bsop_date` 비교 방식이 공휴일에도 당일 날짜를 반환해 오판 → KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체 (`domestic.py:is_open_day()` 추가, `market_hours.py` 수정). 실 API 검증 + 테스트 218건 통과. 6시간째 떠 있던 라이브 프로세스가 옛 코드 보유 → launchd 재시작으로 적용. 일반 분석은 [[kis-holiday-detection-bsop-date]] (출처: session-logs/20260603-135643-1e3b-*)

@@ -73,6 +73,7 @@ updated: 2026-06-15T08:00:00+09:00
 - [[launchd-plist-symlink-from-project]] — launchd plist 마스터를 프로젝트 폴더에 두고 `~/Library/LaunchAgents/` 는 symlink (Homebrew services 패턴). 프로젝트 열었을 때 plist 가 보임·잊지 않음. install 서브커맨드 구현, `.gitignore` 필수 (절대 경로 박힘), rename 함정, `launchctl list` 출력 의미. **영구 비활성화는 unload 만으로 부족 — RunAtLoad/KeepAlive plist 는 재부팅 시 재로드되므로 symlink 제거가 곧 자동 시작 차단** (원본 plist 보존 → 무손실 원복)
 
 - [[test-driven-agent-loop]] — 강건한 테스트 스위트로 코딩 에이전트에 대규모 작업 자율 위임. JustHTML 포팅 실증(Codex CLI+GPT-5.2, 8프롬프트→9,000줄, html5lib-tests 9,200 통과). API 우선 설계 + 결정론적 검증 게이트가 핵심
+- [[notification-dedup-throttle]] — 폴링 루프가 상태 안 변하는 동안 같은 알림을 매 사이클 재전송해 채널 도배(ht_trading 거부 알림 하루 239건). `_notify` 에 `dedup_key=(엔티티,사유)` 추가 — 로그는 매 사이클, 텔레그램만 당일 1회 + 날짜 변경 시 리셋. 로그/외부전송 분리, 판단·실행 경로 불간섭(기회 안 놓침), EOD 요약으로 보완
 
 ## 버그와 해결책 (bugs/)
 
@@ -91,6 +92,7 @@ updated: 2026-06-15T08:00:00+09:00
 - [[kis-holiday-detection-bsop-date]] — ht_trading 공휴일 휴장 판정이 삼성전자 현재가 `bsop_date`(영업일자) 비교 방식이라 공휴일에도 당일 날짜 반환 → 휴장 감지 실패, KIS `APBK0919` 주문 거부 반복. KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체. 부가: 6시간째 떠 있던 라이브 데몬이 옛 코드 보유 → 재시작 필수
 - [[reentry-after-full-liquidation-no-cooldown]] — ht_trading `ScoringStrategy` 가 트레일링스톱·손절 전량 청산 직후 같은 종목을 즉시 재매수 (신세계 15:10 매도 → 15:20 재매수, 10분). 분할 추가매수 throttle (`min_split_interval_minutes` 18h) 이 첫 매수를 면제하므로 flat 재진입 경로엔 가드 전무. 전량 청산만 매도시각 기록 + `_try_buy` flat 재진입 시 `reentry_cooldown_minutes` 검사로 수정 (commit 70634aa). 후속(6/11): 60분은 분할 throttle(다음날)과 비대칭이라 같은날 휩쏘 잔존 → 1080분으로 정렬 (commit c4cc530)
 - [[round-winrate-exit-type-undercount]] — upbit_trading 백테스트 리포트가 라운드 종료 유형을 `target`/`stop_loss` 로만 분류해 trailing_stop/time_exit/partial 종료가 누락 → "승률 0%, 목표달성 0회" 왜곡 (평균 수익률은 양수인 모순이 단서). `profit>0` 기준 승률 + `exit_breakdown` 별도 집계로 수정 (commit `b947351`). 통계 집계 분류가 enum 일부만 커버할 때의 일반 함정
+- [[naver-finance-no-info-selector-drift]] — n_stock_info 네이버 금융 `table.no_info` 셀렉터 드리프트. 라벨이 `<th>` → `<span class="sptxt">` 로 바뀌어 `table.select("th")` 가 항상 빈 결과 → 2026-03 이후 전 종목 거래량=0·시가=null·등락률 +0.0% silent 수집. **가짜로 만든 테스트 fixture 가 회귀를 못 잡음**(미검증 필드까지). 망가진 기술 데이터로 산출한 가중치 IC 표는 재검증 전 재측정 필요. commit `e13765f`
 - [[absolute-stop-loss-elif-dead-code]] — ht_trading `scoring_strategy.py` 의 절대 손절이 `if … elif` 분기 때문에 dead code. 라이브에서 벤치마크 (KOSPI) 가 항상 붙어 있어 `elif profit_pct <= -absolute_stop_loss_pct` 분기 도달 불가 → `absolute_stop_loss_pct: 0.10` 무효. 상대 손절 -15% → -20% 완화 (D 튜닝) 와 결합되어 *벤치마크 동반 하락기엔 어떤 손실도 컷 못 함*. 화신 -19% / GS -11% 미발동의 직접 원인
 
 ## 요약 (summaries/)
@@ -113,6 +115,7 @@ updated: 2026-06-15T08:00:00+09:00
 - [[nextjs-vercel-supabase-deployment]] — Next.js + Vercel + Supabase 통합 배포 7가지 결정: GitHub App 연동, 업로드 한도, force-dynamic, Pooler 모드 (Direct vs Transaction vs Session), 환경변수 import, .next/.gitignore
 - [[github-search-api-topic-or-limitation]] — GitHub Repository Search API의 topic: 한정자는 OR 연산자 미지원, 카테고리별 N번 쿼리 + full_name dedupe 우회 (oss-radar Search 후보 0 → 422)
 - [[meanflow-text-to-image]] — MeanFlow 프레임워크를 텍스트 조건부 T2I로 확장 (EMF, arXiv 2604.18168): discriminability·disentanglement의 중요성
+- [[averaging-down-vs-momentum-add-on]] — 분할 매수 추가 게이트의 두 철학(물타기=빠질 때 평단 낮추기 vs 모멘텀=오를 때 증액)은 정반대. **진입 결정과 추가매수 결정은 같은 철학을 공유해야** — ht_trading 이 진입은 0/80/20(기술 폐기)인데 분할 폴백만 순수 40점 기술로 막아 펀더 매수 종목이 조정 시 무음 정체. 백테스트 라벨 파라미터의 라이브 전용·중복 게이트·조용한 보류 안티패턴
 - [[diffusion-snr-t-bias]] — 확산 모델 추론 시 발생하는 SNR-t 편향 규명과 웨이블릿 도메인 training-free 보정법 (arXiv 2604.16044)
 - [[tstars-tryon-virtual-try-on]] — Taobao 상업용 가상 피팅: MMDiT 5B, 8카테고리, 단일 3.92s (arXiv 2604.19748)
 - [[onevl-latent-reasoning]] — 자율주행 VLA의 잠재 CoT: 명시적 CoT 정확도 + 답변-only 지연시간 달성 (arXiv 2604.18486)

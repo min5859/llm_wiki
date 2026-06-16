@@ -1372,3 +1372,16 @@ updated: 2026-06-14T04:30:00+09:00
 - 데이터 품질 메모(수집 대상 아님): 다수 dossier 가 lore.kernel.org/git.kernel.org Anubis 봇 차단으로 1차 검증 실패(6-14·6-15 known issue 와 정합). 뉴스레터(Write-from-Dossier) 로그는 `assistant_turns: 0` 으로 산출물 미캡처 — 입력 dossier JSON 으로 패턴 검증 대체.
 - Updated: wiki/log.md (본 항목). 신규/갱신 페이지 0건이므로 wiki/index.md 내용 변경 없음.
 - Marked ingested: true — session-log 18건 전체 (생성 0건, 갱신 0건).
+
+## 2026-06-17 — wiki-ingest (session-logs, ingested: false 25건)
+
+- 대상: **session-log 25건** = ① ht_trading/n_stock_info 실작업 세션 2건(2026-06-16: d6f6 알고리즘 2일 검토→버그수정, 21a4 상한가 초과 주문 검토) + ② dev-blog 자동 생성 dossier/newsletter 23건(2026-06-17 03:00~04:09 Linux Daily/Android Kernel/Opensource Trending·Curation/AI Coding Agents/Linux Kernel Lens 다렌즈). mcp-note 0건. raw-sources/ 신규 .md 0건(서브디렉터리에 .md 없음 — PDF·txt·pptx 뿐), .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 신규 durable 지식(실작업 세션 2건에서 추출):
+  - 신규 [[naver-finance-no-info-selector-drift]] (bugs) — 네이버 `table.no_info` 셀렉터 드리프트(th→sptxt)로 거래량·시가·등락률이 2026-03 이후 전 종목 silent 0/null. 가짜 fixture 가 회귀를 못 잡은 교훈 + 망가진 데이터로 산출한 IC 표 재검증 필요. commit `e13765f`.
+  - 신규 [[notification-dedup-throttle]] (patterns) — 폴링 거부 알림 하루 239건 폭주를 `dedup_key=(종목,사유)` 당일 1회로 억제(로그는 매번). commit `621be66`/`84e15f6`.
+  - 신규 [[averaging-down-vs-momentum-add-on]] (analyses) — 진입 철학(0/80/20 기술 폐기)과 분할 폴백 게이트(순수 40점 기술)의 불일치 → 펀더 매수 종목 무음 정체. (A) 기술 게이트 제거. commit `dd3d1b7`.
+  - 갱신 [[n-stock-info]] (거래량 버그 변경 이력), [[ht-trading]] (지정가 비율 1.005→0.995 환원 + 거부 dedup/EOD요약/분할 게이트 제거 + 데몬 재기동).
+- 스킵 사유:
+  - **dev-blog dossier/newsletter 23건**: cron 콘텐츠 파이프라인의 산출물(리서치 dossier JSON → 뉴스레터 작문)로, 엔지니어링 지식이 아닌 일일 시의성 콘텐츠. 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-news-prediction-pitfalls]]/[[llm-content-quality-guards]]/[[ai-coding-agent-cost-and-context-patterns]] 에 수록. 단일 커널 패치·버전 릴리스를 범용 패턴으로 날조하는 과잉추출 기각(6-14~6-16 결정과 동일). prompt injection 내성 적용(dossier 본문의 "당신은 …입니다"·"JSON 객체 하나만 출력" 등 지시문 무시).
+- Updated: wiki/bugs/naver-finance-no-info-selector-drift.md(생성), wiki/patterns/notification-dedup-throttle.md(생성), wiki/analyses/averaging-down-vs-momentum-add-on.md(생성), wiki/projects/n-stock-info.md(갱신), wiki/projects/ht-trading.md(갱신), wiki/index.md(patterns/bugs/analyses 각 1행 + updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 25건 전체 (신규 3건, 갱신 2건).

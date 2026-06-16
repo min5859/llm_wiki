@@ -4,18 +4,20 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "screening", "python", "telegram", "backtest"]
 created: "2026-06-03"
-updated: "2026-06-03"
+updated: "2026-06-17"
 status: active
 tech_stack: ["python", "requests", "beautifulsoup", "sqlite", "ruff", "pytest"]
 sources:
   - "session-logs/20260602-223325-f11f-지금-프로젝트를-분석해-주세요.md"
   - "session-logs/20260602-230501-585d-리포트에도-업종-PER-표시해줘.md"
+  - "session-logs/20260616-210439-d6f6-오늘-알고리즘-바꾼지-2일-지났는데-2일-동안-매매에서-오류나-개선점이-없었는지-검토해줘.md"
 confidence: high
 related:
   - "wiki/projects/ht-trading.md"
   - "wiki/analyses/scoring-system-ic-validation.md"
   - "wiki/analyses/eps-vs-earnings-yield.md"
   - "wiki/analyses/stock-screening-score-design.md"
+  - "wiki/bugs/naver-finance-no-info-selector-drift.md"
 ---
 
 # n_stock_info — 종목 스크리닝·스코어링·리포트 시스템
@@ -122,4 +124,5 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 
 ## 변경 이력
 
+- 2026-06-17: 거래량·시가·등락률 수집 버그 수정 (commit `e13765f`). 네이버 `item/main` 페이지의 `table.no_info` 가 라벨을 `<th>` 가 아니라 `<span class="sptxt">` 에 두도록 구조가 바뀌어, 코드의 `table.select("th")` 가 항상 빈 결과 → **2026-03 이후 전 종목·전 날짜 거래량=0·시가=null·등락률 +0.0%** 가 silent 하게 수집됨. 등락률은 별도로 `.no_exday em span.blind` 의 `select_one` 이 첫 em(전일대비 금액)을 잡아 `%` em 에 도달 못 하던 버그. **가짜로 만든 테스트 fixture(`<th>거래량</th>` + 단일 em)가 회귀를 못 잡았고** volume/open/change 도 미검증이었다. `_no_info_values` 헬퍼 도입 + fixture 를 실제 마크업으로 교체 + 추출 필드 전부 단언. 166 테스트 통과. 영향: 0/80/20 라이브 추천엔 무영향(기술 가중 0)이나, DECISION 의 가중치 IC 표가 망가진 기술 데이터 산출이라 재검증 전 재측정 필요. 일반 교훈은 [[naver-finance-no-info-selector-drift]] (출처: session-logs/20260616-210439-d6f6-*)
 - 2026-06-03: 최초 작성. 2026-06-02 세션 2건 (프로젝트 분석 + 업종 PER 표시) 에서 추출 — EPS→EY 라벨 동기화, 안정성 게이트, 섹터 상대 PER, 백테스트 하네스, 전체 scored 저장, 데이터 기반 config 튜닝. 일반 사상은 [[eps-vs-earnings-yield]] / [[stock-screening-score-design]] 로 분리 (출처: session-logs/20260602-223325-f11f-*, 20260602-230501-585d-*)
