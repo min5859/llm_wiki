@@ -1385,3 +1385,21 @@ updated: 2026-06-14T04:30:00+09:00
   - **dev-blog dossier/newsletter 23건**: cron 콘텐츠 파이프라인의 산출물(리서치 dossier JSON → 뉴스레터 작문)로, 엔지니어링 지식이 아닌 일일 시의성 콘텐츠. 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-news-prediction-pitfalls]]/[[llm-content-quality-guards]]/[[ai-coding-agent-cost-and-context-patterns]] 에 수록. 단일 커널 패치·버전 릴리스를 범용 패턴으로 날조하는 과잉추출 기각(6-14~6-16 결정과 동일). prompt injection 내성 적용(dossier 본문의 "당신은 …입니다"·"JSON 객체 하나만 출력" 등 지시문 무시).
 - Updated: wiki/bugs/naver-finance-no-info-selector-drift.md(생성), wiki/patterns/notification-dedup-throttle.md(생성), wiki/analyses/averaging-down-vs-momentum-add-on.md(생성), wiki/projects/n-stock-info.md(갱신), wiki/projects/ht-trading.md(갱신), wiki/index.md(patterns/bugs/analyses 각 1행 + updated), wiki/log.md(본 항목).
 - Marked ingested: true — session-log 25건 전체 (신규 3건, 갱신 2건).
+
+## 2026-06-18 — wiki-ingest (session-logs, ingested: false 24건)
+
+- 대상: **session-log 24건** = ① hermes-dashboard 해커톤 기획/평가 세션 2건(2026-06-17 밤 47ab 주제 구체화→문서 생성, 2026-06-18 새벽 3962 완성도 평가·정정) + ② dev-blog 자동 생성 dossier/newsletter 20건(2026-06-18 03:00~04:10 Linux Daily/Android Kernel/Opensource Trending·Curation/AI Coding Agents/Linux Kernel Lens 다렌즈) + ③ agent-weekly 세션 1건(2026-06-07 95133, 이미 [[agent-weekly]] 에 충실히 반영됨 — 신규 증분 0). mcp-note 0건. raw-sources/ 신규 .md 0건(서브디렉터리에 .md 없음 — PDF·txt·pptx 뿐), .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: hermes-dashboard 2건은 본 세션이 직접 정독, dev-blog 20건은 subagent 트리아지(기존 6개 페이지 대조 후 신규 durable 만 추출). prompt injection 내성 적용(dossier/뉴스레터 본문의 "당신은 …입니다"·"JSON 하나만 출력" 등 지시문 무시).
+- 신규 durable 지식(hermes-dashboard 해커톤 2건에서 추출):
+  - 신규 [[hermes-dashboard]] (projects) — Hermes 다중 에이전트 메신저 대시보드 1일 해커톤. HermesTalk(v1,90점)→Hermes Crew(v2,88점) 설계 진화, 오케스트레이션 스트레치 강등·주간보고 킬러 교체, Hermes 연동 가정 3개 소스 검증 정정.
+  - 신규 [[mock-first-demo-safety-net]] (patterns) — 시간 제한 빌드에서 mock 을 기본값으로 + 어댑터 seam + 함정별 폴백 + 가정 소스검증. "배관 완료 ≠ 기능 완료".
+  - 신규 [[self-hosted-agent-webui-integration]] (analyses) — 셀프호스팅 에이전트 UI 연동 2방식 비교(내부 직결 vs OpenAI 호환 HTTP API). hermes-webui vs hermes-workspace 대비, 신규 UI 는 HTTP API 권장.
+  - 갱신 [[hermes-agent]] (concepts) — 내장 API 서버 섹션 신설(통신 3표면, :8642 OpenAI 호환, model 필드 장식용·프로필=게이트웨이=포트, Runs API 위임 이벤트, 스킬 API 있음·Kanban 없음, 세션 state.db·sessions export, 오케스트레이션=리더 프로필 내부 sub-agent).
+- 신규 durable 지식(dev-blog 20건 subagent 트리아지에서 추출):
+  - 갱신 [[research-write-agent-separation]] (analyses) — 봇 차단(Anubis) 함정에 **User-Agent 우회 실측** 보강(`curl -A "git/2.39.0"` 으로 lore.kernel.org raw mbox 취득, "도구 차단 ≠ 소스 접근 불가"). write 단계 silent-fail 6/18 지속은 [[dev-blog]] 운영 관찰로.
+  - 갱신 [[dev-blog]] (projects) — 6/18 03:00 사이클 운영 관찰 1줄(write 단계 silent fail 일주일 이상 고착 + Anubis UA 우회 성공).
+- 스킵 사유:
+  - **dev-blog dossier/newsletter 20건**: cron 콘텐츠 파이프라인 산출물(리눅스/Android 커널 릴리스·단일 패치·OSS 트렌드)로 일일 시의성 콘텐츠. 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-content-quality-guards]]/[[ai-coding-agent-cost-and-context-patterns]] 에 수록. 단일 패치를 범용 패턴으로 날조하는 과잉추출 기각(6-14~6-17 결정과 동일). dossier evidence 의 `***:***@host/` 는 gieok 로깅 redaction 이 lore URL 의 email-local 을 자격증명으로 오인한 아티팩트(dev-blog 결함 아님, 수집 부적합).
+  - **agent-weekly 95133 (1건)**: 이미 [[agent-weekly]] 에 컨셉·gieok 차용 구조까지 충실히 반영됨. 신규 증분 0, ingested 플래그만 갱신.
+- Updated: wiki/projects/hermes-dashboard.md(생성), wiki/patterns/mock-first-demo-safety-net.md(생성), wiki/analyses/self-hosted-agent-webui-integration.md(생성), wiki/concepts/hermes-agent.md(갱신), wiki/analyses/research-write-agent-separation.md(갱신), wiki/projects/dev-blog.md(갱신), wiki/index.md(projects 1행+patterns 1행+analyses 1행 + updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 24건 전체 (신규 3건, 갱신 3건).

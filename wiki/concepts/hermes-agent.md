@@ -4,17 +4,21 @@ domain: personal
 sensitivity: public
 tags: ["concept", "ai-agent", "self-hosted", "hermes", "nous-research", "personal-assistant"]
 created: 2026-05-02
-updated: 2026-05-09
+updated: 2026-06-18
 sources:
   - "session-logs/20260502-092045-628d-hermes-라는-opensource-agent-를-설치하려고하는데-조사좀-해-주세요.md"
   - "session-logs/20260509-001610-307a-hermes-agent-를-설치했는데-메인-agent-말고-별도로-코딩-전용-agent를.md"
+  - "session-logs/20260617-220010-47ab-내가-해커톤-주제를-구체화-시키고-있는데-좀-도와줘.md"
+  - "session-logs/20260618-063919-3962-지금-프로젝트-시작-지침서-인데-완성도를-평가해줘.md"
 confidence: high
 related:
   - "wiki/analyses/anthropic-oauth-third-party-billing-trap.md"
   - "wiki/analyses/llm-provider-aggregator-vs-local-vs-hub.md"
   - "wiki/analyses/personal-ai-agent-messaging-channels.md"
   - "wiki/analyses/multi-profile-cli-agent-isolation.md"
+  - "wiki/analyses/self-hosted-agent-webui-integration.md"
   - "wiki/projects/hermes.md"
+  - "wiki/projects/hermes-dashboard.md"
 ---
 
 # Hermes Agent
@@ -117,6 +121,27 @@ hermes profile use <name>       # sticky default
 
 사용자의 Claude Max OAuth 를 그대로 활용하려면 HOME 격리 우회 wrapper 가 필요하다 ([[multi-profile-cli-agent-isolation]] 참조).
 
+## 내장 API 서버 — 커스텀 프론트엔드의 정식 통로 (2026-06-17 검증)
+
+Hermes 와 통신하는 방식은 셋으로 갈리는데, 헷갈리면 안 된다:
+
+| 표면 | 용도 | 커스텀 웹앱이 쓸 것? |
+|---|---|---|
+| **Gateway** | Telegram/Slack 등 22개 소비자 메신저 연동 | ✗ (메신저용) |
+| **SSH** | Hermes 의 *실행 백엔드*(명령 실행 위치) 옵션 | ✗ (통신 방식 아님) |
+| **API 서버** | OpenAI 호환 HTTP/SSE — 커스텀 프론트가 붙는 통로 | ✅ |
+
+- **활성화**: `.env` 에 `API_SERVER_ENABLED=true` + `API_SERVER_KEY`. 기본 포트 `:8642`.
+- **OpenAI 호환**: `POST /v1/chat/completions` (SSE 스트리밍). OpenAI 클라이언트면 무엇이든 붙는다.
+- **`model` 필드는 장식용**: 요청별 프로필 선택이 **안 된다.** 실제 프로필은 게이트웨이 시작 시 `config.yaml` 로 고정 → **프로필(=특화 에이전트) 1개 = 게이트웨이 프로세스 1개 = 포트 1개.** N개 특화 에이전트를 동시에 real 로 띄우려면 N개 게이트웨이를 N개 포트에 띄워야 한다.
+- **Runs API = 위임/lifecycle 이벤트의 출처**: `POST /v1/runs` → `run_id` → `GET /v1/runs/{run_id}/events`(SSE) 에서 토큰 + **sub-agent 위임 lifecycle 이벤트**가 나온다. `chat/completions` 스트림엔 `hermes.tool.progress` 정도만 온다. 멀티 에이전트 위임을 UI 로 시각화하려면 이쪽을 봐야 한다.
+- **스킬 API 있음**: `GET /v1/skills` (+ `/v1/toolsets`, `/v1/capabilities`). 단 **Kanban 을 읽고 쓰는 HTTP 엔드포인트는 없다** (네이티브 Kanban 은 있지만 API 서버로는 노출 안 됨).
+- **세션 영속 + export**: 프로필별 `state.db`(SQLite, `~/.hermes/profiles/<name>/`) 에 전체 메시지 히스토리(역할·내용·tool call·타임스탬프·토큰수·소스 태그) 저장. 세션 ID 가 `YYYYMMDD_HHMMSS_<hex>` 포맷이라 **날짜가 ID 에 박혀 주 단위 슬라이싱이 된다**(`sessions list` 에 `--since` 없음 → ID prefix 로 필터). 전체 export 는 `hermes -p <profile> sessions export out.jsonl` (stdout 아님, JSONL 파일 출력).
+
+> **멀티 에이전트 오케스트레이션은 Hermes 네이티브 기능**이다. 위임받는 sub-agent 는 **리더 프로필 한 프로세스 내부**의 것이지, 별도로 띄운 다른 게이트웨이가 아니다. 따라서 위임 이벤트의 sub-agent 이름이 외부 레지스트리의 에이전트 id 와 다를 수 있다. 커스텀 UI 는 위임 로직을 새로 짤 게 아니라 Runs API 이벤트를 받아 *시각화* 만 하면 된다.
+
+실제 이 API 표면 위에 커스텀 대시보드를 설계한 사례는 [[hermes-dashboard]] (project), 셀프호스팅 에이전트 UI 가 백엔드에 붙는 두 방식 비교는 [[self-hosted-agent-webui-integration]].
+
 ## ACP 지원 — 방향 비대칭
 
 `hermes acp` 는 **stdio ACP server 모드** 만 제공 (VS Code / Zed / JetBrains 가 hermes 를 부르는 방향). hermes 가 다른 ACP server 를 부르는 client 모드는 없다. claude CLI 자체도 ACP 미채택 (바이너리에 키워드 0건). 따라서 hermes ↔ claude 직결 ACP 경로는 현재 둘 중 어느 쪽에도 없고, subprocess (claude-code skill) 가 현실적인 선택지.
@@ -133,3 +158,4 @@ hermes profile use <name>       # sticky default
 
 - 2026-05-02: 최초 생성. Hermes Agent 의 컨셉 / 기능 / 시스템 요구사항 / 설치 / LLM 백엔드 / 메신저 게이트웨이 의의 정리 (출처: session-logs/20260502-092045-628d-*)
 - 2026-05-09: 멀티 프로필 (`hermes profile`) / `claude-code` skill / ACP 방향 비대칭 (server-only) 추가. multi-profile-cli-agent-isolation / hermes (project) 와 cross-link. confidence: medium → high (출처: session-logs/20260509-001610-307a-*)
+- 2026-06-18: **내장 API 서버** 섹션 신설 — 통신 3표면(Gateway/SSH/API 서버) 구분, OpenAI 호환 `:8642`, `model` 필드 장식용·프로필=게이트웨이=포트, Runs API 가 위임 lifecycle 이벤트 출처, `GET /v1/skills` 있음·Kanban API 없음, 세션 `state.db`·ID `YYYYMMDD_HHMMSS`·`sessions export`, 오케스트레이션은 리더 프로필 내부 sub-agent. hermes-dashboard 해커톤 설계에서 소스·공식문서로 검증 (출처: session-logs/20260617-220010-47ab-*, 20260618-063919-3962-*)

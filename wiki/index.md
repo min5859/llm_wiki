@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-15T08:00:00+09:00
+updated: 2026-06-18T09:00:00+09:00
 ---
 
 # Wiki Index
@@ -36,6 +36,7 @@ updated: 2026-06-15T08:00:00+09:00
 - [[auto-pipe-blog]] — 컨셉 1개 → velog 글 자동화 파이프라인 (bash + `claude -p` stdin): 00-slug → 01-research → 02-outline → 03-draft → 05-assemble 5단계, skip-if-exists, `CALL_LLM_BACKEND=agent` 로 백엔드 전환. Phase 1 E2E ~4분 / 78줄 post.md / mermaid 2 블록. Phase 3.5 Notion publisher 추가 (parent page/database 자동 판별, 100블록 분할, 로컬 이미지 안내 paragraph 치환) + factcheck rewrite 단계 추가
 - [[auto-pipe-ppt]] — JSON/YAML → 디자인 토큰 기반 멀티슬라이드 PPTX 자동 생성 (Python + `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성). 1차 타겟 재무제표 10장. M0/M1/M2/M3 완료 (41건 테스트 그린): 토큰 이중 어댑터 (YAML / CSS :root), role resolver, 한글 폰트 ea/cs fix, 재무 컴포넌트 6종 (KPI/Insight/Verdict/ScoreCard/Conclusion/Table). M4 차트 5종 / M5 재무 어댑터 미구현
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇. 6/3 codex 토큰 만료(복사 import → 회전 충돌) → `hermes auth add openai-codex --type oauth` 자체 device-flow 재인증
+- [[hermes-dashboard]] — Hermes 다중 에이전트 메신저 대시보드 (1일 해커톤, 구현 전 기획·지침 문서). HermesTalk(v1, 90점) → Hermes Crew(v2, 88점, 오케스트레이션 스트레치 강등·주간보고 킬러로 교체). Hermes 연동 가정 3개를 소스로 검증해 정정(프로필=게이트웨이=포트, Runs API, 스킬 API 있음·Kanban 없음, 주간보고는 `sessions export` 집계). 핵심은 [[mock-first-demo-safety-net]] 안전망 + 어댑터 경계 확장성
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 / partial_profit ON / tighten ON). 2026-06-06: PAUSED 6h 텔레그램 알림 + 저거래량 DCA 제동 신규, 추세필터 ON/OFF 백테스트 재검증 결과 30분봉(운영 봉)에서 OFF 우세 → OFF 유지, launchd 봇 당분간 중지
 - [[ht-dde]] — DDE+엑셀 점수판을 KIS REST 로 옮긴 실시간 매수후보 스캐너 + 종이거래 비교 대시보드. [[ht-trading]] 자매(주문 0, 시세만). 점수식 YAML 외부화 / 지표 순수함수 test-first / 타임프레임 독립 / 토큰캐시 공유 / 3전략 동시비교(종목당 1회 조회 공유) / Flask+폴링 launchd 데몬. 발견: 체결강도는 inquire-ccnl(tday_rltv), 휴장 판정은 chk-holiday, 포트 5000 AirPlay 충돌→5050. 미해결: appkey 공유 rate limit(사전필터 권장)
 - [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장. 6/3: -16G 급감 = macOS Tahoe 업데이트 준비물(추적 밖). 코드 보완 — 측정 실패 가시화(`errors`/`roots`), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적
@@ -47,6 +48,7 @@ updated: 2026-06-15T08:00:00+09:00
 
 ## 패턴 (patterns/)
 
+- [[mock-first-demo-safety-net]] — 시간 제한 빌드(해커톤/MVP)에서 외부 연동이 막혀도 데모를 보장하는 설계: mock 을 fallback 이 아니라 **기본값**으로 + 어댑터 경계(seam)로 mock→real→부분 real 교체 + 함정마다 폴백 내장 + 연동 가정은 소스로 검증("배관 완료 ≠ 기능 완료")
 - [[claude-code-setup]] — Claude Code 초기 설정 7가지, 하네스 6요소, CLAUDE.md 위치, Rules/Hooks, MCP 검증
 - [[claude-code-advanced]] — MCP 통합, Hooks 이벤트 시스템, SubAgents 생성, Agent Teams 패턴
 - [[claude-code-agent-teams-tmux]] — Agent Teams 개념, tmux 사용 이유, 작업 분해 기준, Git Worktree 활용
@@ -142,6 +144,7 @@ updated: 2026-06-15T08:00:00+09:00
 - [[web-app-storage-without-db]] — DB 없이 시작하는 웹 앱: 데이터 4옵션 (시드 JSON/LocalStorage/IndexedDB/Cookie) + 이미지 4옵션 (public/base64/Blob/외부) + 단계적 도입 패턴
 - [[vercel-friendly-database-options]] — Vercel 배포 친화적 DB 4종 비교: Neon (관계형 1순위) / Vercel KV (캐시) / Supabase (인증·스토리지 묶음) / Turso (가벼운 1인용·edge)
 - [[multi-llm-provider-adapter-pattern]] — 추상화 라이브러리 (LangChain 등) 없이 Gemini/OpenAI/Anthropic 공식 SDK 를 어댑터 뒤에 두는 경량 멀티 LLM 패턴: `lib/ai/providers/<vendor>.ts` + `<VENDOR>_MODEL` env override
+- [[self-hosted-agent-webui-integration]] — 셀프호스팅 에이전트(Hermes 류)에 커스텀 UI 붙이는 두 방식: **내부 직결**(모듈 import·같은 호스트/언어·버전 동기화 필수) vs **OpenAI 호환 HTTP API**(언어 자유·버전 비결합·원격 가능). hermes-webui vs hermes-workspace 대비. 신규 UI 는 HTTP API 권장(API 서버가 무거운 일을 다 해줌)
 - [[claude-code-scheduled-tasks]] — Claude Code 데스크톱의 scheduled-tasks: `~/.claude/scheduled-tasks/<name>/SKILL.md`, 앱 종료 시에만 정지, /loop 와의 차이, 권한 사전 승인 / "Run now" 의 의미
 - [[kakao-messaging-automation-options]] — 카카오톡 자동화 3 옵션 비교: Kakao Developers API (정식, 단톡 읽기 불가) / LOCO (비공식, 약관 위반·계정 정지 위험) / 하이브리드 (로컬 DB 읽기 + 나에게 보내기 송신). 시나리오별 추천
 - [[kakaotalk-mac-data-locations]] — App Store v26.3.0 (`com.kakao.KakaoTalkMac`) 의 메시지 sqlcipher DB 위치: `~/Library/Containers/.../Application Support/com.kakao.KakaoTalkMac/<80hex>` + `-wal` + `-shm`. `[wal]` / `[magic]` / `[ext]` 휴리스틱
