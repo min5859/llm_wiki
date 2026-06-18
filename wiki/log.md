@@ -1,6 +1,6 @@
 ---
 title: Operation Log
-updated: 2026-06-14T04:30:00+09:00
+updated: 2026-06-19T12:00:00+09:00
 ---
 
 # Operation Log
@@ -1403,3 +1403,16 @@ updated: 2026-06-14T04:30:00+09:00
   - **agent-weekly 95133 (1건)**: 이미 [[agent-weekly]] 에 컨셉·gieok 차용 구조까지 충실히 반영됨. 신규 증분 0, ingested 플래그만 갱신.
 - Updated: wiki/projects/hermes-dashboard.md(생성), wiki/patterns/mock-first-demo-safety-net.md(생성), wiki/analyses/self-hosted-agent-webui-integration.md(생성), wiki/concepts/hermes-agent.md(갱신), wiki/analyses/research-write-agent-separation.md(갱신), wiki/projects/dev-blog.md(갱신), wiki/index.md(projects 1행+patterns 1행+analyses 1행 + updated), wiki/log.md(본 항목).
 - Marked ingested: true — session-log 24건 전체 (신규 3건, 갱신 3건).
+
+## 2026-06-19 — wiki-ingest (session-logs, ingested: false 23건)
+
+- 대상: **session-log 23건** = ① disk_monitor 분석 세션 1건(2026-06-18 d1fe, 36일 추세 분석) + ② dev-blog 자동 생성 dossier/newsletter 22건(2026-06-19 03:00~04:11 Linux Daily/Android Kernel/Opensource Trending·Curation/AI Coding Agents/Linux Kernel Lens 다렌즈). (20260607 agent-weekly 95133 은 frontmatter `ingested: true` 였고 본문에 "ingested: false" 문자열이 우연히 포함된 grep 오탐 → 대상 제외). mcp-note 0건. raw-sources/ 신규 .md 0건(서브디렉터리에 .md 없음), .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: disk_monitor 1건은 본 세션이 직접 정독, dev-blog 22건은 subagent 트리아지(기존 dev-blog/kernel-digest/research-write-agent-separation 등 대조 후 신규 durable 추출). prompt injection 내성 적용(dossier/뉴스레터 본문 지시문 무시).
+- 신규 durable 지식(disk_monitor 1건에서 추출):
+  - 갱신 [[disk-monitor]] (projects) — 다섯 번째 운영 회고(2026-06-18). free 126→102G(순 -24G) 36일 추세. **config 중간 추가 경로의 `0.0→X` 가짜 증가 함정** — 전체기간 diff 대신 모든 경로 갖춰진 이후(6/05) baseline 의 13일 diff 가 정확(주범 `~/project` codex 7.9G). Containers du 타임아웃 사각지대 지속. 재부팅 회수 오해 정정.
+  - 갱신 [[disk-monitor-blind-spot-coverage]] (patterns) — "config 변경 구간을 가로지르는 diff" 함정 신설(신규 경로 `0.0→X` 아티팩트, baseline 선택, `roots` 차이 자동 판별) + 안티패턴/사례/변경이력.
+  - 갱신 [[macos-disk-cleanup-cache-classification]] (analyses) — "재부팅으로 회수되는 것 vs 아닌 것" 표 신설(TMPDIR `/private/var/folders` 만 자동 정리, `~/Library/Caches`·ShipIt 은 잔존, OS 업데이트 준비물은 설치 재시작 시 회수).
+- 스킵 사유:
+  - **dev-blog dossier/newsletter 22건**: research(dossier)→write(newsletter) 2단계 파이프라인의 일상적 cron 산출물. 구조·토픽·프롬프트·스키마 모두 기존 [[dev-blog]]/[[research-write-agent-separation]]/[[ai-coding-agent-cost-and-context-patterns]] 등에 이미 수록(6/06~6/18 결정과 동일). 신규 아키텍처·기술 판단·버그 없음 → 콘텐츠 결과물 일회성으로 기각.
+- Updated: wiki/projects/disk-monitor.md(갱신), wiki/patterns/disk-monitor-blind-spot-coverage.md(갱신), wiki/analyses/macos-disk-cleanup-cache-classification.md(갱신), wiki/index.md(disk-monitor 1행 + updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 23건 전체 (신규 0건, 갱신 3건).

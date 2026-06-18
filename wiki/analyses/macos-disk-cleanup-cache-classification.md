@@ -4,12 +4,13 @@ domain: both
 sensitivity: public
 tags: ["analysis", "macos", "disk-cleanup", "cache", "claude-desktop", "homebrew", "playwright"]
 created: "2026-05-14"
-updated: "2026-05-22"
+updated: "2026-06-18"
 source_session: "20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md"
 sources:
   - "session-logs/20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md"
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
   - "session-logs/20260522-234234-bc6e-disk-monitoring-내용을-분석해-주세요,.md"
+  - "session-logs/20260618-214720-d1fe-모니터링-값을-분석해줘-계속-disk-소모가-큰것-같네.md"
 confidence: high
 related:
   - "wiki/projects/disk-monitor.md"
@@ -48,6 +49,19 @@ related:
 | `~/Library/Caches/com.anthropic.claudefordesktop.ShipIt` | Claude Desktop Sparkle 의 구버전 업데이트 패키지 | 새 업데이트 시에만 임시로 다시 생김 |
 
 다른 Sparkle 사용 앱들도 비슷한 `*.ShipIt` 디렉터리를 가짐 (Sparkle = macOS 자동 업데이트 표준 프레임워크).
+
+### 재부팅으로 회수되는 것 vs 아닌 것 (흔한 오해)
+
+"재부팅하면 정리되겠지"는 대부분 틀린다. 재부팅으로 **자동 회수되는 건 `/private/var/folders/...` 의 TMPDIR 임시파일뿐**이다 (부팅 시 시스템이 정리). 반면:
+
+| 경로 | 재부팅 시 |
+|---|---|
+| `/private/var/folders/...` (TMPDIR) | **자동 정리됨** (일부) |
+| `~/Library/Caches/*` (앱 캐시) | **남음** — 앱이 직접 비우거나 수동 삭제해야 함 |
+| `~/Library/Caches/*.ShipIt` (Sparkle 업데이트 잔여) | **남음** — 새 업데이트 떠야 교체, 안 그러면 영구 잔존 |
+| macOS OS 업데이트 준비 스냅샷 | 업데이트 **설치(재시작)** 시 회수 ([[disk-monitor-blind-spot-coverage]]) |
+
+즉 OS 업데이트 페이로드/준비 스냅샷은 "설치를 완료하는 재시작"으로 풀리지만, 앱 캐시·ShipIt 은 재부팅과 무관하게 남는다.
 
 ### 다음 사용 시 재다운로드 필요
 
@@ -171,3 +185,4 @@ ls -la ~/.cache/uv/.lock                # mtime 확인
 
 - 2026-05-14: 최초 생성. disk_monitor 첫 운영 시 캐시 정리 + Claude Desktop vm_bundles 분석 기반 (출처: session-logs/20260514-215345, 20260514-220947)
 - 2026-05-22: HOME 아래 도구 캐시 (`~/.npm` `~/.cache/uv` 등) 카테고리 보강, uv `.lock` stale 처리 메모 추가 (출처: session-logs/20260522-234234-bc6e)
+- 2026-06-18: "재부팅으로 회수되는 것 vs 아닌 것" 표 추가 — TMPDIR(`/private/var/folders`)만 자동 정리, `~/Library/Caches`·ShipIt 은 재부팅과 무관하게 잔존, OS 업데이트 준비물은 설치 재시작 시 회수 (출처: session-logs/20260618-214720-d1fe)

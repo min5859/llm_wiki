@@ -4,13 +4,14 @@ domain: personal
 sensitivity: public
 tags: ["project", "disk-monitor", "macos", "launchd", "python", "cli"]
 created: "2026-05-14"
-updated: "2026-06-03"
+updated: "2026-06-18"
 sources:
   - "session-logs/20260514-215345-f0e2-제가사용하는-PC-의-SDD-disk-size가-256GB-로-작은-사이즈-입니다.-현재.md"
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
   - "session-logs/20260522-234234-bc6e-disk-monitoring-내용을-분석해-주세요,.md"
   - "session-logs/20260530-103829-7786-이번주-disk-monitoring-내용-분석해주세요.md"
   - "session-logs/20260603-150720-5764-디스크-모니터링-상태를-체크해-주세요.-최근-용량이-많이-줄어든것-같습니다.md"
+  - "session-logs/20260618-214720-d1fe-모니터링-값을-분석해줘-계속-disk-소모가-큰것-같네.md"
 confidence: high
 related:
   - "wiki/patterns/launchd-plist-symlink-from-project.md"
@@ -218,9 +219,37 @@ config 와 스크립트 기본값 양쪽에 추가:
 
 검증: `ast.parse` OK, 구·신 스냅샷 양쪽 report 동작, timeout→`ok=False`(0 아닌 제외) 단위 검증. README·CLAUDE.md 의 스냅샷 구조 설명 갱신.
 
+## 다섯 번째 운영 회고 (2026-06-18)
+
+36일치 스냅샷(5/14~6/18) 추세 분석. free **126G → 102G (순 -24G)**, 6/5 이후 125G→102G 로 꾸준히 우하향. 중간 출렁임(5/22, 6/3)은 업데이트 사이클 등 일시적이고 추세 자체가 감소.
+
+### 함정 — config 중간 추가 경로의 `0.0 → X` 가짜 증가
+
+전체 기간(5/14→6/18) diff 의 증가 TOP 은 `~/project +29.7G`, `~/.hermes +6.1G`, `~/.cache +3.2G` 처럼 전부 `0.0 →` 로 시작했다. 이는 **실제 증가가 아니라 5/30 회고에서 그 경로들을 모니터링 대상에 새로 추가**(`~/project`, `~/.hermes`, `~/.local`, `~/.openclaw`, `~/.bun`, `~/.codex`, `~/.cursor`, `~/.claude` 8개)했기 때문에 추가 이후 첫 측정값이 0 베이스라인과 비교된 **diff 아티팩트**다. 진짜 추세는 **모든 경로가 갖춰진 이후 시점(6/05)을 baseline 으로** 한 13일 diff 가 정확:
+
+| 증가 | 경로 | 성격 |
+|---|---|---|
+| +10.5G | `~/project` (codex +7.9G, cowork +2.2G) | 작업/레포 (caution, 작업 종료 후 삭제 예정) |
+| +3.7G | `Application Support/Claude` | 앱 데이터 (caution) |
+| +2.1G | `~/.claude/plugins` | 플러그인 (caution) |
+| +1.5G | `~/Library/Caches` | 캐시 (safe) |
+| +1.1G | `/private/var/folders` | 임시파일 (safe) |
+| +0.7G | `...claudefordesktop.ShipIt` | 업데이트 잔여 (safe) |
+
+→ 소모의 대부분은 `~/project`(개발 작업물, codex 7.9G 가 주범), 순수 안전 회수 가능분은 **합쳐 ~3~4G** 수준. (일반화는 [[disk-monitor-blind-spot-coverage]] 의 "config 변경 구간 diff" 항목)
+
+### 사각지대 지속 — Containers du 타임아웃
+
+`~/Library/Containers` / `~/Library/Group Containers` 가 이번에도 매 측정 `du` 타임아웃 → `errors` 에 기록되고 diff 에서 제외(0 아님). 실제 더 큰 소모가 여기 숨어 있을 수 있다는 경고를 보고에 포함.
+
+### 사용자 오해 정정 — 재부팅으로 안 지워지는 것
+
+사용자가 "claude 업데이트 관련은 재부팅하면 사라지지 않을까" 추정. 정정: **재부팅으로 회수되는 건 `/private/var/folders`(TMPDIR 임시파일)뿐**이고, `~/Library/Caches` 나 `ShipIt`(Sparkle 업데이트 잔여물)은 재부팅해도 자동으로 사라지지 않는다. (분류는 [[macos-disk-cleanup-cache-classification]]) 분석/결정은 `tasks/history.md` 에 기록.
+
 ## 변경 이력
 
 - 2026-05-14: 최초 생성. disk_monitor.py 작성, 첫 baseline 스냅샷, launchd 등록, plist 프로젝트 폴더 이전, 첫 캐시 정리 (3.23G 회수)
 - 2026-05-22: 1주일 운영 후 사각지대 발견 (`.npm` `.cache` 등), config 18→23 경로 확장, `du` timeout fallback (depth=0 재시도) 추가, `npm`/`uv` 캐시 정리로 9.4G 추가 회수 (출처: session-logs/20260522-234234-bc6e)
 - 2026-05-30: 5/29 -4.77G 급감 분석 (wide/src-tauri 빌드 아티팩트가 사각지대). 개발 도구 경로 8개 추가 (~/project, ~/.hermes, ~/.local, ~/.openclaw, ~/.bun, ~/.codex, ~/.cursor, ~/.claude — 총 ~26G 해소). 신규 경로 포함 베이스라인 재설정 (출처: session-logs/20260530-103829-7786)
 - 2026-06-03: -16G 급감 = macOS Tahoe 26.5.1 업데이트 준비물(페이로드+준비 스냅샷, 추적 밖)로 확정. 코드 보완 3가지 — `du_bytes` 성공여부 반환 + `errors`/`roots` 스냅샷 필드(측정 실패 가시화), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적. README·CLAUDE.md 갱신 (출처: session-logs/20260603-150720-5764)
+- 2026-06-18: 36일 추세 회고 (free 126→102G, 순 -24G). config 중간 추가 경로의 `0.0→X` 가짜 증가 함정 — 전체기간 diff 대신 모든 경로 추가 이후(6/05) baseline 의 13일 diff 가 정확(주범 `~/project` codex 7.9G). Containers du 타임아웃 사각지대 지속. 재부팅 회수 오해 정정(TMPDIR `/private/var/folders` 만 회수, Caches/ShipIt 영구). `tasks/history.md` 기록 (출처: session-logs/20260618-214720-d1fe)

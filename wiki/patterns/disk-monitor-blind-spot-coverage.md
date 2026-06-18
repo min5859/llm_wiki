@@ -4,10 +4,11 @@ domain: both
 sensitivity: public
 tags: ["pattern", "disk-monitoring", "macos", "du", "homedir-caches", "diagnosis"]
 created: "2026-05-22"
-updated: "2026-06-03"
+updated: "2026-06-18"
 sources:
   - "session-logs/20260522-234234-bc6e-disk-monitoring-내용을-분석해-주세요,.md"
   - "session-logs/20260603-150720-5764-디스크-모니터링-상태를-체크해-주세요.-최근-용량이-많이-줄어든것-같습니다.md"
+  - "session-logs/20260618-214720-d1fe-모니터링-값을-분석해줘-계속-disk-소모가-큰것-같네.md"
 confidence: high
 related:
   - "wiki/projects/disk-monitor.md"
@@ -108,8 +109,24 @@ def du(path, timeout_s):
 
 4. **존재 여부 검증** — `! timeout` 으로 잡힌 경로 중 실제로는 폴더 없음 (Xcode 미설치 → `~/Library/Developer`, iCloud Drive 비활성 → `~/Library/Mobile Documents`) 케이스. config 청소 후보.
 
+## 함정: config 변경 구간을 가로지르는 diff (신규 경로의 `0.0 → X`)
+
+추적 경로를 **중간에 config 로 추가**하면, 그 경로는 추가 이후 첫 스냅샷부터 측정되므로 그 이전 스냅샷과 diff 하면 `0.0 → X` 로 나온다. 이는 **"신규 증가"가 아니라 측정 시작점이 다른 diff 아티팩트**다.
+
+```
+전체 기간(5/14→6/18) 증가 TOP:
+  +29.7G  0.0→29.7  ~/project      ← 5/30 에 추적 추가됨. 진짜 증가 아님
+  +6.1G   0.0→ 6.1  ~/.hermes      ← 동일
+  +3.2G   0.0→ 3.2  ~/.cache       ← 동일
+```
+
+- **올바른 baseline 선택**: 추세를 보려면 **모든 경로가 갖춰진 이후 시점**을 baseline 으로 잡는다. 위 사례에서 5/30 에 8개 경로를 추가했으므로 6/05 baseline 의 13일 diff 가 정확 (주범은 `~/project +10.5G`, codex 7.9G).
+- **스냅샷 `roots` 로 자동 판별 가능**: `roots`(어떤 경로를 측정했는지)가 두 스냅샷에서 다르면 그 사이 diff 는 신규 경로에 대해 무효 → `report` 가 "이 경로는 baseline 에 없었음"을 표시하면 사람이 매번 의심할 필요가 없다.
+- 같은 결의 silent 함정: 0 으로 보고하면(측정 실패 vs 신규 추가 vs 진짜 0 을 구분 못 하면) 사용자가 가짜 추세를 사실로 읽는다.
+
 ## 안티패턴
 
+- **config 변경 구간을 가로질러 diff 의 절대 증가량을 보고하기** — 신규 추가 경로의 `0.0→X` 를 "증가"로 단정 (위 함정).
 - **사각지대 추정치를 단정형으로 보고하기** — "1주일간 `.npm` 이 7G 증가" 같은 단정은 잘못. 과거 측정이 없으므로 **현재 절대값** 만 알 수 있다. 사용자에게 보고할 때 명시.
 - **자동 정리** — 사각지대를 발견했다고 스크립트가 자동으로 `cache clean` 호출하면 `~/.cache/chroma` (실데이터일 수 있음) 같은 항목을 망친다. 분류 + 컨펌 패턴 ([[macos-disk-cleanup-cache-classification]]) 유지.
 
@@ -127,7 +144,13 @@ def du(path, timeout_s):
 - 회복: 업데이트 설치(재시작)하면 자연 회수. 사용자 파일 정리 대상 아님.
 - 코드 보완: `du_bytes` 성공여부 반환 + `errors`/`roots` 스냅샷 필드, `report` 에 Tracked vs Unaccounted 갭 표시, `/Library/Updates` 추적 추가. (이번 사건이 갭 표시 한 줄로 설명됨)
 
+## 사례 (2026-06-18, [[disk-monitor]])
+
+- 36일 추세에서 전체기간 diff TOP 이 전부 `0.0→X`(`~/project` +29.7G 등) → 5/30 에 추가한 경로들의 측정 시작 아티팩트. 진짜 추세는 6/05 baseline 의 13일 diff (`~/project +10.5G`, codex 7.9G 주범).
+- 순수 안전 회수분(Caches/var folders/ShipIt)은 합쳐 ~3~4G 뿐. `Containers`/`Group Containers` du 타임아웃 사각지대 지속 → 숨은 소모 가능성 보고에 명시.
+
 ## 변경 이력
 
 - 2026-05-22: 최초 생성. disk_monitor 두 번째 운영 회고 기반 (출처: session-logs/20260522-234234-bc6e)
 - 2026-06-03: macOS 업데이트 준비물 사각지대 추가. `du` 완전 실패 시 조용한 누락 함정 + 보완 3가지(측정 실패 가시화 `errors`, 진단 공식 코드 내장 `Unaccounted Δ`, `roots` 기록). 2026-06-03 사례(-16G = macOS Tahoe 26.5.1 업데이트 준비) (출처: session-logs/20260603-150720-5764)
+- 2026-06-18: "config 변경 구간을 가로지르는 diff" 함정 추가 — 신규 추가 경로의 `0.0→X` 가짜 증가, baseline 은 모든 경로 갖춰진 이후로, `roots` 차이로 자동 판별. 2026-06-18 사례(36일 추세) (출처: session-logs/20260618-214720-d1fe)

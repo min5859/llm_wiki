@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-18T09:00:00+09:00
+updated: 2026-06-19T12:00:00+09:00
 ---
 
 # Wiki Index
@@ -39,7 +39,7 @@ updated: 2026-06-18T09:00:00+09:00
 - [[hermes-dashboard]] — Hermes 다중 에이전트 메신저 대시보드 (1일 해커톤, 구현 전 기획·지침 문서). HermesTalk(v1, 90점) → Hermes Crew(v2, 88점, 오케스트레이션 스트레치 강등·주간보고 킬러로 교체). Hermes 연동 가정 3개를 소스로 검증해 정정(프로필=게이트웨이=포트, Runs API, 스킬 API 있음·Kanban 없음, 주간보고는 `sessions export` 집계). 핵심은 [[mock-first-demo-safety-net]] 안전망 + 어댑터 경계 확장성
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 / partial_profit ON / tighten ON). 2026-06-06: PAUSED 6h 텔레그램 알림 + 저거래량 DCA 제동 신규, 추세필터 ON/OFF 백테스트 재검증 결과 30분봉(운영 봉)에서 OFF 우세 → OFF 유지, launchd 봇 당분간 중지
 - [[ht-dde]] — DDE+엑셀 점수판을 KIS REST 로 옮긴 실시간 매수후보 스캐너 + 종이거래 비교 대시보드. [[ht-trading]] 자매(주문 0, 시세만). 점수식 YAML 외부화 / 지표 순수함수 test-first / 타임프레임 독립 / 토큰캐시 공유 / 3전략 동시비교(종목당 1회 조회 공유) / Flask+폴링 launchd 데몬. 발견: 체결강도는 inquire-ccnl(tday_rltv), 휴장 판정은 chk-holiday, 포트 5000 AirPlay 충돌→5050. 미해결: appkey 공유 rate limit(사전필터 권장)
-- [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장. 6/3: -16G 급감 = macOS Tahoe 업데이트 준비물(추적 밖). 코드 보완 — 측정 실패 가시화(`errors`/`roots`), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적
+- [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장. 6/3: -16G 급감 = macOS Tahoe 업데이트 준비물(추적 밖). 코드 보완 — 측정 실패 가시화(`errors`/`roots`), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적. 6/18: 36일 추세 회고 — config 중간 추가 경로의 `0.0→X` 가짜 증가 함정(baseline 은 모든 경로 추가 이후로), 재부팅 회수 오해 정정(TMPDIR만 회수)
 
 ## 설계 판단 (decisions/)
 
