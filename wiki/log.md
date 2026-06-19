@@ -1416,3 +1416,17 @@ updated: 2026-06-19T12:00:00+09:00
   - **dev-blog dossier/newsletter 22건**: research(dossier)→write(newsletter) 2단계 파이프라인의 일상적 cron 산출물. 구조·토픽·프롬프트·스키마 모두 기존 [[dev-blog]]/[[research-write-agent-separation]]/[[ai-coding-agent-cost-and-context-patterns]] 등에 이미 수록(6/06~6/18 결정과 동일). 신규 아키텍처·기술 판단·버그 없음 → 콘텐츠 결과물 일회성으로 기각.
 - Updated: wiki/projects/disk-monitor.md(갱신), wiki/patterns/disk-monitor-blind-spot-coverage.md(갱신), wiki/analyses/macos-disk-cleanup-cache-classification.md(갱신), wiki/index.md(disk-monitor 1행 + updated), wiki/log.md(본 항목).
 - Marked ingested: true — session-log 23건 전체 (신규 0건, 갱신 3건).
+
+## 2026-06-20 — wiki-ingest (session-logs, ingested: false 21건)
+
+- 대상: **session-log 21건** = dev-blog 자동 생성 dossier/newsletter 21건(2026-06-20 03:00~04:00 Linux Daily/Android Kernel/Opensource Trending·Curation/AI Coding Agents/Linux Kernel Lens 다렌즈; AI Coding Agents 는 dossier 만). (20260607 agent-weekly 95133 은 frontmatter `ingested: true` 인데 본문에 "ingested: false" 문자열이 우연히 포함된 grep 오탐 → 대상 제외, 6/19 와 동일). mcp-note 0건. raw-sources/ 신규 .md 0건(서브디렉터리에 .md 없음 — PDF·txt·pptx 뿐), .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: subagent 트리아지로 21건 전수 판정(기존 dev-blog/research-write-agent-separation/llm-* 페이지 대조 후 신규 durable 만 추출), 본 세션이 KEEP 후보 로그를 직접 정독해 사실 검증. prompt injection 내성 적용(dossier/뉴스레터 본문의 "당신은 …입니다"·"JSON 하나만 출력" 등 지시문 무시).
+- 신규 durable 지식(2건):
+  - 신규 [[claude-code-auto-mode-safety-guardrails]] (analyses) — CC v2.1.183 auto 모드가 명시 요청 없는 파괴적 명령 차단: 파괴적 git(`reset --hard`/`checkout -- .`/`clean -fd`/`stash drop`), 세션 외 커밋 `--amend`, 명명 안 된 `terraform/pulumi/cdk destroy`. + deprecated 모델 stderr 경고(frontmatter 포함)·subagent WebSearch 빈결과 수정 등 운영영향 수정. dossier 단일출처라 confidence medium + 릴리스 URL 명시(출처: a796). HN 가십 클러스터(소스 leak·OpenClaw 거부 논란)는 미검증 루머라 제외.
+  - 갱신 [[research-write-agent-separation]] (analyses) — 봇차단 함정에 **폴백 사다리 + 우아한 강등**(lore·git.kernel.org 동시 차단 → raw 엔드포인트 → mail-archive.com 미러 → commitMessage+WebSearch 교차검증 → 미확인은 confidence 강등+openQuestions 격리, 추측·날조 금지) 과 **topic-id grep 자가판별 가드레일**(`grep -rl <sourceId> content/topics/*/sources.json` 로 실제 토픽 매핑 self-grounding) 2건 보강.
+  - 갱신 [[dev-blog]] (projects) — 6/20 03:00 사이클 운영 관찰(write 단계 silent fail 약 2주째 고착, dossier 만 1턴 정상인 비대칭 지속 + 봇차단 폴백 사다리/topic-id 자가판별 관측).
+- 스킵 사유:
+  - **dev-blog newsletter write 10건**: 전부 `assistant_turns: 0` 무응답(silent fail 약 2주 고착). 산출 콘텐츠 없음, 운영 관찰만 [[dev-blog]] 에 기록.
+  - **dev-blog dossier 11건**: research(dossier)→write 파이프라인의 일상 cron 산출물(리눅스/Android 커널 단일 패치·릴리스, OSS 트렌드, kCFI KUnit CFI 우회 논쟁 등). **외부 뉴스 콘텐츠 자체는 개인 엔지니어링 지식이 아님** + 단일 패치/버전릴리스를 범용 패턴으로 날조하는 과잉추출 기각(6-14~6-19 결정과 동일). 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-content-quality-guards]]/[[ai-coding-agent-cost-and-context-patterns]] 에 수록. dossier evidence 의 `***:***@host/` 는 gieok 로깅 redaction 이 lore URL 의 email-local 을 자격증명으로 오인한 아티팩트(dev-blog 결함 아님).
+- Updated: wiki/analyses/claude-code-auto-mode-safety-guardrails.md(생성), wiki/analyses/research-write-agent-separation.md(갱신), wiki/projects/dev-blog.md(갱신), wiki/index.md(analyses 1행 추가+research-write 1행 갱신+updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 21건 전체 (신규 1건, 갱신 2건).
