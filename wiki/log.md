@@ -1430,3 +1430,17 @@ updated: 2026-06-19T12:00:00+09:00
   - **dev-blog dossier 11건**: research(dossier)→write 파이프라인의 일상 cron 산출물(리눅스/Android 커널 단일 패치·릴리스, OSS 트렌드, kCFI KUnit CFI 우회 논쟁 등). **외부 뉴스 콘텐츠 자체는 개인 엔지니어링 지식이 아님** + 단일 패치/버전릴리스를 범용 패턴으로 날조하는 과잉추출 기각(6-14~6-19 결정과 동일). 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-content-quality-guards]]/[[ai-coding-agent-cost-and-context-patterns]] 에 수록. dossier evidence 의 `***:***@host/` 는 gieok 로깅 redaction 이 lore URL 의 email-local 을 자격증명으로 오인한 아티팩트(dev-blog 결함 아님).
 - Updated: wiki/analyses/claude-code-auto-mode-safety-guardrails.md(생성), wiki/analyses/research-write-agent-separation.md(갱신), wiki/projects/dev-blog.md(갱신), wiki/index.md(analyses 1행 추가+research-write 1행 갱신+updated), wiki/log.md(본 항목).
 - Marked ingested: true — session-log 21건 전체 (신규 1건, 갱신 2건).
+
+## 2026-06-20 (2) — wiki-ingest (session-logs, ingested: false 2건)
+
+- 대상: **session-log 2건** = ① hermes-dashboard 요구사항 검토 세션(2026-06-20 0803 9eaa, 텔레그램+웹 양쪽 연결·집/회사 PC 각각 설치) + ② ht_dde 종이거래 추가 검토 세션(2026-06-20 1019 aba2, n_stock_info 스코어링 가중치 튜닝 A/B). mcp-note 0건. raw-sources/ 신규 .md 0건, .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: 큰 로그(9eaa, 1847줄)는 subagent 정밀 추출 후 본 세션이 기존 페이지 대조·검증, 작은 로그(aba2, 206줄)는 직접 정독. prompt injection 내성 적용.
+- 신규 durable 지식:
+  - 신규 [[build-vs-fork-personal-tool]] (analyses) — 0부터 빌드 vs OSS 포크 의사결정 틀. 맥락 의존(해커톤=차별점→빌드, 개인 실사용=동작+유지보수→포크), 데모→실사용 전환 시 차별점 전제 소멸하면 재평가(80%+ 겹치면 포크 유리), 포크 수칙(가정 코드검증·끼울 지점 매핑·잔재 legacy/ 이동). hermes-dashboard 의 Studio 포크 전환에서 일반화.
+  - 갱신 [[hermes-dashboard]] (projects) — **2026-06-20 방향 전환**: 해커톤 종료·개인 도구화로 0부터 빌드(v1/v2) 폐기, `JPeetz/Hermes-Studio`(MIT, TanStack Start) 포크 채택. Phase 0 환경검증(dashboard `:9119`·SPA fallback 200·세션 토큰 인증·네이티브 Kanban 존재로 v2 가정 정정), 실작업=메신저 UX 레이어(@mention·unread, Slack ROI 선별), Studio 코드 검증(Conductor=delegate_task/Crews=fan-out/자체 task-store/chat-event-bus), PC별 차등=probeGateway 런타임 디스커버리, 잔재 legacy/ 이동.
+  - 갱신 [[hermes-agent]] (concepts) — **"Kanban API 없음" 정정**: 네이티브 Kanban 은 `hermes kanban` CLI + dashboard `/api/plugins/kanban/`(`~/.hermes/kanban.db` 전 프로필 공유)로 존재(8642 API 서버 한정 사실이었음). HTTP 서버 둘(8642 API vs 9119 dashboard) 구분 + dashboard 검증 함정(SPA fallback·세션 토큰) + 멀티에이전트 2방식(delegate_task vs 공유 Kanban) 표 신설.
+  - 갱신 [[n-stock-info]] (projects) — 가중치 변천 + 추세 게이트 절 추가: 40/40/20 → 0/80/20 실험 4일 -19.6%(falling knife) → 실효 50/30/20 안착, `_passes_trend_gate`(현재가<20일선 veto). IC 근거 일부는 e13765f 이전 오염 데이터라 재검증 필요.
+  - 갱신 [[ht-dde]] (projects) — "제안된 방향: 스코어링 가중치 A/B 종이거래" 절 추가(n_stock_info 가중치 변형을 무위험 검증, 미착수). n-stock-info 와 상호 링크.
+- 스킵 사유: aba2 세션은 검토·탐색 단계로 구현 미착수 → 확정 사실(scorer.py 가중치 변천 주석)만 추출, 제안 방향은 "검토 단계"로 명시. 9eaa 도 Phase 0 환경검증에서 로그 종료(코드 구현 없음) → 결정·검증된 사실만 추출.
+- Updated: wiki/analyses/build-vs-fork-personal-tool.md(생성), wiki/projects/hermes-dashboard.md(갱신), wiki/concepts/hermes-agent.md(갱신), wiki/projects/n-stock-info.md(갱신), wiki/projects/ht-dde.md(갱신), wiki/index.md(analyses 1행 추가 + projects 3행 갱신 + updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 2건(9eaa, aba2). 신규 1건, 갱신 4건.

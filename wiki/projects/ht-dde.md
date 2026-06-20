@@ -4,12 +4,15 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-06-13"
+updated: "2026-06-20"
 sources:
   - "session-logs/20260613-164818-fc2f-신규-프로젝트를-시작하려고-하는데-지금-내가-이미-한국-투자-증권으로-API-사용해서-거래.md"
+  - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
 confidence: "high"
 related:
   - "wiki/projects/ht-trading.md"
+  - "wiki/projects/n-stock-info.md"
+  - "wiki/analyses/scoring-version-comparison-methodology.md"
   - "wiki/decisions/shared-broker-appkey-token-cache.md"
   - "wiki/analyses/launchd-daemon-vs-cron-periodic.md"
   - "wiki/analyses/stock-screening-score-design.md"
@@ -63,11 +66,17 @@ related:
 
 3전략 동시 비교 자체는 종목당 1회 조회 공유라 부하가 늘지 않지만, **ht_trading 과 appkey 를 공유**하는 게 위험. 1회 폴링당 호출 ≈ 거래량순위 1 + 종목당 3 × top_n 60 ≈ 181건. ht_dde throttle 은 초당 ~16건(11초 몰아치고 19초 쉼). KIS 실전 계좌는 appkey당 **초당 ~20건** 제한이라 ht_dde 단독은 안전하나, ht_trading 호출과 겹치면 합산 20 초과로 둘 다 `EGW00201 초당 거래건수 초과` 가 날 수 있다. 완화안: ① throttle 0.06→0.1초(초당 10건) ② 폴링 30→60초 ③ **사전 필터** — 거래량순위가 주는 값으로 1차 컷 후 통과 종목만 상세 3건 조회(60→15~25종목, 호출 60~70% 감소). 적용 범위 결정 대기 중. (rate-limit 충돌 회피의 일반 논의는 [[shared-broker-appkey-token-cache]].)
 
+## 제안된 방향 — 스코어링 가중치 A/B 종이거래 (2026-06-20 검토)
+
+[[n-stock-info]] 의 종목 선정 가중치(현재 실효 50/30/20)를 **약간씩 변형한 변종을 ht_dde 종이거래로 동시 구동해 알고리즘을 최적화**하려는 방향이 제기됨. n_stock_info 는 라이브에서 0/80/20 실험이 4일 만에 -19.6%(falling knife) 났던 전력이 있어, 실거래 위험 없이 가중치 변형을 검증할 무위험 테스트베드로 ht_dde 의 "3전략 동시 비교" 구조가 적합하다. 이 세션은 검토 단계로 구현은 미착수. 가중치 변천 상세는 [[n-stock-info]], 비교 방법론은 [[scoring-version-comparison-methodology]].
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
+- 종목 스코어링 본체 [[n-stock-info]] — ht_dde 가 검증하려는 가중치/점수식의 출처.
 - 점수 설계는 [[stock-screening-score-design]], 폴링 주기 vs 봉 간격은 [[polling-interval-vs-bar-interval]], 백테스트 봉 민감도는 [[backtest-timeframe-sensitivity]] 와 연결.
 
 ## 변경 이력
 
 - 2026-06-13: 최초 생성 (출처: session-log 20260613-164818-fc2f). 스캐너 init → 종이거래+웹 대시보드 → launchd plist+휴장/버퍼까지 세션 1회 작업 기록.
+- 2026-06-20: "제안된 방향 — 스코어링 가중치 A/B 종이거래" 절 추가. [[n-stock-info]] 가중치 변형을 무위험 검증하는 테스트베드로 ht_dde 활용 검토(미착수). n-stock-info 와 상호 링크 (출처: session-logs/20260620-101936-aba2-*)

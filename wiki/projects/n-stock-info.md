@@ -4,17 +4,20 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "screening", "python", "telegram", "backtest"]
 created: "2026-06-03"
-updated: "2026-06-17"
+updated: "2026-06-20"
 status: active
 tech_stack: ["python", "requests", "beautifulsoup", "sqlite", "ruff", "pytest"]
 sources:
   - "session-logs/20260602-223325-f11f-지금-프로젝트를-분석해-주세요.md"
   - "session-logs/20260602-230501-585d-리포트에도-업종-PER-표시해줘.md"
   - "session-logs/20260616-210439-d6f6-오늘-알고리즘-바꾼지-2일-지났는데-2일-동안-매매에서-오류나-개선점이-없었는지-검토해줘.md"
+  - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
 confidence: high
 related:
   - "wiki/projects/ht-trading.md"
+  - "wiki/projects/ht-dde.md"
   - "wiki/analyses/scoring-system-ic-validation.md"
+  - "wiki/analyses/scoring-version-comparison-methodology.md"
   - "wiki/analyses/eps-vs-earnings-yield.md"
   - "wiki/analyses/stock-screening-score-design.md"
   - "wiki/bugs/naver-finance-no-info-selector-drift.md"
@@ -52,6 +55,17 @@ main.py 가 9단계 오케스트레이션
 | 리서치 | 20 | "시장이 아직 안 쳐다보는가" (군중 회피) | 조회 심리 10 (**역발상**: 조회 적을수록 고점) / 애널리스트 커버리지 10 (4~10건 스윗스팟) |
 
 설계 사상은 **모멘텀(기술) + 밸류(기본) + low-attention premium(리서치)** 조합 — 학술적으로 검증된 팩터들이다. 일반론은 [[stock-screening-score-design]] / [[scoring-system-ic-validation]] 참조.
+
+### 가중치 변천 (40/40/20 → 50/30/20) 과 추세 게이트 (2026-06)
+
+축별 세부 배점은 40/40/20 만점이지만 **유효 가중치는 라이브 운용 중 튜닝**됐다 (`scorer.py`: `_TECH_WEIGHT=50/40=1.25`, `_FUND_WEIGHT=30/40=0.75`, `_RESEARCH_WEIGHT=1.0` → 실효 **50/30/20**). 변천 과정 자체가 한 번의 실패 사례를 포함한다:
+
+1. **40/40/20** (기존)
+2. **0/80/20 (기술 제거) 실험** — 06-15 라이브 투입. **4일 만에 고점 대비 -19.6%**. 펀더 위주 채점이 기술점수 5~9/40 의 **하락추세 저평가주(falling knife)** 를 골라낸 게 원인. 싸 보이지만 계속 떨어지는 종목을 매수하는 전형적 함정.
+3. **40/40/20 원복** → **기술 비중 상향 50/30/20** 으로 안착. 모멘텀(주도주) 신호와 정합.
+4. **추세 게이트 추가** — 가중치만으론 falling knife 를 못 막아, `_passes_trend_gate`(현재가 < 20일선 종목 **veto**)로 하락추세 종목을 컷오프 단계에서 별도 제외.
+
+> ⚠️ 주의: 이 가중치 튜닝의 백테스트 IC 근거 일부는 신뢰 불가다. 기술 IC 음수 신호는 **거래량/캔들 수집 버그(`e13765f` 이전)** 의 오염 데이터에서 나온 것 → 버그 수정 후 깨끗한 데이터로 **재검증 필요**(아래 변경 이력 e13765f 항목 참조). 가중치 비교 방법론 일반론은 [[scoring-version-comparison-methodology]] / [[averaging-down-vs-momentum-add-on]].
 
 ## 설계 판단 (2026-06-02 세션)
 
@@ -124,5 +138,6 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 
 ## 변경 이력
 
+- 2026-06-20: **가중치 변천 + 추세 게이트** 절 추가 — 유효 가중치가 40/40/20 → (0/80/20 실험 4일 -19.6% falling knife 실패) → **50/30/20** 으로 안착, `_passes_trend_gate`(현재가<20일선 veto)로 하락추세 종목 컷오프. IC 근거 일부는 e13765f 이전 오염 데이터라 재검증 필요. 별 프로젝트 [[ht-dde]] 의 종이거래로 가중치 변형을 A/B 비교하려는 방향이 제안됨(이 세션은 검토 단계). (출처: session-logs/20260620-101936-aba2-*)
 - 2026-06-17: 거래량·시가·등락률 수집 버그 수정 (commit `e13765f`). 네이버 `item/main` 페이지의 `table.no_info` 가 라벨을 `<th>` 가 아니라 `<span class="sptxt">` 에 두도록 구조가 바뀌어, 코드의 `table.select("th")` 가 항상 빈 결과 → **2026-03 이후 전 종목·전 날짜 거래량=0·시가=null·등락률 +0.0%** 가 silent 하게 수집됨. 등락률은 별도로 `.no_exday em span.blind` 의 `select_one` 이 첫 em(전일대비 금액)을 잡아 `%` em 에 도달 못 하던 버그. **가짜로 만든 테스트 fixture(`<th>거래량</th>` + 단일 em)가 회귀를 못 잡았고** volume/open/change 도 미검증이었다. `_no_info_values` 헬퍼 도입 + fixture 를 실제 마크업으로 교체 + 추출 필드 전부 단언. 166 테스트 통과. 영향: 0/80/20 라이브 추천엔 무영향(기술 가중 0)이나, DECISION 의 가중치 IC 표가 망가진 기술 데이터 산출이라 재검증 전 재측정 필요. 일반 교훈은 [[naver-finance-no-info-selector-drift]] (출처: session-logs/20260616-210439-d6f6-*)
 - 2026-06-03: 최초 작성. 2026-06-02 세션 2건 (프로젝트 분석 + 업종 PER 표시) 에서 추출 — EPS→EY 라벨 동기화, 안정성 게이트, 섹터 상대 PER, 백테스트 하네스, 전체 scored 저장, 데이터 기반 config 튜닝. 일반 사상은 [[eps-vs-earnings-yield]] / [[stock-screening-score-design]] 로 분리 (출처: session-logs/20260602-223325-f11f-*, 20260602-230501-585d-*)
