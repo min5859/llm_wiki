@@ -4,17 +4,22 @@ domain: personal
 sensitivity: public
 tags: ["project", "hackathon", "hermes", "ai-agent", "nextjs", "mockup", "claude-code", "mvp"]
 created: 2026-06-18
-updated: 2026-06-20
+updated: 2026-06-21
 sources:
   - "session-logs/20260617-220010-47ab-내가-해커톤-주제를-구체화-시키고-있는데-좀-도와줘.md"
   - "session-logs/20260618-063919-3962-지금-프로젝트-시작-지침서-인데-완성도를-평가해줘.md"
   - "session-logs/20260620-080358-9eaa-지금-프로젝트에-아래-요구사항을-추가할-수있는지-검토.md"
+  - "session-logs/20260621-154117-e509-▎-..-HANDOFF.md-와-..-CLAUDE.md-읽고-Phase-2-UI부터-이어가.md"
 confidence: high
 related:
   - "wiki/concepts/hermes-agent.md"
   - "wiki/patterns/mock-first-demo-safety-net.md"
   - "wiki/analyses/self-hosted-agent-webui-integration.md"
   - "wiki/analyses/build-vs-fork-personal-tool.md"
+  - "wiki/patterns/esm-live-binding-global-state.md"
+  - "wiki/patterns/blocked-dependency-productive-workflow.md"
+  - "wiki/patterns/sqlite-readonly-data-swap.md"
+  - "wiki/patterns/upstream-fork-minimal-invasion.md"
   - "wiki/projects/hermes.md"
 ---
 
@@ -113,7 +118,19 @@ hermes-dashboard/
 
 CLAUDE.md 가 "TODO 를 Phase 0 부터, mockup.html 이 UI 정본, mock 먼저"를 못박아, 폴더 열고 첫 프롬프트만 붙이면 착수되도록 설계.
 
+## 2026-06-21 Phase 2~6 구현 — 검증된 실무 패턴 4가지
+
+포크(Hermes Studio) 위에 메신저 UX 레이어를 얹는 구현을 진행하면서, 프로젝트에 갇히지 않는 일반 패턴 4가지가 나왔다. 모델 백엔드가 Codex OAuth `refresh_token_reused`(다른 클라이언트가 토큰 소비)로 죽어 라이브 검증이 막힌 상황에서 진행했고, 그 제약이 오히려 좋은 패턴을 끌어냈다.
+
+- **에이전트별 게이트웨이 전환 = ESM live binding.** 채팅 백엔드 ~24개 파일이 단일 게이트웨이 상수를 import → per-request 스레딩(24파일 수정) 대신 `export let` + setter 로 한 점에서 전환 + capability 재probe. 단일 사용자 전제. → [[esm-live-binding-global-state]]
+- **블로커 중 생산성 최대화.** 모델 재인증(사용자 조치)이 블로커이고 "mock 금지·real 검증" 원칙상 블라인드 빌드 불가 → 보고 후 idle 대신 파서/순수함수+단위테스트/readonly DB/컴파일 검증을 선완결. 위임 이벤트 파서는 **핸드오프 문서(`response.output_item.added`)가 틀리고 동작 코드(`tool.started/completed`)가 옳음**을 라이브 없이 발견, 테스트로 고정해 라이브 후 안전 교정. → [[blocked-dependency-productive-workflow]]
+- **REST 프록시 대신 SQLite readonly 직접 읽기.** 미기동인 dashboard REST 대신 프로필 `kanban.db`/`state.db`(FTS5)를 `better-sqlite3` readonly 로 직접 읽어 데이터 소스 스왑(UI 계약 유지). `createRequire` 로 네이티브 애드온 로드, `created_at` 초→ms 변환 함정. → [[sqlite-readonly-data-swap]]
+- **업스트림 포크 최소 침습.** Studio 원본은 import 1줄+주입 2줄 수준의 최소 hook 만, 메신저 기능은 신규 파일·별도 커밋, 머지 절차는 `UPSTREAM-MERGE.md`, 잔재는 `legacy/` 이동. → [[upstream-fork-minimal-invasion]]
+
+> 모델 백엔드 장애 자체는 이 프로젝트 고유 버그가 아니라 [[oauth-refresh-token-rotation-multi-client]] 의 동일 패턴(Codex OAuth 토큰 회전 쟁탈)이다.
+
 ## 변경 이력
 
 - 2026-06-18: 최초 생성 — 2026-06-17 밤 기획(HermesTalk v1) + 06-18 새벽 완성도 평가/정정(Hermes Crew v2) 세션에서 정리. Hermes API 연동 검증 사실은 [[hermes-agent]], mock-first 안전망은 [[mock-first-demo-safety-net]], webui vs workspace 연동 비교는 [[self-hosted-agent-webui-integration]] 로 분리 (출처: session-logs/20260617-220010-47ab-*, 20260618-063919-3962-*)
 - 2026-06-20: **방향 전환 — 0부터 빌드 폐기, Hermes Studio(`JPeetz/Hermes-Studio`) 포크 채택**. 개인 실사용 도구로 성격 변화 → 차별점 전제 소멸 → 90% 겹치는 OSS 포크. Phase 0 환경 검증(dashboard `:9119`·SPA fallback 200·세션 토큰 인증·네이티브 Kanban 존재로 v2 가정 정정), 실작업=메신저 UX 레이어(@mention·unread, Slack ROI 선별), Studio 코드 검증(Conductor=delegate_task / Crews=fan-out / 자체 task-store / chat-event-bus), PC 별 차등 표시=`probeGateway` 런타임 디스커버리, 잔재 코드 `legacy/` 이동. 일반화 의사결정 틀은 [[build-vs-fork-personal-tool]], Hermes 측 사실은 [[hermes-agent]] 갱신 (출처: session-logs/20260620-080358-9eaa-*)
+- 2026-06-21: Phase 2~6 구현 회고 + 일반 패턴 4건 분리. 모델 백엔드 OAuth 장애([[oauth-refresh-token-rotation-multi-client]])로 라이브가 막힌 채 진행. ESM live binding 게이트웨이 전환([[esm-live-binding-global-state]]), 블로커 중 파서 선구현·동작 코드 우선([[blocked-dependency-productive-workflow]]), SQLite readonly 데이터 스왑([[sqlite-readonly-data-swap]]), 업스트림 포크 최소 침습([[upstream-fork-minimal-invasion]]) (출처: session-logs/20260621-154117-e509-*)

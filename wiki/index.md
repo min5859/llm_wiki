@@ -76,6 +76,10 @@ updated: 2026-06-20T12:00:00+09:00
 
 - [[test-driven-agent-loop]] — 강건한 테스트 스위트로 코딩 에이전트에 대규모 작업 자율 위임. JustHTML 포팅 실증(Codex CLI+GPT-5.2, 8프롬프트→9,000줄, html5lib-tests 9,200 통과). API 우선 설계 + 결정론적 검증 게이트가 핵심
 - [[notification-dedup-throttle]] — 폴링 루프가 상태 안 변하는 동안 같은 알림을 매 사이클 재전송해 채널 도배(ht_trading 거부 알림 하루 239건). `_notify` 에 `dedup_key=(엔티티,사유)` 추가 — 로그는 매 사이클, 텔레그램만 당일 1회 + 날짜 변경 시 리셋. 로그/외부전송 분리, 판단·실행 경로 불간섭(기회 안 놓침), EOD 요약으로 보완
+- [[esm-live-binding-global-state]] — 수십 개 모듈이 import 하는 단일 상수(게이트웨이 baseUrl 등)를 런타임 전환할 때, 호출부 N개에 값 스레딩 대신 `export let` + setter 로 한 점에서 재할당 + 부수효과 처리. ESM live binding 특성 활용. 단일 사용자·단일 프로세스 전제(멀티 동시성엔 부적합)
+- [[blocked-dependency-productive-workflow]] — 라이브 의존(재인증·미기동 서버)이 막혔을 때 idle 금지: 보고 후 모델 무관 작업(파서+테스트/readonly DB/컴파일) 최대화 + 파서 선구현으로 스펙 오류를 라이브 없이 발견 + "동작 코드 > 스펙 문서 > 추측" 권위 순서. 위험 코어는 테스트로 고정해 격리
+- [[sqlite-readonly-data-swap]] — REST 서버가 미기동/불안정하면 그 데이터의 로컬 SQLite 를 `{readonly:true}` 직접 읽기로 소스 스왑(UI 계약 유지). 전문검색은 FTS5 단일 쿼리, 네이티브 애드온은 `createRequire`, `created_at` 초→ms 변환 함정
+- [[upstream-fork-minimal-invasion]] — OSS 포크 운영: 원본은 최소 hook(import 1줄+주입 2줄)만, 기능은 신규 파일·별도 커밋으로 격리, 머지 절차 문서화, 잔재는 삭제 대신 `legacy/` 이동. 업스트림 divergence(머지 지옥) 최소화
 
 ## 버그와 해결책 (bugs/)
 

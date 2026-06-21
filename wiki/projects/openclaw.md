@@ -4,9 +4,10 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "openclaw", "ai-agent", "telegram", "automation", "npm"]
 created: "2026-04-23"
-updated: "2026-06-03"
+updated: "2026-06-21"
 sources:
   - "session-logs/20260423-113736-72aa-openclaw-를-업데이트-하려고-합니다.-가이드를-알려주세요.md"
+  - "session-logs/20260621-181739-bf68-지금-openclaw-agent-의-AI-provider-연결이-끊긴것-같은데-현재-상태를.md"
   - "session-logs/20260603-140159-fbbf-지금-openclaw가-응답이-없는-것-같습니다.-왜-응답이-없는지-확인해-주세요.md"
   - "session-logs/20260423-194609-6b61-코딩전용-openclaw-agent-를-추가했는데-텔레그램으로-메세지를-보내면-응답이-없습.md"
   - "session-logs/20260426-120703-304f-현재-프로젝트는-openclaw-라는-Agent-를-사용해서-자산관리-웹앱을-구현해보고-있.md"
@@ -343,6 +344,17 @@ OpenClaw 가 모든 텔레그램 토픽에서 응답이 끊긴 사건. 5/7 의 3
 
 일반 메커니즘·진단·공유 방식 비교는 [[oauth-refresh-token-rotation-multi-client]]. (Hermes 쪽 동일 사건은 [[hermes]])
 
+## 2026-06-21 AI provider 연결 끊김 (재발 — 결국 결제 미납 만료)
+
+6/3 와 같은 `refresh_token_reused` 증상이 재발. 처음엔 쟁탈로 의심했으나, 사용자 확인 결과 **OpenAI 결제 미납으로 며칠 인증이 끊겼던 것**이 주원인이었고(쟁탈 아님) 새벽의 일시적 호스트 네트워크 장애(`network connection error`, 02:41~08:55)가 겹쳐 헷갈렸다.
+
+- **진단 키**: `openclaw models status` 는 토큰을 `ok` 로 표시했지만, `openclaw agent --agent main --message "PONG"` 실제 호출로 `All models failed: refresh_token_reused (401)` 를 잡아 end-to-end 확인. 표면 네트워크 에러와 근본 auth 에러를 이 호출로 구별.
+- **해결**: 결제 재개 후 OpenClaw·Hermes 각각 독립 device-flow OAuth 재등록(`openclaw models auth login --provider openai-codex` → `gateway restart`, hermes 는 `auth add`). 쟁탈이면 경쟁 앱(Codex.app) 선종료 후 재인증해야 ~12분 내 재발 안 함.
+- **검증**: `openclaw agent` → `PONG` 정상, `min5859` ok 10d.
+- **이월**: 죽은 `default` 중복 프로필 정리 + anthropic `sk-ant` 토큰 재발급(매일 08시 뉴스 cron 이 403 으로 실패 중, 6/3 부터 이월).
+
+쟁탈 vs 단순 만료 구별·경쟁 앱 선종료 순서·end-to-end 검증 등 일반 교훈은 [[oauth-refresh-token-rotation-multi-client]] 2026-06-21 절. (Hermes 동반 재발은 [[hermes]])
+
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260423-113736-72aa에서 추출)
@@ -351,3 +363,4 @@ OpenClaw 가 모든 텔레그램 토픽에서 응답이 끊긴 사건. 5/7 의 3
 - 2026-04-26: asset-dashboard Phase 2/3 완료 기록, Yahoo Finance 연동 상세, Prisma Decimal 직렬화 버그 수정 패턴 추가 (세션 로그 20260426-141208-ad61, 20260426-184740-49b5)
 - 2026-05-07: 코더 응답 무 사건 (3계층 디버깅) 섹션 추가, 모델 정책 변경 (Anthropic → Codex). 자세한 분석은 별도 페이지로 분리 (세션 로그 20260507-011504-7932)
 - 2026-06-03: 전 토픽 응답 무 사건 (Codex OAuth refresh token 쟁탈) 섹션 추가. OpenClaw·Hermes 가 동일 Codex OAuth 공유 + 회전형 토큰 → 핑퐁. 진단 함정(status "ok expires" 는 로컬 만료시각, 서버측 무효화는 raw log 401), fallback 이 같은 provider 뿐이면 무의미. 해결은 클라이언트별 독립 device-flow 등록. 일반 분석은 [[oauth-refresh-token-rotation-multi-client]] (세션 로그 20260603-140159-fbbf)
+- 2026-06-21: AI provider 연결 끊김 재발 섹션 추가. 6/3 와 같은 증상이나 주원인은 OpenAI 결제 미납 만료(쟁탈 아님) + 일시 네트워크 장애 중첩. `openclaw agent` PONG 호출로 end-to-end 진단·검증, 결제 재개 후 독립 device-flow 재등록으로 복구. 일반 교훈(쟁탈 vs 단순 만료, 경쟁 앱 선종료)은 [[oauth-refresh-token-rotation-multi-client]] (세션 로그 20260621-181739-bf68)

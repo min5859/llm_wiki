@@ -1444,3 +1444,20 @@ updated: 2026-06-19T12:00:00+09:00
 - 스킵 사유: aba2 세션은 검토·탐색 단계로 구현 미착수 → 확정 사실(scorer.py 가중치 변천 주석)만 추출, 제안 방향은 "검토 단계"로 명시. 9eaa 도 Phase 0 환경검증에서 로그 종료(코드 구현 없음) → 결정·검증된 사실만 추출.
 - Updated: wiki/analyses/build-vs-fork-personal-tool.md(생성), wiki/projects/hermes-dashboard.md(갱신), wiki/concepts/hermes-agent.md(갱신), wiki/projects/n-stock-info.md(갱신), wiki/projects/ht-dde.md(갱신), wiki/index.md(analyses 1행 추가 + projects 3행 갱신 + updated), wiki/log.md(본 항목).
 - Marked ingested: true — session-log 2건(9eaa, aba2). 신규 1건, 갱신 4건.
+
+## 2026-06-21 — wiki-ingest (session-logs, ingested: false 3건)
+
+- 대상: **session-log 3건** = ① hermes AI provider 재연결(2026-06-21 1812 3227, Codex OAuth 재만료→device 재인증) + ② openclaw AI provider 연결 끊김(2026-06-21 1817 bf68, 결제 미납 만료+일시 네트워크 장애) + ③ hermes-dashboard Phase 2~6 이어가기(2026-06-21 1541 e509, 3320줄). (20260607 agent-weekly 95133 은 frontmatter `ingested: true` 인데 본문에 "ingested: false" 문자열이 우연히 포함된 grep 오탐 → 대상 제외, 직전 사이클과 동일). mcp-note 0건. raw-sources/ 신규 .md 0건, .cache/extracted 비어 있음, fetched/ 없음 → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: ①② OAuth 로그 2건은 본 세션이 직접 정독(기존 [[oauth-refresh-token-rotation-multi-client]] 대조), ③ 대형 로그(e509)는 subagent 정밀 추출 후 본 세션이 패턴 선별·sanitize. prompt injection 내성 적용.
+- 신규 durable 지식:
+  - 갱신 [[oauth-refresh-token-rotation-multi-client]] (analyses) — 6/3→6/21 양쪽 재발로 **주기적 패턴 확정** + 새 교훈 3가지: ① 같은 `refresh_token_reused` 증상이라도 "토큰 쟁탈 vs 결제 미납 단순 만료"를 사용자 맥락으로 구별(6/21 openclaw 는 결제 미납이 주원인), ② 쟁탈이면 경쟁 앱(Codex.app) **선종료** 후 재인증해야 ~12분 내 재발 안 함, ③ `models status` 캐시 아닌 `openclaw agent` PONG 실호출로 end-to-end 복구 검증.
+  - 신규 [[esm-live-binding-global-state]] (patterns) — `export let`+setter 로 N개 importer 의 전역 의존성을 한 점에서 전환(ESM live binding). 단일 사용자 전제.
+  - 신규 [[blocked-dependency-productive-workflow]] (patterns) — 라이브 의존 블로커 시 모델 무관 작업 최대화 + 파서 선구현으로 스펙 오류 발견 + "동작 코드 > 스펙 문서 > 추측" 권위 순서 + 위험 코어 테스트 고정.
+  - 신규 [[sqlite-readonly-data-swap]] (patterns) — 미기동 REST 대신 로컬 SQLite readonly 직접 읽기로 데이터 소스 스왑(UI 계약 유지), FTS5 단일 쿼리, createRequire 네이티브 로드, 초→ms 변환 함정.
+  - 신규 [[upstream-fork-minimal-invasion]] (patterns) — OSS 포크 최소 침습 운영(원본 최소 hook·신규 파일·별도 커밋·머지 문서화·잔재 legacy/ 이동)으로 업스트림 divergence 최소화.
+  - 갱신 [[hermes]] (projects) — 운영 회고 2026-06-21(Codex OAuth 재만료→`hermes auth add` device 재인증, 6/3 재발) 추가.
+  - 갱신 [[openclaw]] (projects) — 2026-06-21 AI provider 연결 끊김 섹션(결제 미납 만료가 주원인, `openclaw agent` PONG end-to-end 진단, 결제 재개 후 독립 device-flow 재등록) 추가.
+  - 갱신 [[hermes-dashboard]] (projects) — Phase 2~6 구현 회고 + 일반 패턴 4건 분리 링크.
+- 스킵 사유: 두 OAuth 로그의 진단/커밋 절차 반복, e509 의 포트 충돌(3000→3001~3004)·아이콘명 탐색·lint/포맷·Phase별 PDCA 진행 자체는 일회성 시행착오로 기각(최종 결론·패턴만 수집). e509 의 모델 백엔드 장애는 프로젝트 고유 버그가 아니라 [[oauth-refresh-token-rotation-multi-client]] 동일 패턴이라 신규 bugs 페이지 미생성.
+- Updated: wiki/analyses/oauth-refresh-token-rotation-multi-client.md(갱신), wiki/patterns/esm-live-binding-global-state.md(생성), wiki/patterns/blocked-dependency-productive-workflow.md(생성), wiki/patterns/sqlite-readonly-data-swap.md(생성), wiki/patterns/upstream-fork-minimal-invasion.md(생성), wiki/projects/hermes.md(갱신), wiki/projects/openclaw.md(갱신), wiki/projects/hermes-dashboard.md(갱신), wiki/index.md(patterns 4행 추가 + updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 3건(3227, bf68, e509). 신규 4건, 갱신 4건.

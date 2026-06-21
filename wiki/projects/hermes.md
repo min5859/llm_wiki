@@ -4,12 +4,13 @@ domain: personal
 sensitivity: public
 tags: ["project", "hermes", "ai-agent", "self-hosted", "telegram", "macos"]
 created: 2026-05-09
-updated: 2026-06-03
+updated: 2026-06-21
 sources:
   - "session-logs/20260509-001610-307a-hermes-agent-를-설치했는데-메인-agent-말고-별도로-코딩-전용-agent를.md"
   - "session-logs/20260502-092045-628d-hermes-라는-opensource-agent-를-설치하려고하는데-조사좀-해-주세요.md"
   - "session-logs/20260523-000054-480c-hermes-가-응답이-없습니다.md"
   - "session-logs/20260603-143737-7275-hermes-에-연결된-AI-provider-인-codex-cli-인증이-만료된-것-같은데.md"
+  - "session-logs/20260621-181256-3227-지금-hermes-agent-에-AI-provider-연결이-끊긴것-같은데-다시-연결-시켜.md"
 confidence: high
 related:
   - "wiki/concepts/hermes-agent.md"
@@ -122,8 +123,13 @@ Hermes 가 응답 없음 → `hermes auth list` 의 openai-codex 자격증명이
 
 일반 메커니즘·진단 함정·공유 방식 4가지 비교는 [[oauth-refresh-token-rotation-multi-client]].
 
+## 운영 회고 (2026-06-21) — Codex OAuth 재만료·재인증 (6/3 재발)
+
+6/3 와 동일 증상이 재발. `hermes auth list` 의 openai-codex 자격증명 2개가 모두 `exhausted` → gpt-5.5 호출 불가. `hermes auth add openai-codex --type oauth` device 재인증으로 새 자격증명 #3 활성화, `hermes doctor` "logged in" 확인. 옛 exhausted 항목 정리는 무해해 보류(`auth remove` 로 직접 가능). 6/3→6/21 반복이라 todo.md 에 주기적 재발 패턴으로 명시. 같은 시점 openclaw 도 동반 재발([[openclaw]]) — 결국 OpenAI 결제 미납 만료가 주원인이었고 셋(hermes·openclaw·Codex.app)이 같은 계정 공유. "쟁탈 vs 단순 만료" 구별·경쟁 앱 선종료 등 일반 분석은 [[oauth-refresh-token-rotation-multi-client]].
+
 ## 변경 이력
 
 - 2026-05-09: 최초 생성. base hermes (default) 위에 코딩 전용 `maccoder` 프로필 추가, claude CLI 통합 / Telegram 별도 봇 / launchd 분리 plist. README + tasks/todo.md Review 섹션 commit `9feb783`, `62aec7d` (출처: session-logs/20260509-001610-307a-*)
 - 2026-05-23: gateway "응답 없음" 1건 — Telegram reconnect loop, 망 정상이었음. restart 1차 조치. 패턴 일반화는 [[long-lived-network-client-stuck-reconnect-loop]] (출처: session-logs/20260523-000054-480c)
 - 2026-06-03: Codex OAuth 만료·쟁탈 회고 추가. hermes 가 codex 토큰을 복사(import)해 독립 운용 → 회전형 refresh token 회전으로 무효화. `hermes auth add openai-codex --type oauth` 로 자체 device-flow 재인증 (구 `hermes login` 제거됨). openclaw 와 동시 사용 시 독립 등록으로 핑퐁 해소. 일반 분석은 [[oauth-refresh-token-rotation-multi-client]] (출처: session-logs/20260603-143737-7275)
+- 2026-06-21: Codex OAuth 재만료·재인증 회고 추가 (6/3 재발). `hermes auth add` device 재인증으로 복구, 주기적 재발 패턴으로 todo.md 명시. openclaw 동반 재발이며 주원인은 결제 미납 만료. 일반 분석 갱신은 [[oauth-refresh-token-rotation-multi-client]] (출처: session-logs/20260621-181256-3227)
