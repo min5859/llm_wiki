@@ -4,11 +4,12 @@ domain: both
 sensitivity: public
 tags: ["analysis", "trading", "algorithm", "idempotency", "state-machine", "sell-rule"]
 created: 2026-05-08
-updated: 2026-05-08
+updated: 2026-06-23
 source_session: 20260507-224943-690c-익절-조건이-됐는데도-익절을-하지-않는-것-같습니다.-오늘자-매매로그를-확인해서-익절조건인.md
 related:
   - "wiki/bugs/dict-get-default-no-bootstrap.md"
   - "wiki/projects/ht-trading.md"
+  - "wiki/analyses/risk-control-exemption-and-failed-attempt-accounting.md"
 ---
 
 ## 개요
@@ -21,6 +22,12 @@ related:
 |---|---|---|
 | 전량 매도 (손절·시간손절) | ✅ `pos.qty == 0` 으로 자연 보호 | 불필요 |
 | 부분 매도 (단계 익절·데드크로스 50%) | ❌ 잔량 > 0 + 조건 지속 시 다시 발동 | **필요** |
+
+### 반례: 전량 매도도 "체결이 차단되면" 보호되지 않는다 (2026-06-23)
+
+위 표의 "전량 매도는 자연 보호" 전제는 **매도가 실제로 체결될 때**만 성립한다. 트레일링/손절 같은 전량 매도라도 **체결이 차단되면**(일일 주문 한도 소진, 미체결로 만료, 거래소 거부 등) `pos.qty > 0`이 유지되어 동일 SELL 시그널이 매 cycle 무한 반복된다. 그런데 **SELL 경로에는 BUY와 달리 dedup/pending 가드가 아예 없는** 경우가 많아(이번 ht_trading 사례), 반복 시그널이 그대로 노출된다.
+
+추가 함정 — **"포기 ≠ 취소"로 인한 유령 체결**: 지정가 미체결을 "만료" 처리하며 내부 pending dict만 삭제하고 거래소의 실제 OPEN 주문을 취소하지 않으면, 나중에 그 주문이 체결되어 내부 상태와 브로커 잔고가 어긋난다. 외부에 만든 주문을 포기할 때는 반드시 거래소 cancel을 동반해야 한다. (commit `9f77e91` 취소 큐잉, `8230c9d` 주기적 멱등 reconciliation — 자세히는 [[risk-control-exemption-and-failed-attempt-accounting]])
 
 ## 안티패턴
 

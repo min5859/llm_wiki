@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-06-17"
+updated: "2026-06-23"
 sources:
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
@@ -28,6 +28,7 @@ sources:
   - "session-logs/20260604-232009-b35a-•-신세계는-15-10-매도-후-15-20-재매수로-10분-만에-재진입했습니다.-트레일링스.md"
   - "session-logs/20260616-210439-d6f6-오늘-알고리즘-바꾼지-2일-지났는데-2일-동안-매매에서-오류나-개선점이-없었는지-검토해줘.md"
   - "session-logs/20260616-225148-21a4-아래-사항은-오늘-로그에서-나온-사항들인데-개선할만한-포인트가-있을까--•-BUY-0106.md"
+  - "session-logs/20260622-225750-4b1b-오늘-보해양조를-매수후에-10-%-가-넘은-상태까지-갔다가-다시--2-%-가-되었는데-트레.md"
 confidence: "high"
 related:
   - "wiki/bugs/kis-holiday-detection-bsop-date.md"
@@ -44,6 +45,7 @@ related:
   - "wiki/projects/n-stock-info.md"
   - "wiki/patterns/notification-dedup-throttle.md"
   - "wiki/analyses/averaging-down-vs-momentum-add-on.md"
+  - "wiki/analyses/risk-control-exemption-and-failed-attempt-accounting.md"
 ---
 
 # ht_trading — 알고리즘 트레이딩 프로젝트
@@ -299,6 +301,24 @@ return {"cash": cash, "deposit": deposit, ...}
 
 **수정**: `pos.current_price`(브로커 실시간 평가가) 기준으로 변경.
 
+### 버그 수정 (2026-06-22): 트레일링 스톱 발동했으나 매도 미실행 (5개 연쇄 버그)
+
+**증상**: 보해양조가 +10% 도달 후 -2%까지 되돌아왔는데 트레일링 스톱이 매도하지 않음. 트레일링 로직 자체는 정상 발동(13:47부터 반복 SELL 시그널)했으나 매도가 브로커에 도달하지 못함.
+
+근본 원인은 5개 독립 버그의 연쇄였다:
+
+| # | 원인 | 수정 |
+|---|------|------|
+| A | 일일 주문 한도 `break`가 BUY/SELL 무차별 적용 → 한도 소진 후 SELL도 차단 | 한도는 BUY에만, SELL 면제 (`dc2a215`) |
+| B | `submit_order` 실패해도 카운터 증가 → 1주 매수 거부 85회가 한도 소진(15+85=100) | 성공 분기 안에서만 증가 (`f2948ed`) |
+| C | KIS 즉시거부 경로에 dedup 없어 동일 BUY 무한 반복 | 거부 시 `on_order_submit_failed` 백오프 (`29670b5`), 날짜기준 통일 (`feaa434`) |
+| D | 지정가 만료 시 내부 pending만 삭제, KIS 주문 미취소 → 유령 체결(나중에 OPEN 체결) | 취소 큐잉 + 주기적 멱등 reconciliation (`9f77e91`, `8230c9d`) |
+| 증폭 | 폴링 2분 단일 사이클(매수·매도 공유)이 매수 거부도 2분마다 반복 | 매수/매도 사이클 분리 (`d9e5a44`) |
+
+추가로 SK스퀘어 1주 거부의 근본 원인은 `get_cash()`가 예수금만 반환하고 **미체결 매수가 묶은 금액을 빼지 않아** 시스템은 현금 있다고 보고 제출하나 KIS가 `주문가능금액 초과`로 거부한 것. 가용현금 ≠ 예수금.
+
+> 이 사건의 범용 교훈(리스크 감축 주문 면제 / 실패 시도 회계 / 포기≠취소 / 주기적 멱등 reconciliation / 가용현금 계산)은 [[risk-control-exemption-and-failed-attempt-accounting]] 에 정리. 모든 수정은 test-first(실패 확인→통과), 논리단위 커밋 분리, 267건 통과.
+
 ## KIS API 서킷브레이커 (2026-05-30, commit `32a1451`)
 
 잔고 조회 연속 실패 시 주문을 중지하는 안전 장치. **KIS HTTP 500 경고가 반복될 때 오래된 캐시 기반으로 잘못된 거래가 발생하는 것을 방지**.
@@ -422,6 +442,12 @@ trailing_tiers:
 | 2026-06-11 | `reentry_cooldown_minutes` 60 → 1080 (commit `c4cc530`) | 분할 throttle(다음날=1080)과 비대칭 가드 해소 — 같은날 휩쏘 재진입 차단 |
 | 2026-06-11 | 폴링 주기 10분 → 2분 단축 (commit `1bb80f1`) | 트레일링스톱이 실시간 평가가 기반이라 폴링 해상도 = 청산 해상도 |
 | 2026-06-11 | MARKET 매도 EOD 체결 검증 추가 (commit `1cb9be2`) | submit 시점 즉시 FILLED 가정의 공백 보완 — 미체결 주문 경고 |
+| 2026-06-22 | 일일 주문 한도 `break`를 BUY에만 적용 (commit `dc2a215`) | 한도 소진이 트레일링/손절 SELL까지 차단 → 안전장치가 손실 방치 |
+| 2026-06-22 | `_increment_order_count`를 제출 성공 분기로 이동 (commit `f2948ed`) | 1주 매수 거부 85회가 카운터 소진 → 한도 조기 고갈 |
+| 2026-06-22 | 브로커 거부 시 `on_order_submit_failed` 재주문 백오프 (commit `29670b5`, 날짜기준 `feaa434`) | KIS 즉시거부 경로 dedup 부재로 동일 BUY 무한 반복 |
+| 2026-06-22 | 매수/매도 사이클 분리 — `allow_buy` 플래그, 매도 2분 / 매수 30분 (commit `d9e5a44`) | 청산용 2분 폴링이 매수 거부 폭증 유발 (부작용 분리) |
+| 2026-06-22 | 지정가 만료 시 취소 큐잉 + 주기적 멱등 reconciliation (commit `9f77e91`, `8230c9d`) | 내부 pending만 삭제하고 KIS 미취소 → 유령 체결 |
+| 2026-06-22 | 매수 지정가 `limit_price_ratio` 0.995 → 1.0 (commit `ac74e07`) | 현재가-0.5%는 체결 불리, 1.0은 가격제한폭 내라 거부 없고 체결률↑ |
 
 ## 투자 파라미터
 

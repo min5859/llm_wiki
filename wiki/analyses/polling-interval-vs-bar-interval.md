@@ -4,12 +4,13 @@ domain: personal
 sensitivity: public
 tags: ["analysis", "trading", "polling", "bar-interval", "latency", "anti-pattern"]
 created: "2026-05-14"
-updated: "2026-06-11"
+updated: "2026-06-23"
 source_session: "20260514-175837-5657-수익율을-더-개선할-방안을-찾으려고-합니다.md"
 confidence: high
 related:
   - "wiki/projects/ht-trading.md"
   - "wiki/projects/upbit-trading.md"
+  - "wiki/analyses/risk-control-exemption-and-failed-attempt-accounting.md"
   - "wiki/analyses/dca-trailing-stop-tuning.md"
 ---
 
@@ -81,6 +82,14 @@ periodic --interval 10    # 10분마다 폴링
 
 > 정리: **봉 종가 기반 평가(진입 시그널)** 는 폴링 단축 무의미, **실시간 평가가 기반 청산(트레일링/손절)** 은 폴링 단축이 유의미. 같은 엔진 안에서 두 종류가 공존하므로 "폴링을 줄여야 하나?" 는 *무엇을 기준으로 트리거되는가* 로 갈라서 판단해야 한다.
 
+### 후속 교훈: 단일 사이클을 청산용으로 줄이면 매수에 부작용 (2026-06-23)
+
+위 예외(트레일링 해상도를 위해 폴링 10→2분 단축, commit `1bb80f1`)는 **매수·매도가 한 폴링 사이클을 공유한다는 함정**을 안고 있었다. 사이클을 2분으로 줄이자 **매수 평가도 2분마다 돌아**, 미체결·거부되는 매수 주문이 하루 수십 회까지 폭증해 일일 주문 한도를 조기 소진시켰다(트레일링 SELL까지 막힘 — [[risk-control-exemption-and-failed-attempt-accounting]]).
+
+해결책은 **행위별 사이클 분리**: `StrategyContext.allow_buy` 플래그 + `run_periodic(interval, buy_interval)`로 매도/트레일링은 2분, 매수는 30분 주기로 분리(commit `d9e5a44`). 가드를 pending 등록 **전**에 두어 매수 시그널이 전략 상태를 오염시키지 않게 했다.
+
+> 원칙: "폴링 단축이 유의미한 행위(청산)"와 "무의미하거나 유해한 행위(진입)"가 한 루프에 묶여 있다면, 폴링 주기를 손대기 전에 **행위별로 사이클을 분리**하라. 한 행위를 위한 튜닝이 다른 행위의 부작용을 낳는다.
+
 ## 진단 체크리스트
 
 새 폴링 주기 또는 새 bar_interval 을 적용하기 전에 확인:
@@ -101,3 +110,4 @@ periodic --interval 10    # 10분마다 폴링
 
 - 2026-05-14: 최초 작성 (session-logs/20260514-175837-5657-*.md). ht_trading 의 10분 폴링 + 일봉 운영에 대한 폴링 주기 단축 제안을 검토하다, 봉 단위와의 정합성 문제로 일반화
 - 2026-06-11: 「실시간 가격 기반 청산」 예외 절 추가 (session-logs/20260611-231312-ba46-*). ht_trading 검토에서 트레일링스톱이 `bar.close` 가 아닌 `pos.current_price` 로 트리거되고 엔진이 매 사이클 포지션을 강제 갱신함을 확인 — 일봉 유지 상태에서도 폴링 10→2분 단축이 청산 해상도를 실제로 높인다는 예외. 초기 판단을 사용자 지적으로 정정한 케이스 (commit `1bb80f1`)
+- 2026-06-23: 「후속 교훈: 단일 사이클을 청산용으로 줄이면 매수에 부작용」 추가 (session-logs/20260622-225750-4b1b-*). 폴링 2분 단축이 매수 거부 폭증→일일 한도 조기 소진을 유발, 매수/매도 사이클 분리(`allow_buy`, 매도 2분 / 매수 30분, commit `d9e5a44`)로 해결

@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-22T12:00:00+09:00
+updated: 2026-06-23T08:00:00+09:00
 ---
 
 # Wiki Index
@@ -107,6 +107,7 @@ updated: 2026-06-22T12:00:00+09:00
 
 ## 분석 (analyses/)
 
+- [[risk-control-exemption-and-failed-attempt-accounting]] — 안전장치가 손실을 키우는 안티패턴: 일일 주문 한도가 BUY/SELL 무차별 적용돼 트레일링/손절 SELL까지 차단(`dc2a215`). 범용 6+1 교훈 — ① 리스크 감축 주문은 처리율 제한 면제 ② 실패한 시도는 카운터 미소비(성공 분기에서만 +1) ③ "포기(내부 pending 삭제)≠취소(거래소 cancel)" 유령 체결 ④ startup 전용 reconciliation은 장기 가동 구멍→주기적 멱등 ⑤ 가용현금≠예수금(미체결 reserved 차감) ⑥ 자체 한도 vs 외부 거부 구분 진단 + 음성 증거(이벤트 부재) 진단법. ht_trading 트레일링 미발동 조사에서 일반화
 - [[build-vs-fork-personal-tool]] — 이미 비슷한 OSS 가 있을 때 0부터 빌드 vs 포크. 판단 기준은 맥락 의존: 해커톤·발표는 "차별점"이라 빌드, 개인 실사용·내부 도구는 "원하는 동작+유지보수 최소화"라 포크. 데모→실사용 전환 시 차별점 전제가 사라지면 재평가 필요(체감 80%+ 겹치면 포크 유리). 포크 수칙: 가정을 코드로 검증·끼울 지점 매핑·잔재는 `legacy/` 이동. hermes-dashboard 가 Studio 포크로 전환한 사례에서 일반화
 - [[openai-codex-cli-overview]] — OpenAI 터미널 경량 코딩 에이전트(Rust ~96%, ChatGPT 플랜/API 키). custom provider 로 로컬 Gemma 4 연결 실험: 로컬은 속도보다 first-pass 신뢰도가 중요, Apple Silicon Flash Attention freeze(>500 토큰) 함정. Claude Code 대안 비교축
 - [[claude-code-source-leak-internals]] — 2026-03 Claude Code npm 소스맵 누출이 드러낸 내부 설계: anti-distillation(가짜 tool 주입), undercover 모드(내부 코드네임 제거·force-OFF 없음), frustration regex, 미출시 KAIROS 모드. + 에이전트 품질 회귀의 정량 측정법(Read:Edit 비율·인터럽트율) + skills 의 크로스툴 표준 수렴(OpenAI Codex CLI 가 파일시스템 skill 채택). confidence medium

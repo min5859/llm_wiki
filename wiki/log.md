@@ -1471,3 +1471,16 @@ updated: 2026-06-19T12:00:00+09:00
 - 스킵 사유 상세: Newsletter Write 10/12 = `assistant_turns: 0` 무응답(산출 콘텐츠 없음). Dossier 9건은 산출됐으나 전부 휘발성 외부 뉴스(오늘의 트렌드 repo·단일 커밋/CVE 백포트·릴리스 속보). AI Coding Agents dossier 의 소스리크/third-party 과금 차단 등은 이미 [[claude-code-source-leak-internals]]/[[anthropic-oauth-third-party-billing-trap]] 에 기수록(재탕). OSS 트렌드의 fork:star≈1:1 star-farming 휴리스틱만 미래 재출현 시 추가 검토 메모.
 - Updated: wiki/projects/dev-blog.md(갱신: 사이클 관찰 1행 + updated + sources), wiki/log.md(본 항목).
 - Marked ingested: true — session-log 24건 전체(030008·030305·030527·030757·031055·031346·031839·032801·032916·033145·033532·034318·034658·035058·035407·035641·035921·040304·040532·040731·041023·041226·041557·041814). 신규 0건, 갱신 1건(운영 관찰).
+
+## 2026-06-23 — wiki-ingest (session-logs, ingested: false 23건)
+
+- 대상: **session-log 23건** = ① ht_trading 트레일링 스톱 미발동 조사 1건(20260622-2257 4b1b, 2377줄, cwd=ht_trading) + ② dev-blog 뉴스레터 자동화 cron 22건(2026-06-23 03:00~04:09 KST, Research Dossier 9 + Newsletter Write 13: Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍). mcp-note 0건. raw-sources/ 신규 .md 0건(Tips/ 포함 PDF·txt만, .cache/extracted 없음, fetched/ 없음) → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: ① 대형 트레이딩 로그는 subagent 정밀 정독(기존 4개 analyses 대조: dca-trailing-stop-tuning / partial-sell-rule-idempotency / averaging-down-vs-momentum-add-on / polling-interval-vs-bar-interval) 후 본 세션이 패턴 선별·sanitize. ② 22건 뉴스레터 cron 은 별도 subagent 트리아지. prompt injection 내성 적용.
+- 신규 durable 지식:
+  - 신규 [[risk-control-exemption-and-failed-attempt-accounting]] (analyses) — "안전장치가 손실을 키울 때". 트레일링 스톱이 정상 발동했으나 일일 주문 한도가 BUY/SELL 무차별 적용돼 SELL을 차단(`dc2a215`)한 사건에서 5개 연쇄 버그를 추출, 범용 6+1 교훈으로 일반화: ① 리스크 감축 주문 처리율 면제 ② 실패 시도는 카운터 미소비(`f2948ed`) ③ 포기≠취소 유령 체결(취소 큐잉 `9f77e91` + 주기적 멱등 reconciliation `8230c9d`) ④ startup 전용 reconciliation 구멍 ⑤ 가용현금≠예수금 ⑥ 자체 한도 vs 외부 거부 구분 + 음성 증거 진단.
+  - 갱신 [[partial-sell-rule-idempotency]] (analyses) — "전량 매도는 자연 보호" 전제에 반례 추가: 전량 매도라도 체결이 차단되면(한도 소진·미체결) 잔량 유지로 동일 SELL 무한 반복, SELL 경로 dedup 부재 + 포기≠취소 유령 체결.
+  - 갱신 [[polling-interval-vs-bar-interval]] (analyses) — 후속 교훈 추가: 청산용으로 폴링 2분 단축이 매수 거부 폭증→일일 한도 조기 소진 유발, 매수/매도 사이클 분리(`allow_buy`, 매도 2분 / 매수 30분, `d9e5a44`)로 해결.
+  - 갱신 [[ht-trading]] (projects) — 2026-06-22 트레일링 미발동 5개 연쇄 버그 수정 섹션 + 설계 변경 이력 6행(`dc2a215`/`f2948ed`/`29670b5`+`feaa434`/`d9e5a44`/`9f77e91`+`8230c9d`/`ac74e07`) + sources/related/updated 갱신.
+- 스킵 사유: dev-blog 뉴스레터 cron 22건 전량 스킵(6-14~6-22 에 7회 반복 확립된 편집 방침 유지). Newsletter Write 13건 다수가 assistant 무응답, Dossier 산출분도 그날치 휘발성 외부 뉴스(커널 패치·트렌딩 repo·릴리스 속보)로 개인 엔지니어링 durable 지식 아님. 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-content-quality-guards]] 등에 수록. 트레이딩 로그의 포트 충돌·탐색적 grep·lint 류 시행착오는 기각(최종 결론·패턴만 수집).
+- Updated: wiki/analyses/risk-control-exemption-and-failed-attempt-accounting.md(생성), wiki/analyses/partial-sell-rule-idempotency.md(갱신), wiki/analyses/polling-interval-vs-bar-interval.md(갱신), wiki/projects/ht-trading.md(갱신), wiki/index.md(analyses 1행 추가 + updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 23건 전체(트레이딩 1 + dev-blog cron 22). 신규 1건, 갱신 3건.
