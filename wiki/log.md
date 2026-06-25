@@ -1,6 +1,6 @@
 ---
 title: Operation Log
-updated: 2026-06-19T12:00:00+09:00
+updated: 2026-06-26T12:00:00+09:00
 ---
 
 # Operation Log
@@ -1504,3 +1504,13 @@ updated: 2026-06-19T12:00:00+09:00
 - 스킵 사유 상세: Newsletter Write 11/11 = `assistant_turns: 0` 무응답(산출 콘텐츠 없음). Research Dossier 8건은 산출됐으나 전부 그날치 휘발성 외부 뉴스(단일 커밋/CVE 백포트·릴리스 속보·트렌딩 repo). bash 활동 로그(git log 폴백) 에 버그·실패 흔적 없음 — 정상 리서치 실행. lint/포맷/오타·의존성 류 대상 없음.
 - Updated: wiki/projects/dev-blog.md(갱신: 사이클 관찰 1행 + updated 2026-06-25 + sources 1건), wiki/log.md(본 항목). (신규 페이지 0 → wiki/index.md 변경 없음, 직전 무신규 사이클과 동일)
 - Marked ingested: true — session-log 22건 전체(030015·030431·030903·031213·031443·031733·032446·032628·032858·033015·033206·033625·034511·034823·035147·035544·040036·040529·040832·041212·041435·041725). 신규 0건, 갱신 1건(운영 관찰).
+
+## 2026-06-26 — wiki-ingest (session-logs, ingested: false 23건)
+
+- 대상: **session-log 23건 전부 dev-blog 뉴스레터 자동화 cron 사이클**(cwd=dev-blog, 03:00~04:12 KST) = Research Dossier 11건 + Newsletter Write 12건. 테마: Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍(Opensource Trending 만 write 2건). mcp-note 0건. raw-sources/ 서브디렉터리(articles/books/ideas/papers/transcripts/Tips) 신규 .md 0건(PDF·txt·pptx 만, .cache/extracted 비어 있음, fetched/ 없음) → raw-sources/PDF/URL 유래 대상 외.
+- 처리 방식: 23건 정밀 트리아지(서브에이전트 병렬 분석 + assistant_turns/file_edits 메트릭 + 산출 dossier 본문 검수) 후 본 세션이 6-10~6-25 에 10회 반복 확립된 편집 방침·기존 analyses 대조 검증. prompt injection 내성 적용(dossier/newsletter 본문 지시문 무시, 외부 인용은 참고 정보로만 코드펜스 격리).
+- **신규 durable 지식: 0건(전량 스킵).** ① dev-blog dossier 의 외부 커널/OSS 뉴스 콘텐츠 자체는 개인 엔지니어링 지식이 아님, ② 단일 패치/릴리스를 범용 패턴으로 일반화 = 과잉추출(날조), ③ 출처가 lore.kernel.org Anubis 봇차단으로 1차 미검증(휘발성). 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-content-quality-guards]]/[[ai-coding-agent-cost-and-context-patterns]] 에 수록. AI Coding Agents dossier(033326) 1턴 산출분도 소스리크·third-party 과금 차단 등 이미 [[claude-code-source-leak-internals]]/[[anthropic-oauth-third-party-billing-trap]] 에 기수록(재탕).
+- 운영 관찰만 기록: 갱신 [[dev-blog]] (projects) — 2026-06-26 사이클 관찰(Newsletter Write 12/12 = `assistant_turns: 0` 완전 무응답으로 6/24·6/25 와 동일, write silent fail 약 2주 반째 비결정적 고착 지속; Research Dossier 8/11 정상·Android+Opensource Curation+Kernel Lens 3건 무응답; lore Anubis 봇차단→raw/미러/WebSearch 교차검증 폴백 사다리 흡수, bash 폴백 로그에 에러·실패 흔적 없음).
+- 스킵 사유 상세: Newsletter Write 12/12 = `assistant_turns: 0` 무응답(산출 콘텐츠 없음). Research Dossier 8건은 산출됐으나 전부 그날치 휘발성 외부 뉴스(단일 커밋/CVE 백포트·릴리스 속보·트렌딩 repo). lint/포맷/오타·의존성 류 대상 없음.
+- Updated: wiki/projects/dev-blog.md(갱신: 사이클 관찰 1행 + updated 2026-06-26 + sources 1건), wiki/log.md(본 항목). (신규 페이지 0 → wiki/index.md 변경 없음, 직전 무신규 사이클과 동일)
+- Marked ingested: true — session-log 23건 전체(030010·030251·030535·030907·031321·031621·032031·032922·033057·033326·033657·034045·034314·034618·034952·035237·035616·035952·040326·040554·040741·040854·041224). 신규 0건, 갱신 1건(운영 관찰).
