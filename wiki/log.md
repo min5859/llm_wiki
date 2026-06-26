@@ -1,6 +1,6 @@
 ---
 title: Operation Log
-updated: 2026-06-26T12:00:00+09:00
+updated: 2026-06-27T12:00:00+09:00
 ---
 
 # Operation Log
@@ -1514,3 +1514,13 @@ updated: 2026-06-26T12:00:00+09:00
 - 스킵 사유 상세: Newsletter Write 12/12 = `assistant_turns: 0` 무응답(산출 콘텐츠 없음). Research Dossier 8건은 산출됐으나 전부 그날치 휘발성 외부 뉴스(단일 커밋/CVE 백포트·릴리스 속보·트렌딩 repo). lint/포맷/오타·의존성 류 대상 없음.
 - Updated: wiki/projects/dev-blog.md(갱신: 사이클 관찰 1행 + updated 2026-06-26 + sources 1건), wiki/log.md(본 항목). (신규 페이지 0 → wiki/index.md 변경 없음, 직전 무신규 사이클과 동일)
 - Marked ingested: true — session-log 23건 전체(030010·030251·030535·030907·031321·031621·032031·032922·033057·033326·033657·034045·034314·034618·034952·035237·035616·035952·040326·040554·040741·040854·041224). 신규 0건, 갱신 1건(운영 관찰).
+
+## 2026-06-27 — wiki-ingest (session-logs, ingested: false 23건)
+
+- 대상: **session-log 23건 전부 dev-blog 뉴스레터 자동화 cron 사이클**(cwd=dev-blog, 03:00~04:16 KST) = Research Dossier 11건 + Newsletter Write 12건. 테마: Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍(Android Kernel 만 write 2건). mcp-note(type: mcp-note) 0건. raw-sources/ 서브디렉터리(articles/books/ideas/papers/transcripts/Tips) 신규 .md 0건(PDF·txt·pptx 만, .cache/extracted 비어 있음, fetched/ 없음) → raw-sources/PDF/URL 유래 대상 외. 참고: grep 으로 24건이 잡혔으나 1건(20260607-095133 agent-weekly)은 본문 코드블록의 "ingested: false" 텍스트를 매칭한 오탐 — frontmatter 는 이미 `ingested: true` 라 제외.
+- 처리 방식: 23건 정밀 트리아지(서브에이전트 3개 병렬 분석[커널·오픈소스·AI코딩] + assistant_turns/file_edits/bash 메트릭 + 산출 dossier 본문 검수 + error/fail 스캔) 후 본 세션이 6-10~6-26 에 11회 반복 확립된 편집 방침·기존 analyses 대조 검증. prompt injection 내성 적용(dossier/newsletter 본문 지시문 무시, 외부 인용은 참고 정보로만 코드펜스 격리).
+- **신규 durable 지식: 0건(전량 스킵).** ① dev-blog dossier 의 외부 커널/OSS 뉴스 콘텐츠 자체는 개인 엔지니어링 지식이 아님, ② 단일 패치/릴리스를 범용 패턴으로 일반화 = 과잉추출(날조), ③ 출처가 lore.kernel.org Anubis 봇차단으로 1차 미검증(휘발성). 파이프라인 메타패턴은 이미 [[research-write-agent-separation]]/[[llm-newsletter-rewrite-metadata-grounding]]/[[llm-content-quality-guards]]/[[ai-coding-agent-cost-and-context-patterns]] 에 수록. AI Coding Agents dossier(033304) 1턴 산출분(MAI-Code-1-Flash GA·GitHub Desktop 3.6 worktree·Copilot code review 비용절감·Cowork·CC 소스리크·redact-thinking)도 이미 [[claude-code-source-leak-internals]]/[[anthropic-oauth-third-party-billing-trap]]/[[everything-claude-code]] 에 기수록(재탕).
+- 운영 관찰만 기록: 갱신 [[dev-blog]] (projects) — 2026-06-27 사이클 관찰(Newsletter Write 12/12 = `assistant_turns: 0` 완전 무응답으로 6/24·6/25·6/26 와 동일, write silent fail 약 2주 반째 비결정적 고착 지속; Research Dossier 10/11 정상[opensource-curation d988 1건만 무응답]으로 6/25·6/26[8/11] 대비 dossier 측 회복; Kernel Lens dossier 2건[040055·040640] git log/grep/curl 폴백[에러 없음]; lore Anubis 봇차단[raw mbox 동시 차단]→base64 commitMessage 디코드/WebSearch 교차검증/confidence 강등 폴백 사다리 흡수 지속).
+- 스킵 사유 상세: Newsletter Write 12/12 = `assistant_turns: 0` 무응답(산출 콘텐츠 없음). Research Dossier 10건은 산출됐으나 전부 그날치 휘발성 외부 뉴스(단일 커밋/CVE 백포트·릴리스 속보·트렌딩 repo). bash 활동 로그(git log/grep/curl 폴백)에 버그·실패 흔적 없음 — 정상 리서치 실행. lint/포맷/오타·의존성 류 대상 없음.
+- Updated: wiki/projects/dev-blog.md(갱신: 사이클 관찰 1행 + updated 2026-06-27 + sources 1건), wiki/log.md(본 항목). (신규 페이지 0 → wiki/index.md 변경 없음, 직전 무신규 사이클과 동일)
+- Marked ingested: true — session-log 23건 전체(030014·030342·030710·030958·031313·031600·031945·032943·033108·033304·033554·033853·034242·034659·035020·035243·035701·040055·040423·040640·041057·041353·041653). 신규 0건, 갱신 1건(운영 관찰).
