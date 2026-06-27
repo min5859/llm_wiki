@@ -4,15 +4,18 @@ domain: both
 sensitivity: public
 tags: ["analysis", "llm", "newsletter", "content-quality", "hallucination", "prompt-engineering", "cjk-leak", "language-enforcement"]
 created: 2026-05-12
-updated: 2026-05-14
+updated: 2026-06-28
 source_session: "20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
 sources:
   - "session-logs/20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
   - "session-logs/20260514-080604-8120-자동-파이프라인-상태-2026-05-14-1개-토픽-실패---9개-성공.-linux-gpu.md"
+  - "session-logs/20260628-030337-d36d-#-Linux-Daily-Newsletter-—-Write-from-Dossier-당신은.md"
+  - "session-logs/20260628-032046-b0b8-#-Opensource-Trending-Newsletter-—-Write-from-Doss.md"
 confidence: medium
 related:
   - "wiki/projects/dev-blog.md"
   - "wiki/analyses/llm-news-prediction-pitfalls.md"
+  - "wiki/analyses/research-write-agent-separation.md"
 ---
 
 # LLM 기반 자동 콘텐츠 발행의 5 가지 품질 가드
@@ -181,6 +184,7 @@ LLM 은 프롬프트 룰만으로는 100% 보장하지 못함 — 가드 5-1 의
 3. **draft 단계의 메타 노출** — signalLevel / count / candidate 출처 등 LLM 입력의 핵심 통계를 metadata 로 항상 직렬화. LLM 이 그 메타를 보고 톤을 조정할 수 있음
 4. **수집 단계의 그라운딩 자료 확보** — description 만 주면 hallucination, README/본문 발췌를 주면 그라운딩. fetch 시간을 들이는 게 hallucination 가드보다 비용 대비 효과 큼
 5. **결함 패턴은 토픽별로 다름** — "lens 토픽은 중복", "OSS 토픽은 hallucination", "perf 토픽은 저신호" 등 토픽 특성에 맞춘 가드가 다름. 단일 가드 셋으로 모두 처리하려 하지 말 것
+   - 실증 (2026-06-28): "미출시 미래 버전 번호를 발명하지 말 것" 가드가 Linux Daily·AI Coding Agents write 프롬프트엔 있으나 Opensource Trending write 프롬프트엔 **없다**. 버전 번호가 핵심 신호인 토픽(커널 릴리스·CC/Copilot 버전)에만 anti-prediction 가드를 켜고, 트렌딩 repo 큐레이션처럼 버전 발명 위험이 낮은 토픽에선 뺀 토픽별 tailoring 의 구체 사례. (단, 토픽이 늘면 가드가 토픽별로 표류·누락될 위험도 함께 커진다 — 가드 자체를 공통 모듈로 두고 토픽별 on/off 플래그로 관리하는 편이 안전.)
 
 ## 안티 패턴
 
@@ -197,4 +201,5 @@ LLM 은 프롬프트 룰만으로는 100% 보장하지 못함 — 가드 5-1 의
 ## 변경 이력
 
 - 2026-05-12: 최초 작성 (session-logs/20260511-230001-14d5-*.md). dev-blog 5/11 콘텐츠 품질 회고에서 도출된 4 가드 패턴을 일반화
+- 2026-06-28: 일반 원칙 #5(결함 패턴은 토픽별로 다름)에 **anti-prediction 가드의 토픽별 tailoring 실증** 1건 보강 — "미래 버전 번호 발명 금지" 가드가 Linux Daily·AI Coding Agents write 프롬프트엔 있고 Opensource Trending 엔 없음(버전 신호가 핵심인 토픽만 on). 관련: dossier 의 `verified`/`seenBefore` 스키마 성숙과 grounding≠정확성 함정은 [[research-write-agent-separation]] 에 수록 (출처: session-logs/20260628-030337-d36d-*, -032046-b0b8-* 외 dev-blog 03:00 사이클 22건)
 - 2026-05-14: 5번째 가드 (비-한글 CJK 혼입 차단) 추가. 5/14 dev-blog `linux-gpu-ai` 토픽 rewrite stdout 에 한자 "明文" 두 글자가 혼입돼 `auditPostQuality` 가 차단한 운영 사례에서 일반화. 유니코드 블록 단위 검출 + 차단 후 stdout 교정·publish 재실행 복구 흐름 + `markPublishOk` 같은 status 갱신 헬퍼와의 짝 패턴. "정독 회고로는 너무 후행" → 사전 가드의 비용 효과성 강조 (출처: session-logs/20260514-080604-8120-*.md)
