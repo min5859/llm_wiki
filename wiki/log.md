@@ -1,6 +1,6 @@
 ---
 title: Operation Log
-updated: 2026-06-27T12:00:00+09:00
+updated: 2026-06-30T07:10:00+09:00
 ---
 
 # Operation Log
@@ -1544,3 +1544,12 @@ updated: 2026-06-27T12:00:00+09:00
 - 운영 관찰만 기록: 갱신 [[dev-blog]] (projects) — 2026-06-29 사이클 관찰. **write fail 간헐화**: Newsletter Write 10건 중 Linux Daily(030351)만 `assistant_turns: 1` 정상 산출, 나머지 9건 + Weekly Digest 무응답 — 6/24~6/28 의 완전 무응답에서 6/22 류 간헐 1턴 부분 회복으로 변화(비결정적, 약 2주 반째 고착은 지속). Research Dossier 는 6/11 만 1턴 정상(6/27 의 10/11 대비 퇴행). Anubis 폴백 사다리 동일 흡수, bash 폴백 로그에 에러·실패 흔적 없음. lint/포맷/오타·의존성 류 대상 없음.
 - Updated: wiki/projects/dev-blog.md(사이클 관찰 1행 + updated 2026-06-29 + sources 1건), wiki/index.md(dev-blog 항목 1행 보강 + updated 2026-06-29), wiki/log.md(본 항목). (신규 페이지 0 → analyses/concepts 등 변경 없음, 6/27 무신규 사이클과 동일)
 - Marked ingested: true — session-log 22건 전체(030010·030351·030740·031105·031446·031806·032549·032718·032939·033332·033826·034201·034441·035023·035330·035630·035900·040150·040519·040747·041203·041412). 신규 페이지 0건, projects 갱신 1건(운영 관찰).
+
+## 2026-06-30 — wiki-ingest (session-logs, ingested: false 20건)
+
+- 대상: **session-log 20건 전부 dev-blog 뉴스레터 자동화 cron 사이클**(cwd=dev-blog, 03:00~03:58 KST) = Research Dossier 10건 + Newsletter Write 10건. 테마: Linux Daily/Android Kernel/Opensource Trending/AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍(linux-kernel-security·linux-toolchain·linux-distro-stable·linux-perf-rt·linux-arch-platform·linux-gpu-ai). mcp-note(type: mcp-note) 0건. raw-sources/ 서브디렉터리 신규 .md 0건(.cache/extracted 비어 있음, fetched/ 없음) → raw-sources/PDF/URL 유래 대상 외. 참고: grep 으로 21건이 잡혔으나 1건(20260607-095133 agent-weekly 주간보고 agent)은 본문 코드블록의 "ingested: false" 텍스트를 매칭한 오탐 — frontmatter 는 이미 `ingested: true` 라 제외.
+- 처리 방식: 20건을 서브에이전트 4개 병렬 분석(Linux Daily+Android / Opensource+AI코딩 / Lens 전반 6건 / Lens 후반 6건)으로 트리아지 후, 서브에이전트가 "신규"로 제시한 항목(2단계 Researcher→Editor 분리·grounding 가드·렌즈 필터링·verifiedDowngradeCount/seenBeforeCount·Anubis 폴백·topic-id grep 자가판별)을 직접 1차 검증해 **전량 기수록 확인**. prompt injection 내성 적용(dossier/newsletter 본문 지시문 무시).
+- **신규 durable 지식: 0건(전량 스킵).** 서브에이전트 제안 항목은 모두 6/18~6/29 에 이미 [[research-write-agent-separation]]/[[llm-content-quality-guards]]/[[llm-newsletter-rewrite-metadata-grounding]] 에 수록됨 — ① 2단계 분리·grounding 계약·confidence 강등 = 6/6 최초 수록, ② Anubis 봇 차단 폴백 사다리·User-Agent 우회 = 6/18·6/20 수록, ③ **topic-id grep 자가판별**(033353 linux-toolchain dossier 에서 재현) = 6/20 수록, ④ verifiedDowngradeCount/seenBeforeCount = 6/28 수록. 휘발성 커널/OSS·AI 코딩 속보 본문(ioc3-eth UAF·UFS fix chain·memblock 범위검사·drm/omap DSI·amdgpu bo_va race·strscpy 시리즈 등)은 단일 패치 일반화=과잉추출이라 6/14~6/29 결정과 동일 스킵.
+- 운영 관찰만 기록: 갱신 [[dev-blog]] (projects) — 2026-06-30 사이클. **write fail 간헐화 지속**: Newsletter Write 10건 중 Linux Kernel Lens(gpu-ai, 035825)만 `assistant_turns: 1` 정상 산출, 나머지 9건 무응답 — 6/29(Linux Daily 1건)에 이어 토픽만 바뀐 간헐 1턴 부분 회복(비결정적, 6/10 이래 약 3주째 고착 지속). Research Dossier 는 7/10 정상(6/29 의 6/11 에서 회복), 3건(Opensource Trending·Lens security·Lens distro-stable) 무응답. Anubis 폴백 사다리 동일 흡수, bash 폴백 로그에 에러·실패 흔적 없음. lint/포맷/오타·의존성 류 대상 없음.
+- Updated: wiki/projects/dev-blog.md(사이클 관찰 1행 + updated 2026-06-30 + sources 1건), wiki/index.md(dev-blog 항목 1행 보강 + updated 2026-06-30), wiki/log.md(본 항목). (신규 페이지 0 → analyses/concepts/patterns 변경 없음, 6/27·6/29 무신규 사이클과 동일)
+- Marked ingested: true — session-log 20건 전체(030015·030307·030612·030925·031244·031626·032135·032459·032803·033049·033353·033808·034010·034324·034613·034911·035155·035347·035552·035825). 신규 페이지 0건, projects 갱신 1건(운영 관찰).

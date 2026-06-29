@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-06-29T08:00:00+09:00
+updated: 2026-06-30T07:10:00+09:00
 ---
 
 # Wiki Index
@@ -32,7 +32,7 @@ updated: 2026-06-29T08:00:00+09:00
 - [[kakao-mem]] — Mac KakaoTalk 메모리 CLI (Python + `kakaocli`): 어댑터 격리 / message_id sha256 dedup / launchd 자동화. 8개 잠재 이슈와 직접 통신 옵션 분석
 - [[kakao-db]] — Mac KakaoTalk 로컬 sqlcipher DB + LOCO 어댑터 (Rust): 5 결정 (Rust 단일 / OSS LOCO / 단발 CLI + cron / Keychain / App Store 26.3.0), M0 완료, M1 inspect 휴리스틱 진입. AI provider 다중화 (KAKAO_AI_PROVIDER: claude/cursor/codex, 기본 codex). M6-new: dashboard.html self-contained 확인, Cloudflare Pages + Zero Trust Access 권장
 - [[kernel-digest]] — 리눅스 커널 일일 다이제스트 (계획 단계, M0 완료): 4축 콘텐츠 / 8 데이터 소스 / Collectors→AI Stage→Publisher 파이프라인 / 종량제 API 금지 + 구독제 LLM (`claude -p`/`openclaw`) 만 사용 / 토픽-플러그인 확장형
-- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드. Multi-topic 가동 (11토픽). `lib/run-daily-pipeline.mjs` 로 6개 run-daily 스크립트 공통화 (~700줄→~150줄). `lib/collect-utils.mjs` readJson 추출. 기본 어댑터 cursor→claude 일괄 전환. research(dossier)→write(newsletter) 2단계 분리가 6/10 cron 운영에 통합 (03:00 사이클), Anubis 봇 차단이 lore.kernel.org 전반으로 확대. write 단계 silent fail(`assistant_turns: 0`) 6/10 이래 약 2주 반째 고착(6/28 까지 지속), WebFetch GitHub 404 환각 관찰. 6/28 dossier 스키마 성숙(`verified`/`verifiedDowngradeCount`/`seenBefore`) + grounding≠정확성 노출. 6/29 write fail 간헐화(Linux Daily write 1턴 회복, 나머지 9건 무응답) + dossier 산출 6/11 로 퇴행.
+- [[dev-blog]] — AI 보조 한국어 엔지니어링 일일 뉴스레터: Node 20+ 표준 API 만 사용 의존성 0개, claude-CLI 어댑터 + template fallback, cron-on-laptop + GitHub Actions 빌드. Multi-topic 가동 (11토픽). `lib/run-daily-pipeline.mjs` 로 6개 run-daily 스크립트 공통화 (~700줄→~150줄). `lib/collect-utils.mjs` readJson 추출. 기본 어댑터 cursor→claude 일괄 전환. research(dossier)→write(newsletter) 2단계 분리가 6/10 cron 운영에 통합 (03:00 사이클), Anubis 봇 차단이 lore.kernel.org 전반으로 확대. write 단계 silent fail(`assistant_turns: 0`) 6/10 이래 약 2주 반째 고착(6/28 까지 지속), WebFetch GitHub 404 환각 관찰. 6/28 dossier 스키마 성숙(`verified`/`verifiedDowngradeCount`/`seenBefore`) + grounding≠정확성 노출. 6/29 write fail 간헐화(Linux Daily write 1턴 회복, 나머지 9건 무응답) + dossier 산출 6/11 로 퇴행. 6/30 간헐 1턴 회복 지속(Lens gpu-ai write 1턴, 나머지 9건 무응답) + dossier 7/10 정상 회복, topic-id grep 자가판별 재확인.
 - [[auto-pipe-blog]] — 컨셉 1개 → velog 글 자동화 파이프라인 (bash + `claude -p` stdin): 00-slug → 01-research → 02-outline → 03-draft → 05-assemble 5단계, skip-if-exists, `CALL_LLM_BACKEND=agent` 로 백엔드 전환. Phase 1 E2E ~4분 / 78줄 post.md / mermaid 2 블록. Phase 3.5 Notion publisher 추가 (parent page/database 자동 판별, 100블록 분할, 로컬 이미지 안내 paragraph 치환) + factcheck rewrite 단계 추가
 - [[auto-pipe-ppt]] — JSON/YAML → 디자인 토큰 기반 멀티슬라이드 PPTX 자동 생성 (Python + `python-pptx` + 절대좌표 도형 + 일부 OOXML 직접 작성). 1차 타겟 재무제표 10장. M0/M1/M2/M3 완료 (41건 테스트 그린): 토큰 이중 어댑터 (YAML / CSS :root), role resolver, 한글 폰트 ea/cs fix, 재무 컴포넌트 6종 (KPI/Insight/Verdict/ScoreCard/Conclusion/Table). M4 차트 5종 / M5 재무 어댑터 미구현
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇. 6/3 codex 토큰 만료(복사 import → 회전 충돌) → `hermes auth add openai-codex --type oauth` 자체 device-flow 재인증
