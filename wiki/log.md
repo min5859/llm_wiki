@@ -1553,3 +1553,15 @@ updated: 2026-06-30T07:10:00+09:00
 - 운영 관찰만 기록: 갱신 [[dev-blog]] (projects) — 2026-06-30 사이클. **write fail 간헐화 지속**: Newsletter Write 10건 중 Linux Kernel Lens(gpu-ai, 035825)만 `assistant_turns: 1` 정상 산출, 나머지 9건 무응답 — 6/29(Linux Daily 1건)에 이어 토픽만 바뀐 간헐 1턴 부분 회복(비결정적, 6/10 이래 약 3주째 고착 지속). Research Dossier 는 7/10 정상(6/29 의 6/11 에서 회복), 3건(Opensource Trending·Lens security·Lens distro-stable) 무응답. Anubis 폴백 사다리 동일 흡수, bash 폴백 로그에 에러·실패 흔적 없음. lint/포맷/오타·의존성 류 대상 없음.
 - Updated: wiki/projects/dev-blog.md(사이클 관찰 1행 + updated 2026-06-30 + sources 1건), wiki/index.md(dev-blog 항목 1행 보강 + updated 2026-06-30), wiki/log.md(본 항목). (신규 페이지 0 → analyses/concepts/patterns 변경 없음, 6/27·6/29 무신규 사이클과 동일)
 - Marked ingested: true — session-log 20건 전체(030015·030307·030612·030925·031244·031626·032135·032459·032803·033049·033353·033808·034010·034324·034613·034911·035155·035347·035552·035825). 신규 페이지 0건, projects 갱신 1건(운영 관찰).
+
+## 2026-06-30 (2차) — wiki-ingest (session-logs, ingested: false 1건 / 알고리즘 평가)
+
+- 대상: **session-log 1건**(20260630-080924-22d3, cwd=ht_dde) "지금까지 돌린거 알고리즘들 평가해줘" — KIS 스캐너+리웨이트 종이거래 알고리즘 평가 세션. mcp-note 0건. raw-sources/ 신규 .md 0건(.cache/extracted 비어 있음, fetched/ 없음). 참고: grep 으로 2건이 잡혔으나 1건(20260607-095133 agent-weekly)은 본문 코드블록의 "ingested: false" 텍스트 오탐 — frontmatter 는 이미 `ingested: true`.
+- 처리: 로그 전체 정독(데이터 수집+집계 narration). 평가 핵심 = 6-20 검토안("가중치 A/B 종이거래 테스트베드")이 `reweight/` 모듈 + reweight.db + 전용 대시보드/launchd 로 실제 구현·구동된 첫 평가 결과. 전 전략 손실 구간이라 알파 판정엔 표본 부족하나, **순위 역전·집계 함정·기술가중 위험**이라는 durable 지식 3건 추출.
+- **신규 durable 지식: 신규 1 페이지 / analyses 1 갱신 / projects 1 갱신.**
+  ① 신규 [[equity-curve-max-vs-latest-aggregation]] (bugs) — 평가곡선에서 `MAX(equity)` 가 역대 고점을 반환해 -19.95% 손실 전략(aggressive)이 +2.3% 처럼 보인 오독을 일반화. `MAX(ts)` 조인/윈도우로 최신 행을 뽑고 수익률(%) 병기. 재사용 가능한 SQL 집계 함정.
+  ② 갱신 [[backtest-timeframe-sensitivity]] (analyses) — "보강 사례: 일봉 SIM vs 장중 LIVE" 절 추가. 리웨이트 5종을 두 경로로 동시 구동 시 전략 순위 역전(balanced SIM최고↔baseline LIVE최선, tech_heavy LIVE최악), LIVE 손실의 절대손절 -10% 집중·일봉 종가 평활 편향. 기존 "검증 조건=운영 조건" 원칙의 fresh 실증.
+  ③ 갱신 [[ht-dde]] (projects) — "리웨이트 A/B 구현 & 첫 평가" 절 추가. 변형 5종 정의, 스캐너/리웨이트 SIM/LIVE 전 전략 손익 수치, 4개 판단(SIM≠LIVE 순위역전·기술가중 과다 위험·표본 한계·집계 함정).
+- 스킵: 개별 청산사유 raw 분포·종목별 샘플 손익(그날치 휘발성 수치)은 durable 아님(요지만 프로젝트 페이지에 집계 형태로). lint/포맷/오타·의존성 류 대상 없음.
+- Updated: wiki/bugs/equity-curve-max-vs-latest-aggregation.md(신규), wiki/analyses/backtest-timeframe-sensitivity.md(보강절+frontmatter+변경이력), wiki/projects/ht-dde.md(평가절+frontmatter+변경이력), wiki/index.md(ht-dde·backtest 항목 갱신 + bugs 신규 항목 + updated), wiki/log.md(본 항목).
+- Marked ingested: true — session-log 1건(20260630-080924-22d3). 신규 페이지 1건(bugs) + analyses 갱신 1건 + projects 갱신 1건.

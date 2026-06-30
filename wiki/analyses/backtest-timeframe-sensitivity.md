@@ -4,12 +4,16 @@ domain: both
 sensitivity: public
 tags: ["analysis", "backtest", "trading", "timeframe", "trend-filter", "methodology", "validation"]
 created: "2026-06-07"
-updated: "2026-06-07"
+updated: "2026-06-30"
 source_session: "20260606-210943-6534-아래-개선사항을-검토-•-PAUSED가-6시간-이상-지속되면-텔레그램-알림을-보내도록-하면.md"
+sources:
+  - "session-logs/20260606-210943-6534-아래-개선사항을-검토-•-PAUSED가-6시간-이상-지속되면-텔레그램-알림을-보내도록-하면.md"
+  - "session-logs/20260630-080924-22d3-지금까지-돌린거-알고리즘들-평가해줘.md"
 confidence: high
 related:
   - "wiki/analyses/dca-trailing-stop-tuning.md"
   - "wiki/projects/upbit-trading.md"
+  - "wiki/projects/ht-dde.md"
   - "wiki/analyses/scoring-system-ic-validation.md"
   - "wiki/analyses/scoring-version-comparison-methodology.md"
 ---
@@ -65,6 +69,23 @@ result_on  = backtest(ohlcv, use_trend_filter=True)
 - "수익률 우선"이면 OFF, "MDD 방어 우선"이면 ON — 단일 지표로 우열을 단정하지 말고 목적에 맞춰 선택한다.
 - 결론을 낼 때 수익률·MDD·평균 매수횟수(물타기 누적)를 함께 본다. 필터 ON은 평균 매수횟수를 줄여(1.0→0.6) 물타기 누적을 제동한다.
 
+## 보강 사례 — 일봉 SIM vs 장중 LIVE 가 전략 순위를 뒤집는다 (ht_dde 리웨이트, 2026-06-30)
+
+[[ht-dde]] 에서 [[n-stock-info]] 가중치 변형 5종(baseline 50/30/20·tech_heavy 60/20/20·balanced 40/40/20·tech_mid 55/25/20·research_up 40/30/30)을 **일봉 시뮬(SIM)**과 **장중 실시간 페이퍼(LIVE)** 두 경로로 동시에 돌렸더니, 같은 알고리즘인데 **승자가 갈렸다**.
+
+| variant | SIM(일봉) 손익 / 승률 | LIVE(장중) 수익률 | 메모 |
+|---|---|---|---|
+| balanced 40/40/20 | **+403K / 44.4%** (유일한 +) | -3.93% | SIM 최고 ↔ LIVE 중위 |
+| baseline 50/30/20 | -182K / 23.5% | **-3.38%** (LIVE 최선) | SIM 하위 ↔ LIVE 1위 |
+| tech_heavy 60/20/20 | -47K / 26.3% | **-10.07%** (LIVE 최악) | SIM 중위 ↔ LIVE 꼴찌 |
+
+- **SIM 에서 유일하게 수익이던 balanced 가 LIVE 에선 1위가 아니다.** SIM 순위로 알고리즘을 골랐다면 운영에서 최선을 놓친다.
+- 원인은 위 240분 vs 30분 사례와 같다: SIM 은 **일봉 종가**로 진입/청산을 평가하지만, LIVE 는 **장중 분 단위**로 폴링하며 진입·트레일링·절대손절(-10%)을 친다. 같은 가중치라도 **체결 타이밍과 청산 트리거가 봉 해상도에 따라 달라져** 손익이 갈린다.
+- LIVE 손실은 거의 전부 **`절대손절 -10%`** 에 몰렸다(상위 청산사유 9종이 모두 -10%대 손절). 일봉 SIM 은 장중 -10% 변동을 종가로 평활해 이 손절을 덜 맞는다 → SIM 이 LIVE 보다 낙관적으로 보이는 구조적 편향.
+- 기술가중 과다(tech_heavy 60/20/20)가 LIVE 최악 — [[n-stock-info]] 의 0/80/20 falling-knife 전력과 같은 방향(기본/리서치를 줄일수록 하락장 추격매수 위험↑).
+
+> 교훈: **일봉 시뮬 ≠ 장중 페이퍼.** 운영이 장중 폴링이면 검증도 장중 페이퍼로 해야 하고, 일봉 SIM 순위를 운영 전략 선택 근거로 쓰면 안 된다. (이때 "현재 자본"을 `MAX(equity)` 로 뽑으면 고점 착시까지 겹친다 → [[equity-curve-max-vs-latest-aggregation]].)
+
 ## 일반 교훈
 
 - **검증 조건 = 운영 조건**: 봉 간격, 코인/종목 풀, 자본 규모, 주기를 운영과 똑같이 맞춰야 결론이 유효하다. 하나라도 다르면 반대 결론이 나올 수 있다.
@@ -80,3 +101,4 @@ result_on  = backtest(ohlcv, use_trend_filter=True)
 ## 변경 이력
 
 - 2026-06-07: 최초 작성 — Upbit 추세필터 ON/OFF 백테스트가 4시간봉 vs 30분봉에서 정반대 결론을 낸 사례를 일반화. 공정 비교(동일 OHLCV 주입), %p vs %, 수익률-MDD 트레이드오프 방법론 정리 (출처: session-logs/20260606-210943-6534-*)
+- 2026-06-30: "보강 사례 — 일봉 SIM vs 장중 LIVE" 절 추가. ht_dde 리웨이트 가중치 5종을 일봉 시뮬과 장중 페이퍼로 동시 구동 시 전략 순위가 뒤집힌 실측(balanced SIM 최고 ↔ baseline LIVE 최선, tech_heavy LIVE 최악). LIVE 손실의 절대손절 -10% 집중·일봉 종가 평활 편향 정리. [[ht-dde]]·[[equity-curve-max-vs-latest-aggregation]] 상호링크 (출처: session-logs/20260630-080924-22d3-*)

@@ -4,8 +4,9 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-06-20"
+updated: "2026-06-30"
 sources:
+  - "session-logs/20260630-080924-22d3-지금까지-돌린거-알고리즘들-평가해줘.md"
   - "session-logs/20260613-164818-fc2f-신규-프로젝트를-시작하려고-하는데-지금-내가-이미-한국-투자-증권으로-API-사용해서-거래.md"
   - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
 confidence: "high"
@@ -13,6 +14,8 @@ related:
   - "wiki/projects/ht-trading.md"
   - "wiki/projects/n-stock-info.md"
   - "wiki/analyses/scoring-version-comparison-methodology.md"
+  - "wiki/analyses/backtest-timeframe-sensitivity.md"
+  - "wiki/bugs/equity-curve-max-vs-latest-aggregation.md"
   - "wiki/decisions/shared-broker-appkey-token-cache.md"
   - "wiki/analyses/launchd-daemon-vs-cron-periodic.md"
   - "wiki/analyses/stock-screening-score-design.md"
@@ -70,6 +73,24 @@ related:
 
 [[n-stock-info]] 의 종목 선정 가중치(현재 실효 50/30/20)를 **약간씩 변형한 변종을 ht_dde 종이거래로 동시 구동해 알고리즘을 최적화**하려는 방향이 제기됨. n_stock_info 는 라이브에서 0/80/20 실험이 4일 만에 -19.6%(falling knife) 났던 전력이 있어, 실거래 위험 없이 가중치 변형을 검증할 무위험 테스트베드로 ht_dde 의 "3전략 동시 비교" 구조가 적합하다. 이 세션은 검토 단계로 구현은 미착수. 가중치 변천 상세는 [[n-stock-info]], 비교 방법론은 [[scoring-version-comparison-methodology]].
 
+## 리웨이트 A/B 구현 & 첫 평가 (2026-06-30)
+
+6-20 에 검토만 했던 "가중치 변형 A/B 종이거래"가 실제로 구현·구동됐다. `reweight/` 모듈(`weights`·`sim`·`live`·`engine`·`store`·`source`) + 별도 `data/reweight.db` + 전용 대시보드(`reweight.html`)·launchd 잡(`reweight_daily.sh`)로 분리. 변형 5종을 정의하고 **일봉 시뮬(SIM)**과 **장중 실시간 페이퍼(LIVE)** 두 경로로 동시에 돌린다.
+
+- variants(min_score 62 공통): `baseline` 50/30/20 · `tech_heavy` 60/20/20 · `balanced` 40/40/20 · `tech_mid` 55/25/20 · `research_up` 40/30/30 (기술/기본/리서치 가중).
+
+**평가 결과 — 전 전략 손실.** 시드 1천만원 기준 최신 자본(`MAX(equity)` 아닌 최신 ts 기준 → [[equity-curve-max-vs-latest-aggregation]]):
+
+- **스캐너 페이퍼**(06-15~06-29, 5전략): 전부 마이너스. conservative -1.26%(최선) · scalp_breakout -1.58% · balanced -1.77% · breakout -4.69% · **aggressive -19.95%(최악)**. 공격형은 매도 560건 승률 30%로 거래는 많지만 회전당 평균 -3,971원으로 잃었다.
+- **리웨이트 LIVE**(장중, 06-22~06-29): 전부 마이너스. **baseline 50/30/20 -3.38%(최선)** · balanced -3.93% · research_up -4.10% · tech_mid -7.75% · **tech_heavy 60/20/20 -10.07%(최악)**. 손실은 거의 전부 `절대손절 -10%`대 청산에 집중.
+- **리웨이트 SIM**(일봉, 06-17~06-25): **balanced 40/40/20 만 +403K(승률 44.4%)**, 나머지(tech_heavy·tech_mid·baseline·research_up)는 -47K~-231K.
+
+**판단/교훈:**
+1. **일봉 SIM 과 장중 LIVE 가 전략 순위를 뒤집는다** — SIM 유일 흑자였던 balanced 가 LIVE 에선 중위, SIM 하위였던 baseline 이 LIVE 1위. 운영이 장중 폴링이므로 **LIVE 결과가 기준**이고 SIM 순위로 고르면 안 됨 → 일반화는 [[backtest-timeframe-sensitivity]].
+2. **기술가중 과다(tech_heavy 60/20/20)가 LIVE 최악** — 기본/리서치를 줄일수록 하락장 추격매수 위험↑. [[n-stock-info]] 의 0/80/20 falling-knife 전력과 같은 방향. 이번 구간에선 **현행 baseline 50/30/20 이 가장 덜 잃어** 가중치 변경 근거가 약함.
+3. **표본·구간 한계** — 평가 구간(2주 안팎)이 하락 우세장이라 전 전략 마이너스. "어느 변형이 덜 잃나"는 보이지만 알파 유무 판정엔 표본 부족. A/B 우열은 [[scoring-version-comparison-methodology]] 식 정량 비교(IC·구간 robustness)로 재검증 필요.
+4. **집계 함정 실측** — 평가 중 `MAX(equity)` 로 자본을 뽑아 aggressive 가 +2.3% 처럼 보였으나 최신 ts 기준 -19.95% → [[equity-curve-max-vs-latest-aggregation]] 로 분리 기록.
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -80,3 +101,4 @@ related:
 
 - 2026-06-13: 최초 생성 (출처: session-log 20260613-164818-fc2f). 스캐너 init → 종이거래+웹 대시보드 → launchd plist+휴장/버퍼까지 세션 1회 작업 기록.
 - 2026-06-20: "제안된 방향 — 스코어링 가중치 A/B 종이거래" 절 추가. [[n-stock-info]] 가중치 변형을 무위험 검증하는 테스트베드로 ht_dde 활용 검토(미착수). n-stock-info 와 상호 링크 (출처: session-logs/20260620-101936-aba2-*)
+- 2026-06-30: "리웨이트 A/B 구현 & 첫 평가" 절 추가. 6-20 검토안이 `reweight/` 모듈 + reweight.db + 전용 대시보드/launchd 로 구현돼 변형 5종을 SIM(일봉)·LIVE(장중) 동시 구동. 첫 평가는 전 전략 손실(스캐너 aggressive -19.95% 최악, 리웨이트 LIVE baseline 50/30/20 -3.38% 최선·tech_heavy -10.07% 최악, SIM balanced 만 +403K). 교훈: 일봉 SIM≠장중 LIVE 순위 역전·기술가중 과다=하락장 최악·표본부족. [[backtest-timeframe-sensitivity]]·[[equity-curve-max-vs-latest-aggregation]] 신규/보강 (출처: session-logs/20260630-080924-22d3-*)
