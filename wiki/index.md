@@ -1,6 +1,6 @@
 ---
 title: Wiki Index
-updated: 2026-07-01T04:30:00+09:00
+updated: 2026-07-02T07:10:00+09:00
 ---
 
 # Wiki Index
@@ -22,7 +22,7 @@ updated: 2026-07-01T04:30:00+09:00
 - [[agent-weekly]] — Claude 대화 기록 기반 주간보고 자동작성 에이전트(아이디어 구체화 단계). gieok 의 "Hook→로그→스케줄 LLM→Wiki→Git" 파이프라인을 골격으로 차용, 주간 집계 LLM 호출로 치환. 원천 데이터로 [[claude-code-session-jsonl-format]] 활용 가능
 - [[gieok]] — gieok 설치 상세, CC Hook 이벤트, LaunchAgent 스케줄, 기능별 LLM 필요 여부, 알려진 버그
 - [[ht-trading]] — 알고리즘 트레이딩 시스템: ScoringStrategy 이중 스케일(40/100점). KIS API 서킷브레이커 (연속 5회 오류 시 주문 중지). 추가매수 재개 조건 (저점 반등 +3% AND 기술점수 회복). n_stock_info V3 리버트 → EPS/캔들만 선택적 재적용 (모멘텀 충돌 회피). screener min_score 62 복원. 거래대금 TOP 10 텔레그램 추가. 시각 가드 09:30 (매수/매도 공통). trailing stop activation 3%, tiers {3%,2%}/{12%,4%}/{22%,8%}. **무한매수법(InfiniteBuying) 활성화**: Signal.bypass_position_check 플래그, exclude_codes 종목 격리, Tiered Trailing Stop (3→1%/7→2%/15→3%), max_positions 11.
-- [[n-stock-info]] — 네이버 금융 기반 종목 스크리닝·스코어링·텔레그램 리포트 (Python, collectors→analyzers→reporters→db). 100점 스코어링(40기술+40기본+20리서치). 2026-06-02 세션: EPS→EY 라벨 동기화, 안정성 게이트 분리(적자·고부채 점수 무관 제외), 섹터 상대 PER(네이버 동일업종 PER 외부 벤치마크), 백테스트 하네스(Rank IC+분위 스프레드, 생존 편향 노출), 전체 scored 저장(idempotent DELETE-INSERT), 데이터 기반 config 튜닝(병목은 상한이 아니라 min_score 컷오프 → 65→55). 가중치 변천: 40/40/20 → 0/80/20 실험 4일 -19.6%(falling knife) → 실효 50/30/20 안착 + 추세 게이트(현재가<20일선 veto)
+- [[n-stock-info]] — 네이버 금융 기반 종목 스크리닝·스코어링·텔레그램 리포트 (Python, collectors→analyzers→reporters→db). 100점 스코어링(40기술+40기본+20리서치). 2026-06-02 세션: EPS→EY 라벨 동기화, 안정성 게이트 분리(적자·고부채 점수 무관 제외), 섹터 상대 PER(네이버 동일업종 PER 외부 벤치마크), 백테스트 하네스(Rank IC+분위 스프레드, 생존 편향 노출), 전체 scored 저장(idempotent DELETE-INSERT), 데이터 기반 config 튜닝(병목은 상한이 아니라 min_score 컷오프 → 65→55). 가중치 변천: 40/40/20 → 0/80/20 실험 4일 -19.6%(falling knife) → 실효 50/30/20 안착 + 추세 게이트(현재가<20일선 veto). 2026-07-01: 06-16 버그 수정 후 재검증 예정 시점 도래, 재검증 도구에 날짜 하한 없어 오염 행 재포함 함정 → `--since`/기본 SINCE 추가(commit 57153e5), 계측기 선수정([[post-bugfix-reverification-data-cutoff]])
 - [[openclaw]] — AI 에이전트 자동화 도구: 다중 에이전트(main/english/coder) 구성, Telegram 그룹 Privacy Mode 설정, 라우팅 버그 트러블슈팅. 6/3 전 토픽 응답 무 = Hermes 와 공유하는 Codex OAuth refresh token 쟁탈(핑퐁) → 클라이언트별 독립 device-flow 등록으로 해결
 - [[oss-radar]] — 주간 GitHub OSS 발굴 파이프라인: discover→fetch→analyze→publish 6단계, star_velocity 스코어링, env -u CLAUDECODE 중첩세션 방지, GitHub topic OR 미지원 우회, config/.env 시크릿 분리
 - [[ai-shorts-production-with-claude-code]] — Claude Code로 AI 쇼츠 영상 대량 제작 흐름, Claude/사람 역할 분리
@@ -38,7 +38,7 @@ updated: 2026-07-01T04:30:00+09:00
 - [[hermes]] — Nous Research personal AI agent macOS 셋업: default + 코딩 전용 `maccoder` 두 프로필, OAuth symlink 공유, claude CLI HOME 격리 우회 wrapper, Telegram 별도 봇. 6/3 codex 토큰 만료(복사 import → 회전 충돌) → `hermes auth add openai-codex --type oauth` 자체 device-flow 재인증
 - [[hermes-dashboard]] — Hermes 다중 에이전트 메신저 대시보드 (1일 해커톤, 구현 전 기획·지침 문서). HermesTalk(v1, 90점) → Hermes Crew(v2, 88점, 오케스트레이션 스트레치 강등·주간보고 킬러로 교체). Hermes 연동 가정 3개를 소스로 검증해 정정(프로필=게이트웨이=포트, Runs API, 스킬 API 있음·Kanban 없음, 주간보고는 `sessions export` 집계). 핵심은 [[mock-first-demo-safety-net]] 안전망 + 어댑터 경계 확장성. **2026-06-20 방향 전환: 개인 실사용 도구화 → 0부터 빌드 폐기, Hermes Studio 포크 채택**([[build-vs-fork-personal-tool]]). 환경 검증으로 v2 가정 정정(dashboard `:9119`·네이티브 Kanban 존재), 실작업=메신저 UX 레이어(@mention·unread), PC별 차등=probeGateway 런타임 디스커버리
 - [[upbit-trading]] — Upbit 암호화폐 무한매수법 자동매매 (Python + launchd, 40분할 DCA + Trailing Stop): 70일 운영 평균 +5.20% (10라운드), 5개 키 튜닝 (trailing 2.5% / cooldown 6h / max_round_days 45 + 계단식 / partial_profit ON / tighten ON). 2026-06-06: PAUSED 6h 텔레그램 알림 + 저거래량 DCA 제동 신규, 추세필터 ON/OFF 백테스트 재검증 결과 30분봉(운영 봉)에서 OFF 우세 → OFF 유지, launchd 봇 당분간 중지
-- [[ht-dde]] — DDE+엑셀 점수판을 KIS REST 로 옮긴 실시간 매수후보 스캐너 + 종이거래 비교 대시보드. [[ht-trading]] 자매(주문 0, 시세만). 점수식 YAML 외부화 / 지표 순수함수 test-first / 타임프레임 독립 / 토큰캐시 공유 / 3전략 동시비교(종목당 1회 조회 공유) / Flask+폴링 launchd 데몬. 발견: 체결강도는 inquire-ccnl(tday_rltv), 휴장 판정은 chk-holiday, 포트 5000 AirPlay 충돌→5050. 미해결: appkey 공유 rate limit(사전필터 권장). 2026-06-20: A/B 종이거래 테스트베드 검토 → **2026-06-30 구현·첫 평가**: 리웨이트 변형 5종 SIM(일봉)·LIVE(장중) 동시구동, 전 전략 손실(LIVE baseline 50/30/20 -3.38% 최선·tech_heavy 60/20/20 -10.07% 최악, 스캐너 aggressive -19.95%). 일봉 SIM≠장중 LIVE 순위역전
+- [[ht-dde]] — DDE+엑셀 점수판을 KIS REST 로 옮긴 실시간 매수후보 스캐너 + 종이거래 비교 대시보드. [[ht-trading]] 자매(주문 0, 시세만). 점수식 YAML 외부화 / 지표 순수함수 test-first / 타임프레임 독립 / 토큰캐시 공유 / 3전략 동시비교(종목당 1회 조회 공유) / Flask+폴링 launchd 데몬. 발견: 체결강도는 inquire-ccnl(tday_rltv), 휴장 판정은 chk-holiday, 포트 5000 AirPlay 충돌→5050. 미해결: appkey 공유 rate limit(사전필터 권장). 2026-06-20: A/B 종이거래 테스트베드 검토 → **2026-06-30 구현·첫 평가**: 리웨이트 변형 5종 SIM(일봉)·LIVE(장중) 동시구동, 전 전략 손실(LIVE baseline 50/30/20 -3.38% 최선·tech_heavy 60/20/20 -10.07% 최악, 스캐너 aggressive -19.95%). 일봉 SIM≠장중 LIVE 순위역전. **2026-07-01 2차 평가**: 과매매=거래비용 드래그(공격형 수수료 자본 11%), baseline이 최선+튜닝여지 최대(payoff 0.65·손실이 −10% 절대손절에 집중→손절폭 −5~6%가 유일레버), 스냅샷 라벨서 EOD 복합필터 발굴(단일지표 예측력 0·조합만 엣지)
 - [[disk-monitor]] — 일일 디스크 사용량 모니터링 (Python 단일 파일 + launchd 09:00). 데이터는 `~/Library/Application Support/disk-monitor/` (코드/데이터 분리), plist 마스터는 프로젝트 폴더 (Homebrew 스타일 symlink), 자동 정리 금지·사용자 컨펌 워크플로우. 5/30: 개발 도구 경로 8개 추가 (~/project, ~/.hermes 등 ~26G 사각지대 해소), 모니터링 경로 31개로 확장. 6/3: -16G 급감 = macOS Tahoe 업데이트 준비물(추적 밖). 코드 보완 — 측정 실패 가시화(`errors`/`roots`), `report` 에 Tracked vs Unaccounted 갭 라인, `/Library/Updates` 추적. 6/18: 36일 추세 회고 — config 중간 추가 경로의 `0.0→X` 가짜 증가 함정(baseline 은 모든 경로 추가 이후로), 재부팅 회수 오해 정정(TMPDIR만 회수)
 
 ## 설계 판단 (decisions/)
@@ -80,6 +80,7 @@ updated: 2026-07-01T04:30:00+09:00
 - [[blocked-dependency-productive-workflow]] — 라이브 의존(재인증·미기동 서버)이 막혔을 때 idle 금지: 보고 후 모델 무관 작업(파서+테스트/readonly DB/컴파일) 최대화 + 파서 선구현으로 스펙 오류를 라이브 없이 발견 + "동작 코드 > 스펙 문서 > 추측" 권위 순서. 위험 코어는 테스트로 고정해 격리
 - [[sqlite-readonly-data-swap]] — REST 서버가 미기동/불안정하면 그 데이터의 로컬 SQLite 를 `{readonly:true}` 직접 읽기로 소스 스왑(UI 계약 유지). 전문검색은 FTS5 단일 쿼리, 네이티브 애드온은 `createRequire`, `created_at` 초→ms 변환 함정
 - [[upstream-fork-minimal-invasion]] — OSS 포크 운영: 원본은 최소 hook(import 1줄+주입 2줄)만, 기능은 신규 파일·별도 커밋으로 격리, 머지 절차 문서화, 잔재는 삭제 대신 `legacy/` 이동. 업스트림 divergence(머지 지옥) 최소화
+- [[post-bugfix-reverification-data-cutoff]] — 데이터 품질 버그 수정 후 "깨끗한 데이터 N주 쌓고 재검증" 계획은, 평가 도구가 수정일 이후 데이터만 쓰게 필터하지 않으면 오염 행이 조용히 다시 섞여 무력화된다. 컷오프 날짜를 재검증 도구에 디폴트로 박기 / 오염은 삭제 말고 날짜 하한으로 격리 / DB 접근 없이도 계측기 결함은 코드만으로 선수정. n_stock_info `--since` 추가(commit 57153e5)에서 일반화
 
 ## 버그와 해결책 (bugs/)
 
@@ -173,6 +174,7 @@ updated: 2026-07-01T04:30:00+09:00
 - [[multi-profile-cli-agent-isolation]] — CLI agent 멀티 프로필 셋업의 4함정: OAuth 토큰 공유는 symlink (refresh-token 회전 충돌 회피) / Keychain 인증은 HOME 격리에 깨짐 → wrapper 로 HOME 복원 / hermes 등 agent 는 `.bashrc`·`.bash_profile` 만 source (zsh init 무시) / `--clone` 후 `.env` reconfigure 필수
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 4결정: 한국 양도세 표준 가중평균 (수수료 취득원가 포함) / SELL row 의 `realizedGain` 컬럼 동결 / 거래 삭제는 효과 역연산 / 계좌·거래 통화 일치 시에만 cashBalance 자동 갱신. MVP/풀구현/입력만 점진 도입
 - [[scoring-system-ic-validation]] — 트레이딩 스코어 시스템의 IC (Information Coefficient) 검증 방법론: Pearson/Spearman, 컴포넌트별 분해, cutoff 시뮬레이션, AND vs OR 게이팅, regime 안정성. 한국 시장 검증 결과 (단기 모멘텀/RSI 안정구간 음수 IC, 양봉·거래량 sweet 최강 알파)
+- [[signal-overfit-date-dispersion-check]] — 라벨링된 스냅샷서 복합 필터 탐색 시 신호 vs 과최적화 판별: overfit funnel(조건 얹을수록 평균↑ 표본↓), 날짜 분산(`GROUP BY date` — 성과가 1~2일에 몰리면 폐기), 시장 상대 대조(같은 날 무필터 평균 빼서 알파 남기기). 단일 지표는 예측력 0·조합만 엣지. ht_dde EOD 복합필터(필터C 7/10일 시장초과=진짜 ↔ 필터D 이틀 집중=과최적화)에서 일반화
 - [[dca-trailing-stop-tuning]] — DCA·Trailing Stop 자동매매 튜닝 5 레버 (trailing 거리 / cooldown / max_round_days + 계단식 / partial profit / tighten on weakness) + 운영 로그 진단 6단계. 즉시 vs Paper 검증 vs 중기 분류, 부분 매도 멱등성 가드, 추세 필터 양면성 (효과는 봉 간격 따라 뒤집힘 → 운영 봉 검증 필수)
 - [[terminal-markdown-viewer-tools]] — 터미널·CLI 마크다운 뷰어 비교 (glow / mdcat / frogmouth / bat / neovim + render-markdown.nvim / markdown-preview.nvim). Mermaid SVG 의 터미널 본질적 한계 (코드블록 → ASCII → 외부 뷰어 → 인라인 이미지 4단계 우회). SSH 환경에서 Tauri/Electron GUI 부적합
 - [[financial-health-composite-scores]] — 재무 건전성 합성 스코어 3종 (Altman Z / Piotroski F / Beneish M) + 5 카테고리 (profitability/liquidity/leverage/efficiency/cash) 룰 기반 risk flag. LLM 호출 0, 한국 시장 적용 시 Z 의 절대값 데이터 누락 + Beneish 의 false positive + F 의 insufficient fallback 처리

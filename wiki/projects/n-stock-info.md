@@ -4,7 +4,7 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "screening", "python", "telegram", "backtest"]
 created: "2026-06-03"
-updated: "2026-06-20"
+updated: "2026-07-02"
 status: active
 tech_stack: ["python", "requests", "beautifulsoup", "sqlite", "ruff", "pytest"]
 sources:
@@ -12,6 +12,7 @@ sources:
   - "session-logs/20260602-230501-585d-리포트에도-업종-PER-표시해줘.md"
   - "session-logs/20260616-210439-d6f6-오늘-알고리즘-바꾼지-2일-지났는데-2일-동안-매매에서-오류나-개선점이-없었는지-검토해줘.md"
   - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
+  - "session-logs/20260701-232403-58cb-지금까지-쌓인-데이터를-바탕으로-알고리즘-개선을-할-만한게-있는지-분석해줘.md"
 confidence: high
 related:
   - "wiki/projects/ht-trading.md"
@@ -21,6 +22,7 @@ related:
   - "wiki/analyses/eps-vs-earnings-yield.md"
   - "wiki/analyses/stock-screening-score-design.md"
   - "wiki/bugs/naver-finance-no-info-selector-drift.md"
+  - "wiki/patterns/post-bugfix-reverification-data-cutoff.md"
 ---
 
 # n_stock_info — 종목 스크리닝·스코어링·리포트 시스템
@@ -122,9 +124,17 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 
 리포트 종목이 적어 `max_report_count`(10) 상한을 늘리려 했으나, DB 분석 결과 **67일 중 10개 상한에 걸린 날이 0일** (일 평균 추천 0.5개, 추천 종목 점수가 65점 컷 바로 위 65~75에 몰림). 즉 진짜 병목은 상한이 아니라 `min_score`(65) 컷오프. `min_score` 65→55 인하가 추천을 늘리는 실질 레버이고, `max_report_count` 10→30 은 안전장치, screening 30→50 은 풀 확대 (commit `9c915f4`). **교훈: "상한을 늘릴까"가 아니라 실제 분포를 보고 병목을 찾는다.**
 
+### 7. 재검증 도구의 오염 데이터 하한 필터 (2026-07-01)
+
+06-16 버그 수정(`e13765f`) 후 "깨끗한 데이터 ~2주 누적 뒤 가중치 재검증"(D-8/F-1)의 예정 시점이 도래. 그런데 재검증에 쓸 두 도구(`get_all_candidate_records`, `scripts/compare_weights.py`)가 **날짜 하한이 없어 06-16 이전 오염 행(~849개, volume=0으로 technical_score 왜곡)을 그대로 다시 포함**했다. 지금 `--backtest`/`compare_weights.py`를 돌리면 2주 대기의 목적이 무력화되는 함정.
+
+- 분석자는 운영 머신에만 있는 DB(gitignore, 로컬 부재)에 접근 못 해 수치는 못 돌렸지만, **코드만 읽고 "재검증 도구에 날짜 필터가 없다"는 결함을 확정**하고 도구를 먼저 고침 (계측기 선수정 → 오염된 근거로 판단 굳는 것 방지).
+- 수정 (commit `57153e5`): `get_all_candidate_records(db_path, since_date=None)` → `WHERE report_date >= ?`; `main.py --backtest`에 `--since ISO_DATE` 플래그(전달+로깅); `compare_weights.py`는 **기본값 `SINCE=2026-06-16`(버그 수정일)** 로 재검증이 오염 없이 기본 동작; `test_db`에 하한 필터 검증 추가. 173 테스트 통과, ruff 통과.
+- 일반 원칙(버그 수정 + 데이터 축적 대기 + **평가 도구의 수정일 이후 필터** 셋이 다 있어야 재검증 성립, 컷오프는 도구에 디폴트로 박기)은 [[post-bugfix-reverification-data-cutoff]] 로 분리.
+
 ## 현재 상태
 
-- 테스트 159 passed, ruff 통과.
+- 테스트 173 passed(07-01), ruff 통과.
 - 이번 세션 커밋: `f611f5e`(라벨 동기화) → `b4e2d98`(안정성 게이트) → `7d6ef13`(섹터 상대 PER) → `3b074a8`(리포트 업종 PER) → `5a98169`(백테스트 하네스) → `8ffa4e7`(전체 scored 저장) → `7ccf9fc`/`2111d04`(CLAUDE.md 문서) → `9c915f4`(config 튜닝).
 - 미구현/관찰 대상: 신규 데이터 누적 후 `--backtest` 재측정 (편향 줄어든 IC 확인), 55점 컷이 품질을 떨어뜨리는지 검증.
 
@@ -138,6 +148,7 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 
 ## 변경 이력
 
+- 2026-07-02: "재검증 도구의 오염 데이터 하한 필터" 절 추가 (2026-07-01 세션). 06-16 버그 수정 후 재검증 예정 시점 도래, 재검증 도구가 날짜 하한이 없어 오염 행 재포함 함정 → `since_date`/`--since`/`compare_weights.py` 기본 SINCE=2026-06-16 추가(commit `57153e5`, 173 테스트). DB 접근 없이 코드만으로 계측기 결함 확정·선수정. 신규 [[post-bugfix-reverification-data-cutoff]] 분리 (출처: session-logs/20260701-232403-58cb-*)
 - 2026-06-20: **가중치 변천 + 추세 게이트** 절 추가 — 유효 가중치가 40/40/20 → (0/80/20 실험 4일 -19.6% falling knife 실패) → **50/30/20** 으로 안착, `_passes_trend_gate`(현재가<20일선 veto)로 하락추세 종목 컷오프. IC 근거 일부는 e13765f 이전 오염 데이터라 재검증 필요. 별 프로젝트 [[ht-dde]] 의 종이거래로 가중치 변형을 A/B 비교하려는 방향이 제안됨(이 세션은 검토 단계). (출처: session-logs/20260620-101936-aba2-*)
 - 2026-06-17: 거래량·시가·등락률 수집 버그 수정 (commit `e13765f`). 네이버 `item/main` 페이지의 `table.no_info` 가 라벨을 `<th>` 가 아니라 `<span class="sptxt">` 에 두도록 구조가 바뀌어, 코드의 `table.select("th")` 가 항상 빈 결과 → **2026-03 이후 전 종목·전 날짜 거래량=0·시가=null·등락률 +0.0%** 가 silent 하게 수집됨. 등락률은 별도로 `.no_exday em span.blind` 의 `select_one` 이 첫 em(전일대비 금액)을 잡아 `%` em 에 도달 못 하던 버그. **가짜로 만든 테스트 fixture(`<th>거래량</th>` + 단일 em)가 회귀를 못 잡았고** volume/open/change 도 미검증이었다. `_no_info_values` 헬퍼 도입 + fixture 를 실제 마크업으로 교체 + 추출 필드 전부 단언. 166 테스트 통과. 영향: 0/80/20 라이브 추천엔 무영향(기술 가중 0)이나, DECISION 의 가중치 IC 표가 망가진 기술 데이터 산출이라 재검증 전 재측정 필요. 일반 교훈은 [[naver-finance-no-info-selector-drift]] (출처: session-logs/20260616-210439-d6f6-*)
 - 2026-06-03: 최초 작성. 2026-06-02 세션 2건 (프로젝트 분석 + 업종 PER 표시) 에서 추출 — EPS→EY 라벨 동기화, 안정성 게이트, 섹터 상대 PER, 백테스트 하네스, 전체 scored 저장, 데이터 기반 config 튜닝. 일반 사상은 [[eps-vs-earnings-yield]] / [[stock-screening-score-design]] 로 분리 (출처: session-logs/20260602-223325-f11f-*, 20260602-230501-585d-*)

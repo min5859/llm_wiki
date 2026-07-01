@@ -1,9 +1,23 @@
 ---
 title: Operation Log
-updated: 2026-06-30T07:10:00+09:00
+updated: 2026-07-02T07:10:00+09:00
 ---
 
 # Operation Log
+
+## 2026-07-02 — wiki-ingest (session-logs, ingested: false 26건)
+
+처리 session-log 26건. 신규 페이지 2건, 기존 갱신 4건(프로젝트 2 + index + log). (raw-sources/.cache/extracted/mcp-note 대상 없음 — raw-sources 서브디렉터리에 .md 무(PDF/txt만·Tips/ 도 PDF), fetched/ 없음, .cache/extracted 비어 있음, mcp-note 0건)
+
+- **분류**: 트레이딩 분석 2건(고가치) + dev-blog 뉴스레터 cron 24건(콘텐츠 생성, 신규 지식 없음).
+- **Source: session-logs/20260701-231304-df33-* (ht_dde 페이퍼트레이딩 2차 평가·신호 발굴)**
+  - Created: wiki/analyses/signal-overfit-date-dispersion-check.md — 복합 필터의 신호 vs 과최적화 판별(overfit funnel + 날짜 분산 `GROUP BY date` + 시장 상대 대조). 단일 지표 예측력 0·조합만 엣지. ht_dde EOD 복합필터(필터C 7/10일 시장초과=진짜 ↔ 필터D 이틀 집중=과최적화)에서 일반화
+  - Updated: wiki/projects/ht-dde.md ("2차 평가 & 신호 발굴 2026-07-01" 절 — 과매매=거래비용 드래그, baseline payoff 0.65·손실이 −10% 절대손절에 집중→손절폭 −5~6%가 유일·최우선 레버(승률 58%면 산술적 흑자), EOD 복합필터 발굴. sources/related/updated 갱신)
+- **Source: session-logs/20260701-232403-58cb-* (n_stock_info 알고리즘 개선 분석 → 재검증 도구 수정)**
+  - Created: wiki/patterns/post-bugfix-reverification-data-cutoff.md — 데이터 품질 버그 수정 후 재검증은 평가 도구도 수정일 이후로 필터해야 무력화 안 됨. 컷오프 도구에 디폴트로 박기 / 오염은 날짜 하한 격리 / DB 없이 코드만으로 계측기 선수정. n_stock_info `--since`(commit 57153e5)에서 일반화
+  - Updated: wiki/projects/n-stock-info.md ("재검증 도구의 오염 데이터 하한 필터 2026-07-01" 절 — 06-16 버그 수정 후 재검증 예정 시점 도래, 재검증 도구에 날짜 하한 없어 오염 ~849행 재포함 함정 → since_date/--since/기본 SINCE 추가, 173 테스트. sources/related/updated 갱신)
+- **Skipped (일회성 일일 뉴스, 신규 지식 없음)**: dev-blog 뉴스레터 cron 24건 (2026-07-02 03:00~04:02 배치). Linux Daily / Android Kernel / Opensource Trending / Opensource Curation / AI Coding Agents / Linux Kernel Lens 의 Research Dossier + Newsletter Write. 전부 단일 자동 프롬프트 실행(커밋 0·설계 편집 0, 편집은 뉴스레터 산출물 작성뿐), 파이프라인 설계는 [[dev-blog]]·[[research-write-agent-separation]]·[[llm-content-quality-guards]] 에 기수록. 선례(log.md 2026-06-06/07/09 dev-blog Skip) 동일 적용
+- **Marked ingested: true** — 26개 session-log 전체 (df33·58cb + dev-blog 24)
 
 ## 2026-06-09 — wiki-ingest (session-logs, ingested: false 22건)
 

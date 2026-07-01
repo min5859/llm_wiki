@@ -4,8 +4,9 @@ domain: "personal"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-06-30"
+updated: "2026-07-02"
 sources:
+  - "session-logs/20260701-231304-df33-지금까지-돌린-페이퍼트레이딩-알고리즘-평가-쉽게-설명.md"
   - "session-logs/20260630-080924-22d3-지금까지-돌린거-알고리즘들-평가해줘.md"
   - "session-logs/20260613-164818-fc2f-신규-프로젝트를-시작하려고-하는데-지금-내가-이미-한국-투자-증권으로-API-사용해서-거래.md"
   - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
@@ -15,6 +16,8 @@ related:
   - "wiki/projects/n-stock-info.md"
   - "wiki/analyses/scoring-version-comparison-methodology.md"
   - "wiki/analyses/backtest-timeframe-sensitivity.md"
+  - "wiki/analyses/signal-overfit-date-dispersion-check.md"
+  - "wiki/analyses/dca-trailing-stop-tuning.md"
   - "wiki/bugs/equity-curve-max-vs-latest-aggregation.md"
   - "wiki/decisions/shared-broker-appkey-token-cache.md"
   - "wiki/analyses/launchd-daemon-vs-cron-periodic.md"
@@ -91,6 +94,22 @@ related:
 3. **표본·구간 한계** — 평가 구간(2주 안팎)이 하락 우세장이라 전 전략 마이너스. "어느 변형이 덜 잃나"는 보이지만 알파 유무 판정엔 표본 부족. A/B 우열은 [[scoring-version-comparison-methodology]] 식 정량 비교(IC·구간 robustness)로 재검증 필요.
 4. **집계 함정 실측** — 평가 중 `MAX(equity)` 로 자본을 뽑아 aggressive 가 +2.3% 처럼 보였으나 최신 ts 기준 -19.95% → [[equity-curve-max-vs-latest-aggregation]] 로 분리 기록.
 
+## 2차 평가 & 신호 발굴 (2026-07-01)
+
+06-30의 "전 전략 손실" 진단을 이어받아, ① 어떤 알고리즘이 튜닝 여지가 큰지 ② 쌓인 스냅샷에서 새 알고리즘 아이디어가 나오는지를 파고든 세션. 약 13거래일(6/15~7/1) 결과 기준.
+
+**판단 1 — 자주 매매할수록 더 크게 잃는다 (거래비용 드래그).** 스캐너 공격형은 687매매·수수료 113만원(자본의 11%)으로 -25.8% 손실의 절반 가까이가 순수 거래비용. 반대로 거의 안 건드린 보수형이 가장 덜 잃음. 회전율 자체가 손실원 → 공격형은 튜닝해도 회생 불가 구조.
+
+**판단 2 — 리웨이트 baseline(50/30/20)이 최선이자 튜닝 여지 최대.** 성적(-0.4%, 승률 58% 전체 최고)뿐 아니라 **구조** 때문:
+- **단일 튜닝 레버가 명확**: 평균이익 6.0만 vs 평균손실 9.2만 → payoff 0.65(손실>이익). 손실의 거의 전부가 **−10% 절대손절 8건(−74만원)** 에 집중. 손절폭을 −10%→−5~6%로 좁히면 평균손실이 반토막→payoff>1, 승률 58%면 **산술적으로 흑자 전환**. 감이 아니라 데이터가 가리키는 단일 개선점. (일반 튜닝 레버는 [[dca-trailing-stop-tuning]]; "payoff<1 + 높은 승률 → 손절 조이면 흑자"는 재사용 가능한 진단.)
+- 저빈도 스윙(19매매)이라 수수료 함정 없음.
+- **실거래 [[ht-trading]]과 로직 동일** → 여기서 튜닝한 결과가 바로 실전 이전. 스캐너 스캘핑은 실거래 미사용이라 튜닝 이득이 페이퍼에 갇힘.
+- 튜닝 순서 추천: 손절폭(−10%→−5~6%) 먼저, 다음 트레일링 진입 시점(현재 +3%).
+
+**판단 3 — 새 알고리즘 아이디어: 스냅샷 라벨에서 EOD 복합필터 발굴.** `snapshots`(약 12만 행, `fwd_5m/30m/eod` 라벨)에서 지표 예측력을 분석 → **단일 지표는 예측력 사실상 0**, 조합에서만 엣지. 오후(12시+)+VWAP위+시가위+체결강도 100~130 필터가 당일종가(EOD) 기준 시장(-0.37%)을 이기고 **10거래일 중 7일 초과**로 재현. 단, 여기에 거래량증가율 300+를 더한 필터는 성과가 급등(+0.6%)하지만 **이틀에만 몰려 과최적화**. 신호와 과최적화를 가르는 방법(날짜 분산 + 시장 상대 대조 + overfit funnel)은 [[signal-overfit-date-dispersion-check]]로 일반화.
+
+> 06-30 대비 이번 회차의 새 결론: (a) 손실이 −10% 절대손절에 집중된다는 payoff 분해 → 손절폭이 유일·최우선 레버, (b) 스냅샷 라벨이 신호 발굴 데이터셋이며 EOD 복합필터가 실재 신호 후보.
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -99,6 +118,7 @@ related:
 
 ## 변경 이력
 
+- 2026-07-02: "2차 평가 & 신호 발굴 (2026-07-01)" 절 추가. ①과매매=거래비용 드래그(공격형 수수료 113만=자본 11%) ②리웨이트 baseline이 최선+튜닝여지 최대(payoff 0.65·손실이 −10% 절대손절 8건에 집중 → 손절폭 −10%→−5~6%가 유일·최우선 레버, 승률 58%면 산술적 흑자전환) ③스냅샷 라벨에서 EOD 복합필터(오후+VWAP위+시가위+체결100~130) 발굴, 단일지표는 예측력 0·조합만 엣지. 신규 [[signal-overfit-date-dispersion-check]](날짜분산+시장대조로 과최적화 판별) 분리, [[dca-trailing-stop-tuning]] 교차링크 (출처: session-logs/20260701-231304-df33-*)
 - 2026-06-13: 최초 생성 (출처: session-log 20260613-164818-fc2f). 스캐너 init → 종이거래+웹 대시보드 → launchd plist+휴장/버퍼까지 세션 1회 작업 기록.
 - 2026-06-20: "제안된 방향 — 스코어링 가중치 A/B 종이거래" 절 추가. [[n-stock-info]] 가중치 변형을 무위험 검증하는 테스트베드로 ht_dde 활용 검토(미착수). n-stock-info 와 상호 링크 (출처: session-logs/20260620-101936-aba2-*)
 - 2026-06-30: "리웨이트 A/B 구현 & 첫 평가" 절 추가. 6-20 검토안이 `reweight/` 모듈 + reweight.db + 전용 대시보드/launchd 로 구현돼 변형 5종을 SIM(일봉)·LIVE(장중) 동시 구동. 첫 평가는 전 전략 손실(스캐너 aggressive -19.95% 최악, 리웨이트 LIVE baseline 50/30/20 -3.38% 최선·tech_heavy -10.07% 최악, SIM balanced 만 +403K). 교훈: 일봉 SIM≠장중 LIVE 순위 역전·기술가중 과다=하락장 최악·표본부족. [[backtest-timeframe-sensitivity]]·[[equity-curve-max-vs-latest-aggregation]] 신규/보강 (출처: session-logs/20260630-080924-22d3-*)
