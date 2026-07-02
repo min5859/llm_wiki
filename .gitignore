@@ -1,0 +1,11 @@
+# bkit local state
+.bkit/
+
+# macOS
+.DS_Store
+
+# gieok session logs (local only — may contain secrets)
+session-logs/
+
+# confidential wiki 문서 (sensitivity: confidential)
+wiki/**/*-confidential.md
