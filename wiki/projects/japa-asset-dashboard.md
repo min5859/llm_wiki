@@ -1,0 +1,492 @@
+---
+title: "japa — 개인 자산 통합 대시보드"
+domain: "trading"
+sensitivity: internal
+tags: ["nextjs", "prisma", "supabase", "vercel", "yahoo-finance", "personal-asset", "single-user-auth"]
+created: 2026-04-30
+updated: 2026-05-12
+sources:
+  - "session-logs/20260430-135011-e8eb-*.md"
+  - "session-logs/20260430-161410-0fcc-*.md"
+  - "session-logs/20260501-213505-aecb-*.md"
+  - "session-logs/20260502-095014-6859-*.md"
+  - "session-logs/20260503-100914-b80f-*.md"
+  - "session-logs/20260505-084952-fe4f-*.md"
+  - "session-logs/20260507-230645-c555-*.md"
+  - "session-logs/20260509-080729-fd9f-*.md"
+  - "session-logs/20260512-000725-28e8-DB-에-있는-내용을-모두-CSV-로-export-한-뒤-계좌-내용을-초기화-하고-다시-추.md"
+confidence: high
+related:
+  - "wiki/analyses/nextjs-vercel-supabase-deployment.md"
+  - "wiki/analyses/multi-llm-provider-adapter-pattern.md"
+  - "wiki/bugs/yahoo-finance-concurrent-silent-fail.md"
+  - "wiki/bugs/node-modules-symlink-copy-prisma.md"
+  - "wiki/bugs/prisma-connection-pool-vercel-supabase.md"
+  - "wiki/bugs/gemini-2-0-flash-free-tier-blocked.md"
+  - "wiki/bugs/nextjs16-use-server-non-async-export.md"
+  - "wiki/patterns/vercel-cron-best-practices.md"
+  - "wiki/patterns/zod-schema-per-entity.md"
+  - "wiki/patterns/csv-roundtrip-backup-restore.md"
+  - "wiki/patterns/supabase-region-migration.md"
+  - "wiki/analyses/pgbouncer-direct-url-hybrid-routing.md"
+  - "wiki/patterns/react-hook-form-zod-server-action.md"
+  - "wiki/analyses/supabase-magic-link-single-user-allowlist.md"
+  - "wiki/analyses/holding-transaction-cost-basis-design.md"
+---
+
+# japa — 개인 자산 통합 대시보드
+
+흩어진 자산을 단일 페이지로 통합 관리하기 위한 1인 전용 Next.js 웹앱. Vercel hobby + Supabase Postgres + Prisma + Yahoo Finance + Gemini AI 조합으로 구성되어 있다. 프로젝트명은 `asset-dashboard` (package.json), 디렉터리명은 `japa`.
+
+## 핵심 내용
+
+### 기술 스택
+
+| 계층 | 선택 |
+|---|---|
+| 프레임워크 | Next.js 16 (App Router, Turbopack) |
+| 언어/UI | TypeScript, Tailwind CSS, shadcn/ui, Recharts |
+| 데이터 | Supabase Postgres + Prisma 6 |
+| AI | Gemini API (`@google/generative-ai`) |
+| 시세 | `yahoo-finance2` (무료 API) |
+| 호스팅 | Vercel Hobby (private GitHub repo + Vercel App webhook) |
+| 인증 | 환경변수 비밀번호 + HMAC-SHA256 세션 쿠키 (Web Crypto, Edge runtime 호환) |
+
+### 주요 페이지
+
+- `/` — Dashboard (전체 요약)
+- `/accounts`, `/accounts/[id]`, `/accounts/[id]/edit`, `/accounts/new` — 계좌별 보유
+- `/holdings`, `/holdings/[id]/edit`, `/holdings/new` — 보유 종목 관리
+- `/market` — 시장 인덱스
+- `/tax` — 종합소득세/해외주식 양도세 추적
+- `/ai` — Gemini 기반 종합 자산 분석
+- `/login` — 로그인 화면
+
+### 단일 사용자 인증 설계 (2026-04-30 추가)
+
+다중 사용자 시스템이 아닌 **본인 1인 전용**이므로 OAuth/DB 사용자 테이블을 도입하지 않고 다음 최소 구성으로 보안을 갖췄다.
+
+| 컴포넌트 | 구현 |
+|---|---|
+| 비밀번호 저장 | `ADMIN_PASSWORD` 환경변수 (Vercel Settings + 로컬 `.env`) |
+| 세션 토큰 | HMAC-SHA256 서명, Web Crypto API 사용 (Node 의존성 없음 → Edge runtime/middleware 동작) |
+| 토큰 서명키 | `AUTH_SECRET` 환경변수 (32자 이상 랜덤, `openssl rand -hex 32`) |
+| 쿠키 정책 | HttpOnly + Secure(prod) + SameSite=Lax, 7일 만료 |
+| 보호 범위 | `middleware.ts` 가 `/login` 외 모든 경로를 검사 |
+| 비밀번호 비교 | timing-safe equal |
+
+비유: `ADMIN_PASSWORD` = 현관문 비밀번호, `AUTH_SECRET` = 출입증 위조방지 도장. 두 환경변수는 로컬과 Vercel 사이에 같지 않아도 무방 (각 환경에서 발급된 쿠키만 그 환경에서 유효). `AUTH_SECRET`을 변경하면 모든 세션이 무효화된다.
+
+> 주의: 현재 코드에는 brute force rate limiting이 없으므로 `ADMIN_PASSWORD`는 **최소 12자 이상**, 영문 대소문자+숫자+특수문자 조합을 강제해야 한다. 6자리 숫자는 100만 가지 → 자동화 공격에 취약.
+
+### Prisma + Supabase 연결 (2026-04-30 확립)
+
+런타임 쿼리와 마이그레이션은 서로 다른 connection 모드를 사용해야 한다. 자세한 트레이드오프와 풀러 비교는 [[nextjs-vercel-supabase-deployment]] 참고.
+
+```env
+# 런타임 — Transaction pooler (포트 6543), pgbouncer + connection_limit=1
+DATABASE_URL="postgresql://USER:PASS@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+
+# 마이그레이션 — Session pooler (포트 5432, 쿼리 파라미터 없음). prepared statements 필요해서 Transaction pooler에선 동작 안 함.
+DIRECT_URL="postgresql://USER:PASS@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
+```
+
+`prisma/schema.prisma`:
+
+```prisma
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+```
+
+Free tier에서는 Direct connection (`db.xxx.supabase.co:5432`) 이 IPv6 전용이라 한국 ISP에서 timeout 발생 → pooler 호스트만 사용해야 한다.
+
+### `force-dynamic` 결정
+
+`app/layout.tsx` 루트에 `export const dynamic = 'force-dynamic'`을 적용. 이유: 모든 페이지가 사용자별 동적 데이터(보유 종목·계좌)라 빌드 시점 정적 prerender의 의미가 없는데, 그대로 두면 Vercel 빌드 워커가 동시에 PrismaClient를 띄워 Supabase pool을 초과해 빌드가 실패한다.
+
+### 시세 새로고침: 동시 호출 제한 + 재시도 (2026-04-30 수정)
+
+`lib/market.ts`의 `refreshSymbols`/`refreshAllPrices` 가 30개 심볼을 한 번의 `Promise.allSettled`로 동시 호출하면, Yahoo Finance가 일부 응답에 `regularMarketPrice`를 누락한 채로 돌려주는 케이스가 간헐 재현된다. 자세한 분석은 [[yahoo-finance-concurrent-silent-fail]].
+
+수정 내용:
+
+| 항목 | 이전 | 이후 |
+|---|---|---|
+| 동시성 | 30개 동시 (`Promise.allSettled`) | worker pool 6개 |
+| 재시도 | 없음 (silently fail) | 250ms 후 1회 재시도 |
+| 실패 가시성 | 사용자에게 표시 안 됨 | UI ⚠️ 아이콘 + 사유 노출 (`Quote not found`, `no regularMarketPrice` 등) |
+
+추가로 `RefreshPricesButton`을 `app/layout.tsx` 헤더로 이동시켜 모든 페이지에서 한 번의 클릭으로 새로고침이 가능해졌다.
+
+### 보유 종목 수익률 % 표시
+
+`lib/portfolio.ts:enrichHolding`에 `unrealizedGainPercent` 필드 추가. cost basis가 0인 경우 `null`. Dashboard / Accounts 탭 / 계좌 상세에서 동일한 색상 규칙 (상승=적색, 하락=청색) 으로 일관 표시.
+
+### 시세 새로고침 P2024 사고와 cron 통합 (2026-05-01 수정)
+
+배포 후 시세 새로고침 버튼이 Vercel 에서 P2024 (`Timed out fetching a new connection from the connection pool`) 를 일으켜 사이트 전체가 500을 뱉는 사고. 원인은 `connection_limit=1` 환경에서 `refreshMarketHistory` 가 8개 지수 × 365건의 upsert 를 8개 `$transaction` 으로 병렬 실행 → 단일 connection 을 두고 경합 → 풀 망가지면서 같은 인스턴스의 후속 `findMany` 까지 연쇄 실패. 자세한 트러블슈팅은 [[prisma-connection-pool-vercel-supabase]].
+
+수정 방향:
+
+1. **`marketIndexHistory` 는 불변 시계열** → `createMany({ skipDuplicates: true })` + 마지막 한 행만 `upsert` 로 교체. 365 라운드트립 → 2 라운드트립.
+2. **클릭 액션 슬림화** — `refreshPrices()` 에서 `refreshMarketHistory` 제거. 클릭은 `priceCache` (보유 종목) + `marketIndex` (현재값) 만 갱신.
+3. **일별 Vercel Cron 신설** — `/api/cron/daily` 가 매일 KST 07:00 (UTC 22:00) 에 history 갱신 + 시세 갱신. 패턴은 [[vercel-cron-best-practices]] 로 분리.
+
+cron 라우트는 단일 슬롯 (Hobby 제약) 안에서 KST 날짜 분기로 fan-out:
+
+| 시점 (KST) | 작업 | 멱등성 |
+|---|---|---|
+| 매일 07:00 | `refreshMarketHistory` + `refreshAllPrices` + `refreshMarketIndices` | createMany skipDuplicates / upsert |
+| 매월 1일 07:00 | `PortfolioSnapshot` 1건 추가 | 24h 내 기존 스냅샷 있으면 skip |
+| 매년 1월 1일 07:00 | 모든 세테크 계좌 `contributionYTD = 0` | updateMany 자체가 멱등 |
+
+cron 도입에 따른 인접 변경:
+
+- `CRON_SECRET` 환경변수 + 라우트 내부 `Authorization: Bearer` 검증.
+- `middleware.ts` 의 matcher 에 `api/cron` 제외 추가. 안 그러면 미들웨어가 cron 호출을 `/login` 으로 redirect 해 라우트가 호출조차 안 됨.
+- Hobby 의 cron 슬롯 제약 (≤2, 일 1회) → 단일 `/api/cron/daily` 가 위 3개 작업 모두 처리.
+
+### 세테크 계좌 납입한도 — 평가액과 분리 (2026-05-01 추가)
+
+이전 코드는 `account.totalValueBase` (현금 + 보유자산 평가액) 를 "올해 납입액" 으로 처리해 시세가 오르면 잔여 한도가 음수로 가는 등 부정확. `Account` 에 `contributionYTD Decimal @default(0)` 컬럼을 추가하고, 세금 계산은 `used = max(0, contributionYTD)` 를 사용하도록 분리. 매년 1월 1일 cron 으로 전체 0 리셋.
+
+도메인 패턴 메모: **평가액 (mark-to-market) 과 누적 입금액은 의미가 다르다** — 평가액은 시세에 따라 출렁이지만 납입한도는 실제 현금 입출금 누적치. 세금/한도 같은 회계성 지표는 평가액 대신 별도 컬럼으로 들고 가야 한다.
+
+### 시장 인덱스 — WTI 원유 추가
+
+`INDICES_CONFIG` 에 Yahoo 심볼 `CL=F` (USD) 추가. 기존 8개 지수 (KOSPI, S&P500, NASDAQ 등) 옆에 일관된 카드로 표시.
+
+### CSV 내보내기
+
+`GET /api/export/[type]` 단일 라우트가 `accounts` / `holdings` / `snapshots` 를 UTF-8 BOM 포함 CSV 로 스트림. **BOM 없으면 Excel 에서 한글이 깨진다**. 파일명은 `japa-{type}-YYYY-MM-DD.csv`. 인증 미들웨어가 `/api/export/*` 도 보호하므로 익명 다운로드는 차단됨.
+
+### Prisma migrate deploy 빌드 통합
+
+```json
+"build": "prisma generate && prisma migrate deploy && next build"
+```
+
+push 한 방으로 마이그레이션 → 코드 배포가 동시에. 빌드 단계에서 `prisma migrate deploy` 가 실패하면 빌드 자체가 멈춰서 컬럼 없이 새 코드가 배포되는 일은 없음. 단 Vercel Project Env 에 `DIRECT_URL` 이 빌드 시점에 노출돼야 동작 (Production / Preview / Development 모두 체크). 기존 배포는 그대로 돌고, 빌드 성공 시에만 트래픽이 새 배포로 전환되므로 다운타임 없음. 일반 패턴은 [[nextjs-vercel-supabase-deployment]] §6.
+
+### 사이드바 네비게이션 + 모바일 드로어 (2026-05-02 추가)
+
+`toy/japa` 의 사이드바 UI 가 보기 좋다는 사용자 피드백을 받아, 기존 상단 pill nav 를 좌측 sticky sidebar (데스크톱) + 햄버거 슬라이드오버 (모바일) 로 교체. shadcn `Sheet` 컴포넌트가 없어 자체 슬라이드오버 구현 (`components/layout/app-shell.tsx`).
+
+| 결정 | 선택 | 이유 |
+|---|---|---|
+| `RefreshPricesButton` / `LogoutButton` 위치 | 본문 상단 toolbar | 페이지별 작업 버튼과의 일관성 |
+| 모바일 대응 | 햄버거 토글 | `w-56` 고정 사이드바는 좁은 화면에서 본문이 너무 좁아짐 |
+| `/login` chrome | 기존 isAuthPage 분기로 사이드바 비표시 | 중복 chrome 방지 |
+| 자동 닫힘 | 라우트 변경 시 모바일 드로어 자동 닫힘, ESC 키 닫힘, body scroll lock | UX 표준 |
+
+`AppShell` 은 client component 로 사이드바 상태를 소유하고, 서버 컴포넌트인 `app/layout.tsx` 가 그 안에 children 을 넘겨 wrap. middleware 는 `x-pathname` 헤더로 현재 경로를 서버 컴포넌트에 노출 (`/login` 분기용).
+
+### 종목 자동 판별 (KOSPI/KOSDAQ 6자리 코드, 2026-05-02 추가)
+
+`toy/japa` 의 `detectSymbol` 패턴을 가져와 `HoldingForm` 의 ticker 입력란 옆에 「자동」 버튼을 추가. 6자리 숫자 코드를 입력하면 `.KS` (KOSPI) → 실패 시 `.KQ` (KOSDAQ) 순서로 Yahoo Finance 에 probe, 성공 시 name / symbol / currency 자동 채움. 영문/숫자 혼합 ticker 는 그대로 query.
+
+구현:
+- `lib/market.ts` — `lookupSymbol()` 직렬 .KS / .KQ probe
+- `app/actions/symbols.ts` — server action wrapper (`{ ok, name, symbol, currency }` 또는 `{ ok: false, error }` 봉투)
+- `components/forms/holding-form.tsx` — 입력 필드를 controlled 로 전환 (서버 액션 결과로 setState), 사용자가 이미 채운 name 은 덮어쓰지 않음
+
+도메인 패턴 메모: **사용자 입력 보호 우선** — 자동 채움은 빈 필드만, 사용자가 입력한 값은 보존. 예측이 잘못됐을 때 사용자 작업이 날아가지 않게 함.
+
+### 수동 시세 갱신 60초 쿨다운 (2026-05-02 추가)
+
+`refreshPrices()` server action 진입부에 `priceCache.fetchedAt` 검사 추가. 60초 이내면 즉시 `{ skippedCooldown: true, cooldownRemainingSeconds }` 반환, UI 는 「X초 후 재시도」 표시. cron 경로 (`refreshAllPrices` 직접 호출) 는 영향 없음.
+
+```ts
+const newest = await prisma.priceCache.findFirst({ orderBy: { fetchedAt: "desc" } });
+if (newest && Date.now() - newest.fetchedAt.getTime() < 60_000) {
+  return { skippedCooldown: true, cooldownRemainingSeconds, ... };
+}
+```
+
+도메인 패턴 메모: **쿨다운은 click-path 에만 적용**, 자동화 (cron / 백그라운드 작업) 에는 적용하지 말 것. 그렇지 않으면 cron 의 정상적 빈도까지 막힘. 60초는 연타·실수 클릭 차단 + 실제 사용 지장 없음의 균형점.
+
+### `toy/japa` 와의 비교 — 차용 / 미차용 결정 (2026-05-02)
+
+`/Users/wooki/project/toy/japa` (별도의 Supabase 직접 사용 버전) 와 비교한 결과, **차용 가치가 있는 4가지** 와 **차용하지 않을 1가지** 를 결정. (rate limit 방어 측면에서는 본 프로젝트가 더 견고함이 확인됨 — toy 의 직렬+100ms 보다 본 프로젝트의 worker pool 6 + 250ms 1회 재시도가 정교함)
+
+| 차용 | 우선도 | 상태 |
+|---|---|---|
+| ⭐⭐⭐ 배당 내역 기록 (Dividend 모델) | 1 | 백로그 |
+| ⭐⭐ 계좌 그룹 (N:M, account_groups + members) | 2 | 백로그 |
+| ⭐⭐ 종목 자동 판별 (`detectSymbol`) | 3 | ✅ 적용 (2026-05-02) |
+| ⭐ 사이드바 UI | 4 | ✅ 적용 (2026-05-02) |
+| ⭐ 수동 시세 갱신 쿨다운 (60초) | 5 | ✅ 적용 (2026-05-02). 단 toy 의 5분 쿨다운은 설계 문서에만 있고 코드엔 없었음 — 본 프로젝트가 신규 도입 |
+
+미차용:
+
+- **Stocks 마스터 테이블 분리** — 정규화는 깔끔하지만 현재 Holding 구조로 충분히 동작. 마이그레이션 비용 > 이득. "상장폐지 종목 추적" 이 필요해지면 `Holding.status` 컬럼 추가 정도로 충분
+- **ISA 200/400만원 비과세 한도** — `annualContributionLimit` / `contributionYTD` 로 납입한도는 이미 추적 중. 비과세 한도는 별도 개념이지만 우선순위 낮음
+- **toy 의 직렬+sleep API 호출 패턴** — 동시성 6 + 재시도가 더 정교. 베끼지 않음
+
+### 배당 내역 기록 — Dividend 모델 (백로그, 2026-05-02 정리)
+
+현재 한계: `Holding.dividendYield(%)` 로 「예상 배당」 만 계산 → 실제 받은 배당과 괴리, 세금 신고 자료 활용 불가. Tax 페이지의 "예상 배당소득" 이 추정치 기반.
+
+`toy/japa` 모델:
+
+```
+Dividend {
+  accountId, holdingId, dividend_date, ex_dividend_date,
+  amount_per_share, quantity, total_amount,
+  tax_amount (자동계산 + 수동 override 가능),
+  net_amount, currency, is_tax_overridden, memo
+}
+```
+
+도입 시 얻는 가치:
+- 실제 배당 ↔ 예상 배당 비교
+- 연도별 / 계좌별 / 종목별 배당 합산 (Tax 페이지에 실값 반영)
+- 원천징수 자동 계산 + 사용자 오버라이드 (정산금액 등 예외 처리)
+- 금융소득종합과세 추적이 「예상치」 가 아닌 「실값」 기반으로 전환
+
+도메인 패턴 메모: **「예측치」 와 「실측치」 는 같은 컬럼에 섞지 말 것** — 평가액과 누적 입금액이 분리되어야 했던 것과 같은 패턴. 회계성 / 신고용 지표는 실측치 기반이어야 신뢰성이 생긴다.
+
+### 계좌 그룹 (N:M, 백로그, 2026-05-02 정리)
+
+현재 한계: `Account.type` enum + `isTaxAdvantaged` 플래그만 → 「해외주식 전용 계좌들만 묶어서 보기」 같은 사용자 정의 관점이 불가능.
+
+`toy/japa` 모델: `account_groups` + `account_group_members` 매핑 테이블로 한 계좌가 여러 그룹 소속 가능. 사용자가 자유롭게 「절세계좌」, 「해외주식 계좌」, 「장기 보유」 등으로 분류·필터링.
+
+### 야후 quote 와 한국 종목 시간외 거래
+
+`yahoo-finance2` 의 `quote()` 는 `regularMarketPrice` (정규장 종가) 만 안정적으로 채워 주고, `postMarketPrice` 필드가 있긴 하지만 **한국 종목은 거의 빈값**. 시간외 단일가 / 애프터마켓은 사실상 반영되지 않음. 또한 한국 휴장일 (예: 근로자의 날) 에는 야후 자체가 "어제 종가" 를 최신값으로 내려주므로, 사용자에게 "시세가 갱신 안 됐다" 로 보일 수 있다 — 실제로는 거래일이 없어서 그게 최신.
+
+### `git/wk/japa-s` 와의 비교 — 차용 / 미차용 결정 (2026-05-03)
+
+`/Users/wooki/project/git/wk/japa-s` (Supabase SSR + Zod 스키마 + 멀티 LLM 중심의 별도 재구축본) 와 비교한 결과 상위 3개 항목을 우선순위로 정리. (앞선 `toy/japa` 비교는 또 다른 프로젝트로, japa-s 는 보다 새로운 별도 재구현이다)
+
+| 우선도 | 기능 | 도입 가치 | 상태 |
+|---|---|---|---|
+| 🔴 1 | Supabase Auth + 이메일 Allowlist (`lib/supabase/middleware.ts`, `lib/auth/allowlist.ts`) | 1인용 매직 링크 인증 → 자체 SESSION_COOKIE 보다 견고 | 백로그 (별도 세션 권장 — 인증 락아웃 위험) |
+| 🔴 2 | AI 키 AES-256-GCM 암호화 (`lib/ai/crypto.ts`, `AiCredential` 모델 + `/settings/ai` UI) | 멀티 LLM 확장 시 사용자 키 안전 저장, 환경변수 의존도 감소 | 백로그 (멀티 LLM 도입 의사결정 선행) |
+| 🔴 3 | **Zod 스키마 entity별 분리** (`lib/<entity>/schema.ts`) | 서버·클라이언트 검증 일관성, enum SSOT 강제 | ✅ 적용 (2026-05-03) |
+| 🟡 중 | 보유종목 이동평균 재계산 (`lib/holdings/recompute.ts`) FIFO 양도차익 | Decimal 단위 테스트 필요 | 백로그 (Phase 3~4) |
+| 🟡 중 | Yahoo Finance rate limit + fallback 심볼 변환 (`.KS/.KQ/.T`) | 본 프로젝트는 worker pool 6 + 250ms 재시도로 이미 견고 | 미도입 (현 구조 유지) |
+| 🟡 중 | 설계 문서 구조 (`docs/01-plan/`, `docs/02-design/`, `.bkit/`) | tasks/ 와 보완적 | 백로그 |
+
+미차용:
+- **PostgreSQL 트리거 기반 SQL 마이그레이션** — Prisma 유지 시 우선순위 낮음
+
+발견한 추가 정비 사항:
+- 현재 `middleware.ts` 가 `api/cron` 을 matcher 에서 제외 → 외부 노출 상태. Supabase Auth 전환과 별개로 `Authorization: Bearer $CRON_SECRET` 헤더 검증 추가 권장 (라우트 핸들러 내부에는 이미 존재. matcher 제외와 분리 정리 필요)
+
+### Zod 스키마 entity별 분리 적용 (2026-05-03)
+
+`japa-s` 의 패턴을 따라 `lib/<entity>/schema.ts` 에 enum 배열, label map, Zod 폼 스키마, 추론 타입을 한 파일로 모음. 일반 패턴은 [[zod-schema-per-entity]] 로 분리.
+
+| 변경 | 파일 |
+|---|---|
+| 신규 | `lib/accounts/schema.ts`, `lib/holdings/schema.ts`, `lib/dividends/schema.ts`, `lib/groups/schema.ts` (각 entity 의 `<ENTITY>_TYPES`, `<ENTITY>_TYPE_LABELS`, `<entity>FormSchema`, `<Entity>FormInput` 통합) |
+| 리팩터 | 4 server action (`app/actions/{accounts,holdings,dividends,groups}.ts`) — 인라인 `z.object({...})` 와 `z.enum(["KRW", ...])` 중복 제거, 새 schema import |
+| 출처 통일 | `components/forms/{account,holding,dividend}-form.tsx`, `app/{page,accounts/page,accounts/[id]/page,holdings/page,tax/page}.tsx`, `components/charts/allocation-pie.tsx`, `lib/ai.ts` |
+| 정리 | `lib/labels.ts` — entity별 항목 제거, `CURRENCIES` 와 `QUOTE_TYPE_LABELS` 만 잔류 (3개 entity 가 공유) |
+
+**효과**: `Currency` enum 3중 중복 (`accounts/holdings/dividends.ts` 모두 같은 string array) → Prisma `Currency` 단일 SSOT (`z.nativeEnum(Currency)`). `AccountType`/`AssetClass` 도 동일 정리. 순감 80줄 (109 삭제 / 29 추가).
+
+**`Record<AssetClass, string>` 노출 시 호출부 깨짐**: 더 엄격해진 라벨 맵에서 `?? holding.assetClass` 같은 fallback 패턴이 `string` 인덱싱을 전제로 해 컴파일 실패. 옵션 배열의 `Option<AssetClass>[]` 가 이미 SSOT 강제 책임을 지고 있으므로 라벨 맵은 `Record<string, string>` 으로 노출해 호출부 호환을 유지하는 절충이 적절.
+
+**SDK**: zod 4.3.6 기준 `z.nativeEnum(...)` 사용. zod 4 도 동작하며 추후 `z.enum(Object.values(...))` 류로 마이그레이션 가능.
+
+### Gemini 2.0-flash → 2.5-flash + GEMINI_MODEL env override (2026-05-03 hotfix)
+
+배포된 `/ai` 페이지에서 「AI 분석 시작」 클릭 시 429 quota error + 메시지에 `limit: 0` 동반 → `gemini-2.0-flash` 가 2026 시점 free tier 에서 사실상 차단된 상태 (Google 이 2.5 출시 후 2.0 free tier 를 제한). `lib/ai.ts:94` 한 줄 교체 + env override 추가:
+
+```ts
+const model = genAI.getGenerativeModel({
+  model: process.env.GEMINI_MODEL ?? "gemini-2.5-flash",
+});
+```
+
+일반 패턴은 [[gemini-2-0-flash-free-tier-blocked]] 로 분리.
+
+### AI 분석 결과 DB 저장 + 멀티 LLM provider 도입 (2026-05-03)
+
+기존 `/ai` 흐름은 `analyzePortfolio()` 결과를 `useState` 에만 보관 → 새로고침 시 사라지고, 매 분석마다 free tier quota 소비. 두 가지 작업을 한 번에 진행:
+
+1. **`AiAnalysis` 모델 추가** — `prisma migrate dev --name add_ai_analysis` (5개 한국어 텍스트 필드 + `createdAt @@index` + `netWorthAtTime Decimal?`). 1건 ~2-5KB → 1000건 쌓여도 ~5MB (Supabase 무료 500MB 의 1%).
+2. **멀티 LLM provider 어댑터 도입** — 단일 `lib/ai.ts` 를 `lib/ai/{types,context,index}.ts` + `lib/ai/providers/{gemini,openai,anthropic}.ts` 로 분해. `prisma migrate dev --name add_ai_provider` 로 `provider` 컬럼 추가. 일반 패턴은 [[multi-llm-provider-adapter-pattern]] 로 분리.
+
+| 결정 | 선택 |
+|---|---|
+| Provider 추상화 | `lib/ai/providers/<vendor>.ts` 어댑터 |
+| 환경변수 | `GEMINI_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY` (있는 것만 UI 노출) |
+| 모델 선택 | 각 provider 별 default + `<VENDOR>_MODEL` env override |
+| 키 저장 | **환경변수만** (DB 저장 + 암호화는 #1 백로그) |
+| DB 컬럼 | `provider` 추가 (마이그레이션 별건) |
+| SDK | 세 provider 모두 공식 SDK 직접 사용 — 멀티 LLM 추상화 라이브러리 도입 안 함 |
+| UI | provider 드롭다운, server component (`page.tsx`) + client component (`ai-page-client.tsx`) 분리 |
+
+**삭제 정책 (백로그)**: `prisma.aiAnalysis.deleteMany()` 으로 전체 비우기 가능, daily cron 에 `where: { createdAt: { lt: 90일 전 } }` 추가하면 자동 retention. 모델 자체 drop 도 `Account/Holding` 핵심 데이터와 분리되어 있어 영향 없음.
+
+### 일별 cron timeout 사고와 DIRECT_URL 우회 (2026-05-05 hotfix)
+
+매일 KST 07:00 cron 이 실패해 `/market` 페이지가 어제 시세를 그대로 보여주는 증상으로 시작. 6 commit 에 걸친 root cause 추적 끝에 PgBouncer 의 query 당 connection acquire 누적 비용이 진짜 원인이었음을 확인. **cron lambda 만 `DIRECT_URL` 로 PgBouncer 를 우회**하는 것이 정공법. 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리.
+
+증상 진행:
+
+| 단계 | commit | 결과 |
+|---|---|---|
+| 1. `/api/cron/daily` 수동 호출 | — | 즉시 500, P2024 (`connection_limit: 1`, `timeout: 10`) |
+| 2. `Promise.all` 3-튜플 + 내부 `Promise.allSettled` 모두 직렬화 | `46ed64a` | P2024 사라짐, 60초 timeout (`FUNCTION_INVOCATION_TIMEOUT`) |
+| 3. prisma 호출만 mutex (`withPrismaLock`) 로 직렬화, yahoo 는 병렬 복원 | `414a6ad` | 여전히 60초 timeout |
+| 4. `refreshMarketHistory` fetch window 1년 → 7일 | `653d147` | 여전히 60초 timeout |
+| 5. 진단 timing log + instrumentation count 직렬화 | `7c49814` | route handler 의 첫 `console.log` 가 한 번도 안 찍힘 |
+| 6. instrumentation `register` 를 fire-and-forget 으로 + try/catch | `5f6e0b5` | 그래도 timeout |
+| 7. **`prismaDirect` (DIRECT_URL) 주입 + cron 만 PgBouncer 우회** | `6f1ec93` | **24.5초에 200 OK, 41 holdings + 9 indices + history 정상** |
+| 8. cleanup (진단 코드 제거) | `bdeb3b1` | 정상 |
+
+진단 도중 `refreshMarketIndices` 만으로도 23.5초가 걸리는 것을 timing log 로 잡은 것이 결정적 단서. 9개 직렬 upsert 가 23초나 걸리는 건 yahoo 가 아니라 **PgBouncer transaction mode 환경에서 매 prisma 호출마다 connection acquire 비용이 누적**되고 있다는 의미.
+
+수정 후의 구조:
+
+```
+Promise.all                                    ← yahoo I/O 는 병렬
+ ├─ refreshAllPrices    (yahoo 41 symbols, worker pool 6)
+ ├─ refreshMarketIndices (yahoo 9 indices)
+ └─ refreshMarketHistory (yahoo 9 × 7일 chart)
+      └─ withPrismaLock(prisma upsert)        ← DB write 는 mutex 로 큐잉
+            └─ prismaDirect (DIRECT_URL, no PgBouncer)
+```
+
+- **yahoo I/O = 병렬** (`Promise.all`) → wall-clock 을 가장 느린 1개로 압축
+- **prisma write = 직렬** (`withPrismaLock`) → connection_limit=1 안전
+- **prismaDirect = PgBouncer 우회** → query 당 acquire 비용 제거
+
+직렬화만으로는 부족했던 이유 — yahoo round-trip 59회 (41+9+9) × 평균 0.5~1초가 누적되면 단순 직렬은 30~60초로 lambda budget 초과. 병렬은 worker pool 안에서 가장 느린 batch 시간만 소요.
+
+### History fetch window 7일 단축 (2026-05-05)
+
+`refreshMarketHistory` 의 yahoo chart fetch 를 1년 → 7일로 축소 (`lib/market.ts:393` `period1.setDate(-7)`). DB 에는 이미 1년치 history 가 backfill 되어 있고 `createMany skipDuplicates` 라 매일 새로 들어가는 row 는 어제/오늘 1~2개뿐. 즉 **9 × 365 row × 24 byte 의 yahoo 페이로드를 매일 받아 99.7% 를 버리던 구조**였다.
+
+엣지 케이스:
+- **장기 outage (>7일)**: 7일 넘는 공백은 빈 채로 남음. 발생 시 `fetchSymbolHistory(symbol, 365)` ad-hoc 1회 백필 필요.
+- **새 INDICES_CONFIG 추가**: instrumentation 의 `historyCount === 0` 분기가 트리거 안 됨 (이미 다른 symbol 들로 0 이 아니므로). 첫 1년치 백필 별도 1회 필요.
+
+차트 측은 기존 그대로 `getMarketHistory(symbol, 365)` 가 DB SELECT 로 1년치를 가져오므로 사용자 영향 없음.
+
+### instrumentation.register `await` hang 함정 (2026-05-05 발견)
+
+`instrumentation.ts:register()` 가 `await prisma.marketIndex.count()` 같은 prisma 호출을 직접 실행하면, **lambda startup 단계에서 hang 시 route handler 의 첫 줄도 진입 못 함**. PgBouncer connection acquire 가 길어질 때 정확히 이 패턴으로 60초 timeout 만 남고 timing log 0건이 된다.
+
+해결: `register()` 안의 backfill 보조 코드를 fire-and-forget + try/catch 로 분리.
+
+```ts
+export async function register() {
+  void (async () => {
+    try {
+      const { prisma } = await import("@/lib/prisma");
+      const indexCount = await prisma.marketIndex.count();
+      if (indexCount === 0) await refreshMarketIndices();
+      const historyCount = await prisma.marketIndexHistory.count();
+      if (historyCount === 0) await refreshMarketHistory();
+    } catch (e) {
+      console.warn("[instrumentation] backfill skipped:", e);
+    }
+  })();
+}
+```
+
+instrumentation 의 backfill 은 신선한 DB 의 1회용 보조 코드이고 lambda hot path 가 아니다. 실패해도 startup 을 죽여서는 안 된다는 점이 일반 원칙.
+
+배포 후에도 페이지 lambda cold start 에서 `[instrumentation] backfill skipped: PrismaClientInitializationError ... connection limit: 1` warning 이 가끔 발생하지만, swallow 되어 lambda 는 정상 진행 (200 응답).
+
+### Vercel logs CLI 의 시간 윈도우 한계 (2026-05-05 발견)
+
+cron 실행 여부를 사후 확인하려고 `vercel logs` CLI 를 쓰니:
+
+- `--since 2h`, `-n 5000` 줘도 **server-side cap 에 걸려 가까운 ~50분 윈도우만 반환**. cron 실행 시각 (KST 07:00 = UTC 22:00) 까지 못 닿는 경우가 많음.
+- `--until <ISO>` 단독은 400.
+- `--since <ISO>` 특정 시각 지정도 traffic 많은 시간대면 400 또는 결과 비어 나옴.
+- `--source serverless`, `-q <text>` 같은 필터가 잘 안 먹음.
+- `--json` redirect 시 stdout 이 비기도 함 — `script -q /dev/null bash -c "vercel logs..."` 같은 PTY 모방으로만 잡힘.
+
+결론: 과거 시각의 cron 호출 1건을 CLI 로 콕 집어 잡는 건 사실상 불가능에 가까움. 정공법은 **Vercel 대시보드 Logs 탭에서 시간 범위 좁혀 검색** 또는 **endpoint 를 수동 curl 호출해 응답 + 직후 로그를 함께 캡처**.
+
+또한 Hobby 플랜의 cron 페이지에는 **Last Run / Status 컬럼이 표시되지 않음** (Pro 이상 기능). cron 실행 사실 검증은 위의 방법으로만 가능.
+
+### Hobby cron flexible 1-hour window (참고)
+
+`0 22 * * *` (UTC) = KST 07:00 으로 등록해도, Hobby 플랜은 **flexible 1-hour window** 로 KST 07:00~08:00 사이 어느 시점에 실행. 정확한 분 단위 시간은 보장되지 않음. 사용자 입장에서 "오전 7시에 안 돌고 8시에 돈다" 로 보일 수 있는데 정상 동작 범위.
+
+### Zod-schema 정리 후 폼 즉시 검증 → ✅ 적용 (2026-05-08, commit 96a22e1)
+
+`react-hook-form` 7.75 + `@hookform/resolvers/zod` 5.2 도입으로 4개 폼 (`account` / `holding` / `dividend` / `group`) 의 클라이언트 즉시 검증 + 서버 라운드트립 절감 (+365 / -186). 일반 패턴은 [[react-hook-form-zod-server-action]] 으로 분리.
+
+| 결정 | 선택 |
+|---|---|
+| input/output 타입 분리 | `useForm<z.input<S>, unknown, z.output<S>>` 명시 — resolvers v5 의 input/output 분리로 안 쓰면 TS2719 |
+| 서버 검증 유지 | 클라이언트 검증 통과 후 `FormData` 재구성 → 기존 server action 호출 (defense-in-depth) |
+| pending UX | `useTransition` |
+| cascade 자동 채움 | `setValue` 사용 (holding 의 심볼 lookup → symbol/currency/name 동시 채움; dividend 의 holding 선택 cascade + 통화 변경 시 FX 자동 fetch) |
+| 체크박스 배열 | `register("accountIds")` 한 줄 (group 폼의 Set state + hidden inputs 패턴 단순화) |
+| 호환성 | `Input`/`Select`/`Textarea` 가 모두 `forwardRef` 라 `register()` spread 그대로 동작 |
+
+### Supabase Auth + 이메일 Allowlist → ✅ 적용 (2026-05-08, commit e1bdb4a)
+
+기존 `ADMIN_PASSWORD` + HMAC-SHA256 세션 쿠키 인증을 Supabase Auth + 매직 링크 + `OWNER_EMAIL` allowlist 로 교체. 일반 패턴은 [[supabase-magic-link-single-user-allowlist]] 로 분리.
+
+| 변경 | 내용 |
+|---|---|
+| 신규 의존성 | `@supabase/ssr`, `@supabase/supabase-js` |
+| 신규 파일 | `lib/supabase/{server,client,middleware}.ts`, `lib/auth/allowlist.ts`, `app/auth/callback/route.ts`, `app/api/auth/send-magic-link/route.ts`, `app/api/auth/logout/route.ts` |
+| 삭제 | `lib/auth.ts` (HMAC + verifyAdminPassword), `app/actions/auth.ts` |
+| env 변경 | `+NEXT_PUBLIC_SUPABASE_URL`, `+NEXT_PUBLIC_SUPABASE_ANON_KEY`, `+OWNER_EMAIL`, `+NEXT_PUBLIC_APP_URL`; `-ADMIN_PASSWORD`, `-AUTH_SECRET` |
+| middleware | Supabase `updateSession` 위임. `/api/cron` 제외는 그대로 (Vercel Cron 은 cookie 없이 `CRON_SECRET` Bearer) |
+| Defense-in-depth | 매직 링크 발송 라우트 (GATE 2) + callback 라우트 (GATE) 양쪽에서 allowlist 재검증. 비-allowlist 이메일도 generic 200 응답 (email enumeration 방지) |
+
+운영 배포 노하우:
+
+- Supabase Dashboard 「API」 탭이 「Data API」(Project URL) + 「API Keys」(anon key) 두 개로 분리됨 (2026 봄). 같은 값 다른 별칭: Project URL = API URL = RESTful endpoint
+- Site URL vs Redirect URLs 의미 — 코드가 `emailRedirectTo: ${NEXT_PUBLIC_APP_URL}/auth/callback` 명시하면 Site URL 은 fallback. **Redirect URLs 화이트리스트가 핵심**
+- 로컬·운영 분리: `NEXT_PUBLIC_APP_URL` 만 환경별로 다르게 (`localhost:3000` vs `japa-kappa.vercel.app`), Supabase Redirect URLs 에는 두 콜백 모두 등록
+- Vercel 환경변수 변경 후 자동 재배포 안 됨 → Redeploy 수동 트리거 필요
+
+### AI 키 AES-256-GCM 암호화 → 보류 (2026-05-08 결정)
+
+원래 #3 백로그였으나, Vercel env 가 이미 at-rest 암호화 + 1인 사용자가 DB·env 모두 소유하는 위협 모델 단순성으로 **ROI 약함** 결론. env 직접 사용으로 충분. 얻는 것 (UI 로 키 추가/교체, 멀티 provider 키 중앙 관리) 대비 비용 (`AI_KEY_ENCRYPTION_SECRET` 분실 시 모든 키 손실 → 1Password 백업 필수, Prisma 마이그레이션, 매 요청 DB 조회 + AES 복호화) 이 더 큼.
+
+### BUY/SELL Transaction 추적 → ✅ MVP 적용 (2026-05-09, commit 0aa2187)
+
+기존엔 `Holding.quantity`·`averageCost` 두 스칼라를 사용자가 직접 입력해야 했고 (`holding-form.tsx`), 추가 매수/매도 시 평단가를 손계산해 폼에서 다시 써야 했다. 매도 이력·실현 손익이 어디에도 안 남아 해외주식 양도세 (Major Req #4) 추적이 사실상 불가능했다. `tasks/todo-2026-05-03.md` 의 ⭐⭐⭐ 1순위 백로그 MVP 구현. 일반 패턴은 [[holding-transaction-cost-basis-design]] 으로 분리.
+
+| 결정 | 선택 |
+|---|---|
+| enum 1차 범위 | `BUY` / `SELL` 만 (`DIVIDEND` 는 별 모델, `OTHER` 는 가치 없음) |
+| 평단가 산식 | 한국 양도세 표준: `newAvg = (oldAvg·oldQty + price·qty + fee) / newQty` (수수료 취득원가 포함). 매도 시 평단 유지·수량만 차감 |
+| 실현 손익 | SELL row 의 `realizedGain` 컬럼에 박아 보존 (이후 평단 변경에도 안 흔들림) |
+| 거래 삭제 | 효과 역연산 (BUY: qty 차감 + 평단 재계산 + cash 환급 / SELL: qty 복원 + 평단 유지 + cash 차감) |
+| 거래 수정 | 1차 미지원 (삭제 후 재입력) |
+| `cashBalance` 자동 갱신 | 폼 체크박스 default ON. **계좌·거래 통화 일치할 때만** 적용 (환전 시점 모호함 회피) |
+| 진입점 | 신설 `/holdings/[id]` detail (보유/평단/누적실현손익 카드 + 거래 히스토리) → 매수/매도 버튼 |
+| 트랜잭션 | 수량·평단·현금 갱신 모두 `prisma.$transaction([...])` 으로 묶음 |
+
+| 신규/수정 | 파일 |
+|---|---|
+| 신규 (DB) | `prisma/schema.prisma` (enum `TransactionType` + model `Transaction`), `prisma/migrations/20260508232227_add_transaction/migration.sql` |
+| 신규 (서버) | `lib/transactions/schema.ts` (Zod 폼 스키마), `app/actions/transactions.ts` (`createTransaction` / `deleteTransaction`) |
+| 신규 (UI) | `components/forms/transaction-form.tsx`, `app/holdings/[id]/page.tsx` (보유 detail), `app/holdings/[id]/trade/new/page.tsx` (`?type=BUY|SELL` 분기) |
+| 수정 | `lib/data.ts` (`getHoldingTransactions(holdingId)` getter), `app/holdings/page.tsx` (자산명 → detail 링크), `app/accounts/[id]/page.tsx` (매수/매도 단축 아이콘) |
+
+후속 백로그 (별도 세션):
+- Tax 페이지의 `SELL` 실현손익 합산 → 「실현 + 미실현 분리」
+- `/api/export/transactions` CSV
+- enum 확장 (DEPOSIT / WITHDRAW / FEE / DIVIDEND_REINVEST) — 데이터 누적 후 양도세 신고 자료 완결성 요구 시점에 결정
+
+## 변경 이력
+
+- 2026-04-30: 최초 생성. 디스크 분석·Vercel 배포·Supabase pooler 모드·force-dynamic·단일 사용자 인증·Yahoo Finance 동시 호출 silent fail 수정·수익률 % 표시 작업 기록 (출처: session-logs/20260430-135011-e8eb-*, 161410-0fcc-*)
+- 2026-05-02: P2024 connection pool 사고와 cron 통합 작업 기록 — `marketIndexHistory.createMany skipDuplicates`, click-path 슬림화, `/api/cron/daily` 신설 (CRON_SECRET + middleware exempt + KST 날짜 분기), `Account.contributionYTD` 컬럼 신설 + 1월 1일 cron 리셋, WTI 원유 인덱스, CSV 내보내기, prisma migrate deploy 빌드 통합 (출처: session-logs/20260501-213505-aecb-*). 일반 패턴은 [[prisma-connection-pool-vercel-supabase]], [[vercel-cron-best-practices]] 로 분리.
+- 2026-05-02 (2nd batch): `toy/japa` 와의 비교 분석 + 4개 차용 결정 (사이드바 / 종목 자동 판별 / 60초 쿨다운 / 배당 모델 / 계좌 그룹). 사이드바 + 종목 자동 판별 + 쿨다운 3건 적용 완료, 배당 모델 + 계좌 그룹은 백로그. rate limit 방어 측면에서 본 프로젝트가 toy 보다 견고함 확인 (직렬+100ms vs worker pool 6 + 250ms 1회 재시도). 도메인 패턴 메모: 「자동 채움은 빈 필드만 / 사용자 입력 보호 우선」, 「쿨다운은 click-path 만 / cron 은 영향 없음」, 「예측치와 실측치는 같은 컬럼에 섞지 말 것」 (출처: session-logs/20260502-095014-6859-*).
+- 2026-05-03: `git/wk/japa-s` 와의 비교 + 상위 3개 항목 결정 (Supabase Auth / AI 키 암호화 / Zod 스키마 분리). #3 Zod 스키마 entity별 분리 (`lib/<entity>/schema.ts` 4개 신규 + 15개 파일 리팩터, 순감 80줄) 적용 완료. Gemini 2.0-flash free tier blocked → 2.5-flash 마이그레이션 + `GEMINI_MODEL` env override 추가. `AiAnalysis` Prisma 모델 추가로 분석 결과 DB 영속화. 단일 Gemini 코드를 `lib/ai/providers/{gemini,openai,anthropic}.ts` 어댑터 패턴으로 분해 + `provider` 컬럼 추가 (공식 SDK 직접 사용, 멀티 LLM 추상화 라이브러리 미도입). 일반 패턴은 [[zod-schema-per-entity]], [[multi-llm-provider-adapter-pattern]], [[gemini-2-0-flash-free-tier-blocked]] 로 분리 (출처: session-logs/20260503-100914-b80f-*).
+- 2026-05-05: 일별 cron 이 시세 갱신 실패 (P2024 → 60초 timeout) 사고. 6 commit 추적 끝에 root cause 가 PgBouncer transaction mode 의 query 당 connection acquire 누적 비용임을 확인 → `prismaDirect` (DIRECT_URL) 주입으로 cron lambda 만 PgBouncer 우회, 24.5초에 정상 완료. yahoo I/O = 병렬 / prisma write = mutex 직렬 / connection = direct URL 의 3계층 분리. `refreshMarketHistory` 1년 → 7일 단축 (skipDuplicates 라 99.7% 버려지던 페이로드 제거). `instrumentation.register` 의 `await` hang 함정 발견 → fire-and-forget + try/catch 로 분리. Vercel logs CLI 의 시간 윈도우 cap, Hobby cron Last Run 컬럼 미노출, cron flexible 1-hour window 등 운영 노하우 추가. 일반 패턴은 [[pgbouncer-direct-url-hybrid-routing]] 로 분리 (출처: session-logs/20260505-084952-fe4f-*).
+- 2026-05-08: tasks/plan-2026-05-03 의 #1·#2 완료. (1) **react-hook-form + @hookform/resolvers/zod** 도입으로 4개 폼 (account/holding/dividend/group) 클라이언트 즉시 검증 + 서버 라운드트립 절감 (commit 96a22e1, +365/-186). resolvers v5 의 input/output 분리로 `z.input` / `z.output` 명시 필요 (TS2719). group 폼의 Set state + hidden inputs 패턴이 `register("accountIds")` 한 줄로 단순화. (2) **Supabase Auth + 매직 링크 + OWNER_EMAIL allowlist** 로 HMAC AUTH_SECRET / ADMIN_PASSWORD 인증 교체 (commit e1bdb4a). Defense-in-depth 4-Gate: send-magic-link (GATE2) + /auth/callback 양쪽에서 allowlist 재검증, 비-allowlist 이메일은 generic 200 응답 (email enumeration 방지). middleware matcher 의 `/api/cron` 제외 유지 (CRON_SECRET Bearer 별도 인증). (3) #3 AI 키 AES-256-GCM 암호화는 위협 모델 단순성 + Vercel env 의 at-rest 암호화로 ROI 약하다는 결론 → 보류. 일반 패턴은 [[react-hook-form-zod-server-action]] / [[supabase-magic-link-single-user-allowlist]] 로 분리 (출처: session-logs/20260507-230645-c555-*).
+- 2026-05-09: tasks/todo-2026-05-03 의 ⭐⭐⭐ 1순위 백로그 **BUY/SELL Transaction 추적 MVP** 구현 (commit 0aa2187, +938/-16). `prisma.$transaction` 으로 수량·평균단가·계좌 현금 일괄 갱신, 한국 양도세 표준 가중평균 (수수료 취득원가 포함) ‖ SELL row 의 `realizedGain` 컬럼에 실현손익 박아 보존 ‖ 거래 삭제는 효과 역연산 ‖ 계좌·거래 통화 일치 시에만 cashBalance 자동 갱신 (환전 시점 모호함 회피). 신설 `/holdings/[id]` detail 페이지 + 매수/매도 단축 아이콘 (계좌 detail). enum 1차 범위는 `BUY`/`SELL` 만 (DIVIDEND 는 별 모델). Tax 양도세 페이지의 실현/미실현 분리 + CSV export + DEPOSIT/WITHDRAW enum 확장은 데이터 누적 후 별도 세션. 일반 패턴은 [[holding-transaction-cost-basis-design]] 으로 분리 (출처: session-logs/20260509-080729-fd9f-*).
+- 2026-05-12: **CSV round-trip 백업/복원 워크플로 + Supabase 뭄바이 → 서울 리전 마이그레이션** 완료. (1) `/api/export/[type]` 에 `groups` (N:M `;-구분 accountIds` 직렬화) / `transactions` 추가, holdings 에 `accountId` / dividends 에 `accountId`/`holdingId` 컬럼 추가로 round-trip 보장 (commit de3bf75, +613/-5). 신설 `/settings/data` 한 페이지에서 5종 CSV 다운로드 → "RESET" 입력 + 브라우저 confirm 2중 가드 → 5-파일 업로드 import 흐름 강제. PgBouncer transaction-mode 호환 위해 `$transaction(callback)` 대신 array form 사용. @updatedAt 은 import 시점에 재생성 (createdAt 만 보존). (2) Next.js 16 Turbopack 의 `"use server"` 파일이 async function 외 export (객체 `INITIAL_DATA_STATE`) 거부 → runtime 에러로 페이지 깨짐, 객체 export 제거 + type-only export 만 유지로 수정 (commit 4ba3e26). 일반 패턴은 [[nextjs16-use-server-non-async-export]] 로 분리. (3) Supabase 리전 마이그레이션 9 단계 절차 (CSV 백업 → .env 백업 → 새 프로젝트 4 연결정보 수집 → .env 교체 → `prisma migrate reset --force --skip-seed` → Auth URL whitelist 추가 → 로컬 import 검증 → 코드 commit → Vercel env 교체 + push 자동배포) 로 응답속도 개선. 비밀번호 함정 (Database password vs anon key vs service_role 혼동, URL percent-encoding, "Generate a password" 의 특수문자 위험), P3005 (schema not empty) 대응, auth.users 마이그레이션 불필요 (단일 사용자 매직 링크는 새 프로젝트에서 다시 로그인) 등 모두 [[supabase-region-migration]] / [[csv-roundtrip-backup-restore]] 로 분리 (출처: session-logs/20260512-000725-28e8-*).
