@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["concept", "ai-agent", "self-hosted", "hermes", "nous-research", "personal-assistant"]
 created: 2026-05-02
-updated: 2026-06-20
+updated: 2026-07-04
 sources:
   - "session-logs/20260502-092045-628d-hermes-라는-opensource-agent-를-설치하려고하는데-조사좀-해-주세요.md"
   - "session-logs/20260509-001610-307a-hermes-agent-를-설치했는데-메인-agent-말고-별도로-코딩-전용-agent를.md"
@@ -18,6 +18,7 @@ related:
   - "wiki/analyses/personal-ai-agent-messaging-channels.md"
   - "wiki/analyses/multi-profile-cli-agent-isolation.md"
   - "wiki/analyses/self-hosted-agent-webui-integration.md"
+  - "wiki/analyses/hermes-paperclip-adapter.md"
   - "wiki/projects/hermes.md"
   - "wiki/projects/hermes-dashboard.md"
 ---
@@ -172,6 +173,7 @@ API 서버(`:8642`)와 별개로 `hermes dashboard` 가 띄우는 **웹 dashboar
 - [[llm-provider-aggregator-vs-local-vs-hub]] — OpenRouter / Ollama / HuggingFace 의 차이 (Hermes provider 선택 가이드)
 - [[personal-ai-agent-messaging-channels]] — Telegram 이 이런 부류의 agent 에서 사실상의 표준이 된 이유
 - [[multi-profile-cli-agent-isolation]] — hermes 멀티 프로필 셋업에서 일반화한 OAuth 공유 / HOME 격리 우회 / shell init 함정
+- [[hermes-paperclip-adapter]] — Paperclip 이슈/heartbeat 에 Hermes 를 붙여 작업 큐 worker 처럼 운영하는 어댑터
 - [[hermes]] (project) — 실제 default + maccoder 운영 기록
 
 ## 변경 이력
@@ -180,3 +182,4 @@ API 서버(`:8642`)와 별개로 `hermes dashboard` 가 띄우는 **웹 dashboar
 - 2026-05-09: 멀티 프로필 (`hermes profile`) / `claude-code` skill / ACP 방향 비대칭 (server-only) 추가. multi-profile-cli-agent-isolation / hermes (project) 와 cross-link. confidence: medium → high (출처: session-logs/20260509-001610-307a-*)
 - 2026-06-18: **내장 API 서버** 섹션 신설 — 통신 3표면(Gateway/SSH/API 서버) 구분, OpenAI 호환 `:8642`, `model` 필드 장식용·프로필=게이트웨이=포트, Runs API 가 위임 lifecycle 이벤트 출처, `GET /v1/skills` 있음·Kanban API 없음, 세션 `state.db`·ID `YYYYMMDD_HHMMSS`·`sessions export`, 오케스트레이션은 리더 프로필 내부 sub-agent. hermes-dashboard 해커톤 설계에서 소스·공식문서로 검증 (출처: session-logs/20260617-220010-47ab-*, 20260618-063919-3962-*)
 - 2026-06-20: **HTTP 서버 둘(8642 API vs 9119 dashboard)** 구분 + **"Kanban API 없음" 정정** — 네이티브 Kanban 은 `hermes kanban` CLI + dashboard `/api/plugins/kanban/` 로 존재(`~/.hermes/kanban.db` 전 프로필 공유), 8642 한정 사실이었음. dashboard 검증 함정(SPA fallback 200·세션 토큰 인증) 추가. **멀티에이전트 2방식**(`delegate_task` orchestrator-worker vs 공유 Kanban) 표 신설. hermes-dashboard 포크 검토 세션에서 코드로 확인 (출처: session-logs/20260620-080358-9eaa-*)
+- 2026-07-04: hermes-paperclip-adapter 분석 문서와 cross-link 추가 — Paperclip 이슈/heartbeat 기반 Hermes worker 운영 경로를 별도 문서로 분리.

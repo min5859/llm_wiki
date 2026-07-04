@@ -29,6 +29,7 @@
 - [[build-vs-fork-personal-tool]] — 0부터 빌드 vs 오픈소스 포크 — 차별점이 사라질 때의 의사결정
 - [[claude-code-source-leak-internals]] — Claude Code 소스 누출이 드러낸 에이전트 내부 설계 — anti-distillation · undercover · 회귀 측정
 - [[everything-claude-code]] — everything-claude-code (ECC) — Claude Code 하네스 성능 시스템
+- [[hermes-paperclip-adapter]] — hermes-paperclip-adapter — Paperclip 에 Hermes Agent 를 붙이는 런타임 어댑터
 - [[karpathy-claude-md-skills]] — multica-ai/andrej-karpathy-skills — CLAUDE.md 4원칙 가이드
 - [[llm-content-quality-guards]] — LLM 기반 자동 콘텐츠 발행의 5 가지 품질 가드
 - [[llm-newsletter-rewrite-metadata-grounding]] — LLM 뉴스레터 rewrite 의 메타데이터 그라운딩 베스트 프랙티스
@@ -116,5 +117,6 @@
 
 ## 변경 이력
 
+- 2026-07-04: 신규 1건 등록 — [[hermes-paperclip-adapter]] (ai-agent/analyses)
 - 2026-07-04: 신규 2건 등록 — [[personal-llm-wiki-curation]] (ai-agent/analyses), [[holding-period-signal-mismatch]] (trading/analyses)
 - 2026-07-02: v2 초기 생성, v1에서 73건 이관 (ai-agent 44 · trading 29)
