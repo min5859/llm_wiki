@@ -39,6 +39,7 @@
 - [[multi-profile-cli-agent-isolation]] — 멀티 프로필 CLI agent 격리 — OAuth 공유 / HOME 격리 우회 / shell init 함정
 - [[oauth-refresh-token-rotation-multi-client]] — 회전형 OAuth refresh token 을 여러 클라이언트가 공유할 때의 쟁탈 함정
 - [[openai-codex-cli-overview]] — OpenAI Codex CLI — 터미널 경량 코딩 에이전트와 로컬 모델 연결
+- [[personal-llm-wiki-curation]] — 개인 LLM wiki 큐레이션 — write-only 창고를 피하는 수집·승격 설계
 - [[openclaw-acp-runtime-internals]] — OpenClaw ACP Runtime 내부 구조 — plugins.allow / 좀비 task / sessions.json / wrapper 환경 상속
 - [[openclaw-telegram-group-setup]] — OpenClaw Telegram 그룹 봇 설정 — Privacy Mode, requireMention, 다중 에이전트
 - [[research-write-agent-separation]] — Research / Write 에이전트 분리 — LLM 콘텐츠 파이프라인의 도구 기반 조사 격상
@@ -77,6 +78,7 @@
 
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
+- [[holding-period-signal-mismatch]] — 보유기간-신호 미스매치 — 같은 진입신호가 홀딩 호라이즌에 따라 손실↔초과수익으로 뒤집힌다
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
@@ -114,4 +116,5 @@
 
 ## 변경 이력
 
+- 2026-07-04: 신규 2건 등록 — [[personal-llm-wiki-curation]] (ai-agent/analyses), [[holding-period-signal-mismatch]] (trading/analyses)
 - 2026-07-02: v2 초기 생성, v1에서 73건 이관 (ai-agent 44 · trading 29)

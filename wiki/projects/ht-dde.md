@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-07-02"
+updated: "2026-07-04"
 sources:
+  - "session-logs/20260704-093146-5338-현재-프로젝트-분석.md"
   - "session-logs/20260701-231304-df33-지금까지-돌린-페이퍼트레이딩-알고리즘-평가-쉽게-설명.md"
   - "session-logs/20260630-080924-22d3-지금까지-돌린거-알고리즘들-평가해줘.md"
   - "session-logs/20260613-164818-fc2f-신규-프로젝트를-시작하려고-하는데-지금-내가-이미-한국-투자-증권으로-API-사용해서-거래.md"
@@ -110,6 +111,21 @@ related:
 
 > 06-30 대비 이번 회차의 새 결론: (a) 손실이 −10% 절대손절에 집중된다는 payoff 분해 → 손절폭이 유일·최우선 레버, (b) 스냅샷 라벨이 신호 발굴 데이터셋이며 EOD 복합필터가 실재 신호 후보.
 
+## afternoon_eod 구현 & 심층 코드 분석 (2026-07-04)
+
+**07-01 발굴한 EOD 복합필터가 6번째 전략 `afternoon_eod` 로 실전화됐다** (07-02 커밋). 오후 12:00~15:20 에만 진입(전략 yaml의 `trade_window` 선언을 엔진 `_can_enter`/`_force_close` 가 해석 — 엔진 무수정 확장점), VWAP위+시가위+체결강도 100~130 세 규칙을 각 1점 × `min_score: 3` 으로 **가산점의 필수조건화**(AND 필터). 익절/트레일링은 검증 대상인 fwd_eod 엣지를 잘라내지 않도록 의도적으로 배제하고 -8% 재난 손절만 둠. 체결강도 150+ 는 과열(승률 최저)이라 상단 130 컷. 일반화는 [[holding-period-signal-mismatch]].
+
+리웨이트 쪽도 진행: 변형 `research_up` 40/30/30 추가, 장중 폴링 5분→2분(실거래 ht_trading 정합), 차트 제자리 갱신(update none)으로 깜빡임 제거.
+
+**병렬 서브시스템 분석(워크플로 8 에이전트)에서 확인·발견된 것들** (분석 결과 기반, 수정은 미착수):
+
+- `trade_window` 경계 겹침 — `_force_close` 는 `>= end`(15:20 포함) 강제청산인데 `_can_enter` 는 `<= end` 로 같은 분에 진입 허용 → 15:20 정각에 청산 직후 재진입 가능성.
+- 스캔 루프의 예외 내성 부족 — `scan_once` 가 KISAPIError만 캐치해 재시도 소진 후의 HTTPError/ConnectionError/JSONDecodeError 는 프로세스 전체를 죽인다. rate limit 이 `rt_cd≠0`(EGW00201)로 오면 백오프 없이 종목 스킵 → 연쇄 누락 ([[shared-broker-appkey-token-cache]] 에 일반화).
+- 토큰 캐시 쓰기 비원자적(write_text 직접 덮어쓰기, 락 없음) → 경합 시 불필요 발급 리스크 (상동).
+- universe 의 `rank_by` 재정렬은 volume-rank API 가 이미 자른 집합 안에서만 작동 — 실질 선정 기준을 바꾸지 못하고, API 반환이 top_n 미만이면 유니버스가 조용히 축소.
+- 콜 예산 실측: 종목당 3콜 × 60 + 유니버스 1콜 ≈ 181콜, min_interval 0.1초 기준 스캔 1회 ≥ 약 18초. `cli` 의 sleep 이 스캔 소요를 차감하지 않아 실제 주기 = loop + 스캔시간.
+- 설계 확인(의도대로): 지표 전략 간 공유(코드당 2콜) + 호가는 결정에 영향 주는 종목만 지연조회(`_needs_orderbook`, scoring 의 None=불통과 전제 위에 성립), `max_hold_minutes` 는 거래시간 분 기준, SQLite WAL 로 엔진 쓰기·웹 읽기 동시성, 재시작 복구는 DB 단일 진실원.
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -119,6 +135,7 @@ related:
 ## 변경 이력
 
 - 2026-07-02: "2차 평가 & 신호 발굴 (2026-07-01)" 절 추가. ①과매매=거래비용 드래그(공격형 수수료 113만=자본 11%) ②리웨이트 baseline이 최선+튜닝여지 최대(payoff 0.65·손실이 −10% 절대손절 8건에 집중 → 손절폭 −10%→−5~6%가 유일·최우선 레버, 승률 58%면 산술적 흑자전환) ③스냅샷 라벨에서 EOD 복합필터(오후+VWAP위+시가위+체결100~130) 발굴, 단일지표는 예측력 0·조합만 엣지. 신규 [[signal-overfit-date-dispersion-check]](날짜분산+시장대조로 과최적화 판별) 분리, [[dca-trailing-stop-tuning]] 교차링크 (출처: session-logs/20260701-231304-df33-*)
+- 2026-07-04: "afternoon_eod 구현 & 심층 코드 분석" 절 추가 — 07-01 발굴 EOD 필터의 실전화(trade_window 확장점·가산점 필수조건화·검증 엣지 보호 청산 설계), 워크플로 분석의 발견(trade_window 경계 겹침, 스캔 루프 예외 내성, 토큰 캐시 비원자 쓰기, universe rank_by 실질 무효, 콜 예산 181콜/스캔 ≥18초). 신규 [[holding-period-signal-mismatch]] 분리 (출처: session-logs/20260704-093146-5338-*)
 - 2026-06-13: 최초 생성 (출처: session-log 20260613-164818-fc2f). 스캐너 init → 종이거래+웹 대시보드 → launchd plist+휴장/버퍼까지 세션 1회 작업 기록.
 - 2026-06-20: "제안된 방향 — 스코어링 가중치 A/B 종이거래" 절 추가. [[n-stock-info]] 가중치 변형을 무위험 검증하는 테스트베드로 ht_dde 활용 검토(미착수). n-stock-info 와 상호 링크 (출처: session-logs/20260620-101936-aba2-*)
 - 2026-06-30: "리웨이트 A/B 구현 & 첫 평가" 절 추가. 6-20 검토안이 `reweight/` 모듈 + reweight.db + 전용 대시보드/launchd 로 구현돼 변형 5종을 SIM(일봉)·LIVE(장중) 동시 구동. 첫 평가는 전 전략 손실(스캐너 aggressive -19.95% 최악, 리웨이트 LIVE baseline 50/30/20 -3.38% 최선·tech_heavy -10.07% 최악, SIM balanced 만 +403K). 교훈: 일봉 SIM≠장중 LIVE 순위 역전·기술가중 과다=하락장 최악·표본부족. [[backtest-timeframe-sensitivity]]·[[equity-curve-max-vs-latest-aggregation]] 신규/보강 (출처: session-logs/20260630-080924-22d3-*)

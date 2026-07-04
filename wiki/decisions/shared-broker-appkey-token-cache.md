@@ -4,9 +4,10 @@ domain: "trading"
 sensitivity: "public"
 tags: ["decision", "kis", "trading", "auth", "token-cache", "rate-limit", "appkey", "multi-process"]
 created: "2026-06-13"
-updated: "2026-06-13"
+updated: "2026-07-04"
 sources:
   - "session-logs/20260613-164818-fc2f-신규-프로젝트를-시작하려고-하는데-지금-내가-이미-한국-투자-증권으로-API-사용해서-거래.md"
+  - "session-logs/20260704-093146-5338-현재-프로젝트-분석.md"
 confidence: "high"
 related:
   - "wiki/projects/ht-dde.md"
@@ -45,6 +46,17 @@ related:
 
 1번이 본질적 해법(필요 없는 호출을 안 함), 2·3 은 안전마진. 일일 누적 한도는 시세 조회엔 사실상 없고 **초당 제한이 핵심**이라, 분담의 단위도 "초당 합산"으로 잡는다.
 
+## 구현 검증과 남은 리스크 (2026-07-04 코드 분석)
+
+ht_dde 심층 분석에서 결정 1의 구현이 의도대로임을 확인:
+
+- consumer(ht_dde)는 `token` property **접근 시마다 캐시 파일을 재로드**해 다른 프로세스(owner)의 토큰 갱신을 즉시 흡수한다. 캐시 스키마(`base_url`/`appkey`/`token`/`expires_at`)와 만료 안전마진 1시간 선반영 방식이 owner 쪽 KISAuth와 완전 호환.
+- 캐시 로드 시 `base_url`/`appkey` 일치를 검사해 다른 서버·앱키의 토큰을 오용하지 않는다.
+
+**남은 리스크 — 캐시 파일 쓰기가 비원자적.** owner의 토큰 저장이 `write_text` 직접 덮어쓰기(파일 락 없음)라, owner가 쓰는 도중 consumer가 읽으면 JSONDecodeError → 캐시 무시 → **consumer가 불필요한 신규 발급을 시도**해 "분당 1회 발급 제한"과 충돌할 수 있다. 완화는 저비용: 임시파일에 쓴 뒤 `os.replace` 로 원자적 교체. (미적용 상태 — 주석으로 경합 가능성만 인지.)
+
+또 하나: rate limit 초과가 HTTP 오류가 아니라 **비즈니스 코드(`rt_cd≠0`, `EGW00201`)로 오면** 재시도 백오프를 타지 않고 종목 스킵으로 처리돼, 한도 초과 상태에서 연쇄 누락이 날 수 있다. 429든 EGW00201이든 "한도 초과"는 백오프 대상으로 분류해야 한다.
+
 ## 일반화
 
 - 단일 자격증명 + 발급 제한 → **발급 owner 1개 + 캐시 consumer N개**.
@@ -54,3 +66,4 @@ related:
 ## 변경 이력
 
 - 2026-06-13: 최초 생성 (출처: session-log 20260613-164818-fc2f, ht_dde 가 ht_trading 과 KIS appkey 공유 시의 토큰·rate limit 결정).
+- 2026-07-04: "구현 검증과 남은 리스크" 절 추가 — token property 접근 시마다 캐시 재로드로 owner 갱신 흡수(스키마 완전 호환 확인), 비원자적 write_text 경합 → 불필요 발급 리스크(완화: temp file + os.replace), rt_cd 기반 한도 초과(EGW00201)가 백오프 없이 스킵되는 문제 (출처: session-log 20260704-093146-5338 코드 분석).
