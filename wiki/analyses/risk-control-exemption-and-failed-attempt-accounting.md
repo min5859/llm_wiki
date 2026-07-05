@@ -4,12 +4,16 @@ domain: "trading"
 sensitivity: public
 tags: ["analysis", "trading", "rate-limit", "order-limit", "risk-control", "reconciliation", "anti-pattern"]
 created: "2026-06-23"
-updated: "2026-06-23"
+updated: "2026-07-05"
 source_session: "20260622-225750-4b1b-오늘-보해양조를-매수후에-10-%-가-넘은-상태까지-갔다가-다시--2-%-가-되었는데-트레.md"
+sources:
+  - "session-logs/20260622-225750-4b1b-오늘-보해양조를-매수후에-10-%-가-넘은-상태까지-갔다가-다시--2-%-가-되었는데-트레.md"
+  - "session-logs/20260704-130158-2dad-현재-프로젝트에서-개선할-부분이-있을지-검토해줘.md"
 confidence: high
 related:
   - "wiki/analyses/partial-sell-rule-idempotency.md"
   - "wiki/analyses/polling-interval-vs-bar-interval.md"
+  - "wiki/bugs/order-post-retry-double-fill.md"
   - "wiki/projects/ht-trading.md"
 ---
 
@@ -32,6 +36,8 @@ if signal.side == "BUY" and order_count >= max_daily_orders:
 ```
 
 원칙: **처리율 제한은 진입·확대 행위에만 걸고, 리스크를 줄이는 행위(청산·손절·취소)는 무조건 통과시킨다.** 한도의 목적은 과잉 거래 억제이지 손실 방치가 아니다.
+
+**같은 원칙의 두 번째 인스턴스 (2026-07-04, commit 2c68554)** — 주문 *수* 한도뿐 아니라 **일일 *손실* 한도**도 동일했다. 손실 한도 체크가 `validate_signal` 의 BUY/SELL 분기보다 위에 있어, 한도 초과 시 손절·트레일링 SELL 까지 거부 → **손실이 큰 날일수록 보호 매도가 막히는 역설**. 수정: 손실 한도 체크를 BUY 분기 내부로 이동, SELL 은 항상 통과. 한도류 안전장치를 새로 추가할 때마다 "이 게이트가 SELL 도 막는가"를 반복 점검해야 한다는 증거.
 
 ## 2. 실패한 시도는 한도·카운터를 소비하지 않는다
 
@@ -65,6 +71,14 @@ if order_id is not None:
 ## 5. 가용 현금 ≠ 예수금
 
 `get_cash()`가 예수금만 반환하고 **미체결 매수가 묶어둔 reserved 금액을 차감하지 않으면**, 시스템은 "현금 있다"고 보고 제출하지만 거래소는 `주문가능금액 초과`로 거부한다 → 제출-거부 루프. 가용 현금은 `예수금 − 미체결 매수 예약금`으로 계산해야 한다.
+
+## 5b. 배치 검증의 스냅샷 함정 — 사이클 내 다중 매수가 서로를 못 본다
+
+`_process_signals` 가 한 사이클의 모든 BUY 를 **사이클 시작 시점 스냅샷**(`_cached_positions` / `_cached_orderable_cash`)으로 검증하면, 한 사이클에 BUY 가 여러 건일 때 서로의 효과를 못 봐 max_positions 초과·현금 이중 배정이 가능하다 (후자는 거래소 거부로만 간신히 완화되는 상태였음).
+
+수정 (2026-07-04, commit eee7098): **매수 제출 성공 직후 로컬 캐시에 주문을 투영** (포지션 추가/병합, 예약금 차감) → 같은 사이클의 다음 BUY 가 갱신된 상태를 본다. 다음 사이클의 강제 갱신이 실제 잔고와 reconcile.
+
+> 일반 원칙: 배치 검증을 스냅샷 하나로 돌리면 배치 내 항목들이 서로를 못 본다 — **제출분을 로컬 상태에 투영**하고, 외부 진실원과의 정합은 다음 주기 reconcile 에 맡긴다.
 
 ## 6. 자체 한도 vs 외부 거부를 먼저 가른다 (진단법)
 
@@ -101,3 +115,4 @@ if order_id is not None:
 ## 변경 이력
 
 - 2026-06-23: 최초 작성 (출처: session-logs/20260622-225750-4b1b-*). 트레일링 스톱 미발동 조사에서 5개 버그를 추출, 그중 범용성 높은 6+1개 교훈을 정리.
+- 2026-07-05: 원칙 #1 의 두 번째 인스턴스(일일 *손실* 한도도 SELL 을 차단, BUY 분기 내부로 이동) + §5b 배치 검증 스냅샷 함정(제출 매수를 로컬 캐시에 투영) 추가. 취소 오판·이중 체결의 재시도 계열은 [[order-post-retry-double-fill]] 로 분리 (출처: session-logs/20260704-130158-2dad-*)

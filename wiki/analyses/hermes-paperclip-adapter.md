@@ -4,10 +4,11 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["analysis", "ai-agent", "hermes", "paperclip", "adapter", "orchestration", "workflow"]
 created: 2026-07-04
-updated: 2026-07-04
+updated: 2026-07-05
 sources:
   - "https://github.com/NousResearch/hermes-paperclip-adapter/tree/937ea71a34f5efcaa3834b11fdd08cfc1c99cb2c"
   - "https://www.npmjs.com/package/hermes-paperclip-adapter/v/0.3.0"
+  - "session-logs/20260704-132738-e509-지금-세션에서-작업했던-hermes-webui-설치가-pc-를-껏다켜니-접속이-안되네-다시.md"
 confidence: high
 related:
   - "wiki/concepts/hermes-agent.md"
@@ -80,11 +81,15 @@ local machine
 
 1. Hermes Agent 설치 및 provider/API key 설정
 2. Paperclip 서버 설치 또는 실행
-3. Paperclip adapter registry 에 `hermes_local` 로 이 패키지 등록
+3. Paperclip adapter registry 에 `hermes_local` 로 이 패키지 등록 — **단, 패키지판에는 불필요 (아래 2026-07-05 정정)**
 4. Paperclip 에 Hermes agent 생성
 5. 이슈를 배정하거나 heartbeat 로 깨워 작업 처리
 
 Paperclip 을 운영하지 않을 거라면, 이 어댑터보다 Hermes CLI/API 를 직접 쓰는 편이 단순하다.
+
+### 정정 — 패키지판 Paperclip 은 hermes 어댑터를 내장한다 (2026-07-05 실측)
+
+`npx paperclipai@latest onboard` 로 설치한 **패키지판 Paperclip 은 `hermes_local`·`hermes_gateway` 어댑터를 builtin 으로 이미 내장**한다 (그 외 codex_local·claude_local·acpx_local·cursor·gemini_local 등 총 14종). 즉 소스 `registry.ts` 수정이 필요한 이 npm 패키지는 **패키지판 배포에서는 불필요**하고, 소스 빌드에서 어댑터를 직접 등록할 때만 의미가 있다. 패키지판 Paperclip 은 embedded-postgres + loopback `:3100` 으로 뜨고, 데이터는 `~/.paperclip/instances/default/` 에 저장된다.
 
 ## 장점
 
@@ -149,3 +154,4 @@ Paperclip 을 운영하지 않을 거라면, 이 어댑터보다 Hermes CLI/API 
 ## 변경 이력
 
 - 2026-07-04: 최초 생성 — NousResearch/hermes-paperclip-adapter 코드 구조, 적용 조건, 장점, `--yolo` 운영 리스크, Paperclip 없이 단독 사용 가치 낮음을 정리.
+- 2026-07-05: 패키지판 Paperclip(`npx paperclipai onboard`)은 hermes_local/hermes_gateway 어댑터 builtin 내장(14종) → 이 npm 패키지는 소스 빌드 전용이라는 실측 정정 추가. embedded-postgres + `:3100`, 데이터 경로 명시 (출처: session-logs/20260704-132738-e509-*)

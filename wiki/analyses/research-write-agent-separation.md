@@ -4,8 +4,9 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["llm", "pipeline", "agent", "research", "hallucination", "grounding", "dossier", "newsletter", "claude-cli"]
 created: 2026-06-06
-updated: 2026-07-04
+updated: 2026-07-05
 sources:
+  - "session-logs/20260705-040030-a330-#-Linux-Kernel-Lens-Newsletter-—-Write-from-Dossie.md"
   - "session-logs/20260703-030007-8175-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md"
   - "session-logs/20260703-030711-41f5-#-Android-Kernel-Newsletter-—-Write-from-Dossier-당.md"
   - "session-logs/20260606-151702-d243-지금-프로그램을-개선하고-싶은데-개선할만한-포인트를-찾아줘-관점은-블로그-내용의-질적인-향.md"
@@ -93,6 +94,7 @@ claude 는 collect 에 **없던 LWN 기사 5건·CVE 2건을 능동적으로 찾
 - **evidence 최소 개수 강제 + 소스 접근 실패 = evidence-stuffing (2026-07-03 실측)** — "entry 당 evidence ≥1 (실제 URL)" 스키마 강제는 평시엔 grounding 을 보장하지만, 후보 JSON 손상 + 봇 차단으로 검증 가능한 URL 이 하나도 없는 날에는 **모델이 형식을 채우기 위해 손에 있는 무관한 URL/quote 를 끼워 넣는 역압력**이 된다. 실측: "Linux 7.0.14 EOL" claim 에 무관한 cdc_ether 패치 quote 와 마스킹된 URL 이 붙었고, 이번엔 폴백 사다리의 핵심 불변식(미확인 → confidence 강등)까지 위반한 채 **`confidence: "high"` 로 출력**됐다. 6/28 의 "grounding≠정확성"과 같은 축의 재발이지만 인과가 더 선명하다: *스키마의 형식 강제는 재료가 없을 때 내용 붕괴를 막지 못하고 오히려 위조를 유도한다*. 대책 방향: 검증 가능 evidence 가 0건이면 entry 를 채우지 말고 드롭(droppedCandidates)하는 escape hatch 를 스키마 계약에 명시해야 한다.
 - **credential 마스킹이 후보 JSON 을 span 단위로 파괴 (2026-07-03~04 관측, 원인 미확정)** — lens/daily dossier 세션 로그의 프롬프트에서 `https://` 와 뒤따르는 `@host` 사이 구간이 여러 줄·여러 필드에 걸쳐 `***:***` 로 통째 치환되어 스키마 예시와 후보 데이터가 병합·붕괴된 상태가 관측됐다. lore.kernel.org 퍼머링크가 message-ID(이메일 형태 `@domain`)를 포함하는 것이 자격증명형 URL(`user:pass@`) 패턴 오탐을 유발한 것으로 추정. 6/28 에 기록된 단일 URL 마스킹(`https://***:***@gmail.com/`)의 확장판. **단, 파이프라인이 실제로 보낸 프롬프트가 손상된 것인지, 세션 로그 저장 시점의 스크러버([[gieok]] session-logger 의 비밀 마스킹)가 만든 것인지 로그만으로는 구분 불가** — 전자라면 위 evidence-stuffing 의 근본 원인. 소스 확인 후 버그로 확정 필요. 일반 교훈: 탐욕적 secret 마스킹 정규식은 message-ID·mailto 등 `@` 를 포함하는 정상 URL 을 오탐하므로 비탐욕 매칭 + 스킴 직후 구간 한정이 필요하다.
 - **"배관 완료"를 "품질 완료"로 오인 금지** — fallback·codex 경로로 파이프라인이 도는 것을 확인해도 입력이 여전히 draft 의 700자라 내용 품질은 거의 그대로다. 실제 리프트는 도구 조사 경로(`research:linux:claude`)에서만 나온다. PoC 가 도구 경로 실측을 빠뜨리면 작업 효과를 측정하지 못한 셈.
+- **기저 CLI 의 "에이전트형 표류"가 stdout 단일-JSON 계약을 깬다 (2026-07-05 실측)** — write 프롬프트("JSON 객체 하나만 출력, 코드펜스 금지")는 불변인데, `claude -p` 하네스/모델 업데이트 후 write 에이전트가 **자율적으로 Bash 로 repo 관례를 확인하고 quality-guard 스크립트를 직접 실행하고 파일을 편집**하는 에이전트형 동작으로 표류했다. 결과물 품질 행동(headline 99→80자 자기 교정)은 좋아졌지만 stdout 이 깨끗한 단일 JSON 이 아니게 되어 **파이프라인 파서가 1차 산출을 수용하지 못하고 재시도가 돌며, 2차가 무응답이면 "일은 했는데 순 실패"** 가 된다. stdout 계약 기반 파이프라인은 기저 CLI 의 기본 동작 변화(도구 사용 성향)에 취약하다 — 완화 방향: 산출을 stdout 파싱이 아니라 지정 출력 파일로 받거나, `--allowedTools` 로 도구를 명시 제한. (cf. [[prompt-schema-pipeline-coupling]] 의 신종 변형: 스키마가 아니라 *실행 형태* 의 표류)
 
 ## 관련 맥락
 
@@ -104,6 +106,7 @@ claude 는 collect 에 **없던 LWN 기사 5건·CVE 2건을 능동적으로 찾
 
 ## 변경 이력
 
+- 2026-07-05: **에이전트형 표류 함정** 추가 — 프롬프트 불변인데 `claude -p` 기저 동작이 도구 사용·파일 편집·자기 검증형으로 전환, stdout 단일-JSON 계약이 깨져 재시도 유발("일은 했는데 순 실패" 새 실패 양태). 3주 write silent fail 서사의 상태 변화 — 사이클 관찰 상세는 [[dev-blog]] (출처: session-logs/20260705-03*·04* 사이클 25건)
 - 2026-07-04: **evidence-stuffing 함정**(evidence 최소 개수 스키마 강제 + 후보 손상·봇 차단 → 무관 URL/quote 끼워넣기, confidence 강등 불변식 위반한 채 high 출력 — 형식 강제는 재료 부재 시 위조를 유도, escape hatch 필요), **검증 실패 → openQuestions 자동 주입**(verified:false 탐지를 write 행동 지시로 변환, 6/28 갭의 해소), **마스킹의 span 단위 후보 JSON 파괴**(message-ID `@domain` 오탐 추정, 파이프라인 송신분 vs 로그 스크러버 원인 미확정) 3건 보강. 뉴스 산출물 자체는 전량 스킵, 운영 관찰(write 로그 미캡처 지속·Android 후보 이틀 연속 동일)은 [[dev-blog]] (출처: session-logs/20260703-0300*~0316*, 20260704-0300*~0307* 사이클 24건)
 - 2026-06-06: 최초 생성 — dev-blog Linux Daily 파이프라인의 research/write 분리 PoC 에서 일반화 (출처: session-logs/20260606-151702-d243-*, 20260606-184227-1875-*)
 - 2026-06-11: 구현 함정에 *WebFetch 404 환각* 항목 1건 추가 — dev-blog 03:00 cron 사이클(6/10 에 이어 이틀째)의 Opensource Trending dossier 에서 에이전트가 GitHub 404 페이지의 환각 가능성을 자기 인지하고 교차검증한 사례에서 일반화 (도구가 반환한 텍스트 ≠ 검증된 사실). 한편 Newsletter Write 단계는 6/10·6/11 연속 전량 `assistant_turns: 0` 으로 silent fail 고착 — 운영 관찰은 [[dev-blog]] 에 기록, 파이프라인 구조·grounding 룰은 기존 기술과 동일해 본 페이지 본문 변경은 함정 1건뿐 (출처: session-logs/20260611-031305-4894-* 외 03:00 사이클 23건)

@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-06-23"
+updated: "2026-07-05"
 sources:
+  - "session-logs/20260704-130158-2dad-현재-프로젝트에서-개선할-부분이-있을지-검토해줘.md"
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
   - "session-logs/20260423-120308-f269-오늘-거래중에서-삼성전자-매수-시그널이-발생한뒤-3분할-매수중-1회만-매수하고-나머지-매수.md"
   - "session-logs/20260423-193125-b999-graphify.md"
@@ -33,6 +34,11 @@ confidence: "high"
 related:
   - "wiki/bugs/kis-holiday-detection-bsop-date.md"
   - "wiki/bugs/kis-cash-d2-settlement-buy-rejection.md"
+  - "wiki/bugs/order-post-retry-double-fill.md"
+  - "wiki/patterns/backtest-clock-injection.md"
+  - "wiki/analyses/backtest-fill-model-adverse-selection.md"
+  - "wiki/patterns/startup-dependency-crash-loop.md"
+  - "wiki/patterns/parallel-review-adversarial-fix-workflow.md"
   - "wiki/bugs/dict-get-default-no-bootstrap.md"
   - "wiki/analyses/kis-balance-api-fields.md"
   - "wiki/analyses/partial-sell-rule-idempotency.md"
@@ -829,3 +835,4 @@ while self._running and time.monotonic() < wait_end:
 - 2026-06-16 (2nd, 22:51~23:17): **지정가 비율 환원** — `limit_price_ratio: 1.005 → 0.995` (commit `config: revert limit_price_ratio to below-current (1.005->0.995)`). 화신(010690) 상한가 초과 주문 거부 반복이 원인. 5/10 튜닝 A 에서 체결률 개선 목적으로 현재가 +0.5%(marketable limit)로 바꿨으나, **상한가 도달 종목은 `현재가 × 1.005` 가 상한가를 넘어 KIS 가 거부** (no-chase 캡은 직전 실패가 자체가 상한가 초과라 막지 못함). 원 설계(strategy-guards design.md = `bar.close × 0.99`)대로 현재가 -0.5% 로 환원해 구조적으로 상한가를 안 넘게 함. KIS 잔고조회 500 은 재시도·예수금 캐시 폴백으로 graceful 처리 중 → 우리 버그 아님, 로그 노이즈만(5xx 소진 시 traceback→WARNING 권고). 보류된 후속안: `_compute_limit_price` 에 `min(base, 상한가 stck_mxpr)` 캡 + 상한가 근접 추격 금지 게이트 (출처: session-logs/20260616-225148-21a4-*)
 - 2026-06-16: 거부 알림 폭주 dedup + 분할 폴백 기술 게이트 제거 (3 commits). **(1) 거부 알림 dedup** (commit `621be66`) — 보유가 한도(11)에 차자 매 ~2분 사이클마다 새 후보가 전부 거부되고 거부 1건당 무조건 텔레그램 발송 → 하루 **239건** 폭주(같은 종목 종일 반복). `_notify` 에 `dedup_key=(종목,사유)` 추가, **로그는 매 사이클 그대로 남기고 텔레그램만 당일 1회**, 날짜 변경 시 리셋. 사유 바뀌면 재알림. 일반 패턴은 [[notification-dedup-throttle]]. **(2) EOD 요약** (commit `84e15f6`) — dedup 으로 가려진 "한도로 보류된 후보 N종목"을 마감 스냅샷에 1건 추가. **(3) 분할 폴백 기술 게이트 제거** (commit `dd3d1b7`) — 보유 종목이 당일 스크리너 후보에 없을 때 남은 분할을 막던 40점 기술 컷(≥25)을 제거. 진입은 0/80/20(기술 폐기)인데 추가매수만 순수 기술로 막는 **철학 불일치** 탓에 펀더로 산 SK스퀘어(기술 22/40)가 무음 정체하던 것. 이제 `_can_add_split`(18시간 + 평단 -5% 드로다운 가드)·수량>0 만 통과 조건. 독립 40점 모드(백테스트)·드로다운 회복 판정의 `buy_min_score` 는 그대로. 일반 사상은 [[averaging-down-vs-momentum-add-on]]. engine 53 + strategy 120, 총 244 테스트 통과. **라이브 데몬(PID 55874)은 옛 코드 보유 → SIGTERM 후 launchd KeepAlive 재기동(PID 197, com.wooki.ht-trading)으로 반영 — 휴장 대기 중이라 매매 중단 없음** (출처: session-logs/20260616-210439-d6f6-*)
 - 2026-06-03: 공휴일 휴장 판정 실패 버그 수정 (commit `2b17aba`). `bsop_date` 비교 방식이 공휴일에도 당일 날짜를 반환해 오판 → KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체 (`domestic.py:is_open_day()` 추가, `market_hours.py` 수정). 실 API 검증 + 테스트 218건 통과. 6시간째 떠 있던 라이브 프로세스가 옛 코드 보유 → launchd 재시작으로 적용. 일반 분석은 [[kis-holiday-detection-bsop-date]] (출처: session-logs/20260603-135643-1e3b-*)
+- 2026-07-05 (7/4 전면 개선 세션, 커밋 20여 개 → 라이브 배포): 3 병렬 리뷰 에이전트 검토 → '높음' 교차검증 → TDD 병렬 수정 + 적대적 검증 워크플로([[parallel-review-adversarial-fix-workflow]])로 이틀간 진행. **핵심 수정**: ① 주문 제출 POST 재시도 제외 — 이중 체결 위험 + 취소 오판 시 미체결 재조회 확정 (commit e40db25/b357c14, [[order-post-retry-double-fill]]) ② 백테스트 벽시계 오염 3곳 → clock injection (commit c0ebd22/0aac79a/1d11174, [[backtest-clock-injection]]) — 재측정 거래 43→249건·+2.4%→+20%·MDD 3배 ③ 슬리피지 dead code + LIMIT 즉시체결 → 대기 큐 체결 모델 (commit ce9724a/bbf8fff/890d860/314082b, [[backtest-fill-model-adverse-selection]]) — **`limit_price_ratio` 0.995→1.005 재채택** (과거 반전 이력들은 즉시체결 구모델 하의 결정이라 근거 무효, 신모델에선 +0.5% 프리미엄이 역선택 해소. 5월에 1.005 를 포기했던 상한가 초과 거부 스팸은 6/22 거부 백오프 `on_order_submit_failed`+`max_reorder_retries_per_day` 로 종목당 하루 2~3회로 유한해져 재채택 가능) ④ 절대손절 elif dead code → Rule1a -20% 무조건 백스톱 (commit 07e473b, [[absolute-stop-loss-elif-dead-code]] — 5/19 발견 건의 실제 해결) ⑤ 일일 손실 한도가 SELL 까지 차단 → BUY 분기 내부로 (commit 2c68554) + 사이클 내 다중 매수 캐시 투영 (commit eee7098, 둘 다 [[risk-control-exemption-and-failed-attempt-accounting]]) ⑥ 주말 배포 크래시 루프 → 기동 시퀀스 연결성 오류 재시도 (commit 60a32ec, [[startup-dependency-crash-loop]]). **부수**: 일일 실현손익 영속화(record-before-reset 순서 — 지연 리셋 누산기는 기록 전에 날짜 롤오버 먼저), `_pending_fills` deque 상한(소비자 없는 버퍼 누수), WebSocket 미완성 뼈대 제거(이력은 git 에), live_engine God class 분리(동명 thin delegate 로 기존 테스트 안전망 유지), ruff 도입, 실행 주기 문서 통일(plist 2분/매수 30분). 운영 함정: 테스트 종료코드가 파이프라인에 가려 실패 상태 커밋 1회(05c6db3→6e7fffb 자가 수정, lessons 기록) (출처: session-logs/20260704-130158-2dad-*)

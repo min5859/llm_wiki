@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-07-04"
+updated: "2026-07-05"
 sources:
+  - "session-logs/20260704-215721-8c43-현재-프로젝트는-최적의-주식-자동매매-알고리즘을-찾는-것이-목표임-이-목표에-도달하게-위해.md"
   - "session-logs/20260704-093146-5338-현재-프로젝트-분석.md"
   - "session-logs/20260701-231304-df33-지금까지-돌린-페이퍼트레이딩-알고리즘-평가-쉽게-설명.md"
   - "session-logs/20260630-080924-22d3-지금까지-돌린거-알고리즘들-평가해줘.md"
@@ -26,6 +27,9 @@ related:
   - "wiki/bugs/kis-holiday-detection-bsop-date.md"
   - "wiki/patterns/launchd-plist-symlink-from-project.md"
   - "wiki/patterns/test-driven-agent-loop.md"
+  - "wiki/analyses/optimal-strategy-search-preconditions.md"
+  - "wiki/patterns/mirror-config-drift-guard-test.md"
+  - "wiki/bugs/absolute-stop-loss-elif-dead-code.md"
 ---
 
 # ht_dde — DDE 스타일 실시간 매수후보 스캐너
@@ -126,6 +130,16 @@ related:
 - 콜 예산 실측: 종목당 3콜 × 60 + 유니버스 1콜 ≈ 181콜, min_interval 0.1초 기준 스캔 1회 ≥ 약 18초. `cli` 의 sleep 이 스캔 소요를 차감하지 않아 실제 주기 = loop + 스캔시간.
 - 설계 확인(의도대로): 지표 전략 간 공유(코드당 2콜) + 호가는 결정에 영향 주는 종목만 지연조회(`_needs_orderbook`, scoring 의 None=불통과 전제 위에 성립), `max_hold_minutes` 는 거래시간 분 기준, SQLite WAL 로 엔진 쓰기·웹 읽기 동시성, 재시작 복구는 DB 단일 진실원.
 
+## 목표 지향 재정렬 & 실거래 미러링 (2026-07-04 저녁)
+
+"최적 알고리즘 찾기"라는 목표 자체를 5개 주제로 재검토한 세션. 상위 방법론(목적함수·레짐·counterfactual 하네스·비용 우선 탐색)은 [[optimal-strategy-search-preconditions]] 로 분리.
+
+- **가중치 실험 종결 → 규칙 실험으로 교체**: 5개 가중치 변형의 5일 중앙값이 전부 -8.6% 동일 — 컷 근처 후보가 2~3개뿐이라 어떤 가중치로도 순위가 안 뒤집히는 재가중 no-op 확인 ([[scoring-version-comparison-methodology]] "재가중 무효 조건"). 변형 4개 은퇴(이력 보존·포지션 동결) 후 슬롯을 규칙 실험으로 재활용: `no_surge15`/`no_surge20`(급등 제외)·`ma_ext30`(이격 상한), 대조군 baseline 유지, 변형별 판정 기준 사전 등록.
+- **급등 꼭지 편향 실측**: 추천 당일 +15% 급등 픽 8개의 5일 중앙값 -20.6% vs 일반 픽 -3.6%. 기술점수 구조상 급등 순간 만점(보해양조 40/40 = 상한가 당일)이라 가중치로 못 고치고 하드 게이트 필요 — 추세 게이트(>MA20)는 급등주를 오히려 잘 통과시키는 상방 사각 ([[stock-screening-score-design]] §4).
+- **실거래 손절 체계 미러링**: ht_trading 의 Rule1a -20% 절대 백스톱 + Rule1b 상대손절 -10% 3층 체계를 페이퍼에 미러링 ([[absolute-stop-loss-elif-dead-code]]). 페이퍼의 기존 -10% 무조건 손절과의 괴리가 하락장 손익곡선 분기의 핵심 원인이었음 (실거래는 -19% 종목 보유 지속, 페이퍼였다면 컷). 매수 리듬 괴리(실거래 30분/3분할 vs 페이퍼 2분 일괄)도 확인. 미러 드리프트는 `tests/test_mirror_drift.py` 가 원본 `scoring.yaml` 을 직접 읽어 자동 감시, 의도적 단순화는 allowlist ([[mirror-config-drift-guard-test]]).
+- **point-in-time 이력 부재 발견**: n_stock_info 의 당일 후보 멱등 재작성이 "산 순간의 명단"을 지워 체결 정합 불가 — 멱등 저장 vs 감사 재현성의 긴장 ([[stock-screening-score-design]] §5).
+- 운영 함정 재확인: 서비스 재기동 누락으로 7/2 기동 프로세스(PID 52124)가 7/4 커밋 미반영 상태로 가동 중이던 것 발견·재기동 (ht-trading 계열의 반복 함정).
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -136,6 +150,7 @@ related:
 
 - 2026-07-02: "2차 평가 & 신호 발굴 (2026-07-01)" 절 추가. ①과매매=거래비용 드래그(공격형 수수료 113만=자본 11%) ②리웨이트 baseline이 최선+튜닝여지 최대(payoff 0.65·손실이 −10% 절대손절 8건에 집중 → 손절폭 −10%→−5~6%가 유일·최우선 레버, 승률 58%면 산술적 흑자전환) ③스냅샷 라벨에서 EOD 복합필터(오후+VWAP위+시가위+체결100~130) 발굴, 단일지표는 예측력 0·조합만 엣지. 신규 [[signal-overfit-date-dispersion-check]](날짜분산+시장대조로 과최적화 판별) 분리, [[dca-trailing-stop-tuning]] 교차링크 (출처: session-logs/20260701-231304-df33-*)
 - 2026-07-04: "afternoon_eod 구현 & 심층 코드 분석" 절 추가 — 07-01 발굴 EOD 필터의 실전화(trade_window 확장점·가산점 필수조건화·검증 엣지 보호 청산 설계), 워크플로 분석의 발견(trade_window 경계 겹침, 스캔 루프 예외 내성, 토큰 캐시 비원자 쓰기, universe rank_by 실질 무효, 콜 예산 181콜/스캔 ≥18초). 신규 [[holding-period-signal-mismatch]] 분리 (출처: session-logs/20260704-093146-5338-*)
+- 2026-07-05: "목표 지향 재정렬 & 실거래 미러링" 절 추가 — 재가중 no-op 확인 후 가중치 실험 은퇴·규칙 실험(no_surge/ma_ext) 교체, 급등 꼭지 편향 실측(-20.6% vs -3.6%), 실거래 3층 손절 미러링 + 드리프트 가드 테스트, point-in-time 이력 부재. 신규 [[optimal-strategy-search-preconditions]]·[[mirror-config-drift-guard-test]] 분리, [[scoring-version-comparison-methodology]]·[[stock-screening-score-design]] 보강 (출처: session-logs/20260704-215721-8c43-*)
 - 2026-06-13: 최초 생성 (출처: session-log 20260613-164818-fc2f). 스캐너 init → 종이거래+웹 대시보드 → launchd plist+휴장/버퍼까지 세션 1회 작업 기록.
 - 2026-06-20: "제안된 방향 — 스코어링 가중치 A/B 종이거래" 절 추가. [[n-stock-info]] 가중치 변형을 무위험 검증하는 테스트베드로 ht_dde 활용 검토(미착수). n-stock-info 와 상호 링크 (출처: session-logs/20260620-101936-aba2-*)
 - 2026-06-30: "리웨이트 A/B 구현 & 첫 평가" 절 추가. 6-20 검토안이 `reweight/` 모듈 + reweight.db + 전용 대시보드/launchd 로 구현돼 변형 5종을 SIM(일봉)·LIVE(장중) 동시 구동. 첫 평가는 전 전략 손실(스캐너 aggressive -19.95% 최악, 리웨이트 LIVE baseline 50/30/20 -3.38% 최선·tech_heavy -10.07% 최악, SIM balanced 만 +403K). 교훈: 일봉 SIM≠장중 LIVE 순위 역전·기술가중 과다=하락장 최악·표본부족. [[backtest-timeframe-sensitivity]]·[[equity-curve-max-vs-latest-aggregation]] 신규/보강 (출처: session-logs/20260630-080924-22d3-*)

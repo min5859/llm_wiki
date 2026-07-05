@@ -137,3 +137,4 @@ openclaw agent --agent main --message "Reply with exactly: PONG" --json   # PONG
 
 - 2026-06-03: 최초 작성. OpenClaw·Hermes Codex OAuth refresh token 쟁탈 진단 2세션 기반 (출처: session-logs/20260603-140159-fbbf, 20260603-143737-7275)
 - 2026-06-21: 양쪽 재발 → 주기적 패턴 확정. 새 교훈 3가지 추가 — ① 같은 증상의 "쟁탈 vs 결제 미납 단순 만료" 구별, ② 재인증 전 경쟁 앱(Codex.app) 선종료 순서, ③ `openclaw agent` PONG 호출로 end-to-end 복구 검증 (출처: session-logs/20260621-181256-3227, 20260621-181739-bf68)
+- 2026-07-05: 발현 경로 1건 추가 — Hermes Runs API 경유 시 같은 쟁탈("consumed by another client")이 SSE 의 `run.failed` 이벤트로 나타난다 (진단·해법은 동일) (출처: session-logs/20260704-132738-e509-*)

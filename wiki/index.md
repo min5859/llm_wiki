@@ -19,8 +19,10 @@
 - [[launchd-secret-management]] — macOS launchd 환경 시크릿 분리 패턴 — ~/.zshrc 는 안 읽힌다
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 파싱 실패 시 raw 응답 덤프 + 재시도 패턴
 - [[macos-tcc-full-disk-access]] — macOS TCC: 터미널이 다른 앱 sandbox 에 접근할 때 토스트 팝업 처리
+- [[parallel-review-adversarial-fix-workflow]] — 병렬 리뷰 → 교차검증 → TDD 수정 + 적대적 검증 워크플로
 - [[prompt-schema-pipeline-coupling]] — LLM 프롬프트 출력 스키마와 다운스트림 validator 간 결합 관리
 - [[shell-set-eu-topic-isolation]] — shell 의 set -eu 와 multi-topic 파이프라인의 격리 패턴
+- [[single-dispatcher-per-queue]] — 공유 작업 큐의 dispatcher 는 하나만 — claim churn 함정
 
 ### analyses
 
@@ -36,6 +38,8 @@
 - [[llm-provider-aggregator-vs-local-vs-hub]] — OpenRouter vs Ollama vs Hugging Face — LLM 백엔드 3가지 분류
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent — 미실행 작업 캐치업 동작
 - [[mcp-config-secret-exposure-via-ps]] — MCP 토큰이 `--mcp-config` 인자로 평문 노출되는 패턴 (`ps -ef` 가시성)
+- [[multi-agent-orchestration-taxonomy]] — 멀티에이전트 오케스트레이션 3분류 — 코딩 파이프라인에서의 실무 결론
+- [[multi-agent-shared-wiki-concurrency]] — 다중 에이전트 공유 지식베이스 — 동시 쓰기 위험과 완화
 - [[multi-llm-provider-adapter-pattern]] — 멀티 LLM provider 어댑터 패턴 — 공식 SDK 직접 사용
 - [[multi-profile-cli-agent-isolation]] — 멀티 프로필 CLI agent 격리 — OAuth 공유 / HOME 격리 우회 / shell init 함정
 - [[oauth-refresh-token-rotation-multi-client]] — 회전형 OAuth refresh token 을 여러 클라이언트가 공유할 때의 쟁탈 함정
@@ -45,6 +49,7 @@
 - [[openclaw-telegram-group-setup]] — OpenClaw Telegram 그룹 봇 설정 — Privacy Mode, requireMention, 다중 에이전트
 - [[research-write-agent-separation]] — Research / Write 에이전트 분리 — LLM 콘텐츠 파이프라인의 도구 기반 조사 격상
 - [[self-hosted-agent-webui-integration]] — 셀프호스팅 에이전트에 커스텀 UI 붙이기 — 내부 직결 vs OpenAI 호환 HTTP API
+- [[weak-model-agent-reliability-compounding]] — 약한 모델의 에이전트 전략 — 신뢰도 복리 붕괴와 결정적 워크플로우
 
 ### decisions
 
@@ -72,11 +77,15 @@
 
 ### patterns
 
+- [[backtest-clock-injection]] — 백테스트 벽시계 오염 — 전략 시각 소스 주입(clock injection) 패턴
 - [[csv-roundtrip-backup-restore]] — CSV round-trip 백업·복원 — 외래키 ID 와 N:M 보존
+- [[mirror-config-drift-guard-test]] — 미러 설정 드리프트 가드 테스트 — 원본을 읽어 자동 대조
 - [[post-bugfix-reverification-data-cutoff]] — 데이터 품질 버그 수정 후 재검증 — 평가 도구도 수정일 이후로 필터해야
+- [[startup-dependency-crash-loop]] — 기동 시 외부 의존성 강체크 + 자동 재시작 = 크래시 루프
 
 ### analyses
 
+- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
 - [[holding-period-signal-mismatch]] — 보유기간-신호 미스매치 — 같은 진입신호가 홀딩 호라이즌에 따라 손실↔초과수익으로 뒤집힌다
@@ -84,6 +93,7 @@
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
 - [[news-driven-market-signal-framework]] — 뉴스 기반 시장 시그널 추출 프레임워크 (7-축 + 3-시나리오)
+- [[optimal-strategy-search-preconditions]] — 전략 탐색의 4가지 선결 조건 — "최적을 찾았다"를 판정하기 전에
 - [[partial-sell-rule-idempotency]] — 알고리즘 트레이딩의 부분 매도 규칙 멱등성 패턴
 - [[polling-interval-vs-bar-interval]] — 폴링 주기 vs 봉 단위 — 알고리즘 트레이딩의 시간 정합성
 - [[risk-control-exemption-and-failed-attempt-accounting]] — 안전장치가 손실을 키울 때 — 리스크 감축 주문 면제와 실패 시도 회계
@@ -98,10 +108,12 @@
 
 ### bugs
 
+- [[absolute-stop-loss-elif-dead-code]] — 벤치마크 존재 시 절대손절 elif dead code — 손절 자체가 꺼진다
 - [[equity-curve-max-vs-latest-aggregation]] — 평가곡선 집계 함정 — MAX(equity) 는 최신 잔고가 아니라 역대 고점
 - [[kis-cash-d2-settlement-buy-rejection]] — KIS 매수가능 현금에 D+2 미정산분 누락 → RiskManager 매수 차단
 - [[kis-holiday-detection-bsop-date]] — KIS 공휴일 휴장 판정 실패 — bsop_date 비교 대신 휴장일조회 API
 - [[naver-finance-no-info-selector-drift]] — 네이버 금융 table.no_info 셀렉터 드리프트 — 거래량·시가·등락률 silent 0 (가짜 fixture가 가린 버그)
+- [[order-post-retry-double-fill]] — 비멱등 주문 POST 자동 재시도 — 이중 체결 위험과 취소 오판
 - [[reentry-after-full-liquidation-no-cooldown]] — ht_trading 전량 청산 직후 재매수 — flat 재진입 쿨다운 부재
 - [[utc-iso-date-kst-rollover]] — new Date().toISOString() 가 KST 새벽~오전에 어제 날짜로 떨어지는 버그
 - [[yahoo-finance-concurrent-silent-fail]] — Yahoo Finance 동시 호출 시 일부 응답에 regularMarketPrice 누락 (silent fail)
@@ -117,6 +129,7 @@
 
 ## 변경 이력
 
+- 2026-07-05: 신규 12건 등록 — trading: [[absolute-stop-loss-elif-dead-code]]·[[order-post-retry-double-fill]] (bugs), [[backtest-clock-injection]]·[[mirror-config-drift-guard-test]]·[[startup-dependency-crash-loop]] (patterns), [[backtest-fill-model-adverse-selection]]·[[optimal-strategy-search-preconditions]] (analyses) / ai-agent: [[multi-agent-orchestration-taxonomy]]·[[multi-agent-shared-wiki-concurrency]]·[[weak-model-agent-reliability-compounding]] (analyses), [[parallel-review-adversarial-fix-workflow]]·[[single-dispatcher-per-queue]] (patterns)
 - 2026-07-04: 신규 1건 등록 — [[hermes-paperclip-adapter]] (ai-agent/analyses)
 - 2026-07-04: 신규 2건 등록 — [[personal-llm-wiki-curation]] (ai-agent/analyses), [[holding-period-signal-mismatch]] (trading/analyses)
 - 2026-07-02: v2 초기 생성, v1에서 73건 이관 (ai-agent 44 · trading 29)

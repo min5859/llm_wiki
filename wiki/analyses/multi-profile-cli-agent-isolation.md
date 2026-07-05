@@ -4,8 +4,11 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["analysis", "cli-agent", "oauth", "isolation", "wrapper", "macos", "keychain", "symlink"]
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-07-05
 source_session: 20260509-001610-307a-hermes-agent-를-설치했는데-메인-agent-말고-별도로-코딩-전용-agent를.md
+sources:
+  - "session-logs/20260509-001610-307a-hermes-agent-를-설치했는데-메인-agent-말고-별도로-코딩-전용-agent를.md"
+  - "session-logs/20260704-132738-e509-지금-세션에서-작업했던-hermes-webui-설치가-pc-를-껏다켜니-접속이-안되네-다시.md"
 related:
   - "wiki/concepts/hermes-agent.md"
   - "wiki/projects/hermes.md"
@@ -95,6 +98,14 @@ export PATH="$HOME/bin:$PATH"
 
 `--clone` 직후의 첫 setup 위저드에서 `Reconfigure? y` 가 정상 답.
 
+## 5. 프로필 복제의 페르소나 정체성 오염 — 정체성은 memory 말고 SOUL 에 (2026-07-04)
+
+**증상**: hermes 에서 maccoder 를 복제(`--clone-from maccoder`)해 만든 역할 프로필들(architect/coder/reviewer 등)이 전부 자기를 "맥비"(maccoder 의 페르소나)라고 인식 — 각 프로필의 MEMORY.md 에 정체성 문구가 4곳씩 복사돼 있었다.
+
+**근본 원인 체인**: default 의 정체성이 영속 페르소나 파일(SOUL)이 아니라 **memory 에만** 있었고 → maccoder 의 `memories/MEMORY.md` 가 그것을 복사·오염 → 오염된 maccoder 를 복제하니 파생 프로필 전체로 전파. 가변·전파되는 memory 에 정체성을 두면 복제 계보를 따라 오염이 누적된다.
+
+**교훈**: **에이전트 정체성(이름·역할·성격)은 누적 memory 가 아니라 영속 페르소나 파일(SOUL.md 등)에 둔다.** memory 는 "겪은 것"의 저장소이지 "나는 누구인가"의 저장소가 아니다. 복제 후에는 MEMORY.md 를 열어 상위 프로필의 정체성 잔재를 확인·제거.
+
 ## 결론 — 체크리스트
 
 새 CLI agent 의 프로필을 분리할 때 다음 4가지를 하나하나 확인:
@@ -103,6 +114,7 @@ export PATH="$HOME/bin:$PATH"
 2. **외부 CLI 도구 위임** — 그 도구가 Keychain / `~/.config/` / `~/.claude/` 처럼 HOME 기준 lookup 을 하는지 strings + 코드 grep 으로 검증. 깨지면 wrapper 로 HOME 복원.
 3. **shell init 파일** — agent 가 source 하는 파일이 어떤 건지 docs / config 또는 코드 (`auto_source_bashrc` / `shell_init_files` 등) 로 확인. 그 파일에 PATH 주입.
 4. **`.env` 등 환경변수 파일** — `--clone` 직후 첫 setup 에서 반드시 reconfigure. 아니면 두 프로필이 같은 토큰 / 같은 채널을 공유.
+5. **페르소나 정체성 위치** — SOUL(영속 파일)에 있는지 확인. memory 에만 있으면 복제 시 정체성 오염이 전파된다. 복제 후 MEMORY.md 의 상위 정체성 잔재 제거.
 
 ## 관련 페이지
 

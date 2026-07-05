@@ -4,9 +4,10 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["launchd", "macos", "secret-management", "zshrc", "github-pat", "fine-grained-pat", "env-file"]
 created: 2026-04-30
-updated: 2026-04-30
+updated: 2026-07-05
 sources:
   - "session-logs/20260430-134759-328e-*.md"
+  - "session-logs/20260704-132738-e509-지금-세션에서-작업했던-hermes-webui-설치가-pc-를-껏다켜니-접속이-안되네-다시.md"
 confidence: high
 related:
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
@@ -165,6 +166,14 @@ grep -l "ghp_\|github_pat_" ~/.zsh_history ~/.bash_history 2>/dev/null
 
 git history 에 들어 있으면 `git filter-repo` 등으로 재작성 후 force push 가 필요하지만, 보통 토큰 자체를 폐기하고 새로 발급하는 편이 빠르고 안전하다.
 
+## 같은 계열 함정 — launchd 프로세스에는 ssh-agent 도 없다 (2026-07-04)
+
+환경변수뿐 아니라 **ssh-agent 접근도 없다**. launchd 자식의 `SSH_AUTH_SOCK` 은 비어 있거나(Listeners) 터미널 세션의 agent 소켓과 다르다.
+
+- **증상**: launchd 로 띄운 앱(hermes-webui)의 내장 업데이터가 "Could not reach the remote repository. Check your internet connection" — **네트워크 문제처럼 보이지만 인증 실패**. 같은 remote 에 터미널에서 `git ls-remote` 하면 성공 (터미널엔 ssh-agent 가 있으므로).
+- **근본 원인**: 저장소 remote 가 SSH(`git@github.com:...`)인데 launchd 프로세스는 ssh-agent 키를 못 쓴다 → 백그라운드 `git fetch` 만 인증 실패.
+- **해법**: public 저장소면 remote 를 HTTPS 로 전환 (`git remote set-url origin https://...`) — 인증 없이 fetch 가능. private 이면 deploy key 를 plist 환경에서 접근 가능한 경로로 별도 구성.
+
 ## 관련 맥락
 
 - launchd 의 미실행 작업 catchup 동작 (Mac 이 꺼져 있던 동안의 스케줄을 깨어난 직후 폭주시키는 것) 은 [[macos-launchagent-catchup-behavior]] 에 정리.
@@ -173,3 +182,4 @@ git history 에 들어 있으면 `git filter-repo` 등으로 재작성 후 force
 ## 변경 이력
 
 - 2026-04-30: 최초 생성. oss-radar 의 401 토큰 만료 디버깅 + plist 평문 → config/.env 분리 사례 기반 (출처: session-logs/20260430-134759-328e-*)
+- 2026-07-05: "launchd 에는 ssh-agent 도 없다" 절 추가 — SSH remote git fetch 가 네트워크 오류로 위장되는 함정 + HTTPS 전환 해법 (출처: session-logs/20260704-132738-e509-*)
