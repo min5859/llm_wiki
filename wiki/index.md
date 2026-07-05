@@ -60,6 +60,7 @@
 - [[highlights-action-validator-schema-drift]] — publish validator 가 옛 스키마(action) 만 강제해 신 스키마(if/do/verify) 게시 전부 실패
 - [[ndjson-stdout-parser-greedy-regex]] — AI CLI 어댑터의 stdout 파서가 NDJSON·envelope·잡음 텍스트에 깨지는 함정
 - [[openclaw-coder-silent-3-layer]] — OpenClaw 코더 응답 무 — 3계층 디버깅 (plugins.allow / 좀비 task / OAuth 403)
+- [[stale-process-attributeerror-inprocess-coupling]] — 속성은 디스크에 있는데 AttributeError — in-process 강결합 데몬의 stale 프로세스 (재시작으로 해결)
 
 ### projects
 
@@ -129,6 +130,7 @@
 
 ## 변경 이력
 
+- 2026-07-06: 신규 1건 등록 — ai-agent: [[stale-process-attributeerror-inprocess-coupling]] (bugs). session-logs 미처리 29건 중 뉴스레터/dossier cron 26건·일회성(디스크 상태·OCI 무료티어 셋업) 3건은 도메인 밖/뉴스성으로 스킵.
 - 2026-07-05: 신규 12건 등록 — trading: [[absolute-stop-loss-elif-dead-code]]·[[order-post-retry-double-fill]] (bugs), [[backtest-clock-injection]]·[[mirror-config-drift-guard-test]]·[[startup-dependency-crash-loop]] (patterns), [[backtest-fill-model-adverse-selection]]·[[optimal-strategy-search-preconditions]] (analyses) / ai-agent: [[multi-agent-orchestration-taxonomy]]·[[multi-agent-shared-wiki-concurrency]]·[[weak-model-agent-reliability-compounding]] (analyses), [[parallel-review-adversarial-fix-workflow]]·[[single-dispatcher-per-queue]] (patterns)
 - 2026-07-04: 신규 1건 등록 — [[hermes-paperclip-adapter]] (ai-agent/analyses)
 - 2026-07-04: 신규 2건 등록 — [[personal-llm-wiki-curation]] (ai-agent/analyses), [[holding-period-signal-mismatch]] (trading/analyses)
