@@ -4,7 +4,7 @@ sensitivity: "public"
 title: gieok — 프로젝트 설계 상세
 tags: [project, gieok, claude-code, automation, launchagent]
 created: 2026-04-22
-updated: 2026-07-04
+updated: 2026-07-08
 sources: 2
 ---
 
@@ -80,6 +80,17 @@ launchctl load  ~/Library/LaunchAgents/com.gieok.ingest.plist
 `claude -p`: Claude Code CLI를 비대화형으로 실행하는 방식. 설치된 Claude Code Max 플랜을
 그대로 활용하므로 별도 API 비용이 발생하지 않는다.
 
+### 토큰 비용 모델 — "LLM 미호출" ≠ "토큰 0"
+
+위 표의 "❌ LLM 필요"는 **`claude -p` 를 호출하지 않는다**는 뜻일 뿐, 토큰을 안 쓴다는 뜻이 아니다. gieok 의 실제 토큰 소비는 딱 두 곳:
+
+1. **wiki-context-injector (SessionStart hook)** — `wiki/index.md` **전문을 매 세션 시스템 프롬프트에 주입**하고, 그 이후 *모든 턴*의 입력 컨텍스트에 계속 실린다. 로컬 파일 읽기라 `claude -p` 는 안 부르지만, **비용의 본질 = index 크기 × 세션 수(× 턴 수)** 다. "로그 저장" 자체는 공짜지만 "목차 주입"은 반복 입력 비용이다.
+2. **매일 auto-ingest** — `claude -p` headless 1회(하루 1회 상한, 최대 수십 턴). 구독 로그인 계정이라 API 과금이 아니라 사용량 한도에서 차감.
+
+나머지 hook(session-logger 4종, git pull/commit)은 로컬 node/git 스크립트라 토큰을 전혀 안 쓴다.
+
+> 실측: v1 index 55KB(≈1.4만 토큰) → v2 9KB(≈2천 토큰), **약 85% 감소**(`wc -c` 54801 → 8985 bytes). 도메인을 ai-agent·trading 2개로 좁힌 것이 index 크기까지 줄인 효과다. **index 는 문서당 제목 한 줄만 유지**하고, 크기 상한(예: 200줄 초과 경고)을 lint 단계에 두는 것이 반복 입력 비용을 억제하는 레버.
+
 ## 삭제 (uninstall)
 
 ```bash
@@ -118,4 +129,5 @@ vault 경로는 전부 파라미터로 주입되므로 gieok 본체는 건드리
 
 ## 변경 이력
 - 2026-04-22: 최초 작성 (세션 로그 20260422-002046-60a1 에서 추출)
+- 2026-07-08: "토큰 비용 모델 — 'LLM 미호출' ≠ '토큰 0'" 절 추가. wiki 목차 주입이 `claude -p` 는 안 부르지만 매 세션·매 턴 입력에 index 전문이 실림 → 비용 = index 크기 × 세션 수. v1→v2 index 85% 감소(55KB→9KB) 실측, index 는 제목 한 줄만 유지·크기 상한 lint. 토큰 최적화 일반론은 [[claude-code-token-optimization]] (출처: session-logs/20260702-235052-ea52-*)
 - 2026-07-04: "Vault 전환 절차 (v1→v2)" · "Session-log 보존 정책" 절 추가 — 연결 지점 3곳(settings.json hooks 7곳·LaunchAgent 2개·새 vault 사전 준비), hook 설정은 세션 시작 시점 고정 함정, retention LaunchAgent 07:40 (출처: session-logs/20260702-235052-ea52-*)

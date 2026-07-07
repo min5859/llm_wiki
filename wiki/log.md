@@ -1,5 +1,20 @@
 # 운영 로그
 
+## 2026-07-08 (ingest)
+
+- **session-logs 유래** — 미처리 49건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).
+  - 신규 1건: trading `bugs/kis-derivative-etf-order-reject-apbk1497` — 무한매수에 추가한 레버리지 ETF `0195S0` 이 매수 신호는 정상인데 30분 사이클마다 **24회 전부 거부**. 원인은 코드/설정이 아니라 **계좌 파생ETF 미신청** (`[APBK1497]` 선택확인서 미징구 + 레버리지 ETP 사전교육 미이수). 일반 주식은 무관. 교훈: 신호 정상인데 주문만 100% 거부 → 브로커 에러코드부터 보고, 계좌 권한은 종목 유형별로 다르며 파생/레버리지 편입은 계좌 상품 권한이 선결 (출처 2c24).
+  - 갱신 5건 (전부 출처 2c24 · ea52):
+    - `projects/ht-trading` — ① 0195S0 24회 거부 [APBK1497] 절(신규 버그 링크). ② **매수 시점 스코어 감사 로그** 절: 추천 소스 n_stock_info 의 일자 멱등 재작성(:20/:50 cron DELETE→INSERT)이 매수 시점 스냅샷을 덮어써 사후 DB 추적 불가 → `BuyCandidate.report_date` + 소수점 점수·현재가·기준일 전용 감사 로그 도입(`test_scoring_buy_audit_log.py`, 393 테스트). 2단계 컷(추천 55 vs 매수 62)·`%.0f` 반올림 은폐 기록.
+    - `projects/n-stock-info` — §5 에 "하류 관측성 비용" 절: 일자 멱등 저장이 point-in-time 이력을 파괴해 다운스트림 매수 종목이 사후 소실됨. 자체 추천 컷 55 vs ht_trading 매수 컷 62.
+    - `analyses/stock-screening-score-design` — §5 에 두 번째 실증(소비 측 감사 로그로 저장 정책 불변한 채 재현성 확보).
+    - `projects/gieok` — **토큰 비용 모델** 절: "LLM 미호출 ≠ 토큰 0". wiki 목차 주입은 `claude -p` 는 안 부르지만 매 세션·매 턴 입력에 index 전문이 실림 → 비용 = index 크기 × 세션 수. v1→v2 index 85% 축소(55KB→9KB) 실측.
+    - `patterns/claude-code-token-optimization` — 관련 맥락에 "SessionStart 주입 컨텍스트 = 반복 입력 비용" 원칙 한 줄.
+  - **인덱스 드리프트 보정**: 07-07 저녁 cron(commit 20260707-2227)이 fe2f·ac9d 를 이미 인제스트하며 5개 페이지를 생성했으나 index.md 미등록 상태였음 → index 에 `dca-intraday-buy-timing`·`kis-minute-chart-trs`·`naver-finance-news-referer-required`·`pykrx-krx-login-required`·`relative-stop-benchmark-stale-price` 추가.
+  - **이미 인제스트되어 플래그만 갱신 (신규 없음)**: fe2f(무한매수 0195S0 추가 — ht-trading §종목추가·dca-intraday-buy-timing·kis-minute-chart-trs·relative-stop 에 완전 반영), ac9d(RS EOD 스캐너 — ht-dde §RS·pykrx·naver-referer·optimal-strategy §5 에 완전 반영). 07-07 cron 이 내용은 넣었으나 `ingested` 플래그를 못 넘긴 것을 이번에 정리.
+  - 스킵 45건: dev-blog cron 뉴스레터/리서치 dossier (Linux Daily·Android Kernel·Opensource Trending/Curation·AI Coding Agents·Linux Kernel Lens) 전량 — 뉴스성, 파이프라인 메타 지식은 기존 문서(research-write-agent-separation·llm-newsletter-rewrite-metadata-grounding·llm-content-quality-guards·dev-blog)에 이미 흡수. AI Coding Agents dossier 표본 확인 결과 신 릴리스·체인지로그 조사 산출물로 재조회 가치 없음.
+  - 참고: 2c24 세션에서 사용자가 실수로 붙여넣은 `DART_API_KEY` 값은 비밀 정보이므로 wiki 어디에도 기록하지 않음.
+
 ## 2026-07-06 (ingest)
 
 - **session-logs 유래** — 미처리 29건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).

@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-07-05"
+updated: "2026-07-08"
 sources:
   - "session-logs/20260704-130158-2dad-현재-프로젝트에서-개선할-부분이-있을지-검토해줘.md"
   - "session-logs/20260422-230939-22f1-스코어링-점수를-65-점에서-60-점으로-조정했는지-확인해-주세요.md"
@@ -31,8 +31,10 @@ sources:
   - "session-logs/20260616-225148-21a4-아래-사항은-오늘-로그에서-나온-사항들인데-개선할만한-포인트가-있을까--•-BUY-0106.md"
   - "session-logs/20260622-225750-4b1b-오늘-보해양조를-매수후에-10-%-가-넘은-상태까지-갔다가-다시--2-%-가-되었는데-트레.md"
   - "session-logs/20260706-214100-fe2f-무한매수-알고리즘에-종목을-하나더-추가하고-싶은데-KOSPI-0195S0-TIGER-SK하.md"
+  - "session-logs/20260707-223019-2c24-오늘-남성이라는-종목이-추천되서-매수가-되었는데-실제-스코어가-62-점이-넘었는지-확인해줘.md"
 confidence: "high"
 related:
+  - "wiki/bugs/kis-derivative-etf-order-reject-apbk1497.md"
   - "wiki/bugs/kis-holiday-detection-bsop-date.md"
   - "wiki/bugs/kis-cash-d2-settlement-buy-rejection.md"
   - "wiki/bugs/order-post-retry-double-fill.md"
@@ -806,6 +808,19 @@ return sells + add_buys + new_buys[:self._MAX_BUY_SIGNALS]
 
 **매수 시간대 사전 검증**: 코드 수정 전에 ETF 1분봉 29거래일 + 기초자산 000660 6개월 분봉으로 매수 시각별 유불리를 실측 → 현행 09:30 시각 가드 + 30분 매수 사이클 유지 결론 (파라미터 변경 불필요). 분석은 [[dca-intraday-buy-timing]], 과거일 분봉 조회 TR 은 [[kis-minute-chart-trs]] 로 분리.
 
+### 0195S0 이 24회 전부 매수 거부됨 — 계좌 파생ETF 미신청 [APBK1497] (2026-07-07)
+
+다음날 실전에서 `0195S0` 매수 신호는 정상 생성됐으나 30분 사이클마다 **24회 전부 거부**됐다. 원인은 코드/설정이 아니라 **계좌에 파생ETF 거래 권한(선택확인서 징구 + 레버리지 ETP 사전교육)이 없어서**였다. KIS 응답: `[APBK1497] 파생ETF 미 신청(선택확인서 미 징구) 계좌는 파생ETF 거래가 불가합니다.` 일반 주식(남성 004270 등)은 무관하게 정상 체결. **신규 종목 편입 체크리스트에 "파생/레버리지면 계좌 상품 권한 확인"을 선결로 추가.** 상세·일반 교훈은 [[kis-derivative-etf-order-reject-apbk1497]].
+
+## 매수 시점 스코어 감사 로그 (2026-07-07, 관측성 개선)
+
+"추천·매수된 종목의 실제 점수가 컷(62)을 넘었는지" 를 사후에 검증하려 했으나 **DB로는 추적이 불가능**했다. 원인·해법을 아래에 기록(매매 로직 불변, 관측성만 개선).
+
+- **매수 시점 스냅샷이 사후 소실**: 종목 추천 소스인 [[n-stock-info]] 는 평일 매 `:20`/`:50` (30분 간격) cron 으로 그날 `report_date` 행을 **DELETE→재삽입**(일자 멱등)한다. ht_trading 이 09:30 에 읽은 09:20 스냅샷(남성 추천)이 이후 실행들로 통째로 덮어써져, **사후 조회 시 그 종목 레코드가 사라지고 그날 전 종목 `is_recommended=0`** 이 된다. → 매수 당시 점수/추천 여부는 DB 가 아니라 **라이브 매수 로그(`ht_live.log`)에만 잔존**. 멱등 덮어쓰기 vs point-in-time 이력의 일반 긴장은 [[stock-screening-score-design]] §5.
+- **2단계 컷 구조**: 추천 컷(n_stock_info 자체 `min_score=55`)과 매수 컷(ht_trading screener `min_score:62` = `buy_min_score_full:62`, 100점 만점)이 **별개**다. 경계 종목은 55 는 여유 통과하고 62 는 아슬하게 통과할 수 있어(남성 사례), 텔레그램 추천 목록에 장중 등락으로 들락날락한다(발송 자체는 정상).
+- **표시 반올림이 경계 점수 은폐**: 매수 로그의 점수 표시가 `%.0f` 반올림(`scoring_strategy.py:783`)이라 경계값(62.0~62.5)의 실제 소수점이 가려졌다.
+- **개선**: `BuyCandidate` 에 `report_date`(스냅샷 기준일) 필드 추가, 매수 지점에 **점수 분해(소수점 포함)·현재가·기준일을 전용 감사 로그**로 기록. 신규 테스트 `test_scoring_buy_audit_log.py`, 전체 **393 테스트 통과** + ruff 클린. 이제 "매수됐는데 지금 DB엔 왜 없나" 류는 감사 로그가 유일한 진실원.
+
 ## 휴장 대기 중 생존 로그 (2026-05-31, commit bcf5d74)
 
 주말/공휴일에 프로세스 정상 대기인지 크래시인지 구분 불가 문제를 해결. 장외 대기 루프에 1시간마다 heartbeat 로그 추가.
@@ -851,3 +866,4 @@ while self._running and time.monotonic() < wait_end:
 - 2026-06-03: 공휴일 휴장 판정 실패 버그 수정 (commit `2b17aba`). `bsop_date` 비교 방식이 공휴일에도 당일 날짜를 반환해 오판 → KIS 국내휴장일조회 `CTCA0903R` 의 `opnd_yn` 으로 교체 (`domestic.py:is_open_day()` 추가, `market_hours.py` 수정). 실 API 검증 + 테스트 218건 통과. 6시간째 떠 있던 라이브 프로세스가 옛 코드 보유 → launchd 재시작으로 적용. 일반 분석은 [[kis-holiday-detection-bsop-date]] (출처: session-logs/20260603-135643-1e3b-*)
 - 2026-07-05 (7/4 전면 개선 세션, 커밋 20여 개 → 라이브 배포): 3 병렬 리뷰 에이전트 검토 → '높음' 교차검증 → TDD 병렬 수정 + 적대적 검증 워크플로([[parallel-review-adversarial-fix-workflow]])로 이틀간 진행. **핵심 수정**: ① 주문 제출 POST 재시도 제외 — 이중 체결 위험 + 취소 오판 시 미체결 재조회 확정 (commit e40db25/b357c14, [[order-post-retry-double-fill]]) ② 백테스트 벽시계 오염 3곳 → clock injection (commit c0ebd22/0aac79a/1d11174, [[backtest-clock-injection]]) — 재측정 거래 43→249건·+2.4%→+20%·MDD 3배 ③ 슬리피지 dead code + LIMIT 즉시체결 → 대기 큐 체결 모델 (commit ce9724a/bbf8fff/890d860/314082b, [[backtest-fill-model-adverse-selection]]) — **`limit_price_ratio` 0.995→1.005 재채택** (과거 반전 이력들은 즉시체결 구모델 하의 결정이라 근거 무효, 신모델에선 +0.5% 프리미엄이 역선택 해소. 5월에 1.005 를 포기했던 상한가 초과 거부 스팸은 6/22 거부 백오프 `on_order_submit_failed`+`max_reorder_retries_per_day` 로 종목당 하루 2~3회로 유한해져 재채택 가능) ④ 절대손절 elif dead code → Rule1a -20% 무조건 백스톱 (commit 07e473b, [[absolute-stop-loss-elif-dead-code]] — 5/19 발견 건의 실제 해결) ⑤ 일일 손실 한도가 SELL 까지 차단 → BUY 분기 내부로 (commit 2c68554) + 사이클 내 다중 매수 캐시 투영 (commit eee7098, 둘 다 [[risk-control-exemption-and-failed-attempt-accounting]]) ⑥ 주말 배포 크래시 루프 → 기동 시퀀스 연결성 오류 재시도 (commit 60a32ec, [[startup-dependency-crash-loop]]). **부수**: 일일 실현손익 영속화(record-before-reset 순서 — 지연 리셋 누산기는 기록 전에 날짜 롤오버 먼저), `_pending_fills` deque 상한(소비자 없는 버퍼 누수), WebSocket 미완성 뼈대 제거(이력은 git 에), live_engine God class 분리(동명 thin delegate 로 기존 테스트 안전망 유지), ruff 도입, 실행 주기 문서 통일(plist 2분/매수 30분). 운영 함정: 테스트 종료코드가 파이프라인에 가려 실패 상태 커밋 1회(05c6db3→6e7fffb 자가 수정, lessons 기록) (출처: session-logs/20260704-130158-2dad-*)
 - 2026-07-07: 무한매수 신규 종목 0195S0 (TIGER SK하이닉스단일종목레버리지) 추가 + `max_positions` 11→12 (한도 소진 시 신규 종목 첫 매수 거부 — 종목 추가 시 동반 증설 규칙). 종목 추가 전 체크리스트 4항목 정리 (상태 저장 / max_positions / 영숫자 코드 int 가정 탐색 / warmup vs 상장 이력). 코드 수정 전 분봉 실측으로 매수 시간대 검증 → 현행 09:30 가드 + 30분 사이클 유지 (변경 불필요 결론). 분석은 [[dca-intraday-buy-timing]], 과거일 분봉 TR `FHKST03010230` 은 [[kis-minute-chart-trs]], 세션 컨텍스트로 재부상한 6/23 상대손절 벤치마크 stale price 버그는 [[relative-stop-benchmark-stale-price]] 로 분리 (출처: session-logs/20260706-214100-fe2f-*)
+- 2026-07-08: "0195S0 24회 매수 거부 [APBK1497]" + "매수 시점 스코어 감사 로그" 절 추가. ① 0195S0 이 실전에서 24회 전부 거부된 원인은 코드가 아니라 계좌 파생ETF 미신청(선택확인서·레버리지 사전교육) → 신규 [[kis-derivative-etf-order-reject-apbk1497]] 분리, 종목 편입 체크리스트에 계좌 상품 권한 선결 추가. ② "매수 종목 실제 점수 62 컷 확인"이 [[n-stock-info]] 의 일자 멱등 재작성(:20/:50 cron DELETE→INSERT)으로 사후 DB 추적 불가 → `BuyCandidate.report_date` + 소수점 점수·현재가·기준일 전용 감사 로그 도입(`test_scoring_buy_audit_log.py`, 393 테스트). 2단계 컷(추천 55 vs 매수 62)·`%.0f` 반올림 은폐(`scoring_strategy.py:783`) 기록, 라이브 로그가 유일한 진실원. 멱등 vs point-in-time 일반론은 [[stock-screening-score-design]] §5 (출처: session-logs/20260707-223019-2c24-*)

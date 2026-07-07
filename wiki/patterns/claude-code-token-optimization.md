@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["Claude Code", "토큰", "비용 최적화", "Context Rot", "/compact", "/clear", "컨텍스트 관리"]
 created: "2026-04-15"
-updated: "2026-04-16"
+updated: "2026-07-08"
 sources:
   - "raw/claude-code-token-소비절반줄이기.pdf"
   - "raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf"
@@ -129,8 +129,10 @@ Context: 68% used (136k / 200k tokens)
 - Max 20× 플랜($200/월)이 일반 API 사용보다 고비용 작업에서 경제적인 경우 있음
 - 서브에이전트는 편하지만 간단한 검색에도 토큰을 크게 쓸 수 있다. 병렬 처리는 대량·복합 작업에 한정한다.
 - 불필요한 MCP 서버 연결이나 살아 있는 다른 터미널 세션도 백그라운드 토큰 소비 원인이 될 수 있다.
+- **SessionStart hook 등으로 주입하는 컨텍스트(예: wiki index)는 매 세션·매 턴 입력에 실리는 반복 비용**이다 — LLM 을 직접 호출하지 않아도(로컬 파일 읽기여도) 주입물의 크기 × 세션 수만큼 계층 1/2 비용이 늘어난다. 주입물은 목차·요약 수준으로 작게 유지할 것 ([[gieok]] 의 index 85% 축소 실측).
 
 ## 변경 이력
 
+- 2026-07-08: 관련 맥락에 "SessionStart 주입 컨텍스트 = 반복 입력 비용" 원칙 추가 (LLM 미호출이어도 주입물 크기 × 세션 수만큼 비용, [[gieok]] index 85% 축소 실측) (출처: session-logs/20260702-235052-ea52-*)
 - 2026-04-16: 녹취 및 Tips 기반 세션 분리, prompt 파일, 캐시/설정 변경 주의점 보강
 - 2026-04-15: 최초 생성 (출처: raw/claude-code-token-소비절반줄이기.pdf, raw/3-삼성전자-Claude-Code-입문교육-202604-2차-김재우.pdf)

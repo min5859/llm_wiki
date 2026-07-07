@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "screening", "python", "telegram", "backtest"]
 created: "2026-06-03"
-updated: "2026-07-02"
+updated: "2026-07-08"
 status: active
 tech_stack: ["python", "requests", "beautifulsoup", "sqlite", "ruff", "pytest"]
 sources:
@@ -13,6 +13,7 @@ sources:
   - "session-logs/20260616-210439-d6f6-오늘-알고리즘-바꾼지-2일-지났는데-2일-동안-매매에서-오류나-개선점이-없었는지-검토해줘.md"
   - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
   - "session-logs/20260701-232403-58cb-지금까지-쌓인-데이터를-바탕으로-알고리즘-개선을-할-만한게-있는지-분석해줘.md"
+  - "session-logs/20260707-223019-2c24-오늘-남성이라는-종목이-추천되서-매수가-되었는데-실제-스코어가-62-점이-넘었는지-확인해줘.md"
 confidence: high
 related:
   - "wiki/projects/ht-trading.md"
@@ -120,6 +121,8 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 
 효과는 점진적 — 기존 562행은 여전히 추천만이라 신규 데이터가 쌓여야 편향이 줄어든다.
 
+> **하류 관측성 비용 (2026-07-07 발견)**: 이 일자 멱등 저장(`:20`/`:50` cron 이 그날 `report_date` 행을 DELETE→INSERT)은 생존 편향을 없애지만 **당일 스냅샷의 point-in-time 이력을 파괴**한다. 다운스트림 [[ht-trading]] 이 09:30 에 읽은 09:20 추천(예: 남성)이 이후 실행들로 덮어써져, 사후 조회 시 그 레코드가 사라지고 그날 전 종목 `is_recommended=0` 이 됐다. → "매수된 종목의 매수 시점 점수·추천 여부"는 이 DB 로 추적 불가하며 ht_trading 라이브 로그가 유일한 진실원이다. ht_trading 은 이 때문에 매수 시점 감사 로그를 별도 도입([[ht-trading]] 「매수 시점 스코어 감사 로그」). 일반 긴장(멱등 재작성 vs 감사 재현성)은 [[stock-screening-score-design]] §5. 별개로, n_stock_info 자체 추천 컷은 `min_score=55` 이고 ht_trading 매수 컷은 62 라 경계 종목은 한쪽만 통과할 수 있다.
+
 ### 6. 데이터 기반 config 튜닝 — 진짜 병목은 컷오프
 
 리포트 종목이 적어 `max_report_count`(10) 상한을 늘리려 했으나, DB 분석 결과 **67일 중 10개 상한에 걸린 날이 0일** (일 평균 추천 0.5개, 추천 종목 점수가 65점 컷 바로 위 65~75에 몰림). 즉 진짜 병목은 상한이 아니라 `min_score`(65) 컷오프. `min_score` 65→55 인하가 추천을 늘리는 실질 레버이고, `max_report_count` 10→30 은 안전장치, screening 30→50 은 풀 확대 (commit `9c915f4`). **교훈: "상한을 늘릴까"가 아니라 실제 분포를 보고 병목을 찾는다.**
@@ -148,6 +151,7 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 
 ## 변경 이력
 
+- 2026-07-08: §5 에 "하류 관측성 비용" 절 추가 — 일자 멱등 저장(DELETE→INSERT)이 당일 point-in-time 이력을 파괴해, 다운스트림 [[ht-trading]] 이 매수한 종목(남성)의 매수 시점 추천 스냅샷이 사후 소실됨(그날 전 종목 is_recommended=0). ht_trading 이 매수 감사 로그를 별도 도입한 배경. 자체 추천 컷 55 vs ht_trading 매수 컷 62 의 2단계 컷 관계 명시 (출처: session-logs/20260707-223019-2c24-*)
 - 2026-07-02: "재검증 도구의 오염 데이터 하한 필터" 절 추가 (2026-07-01 세션). 06-16 버그 수정 후 재검증 예정 시점 도래, 재검증 도구가 날짜 하한이 없어 오염 행 재포함 함정 → `since_date`/`--since`/`compare_weights.py` 기본 SINCE=2026-06-16 추가(commit `57153e5`, 173 테스트). DB 접근 없이 코드만으로 계측기 결함 확정·선수정. 신규 [[post-bugfix-reverification-data-cutoff]] 분리 (출처: session-logs/20260701-232403-58cb-*)
 - 2026-06-20: **가중치 변천 + 추세 게이트** 절 추가 — 유효 가중치가 40/40/20 → (0/80/20 실험 4일 -19.6% falling knife 실패) → **50/30/20** 으로 안착, `_passes_trend_gate`(현재가<20일선 veto)로 하락추세 종목 컷오프. IC 근거 일부는 e13765f 이전 오염 데이터라 재검증 필요. 별 프로젝트 [[ht-dde]] 의 종이거래로 가중치 변형을 A/B 비교하려는 방향이 제안됨(이 세션은 검토 단계). (출처: session-logs/20260620-101936-aba2-*)
 - 2026-06-17: 거래량·시가·등락률 수집 버그 수정 (commit `e13765f`). 네이버 `item/main` 페이지의 `table.no_info` 가 라벨을 `<th>` 가 아니라 `<span class="sptxt">` 에 두도록 구조가 바뀌어, 코드의 `table.select("th")` 가 항상 빈 결과 → **2026-03 이후 전 종목·전 날짜 거래량=0·시가=null·등락률 +0.0%** 가 silent 하게 수집됨. 등락률은 별도로 `.no_exday em span.blind` 의 `select_one` 이 첫 em(전일대비 금액)을 잡아 `%` em 에 도달 못 하던 버그. **가짜로 만든 테스트 fixture(`<th>거래량</th>` + 단일 em)가 회귀를 못 잡았고** volume/open/change 도 미검증이었다. `_no_info_values` 헬퍼 도입 + fixture 를 실제 마크업으로 교체 + 추출 필드 전부 단언. 166 테스트 통과. 영향: 0/80/20 라이브 추천엔 무영향(기술 가중 0)이나, DECISION 의 가중치 IC 표가 망가진 기술 데이터 산출이라 재검증 전 재측정 필요. 일반 교훈은 [[naver-finance-no-info-selector-drift]] (출처: session-logs/20260616-210439-d6f6-*)

@@ -88,10 +88,12 @@
 
 - [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
+- [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
 - [[holding-period-signal-mismatch]] — 보유기간-신호 미스매치 — 같은 진입신호가 홀딩 호라이즌에 따라 손실↔초과수익으로 뒤집힌다
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
+- [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
 - [[news-driven-market-signal-framework]] — 뉴스 기반 시장 시그널 추출 프레임워크 (7-축 + 3-시나리오)
 - [[optimal-strategy-search-preconditions]] — 전략 탐색의 4가지 선결 조건 — "최적을 찾았다"를 판정하기 전에
@@ -112,10 +114,14 @@
 - [[absolute-stop-loss-elif-dead-code]] — 벤치마크 존재 시 절대손절 elif dead code — 손절 자체가 꺼진다
 - [[equity-curve-max-vs-latest-aggregation]] — 평가곡선 집계 함정 — MAX(equity) 는 최신 잔고가 아니라 역대 고점
 - [[kis-cash-d2-settlement-buy-rejection]] — KIS 매수가능 현금에 D+2 미정산분 누락 → RiskManager 매수 차단
+- [[kis-derivative-etf-order-reject-apbk1497]] — KIS 파생·레버리지 ETF 주문 거부 [APBK1497] — 코드가 아니라 계좌 권한(선택확인서·사전교육)
 - [[kis-holiday-detection-bsop-date]] — KIS 공휴일 휴장 판정 실패 — bsop_date 비교 대신 휴장일조회 API
+- [[naver-finance-news-referer-required]] — 네이버 금융 종목 뉴스 크롤링 — Referer 헤더 없으면 빈 스텁 페이지
 - [[naver-finance-no-info-selector-drift]] — 네이버 금융 table.no_info 셀렉터 드리프트 — 거래량·시가·등락률 silent 0 (가짜 fixture가 가린 버그)
 - [[order-post-retry-double-fill]] — 비멱등 주문 POST 자동 재시도 — 이중 체결 위험과 취소 오판
+- [[pykrx-krx-login-required]] — pykrx — KRX 로그인 의무화로 비로그인 조회가 JSONDecodeError·빈 DataFrame
 - [[reentry-after-full-liquidation-no-cooldown]] — ht_trading 전량 청산 직후 재매수 — flat 재진입 쿨다운 부재
+- [[relative-stop-benchmark-stale-price]] — 상대손절의 벤치마크 stale price — 종목은 실시간가, 지수는 일봉 캐시 종가
 - [[utc-iso-date-kst-rollover]] — new Date().toISOString() 가 KST 새벽~오전에 어제 날짜로 떨어지는 버그
 - [[yahoo-finance-concurrent-silent-fail]] — Yahoo Finance 동시 호출 시 일부 응답에 regularMarketPrice 누락 (silent fail)
 
@@ -130,6 +136,7 @@
 
 ## 변경 이력
 
+- 2026-07-08: 신규 1건 등록 — trading: [[kis-derivative-etf-order-reject-apbk1497]] (bugs, 2c24 — 레버리지 ETF 24회 매수 거부가 코드가 아니라 계좌 파생ETF 미신청). 인덱스 드리프트 보정 — 07-07 cron 이 생성했으나 미등록이던 5건 추가: trading/analyses [[dca-intraday-buy-timing]]·[[kis-minute-chart-trs]] (fe2f), trading/bugs [[naver-finance-news-referer-required]]·[[pykrx-krx-login-required]] (ac9d)·[[relative-stop-benchmark-stale-price]] (fe2f). 갱신: [[ht-trading]]·[[n-stock-info]]·[[stock-screening-score-design]] (매수 시점 스코어 감사 로그·2단계 컷·멱등 vs point-in-time 2번째 실증, 2c24), [[gieok]]·[[claude-code-token-optimization]] (index 주입 반복 토큰 비용 모델·85% 축소, ea52). fe2f·ac9d 는 07-07 cron 이 이미 완전 인제스트해 플래그만 갱신. session-logs 미처리 49건 중 dev-blog cron 뉴스레터/dossier 45건은 뉴스성으로 스킵.
 - 2026-07-06: 신규 1건 등록 — ai-agent: [[stale-process-attributeerror-inprocess-coupling]] (bugs). session-logs 미처리 29건 중 뉴스레터/dossier cron 26건·일회성(디스크 상태·OCI 무료티어 셋업) 3건은 도메인 밖/뉴스성으로 스킵.
 - 2026-07-05: 신규 12건 등록 — trading: [[absolute-stop-loss-elif-dead-code]]·[[order-post-retry-double-fill]] (bugs), [[backtest-clock-injection]]·[[mirror-config-drift-guard-test]]·[[startup-dependency-crash-loop]] (patterns), [[backtest-fill-model-adverse-selection]]·[[optimal-strategy-search-preconditions]] (analyses) / ai-agent: [[multi-agent-orchestration-taxonomy]]·[[multi-agent-shared-wiki-concurrency]]·[[weak-model-agent-reliability-compounding]] (analyses), [[parallel-review-adversarial-fix-workflow]]·[[single-dispatcher-per-queue]] (patterns)
 - 2026-07-04: 신규 1건 등록 — [[hermes-paperclip-adapter]] (ai-agent/analyses)
