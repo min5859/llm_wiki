@@ -12,6 +12,7 @@ sources:
   - "session-logs/20260630-080924-22d3-지금까지-돌린거-알고리즘들-평가해줘.md"
   - "session-logs/20260613-164818-fc2f-신규-프로젝트를-시작하려고-하는데-지금-내가-이미-한국-투자-증권으로-API-사용해서-거래.md"
   - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
+  - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: "high"
 related:
   - "wiki/projects/ht-trading.md"
@@ -30,6 +31,8 @@ related:
   - "wiki/analyses/optimal-strategy-search-preconditions.md"
   - "wiki/patterns/mirror-config-drift-guard-test.md"
   - "wiki/bugs/absolute-stop-loss-elif-dead-code.md"
+  - "wiki/bugs/pykrx-krx-login-required.md"
+  - "wiki/bugs/naver-finance-news-referer-required.md"
 ---
 
 # ht_dde — DDE 스타일 실시간 매수후보 스캐너
@@ -140,6 +143,24 @@ related:
 - **point-in-time 이력 부재 발견**: n_stock_info 의 당일 후보 멱등 재작성이 "산 순간의 명단"을 지워 체결 정합 불가 — 멱등 저장 vs 감사 재현성의 긴장 ([[stock-screening-score-design]] §5).
 - 운영 함정 재확인: 서비스 재기동 누락으로 7/2 기동 프로세스(PID 52124)가 7/4 커밋 미반영 상태로 가동 중이던 것 발견·재기동 (ht-trading 계열의 반복 함정).
 
+## 주간 상대강도(RS) EOD 스캐너 신설 (2026-07-06)
+
+"최근 일주일간 지수 대비 덜 빠지거나 오른 종목 + 이유가 분명한 종목" 을 찾는 **EOD(종가) 스캐너를 신규 모듈 `src/ht_dde/rs/` 로 추가**. 기존 장중 스캐너(KIS REST)와 달리 **데이터 소스를 pykrx(KRX EOD) 로 의도적으로 분리** — 날짜당 전 종목 1콜 + 지수 1콜로 끝나 KIS rate limit 과 무관하고, **과거 일봉은 불변**이므로 `data/krx_cache/` 영구 캐시로 재실행이 빠르다 (DART 종목코드 매핑도 동일 캐시). KRX 로그인 의무화 함정은 [[pykrx-krx-login-required]].
+
+### 3개 알고리즘 (임계값은 전부 `config/rs.yaml`)
+
+1. **주간 상대강도 (weekly_rs)** — `RS = 최근 5거래일 종목 수익률 − 소속 지수(KOSPI/KOSDAQ) 수익률` 내림차순. 필터: 평균 거래대금 10억 미만·우선주·스팩 제외.
+2. **하락일 역행 (contrarian)** — 지수 −0.5% 이상 하락일에 거래량 20일 평균 2.0배 이상 + 등락률 ≥ 0 인 종목을 "역행" 카운트, 반복 횟수순 (동률은 거래량 배율). 실측에서 하락일 2회 역행 + 거래량 72배 종목 등 포착.
+3. **실적 공시 후 눌림 (earnings_dip)** — DART 거래소 공시에서 최근 14일 내 "영업(잠정)실적" 종목 수집 → 공시 직전 거래일 종가 대비 수익률이 지수보다 낮은 종목. 실측: 파라다이스 (−6.31%p, 뉴스 "주가는 신저가, 실적은 사상 최대")·셀트리온 (−5.67%p).
+
+### 설계 판단
+
+- **"이유가 분명한가" 는 자동 판정하지 않는다** — 후보별 DART 공시 + 네이버 뉴스 헤드라인을 첨부해 사람이 판단. 둘 다 없으면 "이유 불분명, 수급만일 가능성 주의" 경고. 실적 YoY 판정도 1단계는 사람, 본문 파싱·컨센서스 서프라이즈는 난이도순 유보. 네이버 뉴스 크롤링의 Referer 필수 함정은 [[naver-finance-news-referer-required]].
+- **순수 계산과 I/O 분리** — `rs/scanner.py` 는 네트워크 없음 (합성 DataFrame 으로 테스트), `rs/data.py` 가 pykrx 래핑 + 거래일 캘린더 + 캐시.
+- **EOD 페이퍼 트레이딩** (`rs/paper.py`) — 3개 알고리즘을 독립 전략으로 당일 종가 매수 (종목당 자본 10%, 최대 10종목, 전략당 가상자본 1천만원), 종가 기준 트레일링 스탑 (+3% 발동 → 고점 −4% 청산, 발동 전 고정손절 −5%), 비용 반영 (수수료 0.015%·거래세 0.15%·슬리피지 0.1%), **날짜 멱등** (같은 날 재실행 스킵), `data/rs_paper.db`. `/rs` 웹 페이지 + launchd 자동 스캔 연결.
+- **판정 기준 사전 등록** — "20거래일 후 전략별 KOSPI 대비 초과수익으로 유지/폐기" 를 첫날에 명시 ([[optimal-strategy-search-preconditions]] §5 pre-registration).
+- **append-only CSV 스키마 진화 대응** — earnings 알고리즘 추가로 누적 CSV 가 13→15 컬럼이 되며 `pd.read_csv` `ParserError` 발생. 기존 파일은 일회성 마이그레이션 (구 스키마 행에 빈 값 삽입), 이후 헤더 불일치 시 `.bak` 회전 후 새 파일 시작하도록 `cli._append_csv` 보강.
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -153,4 +174,5 @@ related:
 - 2026-07-05: "목표 지향 재정렬 & 실거래 미러링" 절 추가 — 재가중 no-op 확인 후 가중치 실험 은퇴·규칙 실험(no_surge/ma_ext) 교체, 급등 꼭지 편향 실측(-20.6% vs -3.6%), 실거래 3층 손절 미러링 + 드리프트 가드 테스트, point-in-time 이력 부재. 신규 [[optimal-strategy-search-preconditions]]·[[mirror-config-drift-guard-test]] 분리, [[scoring-version-comparison-methodology]]·[[stock-screening-score-design]] 보강 (출처: session-logs/20260704-215721-8c43-*)
 - 2026-06-13: 최초 생성 (출처: session-log 20260613-164818-fc2f). 스캐너 init → 종이거래+웹 대시보드 → launchd plist+휴장/버퍼까지 세션 1회 작업 기록.
 - 2026-06-20: "제안된 방향 — 스코어링 가중치 A/B 종이거래" 절 추가. [[n-stock-info]] 가중치 변형을 무위험 검증하는 테스트베드로 ht_dde 활용 검토(미착수). n-stock-info 와 상호 링크 (출처: session-logs/20260620-101936-aba2-*)
+- 2026-07-07: "주간 상대강도(RS) EOD 스캐너 신설" 절 추가 — 신규 모듈 `rs/` (3 알고리즘: weekly_rs·contrarian·earnings_dip), pykrx EOD 채택 + 불변 일봉 영구 캐시, 이유 점검은 공시·뉴스 첨부 후 사람 판단, EOD 페이퍼 트레이딩 (날짜 멱등·판정 기준 사전 등록), append-only CSV 스키마 진화 대응 (마이그레이션 + `.bak` 회전). 신규 [[pykrx-krx-login-required]]·[[naver-finance-news-referer-required]] 분리, [[optimal-strategy-search-preconditions]] §5 (pre-registration) 보강 (출처: session-logs/20260706-220340-ac9d-*)
 - 2026-06-30: "리웨이트 A/B 구현 & 첫 평가" 절 추가. 6-20 검토안이 `reweight/` 모듈 + reweight.db + 전용 대시보드/launchd 로 구현돼 변형 5종을 SIM(일봉)·LIVE(장중) 동시 구동. 첫 평가는 전 전략 손실(스캐너 aggressive -19.95% 최악, 리웨이트 LIVE baseline 50/30/20 -3.38% 최선·tech_heavy -10.07% 최악, SIM balanced 만 +403K). 교훈: 일봉 SIM≠장중 LIVE 순위 역전·기술가중 과다=하락장 최악·표본부족. [[backtest-timeframe-sensitivity]]·[[equity-curve-max-vs-latest-aggregation]] 신규/보강 (출처: session-logs/20260630-080924-22d3-*)

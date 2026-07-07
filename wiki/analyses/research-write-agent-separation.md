@@ -4,8 +4,9 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["llm", "pipeline", "agent", "research", "hallucination", "grounding", "dossier", "newsletter", "claude-cli"]
 created: 2026-06-06
-updated: 2026-07-05
+updated: 2026-07-07
 sources:
+  - "session-logs/20260707-040449-0dbd-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260705-040030-a330-#-Linux-Kernel-Lens-Newsletter-—-Write-from-Dossie.md"
   - "session-logs/20260703-030007-8175-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md"
   - "session-logs/20260703-030711-41f5-#-Android-Kernel-Newsletter-—-Write-from-Dossier-당.md"
@@ -87,6 +88,7 @@ claude 는 collect 에 **없던 LWN 기사 5건·CVE 2건을 능동적으로 찾
 - **validator 가 긴 인용문을 거부** — claude 가 7분 조사 끝에 만든 dossier 가 evidence.quote 232자(>200자 제한)로 마지막 저장 직전에 막혔다. `normalizeDossier` 로 초과분을 잘라 해결하고, **`RESEARCH_RAW_PATH` 로 직전 어댑터 stdout 을 재호출 없이 재파싱**하는 복구 경로를 추가(7분 조사 결과 보존). LLM 출력은 스키마 제약을 종종 어기므로, 검증기는 *거부* 만 하지 말고 *정규화 후 통과* 경로를 함께 둬야 비싼 조사 결과를 버리지 않는다.
 - **봇 차단(Anubis)** — research 에이전트가 `git.kernel.org` 에 직접 fetch 하다 Anubis 봇 챌린지에 막혔다. read-only 도구를 WebFetch 단독이 아니라 **WebFetch + WebSearch + Bash(git log)** 조합으로 줘야 봇 차단 시 대체 소스(LWN 등)로 우회할 수 있다.
   - **User-Agent 우회 (2026-06-18 실측)**: Anubis 는 *브라우저류 UA* 에만 챌린지를 건다. WebFetch 는 완전 차단되고 `curl` 의 브라우저 UA(`Mozilla/5.0`)·기본 UA(`curl/8.4`)도 `403 Forbidden`. 그러나 **`curl -A "git/2.39.0"` (비-브라우저 UA) 는 `lore.kernel.org/<thread>/raw` mbox 를 정상 취득**한다(`git.kernel.org` commit 도 같은 UA 로 `<title>` 확인 가능). `lei/0.9`·`Wget` 등 일부 UA 는 호스트별로 갈린다. **일반 교훈: "도구 차단 ≠ 소스 접근 불가"** — WebFetch 가 막히면 `Bash(curl) + 비-브라우저 UA` 가 read-only 조사의 4번째 폴백 축이 된다.
+  - **차단 강화 — curl 우회 축도 막히는 날 (2026-07-07 관측)**: Anubis PoW 가 **`curl` 요청까지 차단**하는 날이 관측됐다 (linux-toolchain dossier: "PoW blocks curl too"). 같은 날 다른 렌즈 dossier 는 WebFetch 가 네트워크 레이어에서 전면 불능으로 의심된다며 non-kernel.org 도메인으로 동작 테스트까지 수행. 즉 6/18 의 UA 우회는 **더 이상 안정적 폴백이 아니며**, 커널 계열 소스에선 사다리의 ③(후보 payload `commitMessage` + WebSearch 교차검증)·④(confidence 강등 + openQuestions 격리)가 사실상 기본 경로가 된다.
   - **폴백 사다리 + 우아한 강등 (2026-06-20 실측)**: `lore.kernel.org` 와 `git.kernel.org` 가 **동시에** Anubis 로 막히는 날도 있다. 이때 관측된 단계적 폴백 사다리: ① raw 엔드포인트(`/raw` mbox)로 챌린지 우회 시도 → ② 실패 시 **`mail-archive.com` 미러** 등 대체 아카이브 → ③ 그래도 안 되면 **후보 페이로드에 이미 실려온 `commitMessage`/스레드 인용** 을 1차 근거로 + **WebSearch 교차검증**(CVE·LWN·회귀 보고) → ④ 끝내 독립 확인 불가한 사실은 **`confidence` 를 강등(high→medium/low)하고 해당 미확인 항목을 `openQuestions` 로 라우팅**. **핵심 불변식: 검증 못 한 것은 추측·날조 금지, 반드시 openQuestions 로 격리**(예: "Anubis 차단으로 스레드 전문/병합 여부 확인 불가"). 즉 봇 차단은 파이프라인을 *멈추는* 게 아니라 *신뢰도를 낮추되 끝까지 도는* 형태로 흡수된다.
   - **topic-id 자가판별 가드레일 (2026-06-20 실측)**: 렌즈(lens)별 dossier 에이전트는 프롬프트가 주장하는 topic 을 맹신하지 않고, 후보의 `sourceId`(예: `lore-bpf-new`)를 `grep -rl "<sourceId>" content/topics/*/sources.json` 으로 역추적해 **실제 topic 매핑(`linux-perf-rt` 등)을 스스로 재확인**한 뒤 조사를 시작한다. 프롬프트 주입/렌즈 라벨 오류로 *엉뚱한 토픽으로 실행되는* 사고를 데이터 기준으로 차단하는 self-grounding. (cf. [[prompt-schema-pipeline-coupling]] 의 표류 위험을 런타임에서 잡는 안전장치)
 - **WebFetch 가 에러 페이지를 환각으로 변환** — GitHub repo `url` 을 WebFetch 로 열어 검증할 때, 404/삭제된 페이지도 HTTP 상태와 무관하게 본문이 채워진 마크다운으로 반환되면 LLM 이 존재하지 않는 repo 를 실재하는 것처럼 기술할 수 있다 (2026-06-11 Opensource Trending dossier 에서 에이전트 스스로 "WebFetch 가 GitHub 404 페이지에서 환각했을 가능성" 을 인지하고 신규 repo 교차검증을 시도). **일반 교훈**: "도구가 돌려준 텍스트 ≠ 검증된 사실". 최근 생성된 repo·진위 불확실한 신규 후보는 WebFetch 단독으로 확정하지 말고 WebSearch 교차검증 후에만 `confidence: high` 로 올린다. 봇 차단과 함께 *도구 신뢰성* 이라는 별도 레이어(grounding 계약과 다른 축)를 형성한다.
@@ -106,6 +108,7 @@ claude 는 collect 에 **없던 LWN 기사 5건·CVE 2건을 능동적으로 찾
 
 ## 변경 이력
 
+- 2026-07-07: 봇 차단 함정에 **차단 강화 (curl 우회 축 무력화)** 보강 — Anubis PoW 가 curl 까지 차단하는 날 관측, WebFetch 네트워크 레이어 전면 차단 의심 사례 포함. UA 우회는 비안정 폴백으로 강등, payload 인용 + WebSearch 교차검증 + confidence 강등이 기본 경로화. write 에이전트형의 퍼블리시 성공·더블런 멱등 처리 등 운영 관찰은 [[dev-blog]] (출처: session-logs/20260707-040449-0dbd-*, -042340-7f1c-* 외 03:00~04:42 사이클 22건)
 - 2026-07-05: **에이전트형 표류 함정** 추가 — 프롬프트 불변인데 `claude -p` 기저 동작이 도구 사용·파일 편집·자기 검증형으로 전환, stdout 단일-JSON 계약이 깨져 재시도 유발("일은 했는데 순 실패" 새 실패 양태). 3주 write silent fail 서사의 상태 변화 — 사이클 관찰 상세는 [[dev-blog]] (출처: session-logs/20260705-03*·04* 사이클 25건)
 - 2026-07-04: **evidence-stuffing 함정**(evidence 최소 개수 스키마 강제 + 후보 손상·봇 차단 → 무관 URL/quote 끼워넣기, confidence 강등 불변식 위반한 채 high 출력 — 형식 강제는 재료 부재 시 위조를 유도, escape hatch 필요), **검증 실패 → openQuestions 자동 주입**(verified:false 탐지를 write 행동 지시로 변환, 6/28 갭의 해소), **마스킹의 span 단위 후보 JSON 파괴**(message-ID `@domain` 오탐 추정, 파이프라인 송신분 vs 로그 스크러버 원인 미확정) 3건 보강. 뉴스 산출물 자체는 전량 스킵, 운영 관찰(write 로그 미캡처 지속·Android 후보 이틀 연속 동일)은 [[dev-blog]] (출처: session-logs/20260703-0300*~0316*, 20260704-0300*~0307* 사이클 24건)
 - 2026-06-06: 최초 생성 — dev-blog Linux Daily 파이프라인의 research/write 분리 PoC 에서 일반화 (출처: session-logs/20260606-151702-d243-*, 20260606-184227-1875-*)
