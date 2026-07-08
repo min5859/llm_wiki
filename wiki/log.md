@@ -1,5 +1,12 @@
 # 운영 로그
 
+## 2026-07-09 (ingest)
+
+- **session-logs 유래** — 미처리 26건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).
+  - 신규/갱신 0건. index.md 변경 없음.
+  - 스킵 26건: 20260709 dev-blog cron 뉴스레터/리서치 dossier 전량 (Linux Daily 2 · Android Kernel 3 · Opensource Trending 3 · Opensource Curation 2 · AI Coding Agents 2 · Linux Kernel Lens 14) — 전부 뉴스성. 파이프라인 메타 지식은 기존 문서(research-write-agent-separation·llm-newsletter-rewrite-metadata-grounding·llm-content-quality-guards·dev-blog)에 이미 흡수.
+  - AI Coding Agents dossier·newsletter 표본 확인: GitHub Copilot/Codex changelog·Claude Code 릴리스 노트(v2.1.203/204 버전 픽스)·스테가노그래피 마킹(`seenBefore: true`, 어제 다룸)·Source Leak(이미 `analyses/claude-code-source-leak-internals` 로 추출됨) — 신규 재조회 가치 없음. 스테가노그래피 마킹 건은 원 블로그 403·Anthropic 공식 미확인(confidence medium)이라 "출처 없는 정보 기정사실화 금지" 원칙상 기록하지 않음.
+
 ## 2026-07-08 (ingest)
 
 - **session-logs 유래** — 미처리 49건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).
