@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-07-05"
+updated: "2026-07-09"
 sources:
+  - "session-logs/20260709-230951-58a3-현재까지-동작-결과-검토해줘-표면적으로만-보지-말고-가능성과-인사이트까지-감안해서-검토해줘.md"
   - "session-logs/20260704-215721-8c43-현재-프로젝트는-최적의-주식-자동매매-알고리즘을-찾는-것이-목표임-이-목표에-도달하게-위해.md"
   - "session-logs/20260704-093146-5338-현재-프로젝트-분석.md"
   - "session-logs/20260701-231304-df33-지금까지-돌린-페이퍼트레이딩-알고리즘-평가-쉽게-설명.md"
@@ -161,6 +162,27 @@ related:
 - **판정 기준 사전 등록** — "20거래일 후 전략별 KOSPI 대비 초과수익으로 유지/폐기" 를 첫날에 명시 ([[optimal-strategy-search-preconditions]] §5 pre-registration).
 - **append-only CSV 스키마 진화 대응** — earnings 알고리즘 추가로 누적 CSV 가 13→15 컬럼이 되며 `pd.read_csv` `ParserError` 발생. 기존 파일은 일회성 마이그레이션 (구 스키마 행에 빈 값 삽입), 이후 헤더 불일치 시 `.bak` 회전 후 새 파일 시작하도록 `cli._append_csv` 보강.
 
+## 4주 동작 검토 & Infinity 버그 & vol_surge 슬롯 (2026-07-09)
+
+세 서브시스템(스캐너·RS·리웨이트)의 누적 산출물을 표면이 아니라 검증 데이터로 검토.
+
+### 결론 — 엔지니어링은 건강, 매매는 전부 손실 (그리고 그 이유가 데이터로 확정됨)
+
+112개 테스트 통과·정직한 시뮬레이션(갭 관통 체결·사전 판정기준·선택편향 제거 스냅샷)은 신뢰할 만하다. 그러나 실제 성과는 전 서브시스템 손실: 스캐너 aggressive **−28.3%**(807매매)~conservative −1.4%(19거래일), RS weekly_rs −13.2%(4거래일·승률 5~7%), 리웨이트 8변형 전부 손실(±0.05%p ≈ 0). 표면의 "시장이 나빴다" 가 아니라 **검증 데이터가 "핵심 신호의 예측력이 음(−)"임을 4주 연속 일관 증명**한 것이 최대 발견.
+
+- **스코어가 역(逆)신호**: 점수↑ → +30분 수익률·승률 단조 감소(점수5 = −0.27%/승률35%), 06-18/06-25/07-02/07-09 4주 재현. 점수0·점수5는 같은 유니버스·시각에서 뽑혀 시장 베타가 상쇄되므로 이 음수 차이는 시장 방향 무관 = **모멘텀 추격 신호가 단기 평균회귀**. 상세·방법론은 [[scoring-system-ic-validation]] 의 "라이브 out-of-sample 2차 확증" 절.
+- **유일한 엣지가 합산에 희석**: 거래량증가율만 양(+)(400%↑ +1.01%/승률64% n=58). 6지표 1점 합산이 이 하나를 노이즈 5개로 평균 내 죽인다. → **`vol_surge` 단일 규칙 슬롯 신설**(config/strategies/vol_surge.yaml, paper.yaml 로스터 등록). 전역 진입가드 `max_day_change_pct: 7.0` 이 겹쳐 실제로는 "거래량 400%↑ AND 당일등락 <7%" 를 테스트. 판정 기준(20거래일 KOSPI 대비)을 todo.md 에 사전 등록.
+- **가중치 미세조정 은퇴 확정**: 리웨이트 8변형 5일 초과수익 전부 ±0.05%p → 50/30/20 유지, 규칙 실험으로 축 이동(07-05 판단의 2차 확증).
+- **RS 는 판정 전**: 4거래일·급락장(07-08 코스피 −5.35%) 시작이라 −13% 로 폐기하면 성급. 다만 **매일 새로 뽑아 종가 매수**하는 능동 회전이라 매일 새 "꼭지"를 사는 구조 + 종목이 전부 저가 소형주 → 되돌림. 유동성/최소주가 필터 + 지수 필터 필요. 20거래일 판정까지 유지.
+
+### `/rs` 빈 화면 버그 — 응답 JSON 의 Infinity
+
+"어제까진 되던" `/rs` 추천 3표가 전부 공백. 원인은 오늘 스캔에 직전 20일 평균거래량 0 종목(금호에이치티)이 들어와 `거래량/0 = inf` → `max_vol_ratio:Infinity` 가 `/api/rs/latest` 응답에 실림 → 브라우저 `response.json()`(JSON.parse)이 거부 → `render()` 미실행. Flask `jsonify` 는 `allow_nan` 기본 True 라 curl·Python 확인 시엔 정상으로 보여 오진하기 쉬움. 2겹 방어(scanner: avg=0 → NaN, server: 응답 직전 inf→"") + 회귀 테스트 + launchd kickstart 재기동. 상세·일반 교훈은 신규 [[flask-jsonify-infinity-breaks-browser-json]].
+
+### 실거래 매핑
+
+검토 결론을 실거래 두 프로그램에 매핑: **선정 = [[n-stock-info]], 매매 실행 = [[ht-trading]]**. "고점수·고체결강도 추격" 로직이 실거래에 있으면 역엣지 의심, 가중치 튜닝은 중단 권고. "지금 실거래에 바로 넣을 돈 버는 신호는 없고, 4주치가 확정한 건 대부분 '하지 말 것'" 이 정직한 결론.
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -169,6 +191,7 @@ related:
 
 ## 변경 이력
 
+- 2026-07-09: "4주 동작 검토 & Infinity 버그 & vol_surge 슬롯" 절 추가 — 세 서브시스템 전부 손실이나 원인이 "스코어 역예측(4주 재현)"임을 검증 데이터로 확정, 거래량증가율 유일 양(+)이라 `vol_surge` 단일규칙 슬롯 격리 신설(20거래일 사전등록), 가중치 미세조정 은퇴·RS 소형주 되돌림 구조 진단. `/rs` 빈 화면 = 응답 JSON 의 `Infinity`(vol/0) → 브라우저 JSON.parse 실패, 2겹 방어로 수정. 신규 [[flask-jsonify-infinity-breaks-browser-json]] 분리, [[scoring-system-ic-validation]] 라이브 2차 확증 보강 (출처: session-logs/20260709-230951-58a3-*)
 - 2026-07-02: "2차 평가 & 신호 발굴 (2026-07-01)" 절 추가. ①과매매=거래비용 드래그(공격형 수수료 113만=자본 11%) ②리웨이트 baseline이 최선+튜닝여지 최대(payoff 0.65·손실이 −10% 절대손절 8건에 집중 → 손절폭 −10%→−5~6%가 유일·최우선 레버, 승률 58%면 산술적 흑자전환) ③스냅샷 라벨에서 EOD 복합필터(오후+VWAP위+시가위+체결100~130) 발굴, 단일지표는 예측력 0·조합만 엣지. 신규 [[signal-overfit-date-dispersion-check]](날짜분산+시장대조로 과최적화 판별) 분리, [[dca-trailing-stop-tuning]] 교차링크 (출처: session-logs/20260701-231304-df33-*)
 - 2026-07-04: "afternoon_eod 구현 & 심층 코드 분석" 절 추가 — 07-01 발굴 EOD 필터의 실전화(trade_window 확장점·가산점 필수조건화·검증 엣지 보호 청산 설계), 워크플로 분석의 발견(trade_window 경계 겹침, 스캔 루프 예외 내성, 토큰 캐시 비원자 쓰기, universe rank_by 실질 무효, 콜 예산 181콜/스캔 ≥18초). 신규 [[holding-period-signal-mismatch]] 분리 (출처: session-logs/20260704-093146-5338-*)
 - 2026-07-05: "목표 지향 재정렬 & 실거래 미러링" 절 추가 — 재가중 no-op 확인 후 가중치 실험 은퇴·규칙 실험(no_surge/ma_ext) 교체, 급등 꼭지 편향 실측(-20.6% vs -3.6%), 실거래 3층 손절 미러링 + 드리프트 가드 테스트, point-in-time 이력 부재. 신규 [[optimal-strategy-search-preconditions]]·[[mirror-config-drift-guard-test]] 분리, [[scoring-version-comparison-methodology]]·[[stock-screening-score-design]] 보강 (출처: session-logs/20260704-215721-8c43-*)

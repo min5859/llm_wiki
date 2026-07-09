@@ -113,6 +113,7 @@
 
 - [[absolute-stop-loss-elif-dead-code]] — 벤치마크 존재 시 절대손절 elif dead code — 손절 자체가 꺼진다
 - [[equity-curve-max-vs-latest-aggregation]] — 평가곡선 집계 함정 — MAX(equity) 는 최신 잔고가 아니라 역대 고점
+- [[flask-jsonify-infinity-breaks-browser-json]] — Flask jsonify 의 Infinity/NaN 이 브라우저 JSON.parse 를 깨는 침묵 함정
 - [[kis-cash-d2-settlement-buy-rejection]] — KIS 매수가능 현금에 D+2 미정산분 누락 → RiskManager 매수 차단
 - [[kis-derivative-etf-order-reject-apbk1497]] — KIS 파생·레버리지 ETF 주문 거부 [APBK1497] — 코드가 아니라 계좌 권한(선택확인서·사전교육)
 - [[kis-holiday-detection-bsop-date]] — KIS 공휴일 휴장 판정 실패 — bsop_date 비교 대신 휴장일조회 API
@@ -136,6 +137,7 @@
 
 ## 변경 이력
 
+- 2026-07-09: 신규 1건 등록 — trading: [[flask-jsonify-infinity-breaks-browser-json]] (bugs, 58a3 — ht_dde `/rs` 빈 화면이 응답 JSON 의 Infinity(vol/0)로 브라우저 JSON.parse 만 깨진 사례, Flask jsonify allow_nan 관측 비대칭 + 2겹 방어). 갱신 2건: [[scoring-system-ic-validation]] (라이브 out-of-sample 2차 확증 — 스코어 역예측 4주 재현·거래량급증만 양·가중치 미세조정 노이즈), [[ht-dde]] (4주 동작검토·Infinity 버그·vol_surge 단일규칙 슬롯). session-logs 미처리 24건 중 20260710 dev-blog cron 뉴스레터/dossier 23건은 뉴스성으로 스킵(Anubis 소스차단 회복 패턴은 [[research-write-agent-separation]] 07-07 항목에 이미 흡수 — 신규성 없음).
 - 2026-07-08: 신규 1건 등록 — trading: [[kis-derivative-etf-order-reject-apbk1497]] (bugs, 2c24 — 레버리지 ETF 24회 매수 거부가 코드가 아니라 계좌 파생ETF 미신청). 인덱스 드리프트 보정 — 07-07 cron 이 생성했으나 미등록이던 5건 추가: trading/analyses [[dca-intraday-buy-timing]]·[[kis-minute-chart-trs]] (fe2f), trading/bugs [[naver-finance-news-referer-required]]·[[pykrx-krx-login-required]] (ac9d)·[[relative-stop-benchmark-stale-price]] (fe2f). 갱신: [[ht-trading]]·[[n-stock-info]]·[[stock-screening-score-design]] (매수 시점 스코어 감사 로그·2단계 컷·멱등 vs point-in-time 2번째 실증, 2c24), [[gieok]]·[[claude-code-token-optimization]] (index 주입 반복 토큰 비용 모델·85% 축소, ea52). fe2f·ac9d 는 07-07 cron 이 이미 완전 인제스트해 플래그만 갱신. session-logs 미처리 49건 중 dev-blog cron 뉴스레터/dossier 45건은 뉴스성으로 스킵.
 - 2026-07-06: 신규 1건 등록 — ai-agent: [[stale-process-attributeerror-inprocess-coupling]] (bugs). session-logs 미처리 29건 중 뉴스레터/dossier cron 26건·일회성(디스크 상태·OCI 무료티어 셋업) 3건은 도메인 밖/뉴스성으로 스킵.
 - 2026-07-05: 신규 12건 등록 — trading: [[absolute-stop-loss-elif-dead-code]]·[[order-post-retry-double-fill]] (bugs), [[backtest-clock-injection]]·[[mirror-config-drift-guard-test]]·[[startup-dependency-crash-loop]] (patterns), [[backtest-fill-model-adverse-selection]]·[[optimal-strategy-search-preconditions]] (analyses) / ai-agent: [[multi-agent-orchestration-taxonomy]]·[[multi-agent-shared-wiki-concurrency]]·[[weak-model-agent-reliability-compounding]] (analyses), [[parallel-review-adversarial-fix-workflow]]·[[single-dispatcher-per-queue]] (patterns)

@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-10 (ingest)
+
+- **session-logs 유래** — 미처리 24건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).
+  - 신규 1건: trading `bugs/flask-jsonify-infinity-breaks-browser-json` — ht_dde `/rs` 종목추천 3표가 전부 공백. 원인은 오늘 스캔에 직전 20일 평균거래량 0 종목(금호에이치티)이 들어와 `거래량/0 = inf` → `/api/rs/latest` 응답에 `"max_vol_ratio":Infinity` → 브라우저 `response.json()`(JSON.parse) 거부 → `render()` 미실행. Flask `jsonify` `allow_nan` 기본 True 라 curl·Python 확인 시엔 정상으로 보여 오진 유발("서버로 보면 정상, 브라우저만 공백"). 2겹 방어(scanner: avg=0→NaN 재발방지, server: 응답 직전 inf→"" 즉시복구·전방위) + 회귀 테스트 + launchd kickstart 재기동·node 엄격파서 검증. 일반 교훈: 서버-브라우저 관측 비대칭이면 직렬화 경계 의심·`allow_nan=False` 로 fail-fast·비율은 분모0 가드 (출처 58a3).
+  - 갱신 2건 (출처 58a3):
+    - `analyses/scoring-system-ic-validation` — "라이브 out-of-sample 2차 확증 (ht_dde 종이거래)" 절: 05-10 백테스트(5일)의 두 결론(모멘텀=역신호, 단일 강신호 > 합산)이 +30분 horizon·4주 연속 스냅샷에서 독립 재현. 점수↑→+30분 수익률·승률 단조 감소(점수5 −0.27%/승률35%, 06-18/25·07-02/09 재현), 점수0·5 동일 유니버스·시각이라 시장 베타 상쇄 → 모멘텀 추격=단기 평균회귀. 거래량증가율만 양(400%↑ +1.01%/64% n=58)이라 `vol_surge` 단일규칙 격리, 리웨이트 8변형 ±0.05%p 로 가중치 미세조정=노이즈 2차 실증.
+    - `projects/ht-dde` — "4주 동작 검토 & Infinity 버그 & vol_surge 슬롯" 절: 세 서브시스템 전부 손실이나 원인이 스코어 역예측(4주 재현)임을 검증 데이터로 확정, `vol_surge` 슬롯 신설(20거래일 사전등록·전역가드 max_day_change 7% 겹침), RS 매일 새 꼭지 매수 능동회전·소형주 되돌림 진단, 실거래 매핑(선정=n-stock-info / 실행=ht-trading).
+  - 스킵 23건: 20260710 dev-blog cron 뉴스레터/리서치 dossier 전량 (Linux Daily 2 · Android Kernel 1 · Opensource Trending 2 · Opensource Curation 4 · AI Coding Agents 2 · Linux Kernel Lens 12) — 전부 뉴스성. 서브에이전트 병렬 스캔으로 전건 확인: 파이프라인 메타 지식은 기존 문서(research-write-agent-separation·llm-newsletter-rewrite-metadata-grounding·llm-content-quality-guards·dev-blog)에 이미 흡수. 유일한 경계선이던 **Anubis 봇 차단(lore/git.kernel.org, `/raw` 포함)으로 소스 라이브 취득 불가 → collect 단계가 원문을 payload 에 선캡처해 research 가 embedded-text+WebSearch+미러 교차검증으로 우아하게 강등** 패턴도 이미 [[research-write-agent-separation]] 07-07 항목(curl 차단·WebFetch 네트워크 전면차단 의심)에 흡수돼 신규성 없음 → 스킵. AI Coding Agents dossier 표본도 Copilot/Claude Code 체인지로그·스테가노그래피 스토리 등 뉴스 콘텐츠라 재조회 가치 없음.
+
 ## 2026-07-09 (ingest)
 
 - **session-logs 유래** — 미처리 26건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).
