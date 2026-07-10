@@ -1,5 +1,12 @@
 # 운영 로그
 
+## 2026-07-11 (ingest)
+
+- **session-logs 유래** — 미처리 23건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음, .cache/raw-md-sha 도 공백).
+  - 신규/갱신 0건. index.md 변경 없음.
+  - 스킵 23건: 20260711 dev-blog cron 뉴스레터/리서치 dossier 전량 (Linux Daily 2 · Android Kernel 3 · Opensource Trending 2 · Opensource Curation 2 · AI Coding Agents 2 · Linux Kernel Lens 12) — 전부 뉴스성. 파이프라인 메타 지식은 기존 문서(research-write-agent-separation·llm-newsletter-rewrite-metadata-grounding·llm-content-quality-guards·dev-blog)에 이미 흡수.
+  - AI Coding Agents dossier 본문 실사: 후보가 GitHub Copilot 모바일 필터·Claude Code v2.1.206 릴리스 노트(버전별 픽스 changelog)·Cursor side-chat changelog·HN 스토리(스테가노그래피 마킹, Source Leak "fake tools/undercover mode", OpenClaw 차단, 3.7 Sonnet 등) — 전부 뉴스성 롤업. Source Leak 계열은 이미 [[claude-code-source-leak-internals]], OpenClaw 는 [[openclaw-acp-runtime-internals]]·[[openclaw-telegram-group-setup]] 로 추출됨. 스테가노그래피 마킹 건은 07-05 이후 반복적으로 원 블로그 403·Anthropic 공식 미확인이라 "출처 없는 정보 기정사실화 금지" 원칙상 기록하지 않음. 버전별 릴리스 노트는 재조회 가치 없어 스킵.
+
 ## 2026-07-10 (ingest)
 
 - **session-logs 유래** — 미처리 24건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).
