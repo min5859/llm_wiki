@@ -77,6 +77,10 @@
 - [[openclaw]] — OpenClaw — AI 에이전트 자동화 도구
 - [[oss-radar]] — oss-radar — 주간 GitHub OSS 발굴 파이프라인
 
+### summaries
+
+- [[claude-code-opus-orchestration-setup]] — raw-source 요약 — Claude Code용 Opus 오케스트레이션 설정 작업 명세서 (deep-reasoner/implementer 명명 불일치 각주)
+
 ## trading
 
 ### patterns
@@ -107,6 +111,7 @@
 - [[scoring-version-comparison-methodology]] — 스코어 알고리즘 두 버전 비교 — 컷오프 캘리브레이션 vs 진짜 알파 변화
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
+- [[surge-chasing-exclusion-filter]] — 급등 종목 추격 배제 필터 — 하락장 레짐의 유일한 초과수익 규칙 (confidence medium — 단일 레짐 표본)
 
 ### decisions
 
@@ -140,6 +145,7 @@
 
 ## 변경 이력
 
+- 2026-07-12: 신규 2건 등록 — trading: [[surge-chasing-exclusion-filter]] (analyses — ht_dde 26거래일 전수 감사에서 급등 추격 배제 필터가 유일하게 시장 대비 초과수익, confidence medium 단일 하락장 레짐 표본, 출처 9413) / ai-agent: [[claude-code-opus-orchestration-setup]] (신설 `summaries` 카테고리 — raw-sources/claude-code-opus-orchestration-setup.md 요약, [[claude-code-model-tier-orchestration-gate]]와 상호링크). 갱신 4건: [[personal-llm-wiki-curation]]("v1→v2 재편 사례" — 선별이관 37.6%·vault 개명 교훈, 출처 1627), [[gieok]]("Vault 재개명" 절, 출처 1627), [[signal-overfit-date-dispersion-check]]("vol_surge 승률 착시" 사례, 출처 9413), [[ht-dde]]("2026-07-12 전략 전수 감사" — 방어규칙 3종 확정·vol_surge300_eod/combo_guard 신규, 출처 9413), [[claude-code-model-tier-orchestration-gate]](원본 명세서·요약 상호링크 + 명명 불일치 각주). 이관 121건 미대상은 v1 개별 복사 원칙 유지.
 - 2026-07-12: 신규 1건 등록 — ai-agent: [[oracle-cloud-free-tier-setup]] (patterns — v1(llm_wiki)에서 이관, domain personal → ai-agent 재분류(인프라·자동화 호스팅 용도). v1 06-06 회차에서 "일회성"으로 스킵됐던 항목을 재검토해 등록. related 의 `ssh-cli-toolkit-essentials.md` 는 v2 미존재로 제거).
 - 2026-07-11: 신규 1건 등록 — ai-agent: [[hermes-single-model-delegation]] (patterns — 단일 소형 모델 Hermes에서 delegate_task 동일모델 위임으로 context 부패 지연 + 약한 모델 신뢰도, `~/.hermes/config.yaml` delegation 블록 실측 기반, 회사 PC Qwen 대상).
 - 2026-07-11: 신규 1건 등록 — ai-agent: [[claude-code-model-tier-orchestration-gate]] (patterns — Opus 오케스트레이터+Sonnet 실행자+Haiku 러너 3계층을 서브에이전트 frontmatter·PreToolUse 게이트(메인 직접수정 턴당 2파일 제한·Bash 직접쓰기 차단·서브에이전트 예외·fail-open)·심링크 토글로 구성. 직접 구축·검증 22/22. 출처: raw-sources/claude-code-opus-orchestration-setup.md)

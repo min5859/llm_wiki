@@ -4,8 +4,16 @@ sensitivity: "public"
 title: gieok — 프로젝트 설계 상세
 tags: [project, gieok, claude-code, automation, launchagent]
 created: 2026-04-22
-updated: 2026-07-08
-sources: 2
+updated: 2026-07-12
+sources:
+  - "session-logs/20260422-002046-60a1-*.md"
+  - "session-logs/20260702-235052-ea52-근데-내가-처음-질문했던거는-llm-wiki-를-잘-셋업하는-방법을-물어봤는데-이걸-어떻게.md"
+  - "session-logs/20260712-000307-1627-llm_wiki-와-llm_wiki2-비교해줘.md"
+confidence: "high"
+related:
+  - "wiki/concepts/gieok.md"
+  - "wiki/analyses/macos-launchagent-catchup-behavior.md"
+  - "wiki/analyses/personal-llm-wiki-curation.md"
 ---
 
 ## 프로젝트 개요
@@ -111,6 +119,12 @@ vault 경로는 전부 파라미터로 주입되므로 gieok 본체는 건드리
 
 **함정: hook 설정은 세션 시작 시점에 고정된다.** 전환 전에 열려 있던 세션은 계속 구 vault에 로그를 쓴다. 해당 세션 종료 후 로그를 새 vault의 `session-logs/` 로 `mv` 하면 다음 ingest가 처리한다. ingest의 스킵 판단은 vault의 CLAUDE.md를 읽으므로, 새 vault의 수집 기준이 그대로 승격 게이트로 작동한다.
 
+## Vault 재개명 (llm_wiki2 → llm_wiki, 2026-07-12)
+
+vault 디렉터리명을 `llm_wiki2` → `llm_wiki` 로 개명. gieok LaunchAgent 3개(`com.gieok.ingest`·`com.gieok.lint`·`com.gieok.log-retention`)와 Claude Code `settings.json` 훅 7곳의 경로 참조를 일괄 갱신했다. `kakao-summary` 출력 경로는 원래부터 `llm_wiki` 경로에 쓰고 있었기 때문에 개명 후 별도 조치 없이 자동 일치.
+
+> **교훈**: vault 경로는 vault 본체가 아니라 자동화 여러 곳(LaunchAgent plist, hook 설정)에 절대경로로 하드코딩되어 있다. 개명 작업은 코드 수정보다 **경로 참조 전수조사**가 먼저다 — grep 없이 진행하면 일부 automation이 구 경로를 계속 참조한 채 조용히 멈춘다.
+
 ## Session-log 보존 정책 (2026-07-03 추가)
 
 처리 완료된 로그는 삭제되지 않고 무한 증가한다 (v1 실측: 1,031개 / 24MB, 전부 `ingested: true`인데도 보관). 해결: vault repo의 `scripts/session-log-retention.sh` + LaunchAgent `com.gieok.log-retention` 이 매일 **07:40**(ingest 07:00 이후)에 `ingested: true` 이면서 30일 경과한 로그만 삭제. 미처리(`ingested: false`) 로그는 절대 건드리지 않으며, `GIEOK_RETENTION_DRY_RUN=1` 로 dry-run 검증 가능. gieok 본체 무수정 — vault 쪽 스크립트로만 구현.
@@ -128,6 +142,7 @@ vault 경로는 전부 파라미터로 주입되므로 gieok 본체는 건드리
 - [[personal-llm-wiki-curation]]
 
 ## 변경 이력
+- 2026-07-12: "Vault 재개명 (llm_wiki2 → llm_wiki)" 절 추가 — LaunchAgent 3개 + settings.json 훅 7곳 경로 일괄 갱신, kakao-summary 는 자동 일치. 교훈: vault 경로는 자동화 여러 곳에 하드코딩되어 개명 전 경로 참조 전수조사 필요 (출처: session-logs/20260712-000307-1627-*)
 - 2026-04-22: 최초 작성 (세션 로그 20260422-002046-60a1 에서 추출)
 - 2026-07-08: "토큰 비용 모델 — 'LLM 미호출' ≠ '토큰 0'" 절 추가. wiki 목차 주입이 `claude -p` 는 안 부르지만 매 세션·매 턴 입력에 index 전문이 실림 → 비용 = index 크기 × 세션 수. v1→v2 index 85% 감소(55KB→9KB) 실측, index 는 제목 한 줄만 유지·크기 상한 lint. 토큰 최적화 일반론은 [[claude-code-token-optimization]] (출처: session-logs/20260702-235052-ea52-*)
 - 2026-07-04: "Vault 전환 절차 (v1→v2)" · "Session-log 보존 정책" 절 추가 — 연결 지점 3곳(settings.json hooks 7곳·LaunchAgent 2개·새 vault 사전 준비), hook 설정은 세션 시작 시점 고정 함정, retention LaunchAgent 07:40 (출처: session-logs/20260702-235052-ea52-*)

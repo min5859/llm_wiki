@@ -4,15 +4,17 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["Claude Code", "orchestration", "subagent", "PreToolUse hook", "model tier", "Opus", "Sonnet", "Haiku", "soft nudge", "additionalContext", "escalation", "symlink toggle", "위임"]
 created: "2026-07-11"
-updated: "2026-07-11"
+updated: "2026-07-12"
 sources:
   - "raw-sources/claude-code-opus-orchestration-setup.md"
+  - "wiki/summaries/claude-code-opus-orchestration-setup.md"
 confidence: "high"
 related:
   - "wiki/analyses/multi-agent-orchestration-taxonomy.md"
   - "wiki/analyses/ai-coding-agent-cost-and-context-patterns.md"
   - "wiki/patterns/claude-code-token-optimization.md"
   - "wiki/concepts/claude-code-skills-plugins.md"
+  - "wiki/summaries/claude-code-opus-orchestration-setup.md"
 ---
 
 # Claude Code 모델 계층 오케스트레이션 + PreToolUse 게이트
@@ -96,9 +98,11 @@ off→`empty.md` · hard→`mode-hard.md` · soft→`mode-soft.md`. `~/.local/bi
 - 이 구조가 이기는 조건: [[multi-agent-orchestration-taxonomy]] — 병렬·분해엔 이득, 선형 코딩엔 marginal.
 - 강/약 모델 분리·fresh-context 서브에이전트: [[ai-coding-agent-cost-and-context-patterns]].
 - 모델 계층을 비용 관점으로: [[claude-code-token-optimization]]. 서브에이전트·훅 일반: [[claude-code-skills-plugins]].
+- 원본 작업 명세서는 `raw-sources/claude-code-opus-orchestration-setup.md`, 그 요약은 [[claude-code-opus-orchestration-setup]] 참고. 명세서는 Sonnet 실행 계층 에이전트를 `deep-reasoner.md`로 명명하지만, 실제 구축된 이 구조에서는 그 역할이 `implementer`로 불리고 `deep-reasoner`는 반대로 soft 모드의 Opus 상향 에스컬레이션 역할로 쓰인다 — **명명 불일치**(모순이라기보다 명세 이후 설계 진화)이며 기존 내용을 정정할 근거는 아니라 취소선 없이 각주로만 남긴다.
 
 ## 변경 이력
 
+- 2026-07-12: 관련 맥락에 원본 명세서(raw-sources/claude-code-opus-orchestration-setup.md) 및 요약([[claude-code-opus-orchestration-setup]]) 링크 추가. 명세서의 `deep-reasoner`(Sonnet 실행) 명명과 실제 구축본의 `implementer`/`deep-reasoner`(Opus 에스컬레이션) 명명 불일치를 각주로 기록 (모순 아님, 기존 내용 변경 없음).
 - 2026-07-11: 모드 전환(off/hard/soft) 도입 — 두 지향을 하나의 `opus-orchestration {off|hard|soft}` 토글로
   통합. 에이전트 3종(implementer/deep-reasoner/runner) 상시 공존, 훅·env.sh가 상태값을 읽어 hard=차단/soft=넛지,
   hard=Opus메인/soft=Sonnet메인으로 분기. 토글 스크립트 bash3.2 호환 이슈(`${x^^}` bad substitution) `tr`로 수정. 검증 26/26.

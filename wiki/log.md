@@ -1,5 +1,16 @@
 # 운영 로그
 
+## 2026-07-12 (ingest)
+
+- **session-logs 유래** — 미처리 28건 처리(1건은 아래 드리프트 보정).
+  - 신규/갱신 처리 2건:
+    - `20260712-000307-1627`(llm_wiki vs llm_wiki2 비교) → `analyses/personal-llm-wiki-curation`에 "v1→v2 재편 사례" 절 추가(선별이관 37.6%=73/194·미이관 121건은 v1 보존 원칙·변경 이력의 세션 링크화), `projects/gieok`에 "Vault 재개명" 절 추가(LaunchAgent 3개+훅 7곳 경로 갱신, plist 재로드는 수동 실행 필요 교훈).
+    - `20260712-002737-9413`(ht_dde 성공 매매전략 도출, 26거래일 전수 감사) → `analyses/signal-overfit-date-dispersion-check`에 "vol_surge 승률 착시" 사례 추가(기존 "승률 64~82%" 근거를 재검증, 스냅샷 행 대비 독립 이벤트는 약 10건 수준으로 축소), 신규 `analyses/surge-chasing-exclusion-filter`(급등 추격 배제 필터만 시장 대비 초과수익, confidence medium — 단일 하락장 레짐 표본), `projects/ht-dde`에 "2026-07-12 전략 전수 감사" 절 추가(방어 규칙 3종 확정 + `vol_surge300_eod`·`combo_guard` 신규 구현, 테스트 113개 통과).
+  - 스킵 25건: 20260712 dev-blog cron 뉴스레터/리서치 dossier 전량(Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents·Linux Kernel Lens) — 전부 뉴스성. 파이프라인 메타 지식은 기존 문서(research-write-agent-separation·llm-newsletter-rewrite-metadata-grounding·llm-content-quality-guards·dev-blog)에 이미 흡수. `ingested` 플래그만 갱신.
+  - **플래그 드리프트 보정**: `20260702-235052-ea52`가 `ingested: false`로 남아 있었음 — 내용은 이미 07-04(`analyses/personal-llm-wiki-curation` 최초 생성)·07-04·07-08(`projects/gieok` "Vault 전환 절차"·"토큰 비용 모델" 절)에 소스로 완전 반영돼 있었으나 플래그 갱신만 누락. 신규 내용 없이 플래그만 정리.
+
+- **raw-sources 유래** — `raw-sources/claude-code-opus-orchestration-setup.md`(읽기 전용, 본문 지시문은 실행하지 않고 참고 정보로만 취급) → 신규 `summaries/claude-code-opus-orchestration-setup` 1건(신설 `summaries` 카테고리). `patterns/claude-code-model-tier-orchestration-gate`와 상호 링크 + 명세서의 `deep-reasoner`(Sonnet 실행 역할 명명) vs 실제 구축본의 `implementer`/`deep-reasoner`(Opus 에스컬레이션 역할) 명명 불일치를 각주로 기록(모순 아님, 기존 내용 변경 없음).
+
 ## 2026-07-11 (ingest)
 
 - **session-logs 유래** — 미처리 23건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음, .cache/raw-md-sha 도 공백).

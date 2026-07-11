@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-07-09"
+updated: "2026-07-12"
 sources:
+  - "session-logs/20260712-002737-9413-현재까지-쌓인-데이터를-심층적으로-분석해서-성공-매매전략을-도출해줘.md"
   - "session-logs/20260709-230951-58a3-현재까지-동작-결과-검토해줘-표면적으로만-보지-말고-가능성과-인사이트까지-감안해서-검토해줘.md"
   - "session-logs/20260704-215721-8c43-현재-프로젝트는-최적의-주식-자동매매-알고리즘을-찾는-것이-목표임-이-목표에-도달하게-위해.md"
   - "session-logs/20260704-093146-5338-현재-프로젝트-분석.md"
@@ -34,6 +35,7 @@ related:
   - "wiki/bugs/absolute-stop-loss-elif-dead-code.md"
   - "wiki/bugs/pykrx-krx-login-required.md"
   - "wiki/bugs/naver-finance-news-referer-required.md"
+  - "wiki/analyses/surge-chasing-exclusion-filter.md"
 ---
 
 # ht_dde — DDE 스타일 실시간 매수후보 스캐너
@@ -183,6 +185,19 @@ related:
 
 검토 결론을 실거래 두 프로그램에 매핑: **선정 = [[n-stock-info]], 매매 실행 = [[ht-trading]]**. "고점수·고체결강도 추격" 로직이 실거래에 있으면 역엣지 의심, 가중치 튜닝은 중단 권고. "지금 실거래에 바로 넣을 돈 버는 신호는 없고, 4주치가 확정한 건 대부분 '하지 말 것'" 이 정직한 결론.
 
+## 2026-07-12 전략 전수 감사
+
+26거래일(2026-06-06~07-10, 단일 하락장 레짐 — KOSPI·KOSDAQ 등가중 각 약 -6.9%) 데이터를 전수 분석한 결론: **검증된 성공 전략은 아직 없다.** 장중 스캐너 6전략 전부 손실(Profit Factor 최고 0.55, `aggressive`는 807회 청산 수수료·세금·슬리피지만 자본의 13%로 회전 비용이 손실의 절반 가까이 차지), RS EOD 3전략 승률 0~8%(트레일링 발동 문턱 +3%에 도달하기 전에 하드손절 -5%가 먼저 걸려 "손절만 반복"하는 구조 문제), `reweight` 8변형은 급등 종목 배제 필터(no_surge20·ma_ext30)만 시장 대비 +4~5%p 초과수익 — 상세는 [[surge-chasing-exclusion-filter]].
+
+**확정한 방어 규칙 3종**:
+1. 당일 +20%↑ 또는 MA20 이격 +30%↑ 종목 배제.
+2. 과열 지표(체결강도·VWAP 이격·호가 매도우위) 추격 금지 — 전부 후행수익률이 역방향으로 실측됨.
+3. 고회전 장중 매매 중단 유지 — 왕복 비용(수수료 0.015%+세금 0.15%+슬리피지 0.1% ≈ **회전 1회당 0.38%**)을 넘는 장중 엣지가 데이터에 없음.
+
+**신규 구현**: `vol_surge300_eod`(거래량증가율≥300%, EOD 청산, 재난용 손절 -8%, 익절/트레일링 없음 — 기존 `vol_surge`(400%↑·30분 청산)는 대조군으로 병행해 표본 축적을 가속) + `combo_guard`(reweight 변형, no_surge20+ma_ext30 OR 배제, 가중치는 기존과 동일 기술50/펀더30/리서치20). 테스트 113개 전부 통과, `com.wooki.ht-dde` 서비스 재기동으로 반영 완료.
+
+**다음 단계**: `vol_surge`(300%/400% 두 임계)는 스냅샷 행이 아닌 **독립 종목-일 이벤트 30건** 축적 후, 실현손익이 검증치(+30분 +1.01%/승률64%)와 부호·방향 일치 + baseline 대비 우위인지로 재판정. `vol_surge` 근거 자체가 스냅샷 행 수 착시였다는 재검증은 [[signal-overfit-date-dispersion-check]] 참고.
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -191,6 +206,7 @@ related:
 
 ## 변경 이력
 
+- 2026-07-12: "2026-07-12 전략 전수 감사" 절 추가 — 26거래일(단일 하락장) 전수 분석 결론(장중 스캐너 전패 PF≤0.55·RS 승률 0~8%·reweight 는 급등배제만 초과수익), 방어 규칙 3종 확정, `vol_surge300_eod`·`combo_guard` 신규 구현(테스트 113개 통과), 왕복비용 0.38% 실측. 신규 [[surge-chasing-exclusion-filter]] 분리, [[signal-overfit-date-dispersion-check]] 교차링크 (출처: session-logs/20260712-002737-9413-*)
 - 2026-07-09: "4주 동작 검토 & Infinity 버그 & vol_surge 슬롯" 절 추가 — 세 서브시스템 전부 손실이나 원인이 "스코어 역예측(4주 재현)"임을 검증 데이터로 확정, 거래량증가율 유일 양(+)이라 `vol_surge` 단일규칙 슬롯 격리 신설(20거래일 사전등록), 가중치 미세조정 은퇴·RS 소형주 되돌림 구조 진단. `/rs` 빈 화면 = 응답 JSON 의 `Infinity`(vol/0) → 브라우저 JSON.parse 실패, 2겹 방어로 수정. 신규 [[flask-jsonify-infinity-breaks-browser-json]] 분리, [[scoring-system-ic-validation]] 라이브 2차 확증 보강 (출처: session-logs/20260709-230951-58a3-*)
 - 2026-07-02: "2차 평가 & 신호 발굴 (2026-07-01)" 절 추가. ①과매매=거래비용 드래그(공격형 수수료 113만=자본 11%) ②리웨이트 baseline이 최선+튜닝여지 최대(payoff 0.65·손실이 −10% 절대손절 8건에 집중 → 손절폭 −10%→−5~6%가 유일·최우선 레버, 승률 58%면 산술적 흑자전환) ③스냅샷 라벨에서 EOD 복합필터(오후+VWAP위+시가위+체결100~130) 발굴, 단일지표는 예측력 0·조합만 엣지. 신규 [[signal-overfit-date-dispersion-check]](날짜분산+시장대조로 과최적화 판별) 분리, [[dca-trailing-stop-tuning]] 교차링크 (출처: session-logs/20260701-231304-df33-*)
 - 2026-07-04: "afternoon_eod 구현 & 심층 코드 분석" 절 추가 — 07-01 발굴 EOD 필터의 실전화(trade_window 확장점·가산점 필수조건화·검증 엣지 보호 청산 설계), 워크플로 분석의 발견(trade_window 경계 겹침, 스캔 루프 예외 내성, 토큰 캐시 비원자 쓰기, universe rank_by 실질 무효, 콜 예산 181콜/스캔 ≥18초). 신규 [[holding-period-signal-mismatch]] 분리 (출처: session-logs/20260704-093146-5338-*)
