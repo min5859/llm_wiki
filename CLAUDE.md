@@ -31,7 +31,7 @@
 ## 디렉토리 구조
 
 ```
-llm_wiki2/
+llm_wiki/
 ├── wiki/
 │   ├── concepts/          # 개념 정의
 │   ├── patterns/          # 실무 패턴, AI 활용법
