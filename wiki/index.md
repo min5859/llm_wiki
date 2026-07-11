@@ -21,6 +21,7 @@
 - [[launchd-secret-management]] — macOS launchd 환경 시크릿 분리 패턴 — ~/.zshrc 는 안 읽힌다
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 파싱 실패 시 raw 응답 덤프 + 재시도 패턴
 - [[macos-tcc-full-disk-access]] — macOS TCC: 터미널이 다른 앱 sandbox 에 접근할 때 토스트 팝업 처리
+- [[oracle-cloud-free-tier-setup]] — Oracle Cloud Free Tier 무료 VM 가입·셋업 가이드 — ARM A1 재고 품귀 실전 기록과 PAYG 전환 해법
 - [[parallel-review-adversarial-fix-workflow]] — 병렬 리뷰 → 교차검증 → TDD 수정 + 적대적 검증 워크플로
 - [[prompt-schema-pipeline-coupling]] — LLM 프롬프트 출력 스키마와 다운스트림 validator 간 결합 관리
 - [[shell-set-eu-topic-isolation]] — shell 의 set -eu 와 multi-topic 파이프라인의 격리 패턴
@@ -139,6 +140,7 @@
 
 ## 변경 이력
 
+- 2026-07-12: 신규 1건 등록 — ai-agent: [[oracle-cloud-free-tier-setup]] (patterns — v1(llm_wiki)에서 이관, domain personal → ai-agent 재분류(인프라·자동화 호스팅 용도). v1 06-06 회차에서 "일회성"으로 스킵됐던 항목을 재검토해 등록. related 의 `ssh-cli-toolkit-essentials.md` 는 v2 미존재로 제거).
 - 2026-07-11: 신규 1건 등록 — ai-agent: [[hermes-single-model-delegation]] (patterns — 단일 소형 모델 Hermes에서 delegate_task 동일모델 위임으로 context 부패 지연 + 약한 모델 신뢰도, `~/.hermes/config.yaml` delegation 블록 실측 기반, 회사 PC Qwen 대상).
 - 2026-07-11: 신규 1건 등록 — ai-agent: [[claude-code-model-tier-orchestration-gate]] (patterns — Opus 오케스트레이터+Sonnet 실행자+Haiku 러너 3계층을 서브에이전트 frontmatter·PreToolUse 게이트(메인 직접수정 턴당 2파일 제한·Bash 직접쓰기 차단·서브에이전트 예외·fail-open)·심링크 토글로 구성. 직접 구축·검증 22/22. 출처: raw-sources/claude-code-opus-orchestration-setup.md)
 - 2026-07-09: 신규 1건 등록 — trading: [[flask-jsonify-infinity-breaks-browser-json]] (bugs, 58a3 — ht_dde `/rs` 빈 화면이 응답 JSON 의 Infinity(vol/0)로 브라우저 JSON.parse 만 깨진 사례, Flask jsonify allow_nan 관측 비대칭 + 2겹 방어). 갱신 2건: [[scoring-system-ic-validation]] (라이브 out-of-sample 2차 확증 — 스코어 역예측 4주 재현·거래량급증만 양·가중치 미세조정 노이즈), [[ht-dde]] (4주 동작검토·Infinity 버그·vol_surge 단일규칙 슬롯). session-logs 미처리 24건 중 20260710 dev-blog cron 뉴스레터/dossier 23건은 뉴스성으로 스킵(Anubis 소스차단 회복 패턴은 [[research-write-agent-separation]] 07-07 항목에 이미 흡수 — 신규성 없음).
