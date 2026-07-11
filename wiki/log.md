@@ -7,6 +7,10 @@
   - 스킵 23건: 20260711 dev-blog cron 뉴스레터/리서치 dossier 전량 (Linux Daily 2 · Android Kernel 3 · Opensource Trending 2 · Opensource Curation 2 · AI Coding Agents 2 · Linux Kernel Lens 12) — 전부 뉴스성. 파이프라인 메타 지식은 기존 문서(research-write-agent-separation·llm-newsletter-rewrite-metadata-grounding·llm-content-quality-guards·dev-blog)에 이미 흡수.
   - AI Coding Agents dossier 본문 실사: 후보가 GitHub Copilot 모바일 필터·Claude Code v2.1.206 릴리스 노트(버전별 픽스 changelog)·Cursor side-chat changelog·HN 스토리(스테가노그래피 마킹, Source Leak "fake tools/undercover mode", OpenClaw 차단, 3.7 Sonnet 등) — 전부 뉴스성 롤업. Source Leak 계열은 이미 [[claude-code-source-leak-internals]], OpenClaw 는 [[openclaw-acp-runtime-internals]]·[[openclaw-telegram-group-setup]] 로 추출됨. 스테가노그래피 마킹 건은 07-05 이후 반복적으로 원 블로그 403·Anthropic 공식 미확인이라 "출처 없는 정보 기정사실화 금지" 원칙상 기록하지 않음. 버전별 릴리스 노트는 재조회 가치 없어 스킵.
 
+- **session-logs 유래 (수동 ingest, 추가 1건)** — 위 cron 처리 후 남아 있던 `ingested: false` 1건(`1af9 최근 디스크 사용 상태 확인해줘`, disk_monitor 프로젝트) 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 대상 없음(전부 공백).
+  - 신규/갱신 0건. index.md 변경 없음.
+  - 스킵 1건: `1af9` — macOS 디스크 여유공간 급락·회복 진단 세션. 내용은 실질적임(전체 여유공간 타임라인에서 드롭→며칠 뒤 회복 패턴 반복 → 실제 파일이 아니라 **purgeable / 로컬 APFS 스냅샷** 신호 → `tmutil listlocalsnapshots` 로 `com.apple.os.update-*`(MSUPrepareUpdate, 스테이징된 macOS 업데이트)가 원인임을 확정). 그러나 **두 도메인(ai-agent·trading) 밖의 macOS 시스템 진단 + 일회성 상태 조회**라 수집 기준 미달. 07-06 `d1fe 디스크 사용 상태 확인`("일회성 상태 조회") 스킵과 동일 부류 — disk_monitor 는 반복 등장하지만 도메인 게이트가 승격을 차단. CLAUDE.md "두 도메인 밖 주제는 기록하지 않는다" 원칙에 따라 ingested 플래그만 갱신.
+
 ## 2026-07-10 (ingest)
 
 - **session-logs 유래** — 미처리 24건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 대상 없음(디렉터리 비어 있음).
