@@ -1,24 +1,80 @@
 {
   "colorGroups": [
     {
-      "query": "tag:#community/Flow-based_Text-to-Image_Generation",
+      "query": "tag:#community/AI_\uc5d0\uc774\uc804\ud2b8_\uae30\ucd08\u00b7\ud558\ub124\uc2a4_\uc5d4\uc9c0\ub2c8\uc5b4\ub9c1",
       "color": {
         "a": 1,
         "rgb": 5142951
       }
     },
     {
-      "query": "tag:#community/gieok_Knowledge_Automation_System",
+      "query": "tag:#community/Claude_Code_\uae30\ubcf8_\uba85\ub839\u00b7UI",
       "color": {
         "a": 1,
         "rgb": 15896107
       }
     },
     {
-      "query": "tag:#community/Diffusion_Model_Bias_Correction",
+      "query": "tag:#community/\uae30\uc5c5_\ubcf4\uc548\u00b7AWS_Bedrock",
       "color": {
         "a": 1,
         "rgb": 14767961
+      }
+    },
+    {
+      "query": "tag:#community/OpenClaw\u00b7\uc790\ub3d9\ud654_\ud30c\uc774\ud504\ub77c\uc778",
+      "color": {
+        "a": 1,
+        "rgb": 7780274
+      }
+    },
+    {
+      "query": "tag:#community/\uc774\ubbf8\uc9c0_\uc0dd\uc131\u00b7\ud655\uc0b0_\ubaa8\ub378_\ubd84\uc11d",
+      "color": {
+        "a": 1,
+        "rgb": 5873999
+      }
+    },
+    {
+      "query": "tag:#community/Agent_Teams\u00b7tmux_\ud611\uc5c5",
+      "color": {
+        "a": 1,
+        "rgb": 15583560
+      }
+    },
+    {
+      "query": "tag:#community/\uc790\uc728\uc8fc\ud589\u00b7VLA_\ub17c\ubb38",
+      "color": {
+        "a": 1,
+        "rgb": 11565729
+      }
+    },
+    {
+      "query": "tag:#community/SoC_OTF_\ud558\ub4dc\uc6e8\uc5b4",
+      "color": {
+        "a": 1,
+        "rgb": 16752039
+      }
+    },
+    {
+      "query": "tag:#community/AI_\uc1fc\uce20_\uc601\uc0c1_\uc81c\uc791",
+      "color": {
+        "a": 1,
+        "rgb": 10253663
+      }
+    },
+    {
+      "query": "tag:#community/AI_\ucca0\ud559\u00b7\ud65c\uc6a9_\uc218\uc900",
+      "color": {
+        "a": 1,
+        "rgb": 12234924
+      }
+    },
+    {
+      "query": "tag:#community/macOS_\ud0a4\ubcf4\ub4dc_\ub2e8\ucd95\ud0a4",
+      "color": {
+        "a": 1,
+        "rgb": 5142951
       }
     }
   ]

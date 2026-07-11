@@ -1,11 +1,11 @@
 ---
 source_file: "wiki/concepts/gieok.md"
 type: "document"
-community: "gieok Knowledge Automation System"
+community: "OpenClaw·자동화 파이프라인"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/gieok_Knowledge_Automation_System
+  - community/OpenClaw·자동화_파이프라인
 ---
 
 # gieok Hook→LLM→Wiki→Git Pipeline
@@ -14,4 +14,4 @@ tags:
 - [[gieok Concept — Claude Code Second Brain]] - `references` [EXTRACTED]
 - [[macOS LaunchAgent (launchd scheduling)]] - `shares_data_with` [INFERRED]
 
-#graphify/document #graphify/EXTRACTED #community/gieok_Knowledge_Automation_System
+#graphify/document #graphify/EXTRACTED #community/OpenClaw·자동화_파이프라인

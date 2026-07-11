@@ -1,11 +1,11 @@
 ---
 source_file: "wiki/analyses/meanflow-text-to-image.md"
 type: "paper"
-community: "Flow-based Text-to-Image Generation"
+community: "이미지 생성·확산 모델 분석"
 tags:
   - graphify/paper
   - graphify/EXTRACTED
-  - community/Flow-based_Text-to-Image_Generation
+  - community/이미지_생성·확산_모델_분석
 ---
 
 # MeanFlow Text-to-Image Extension (EMF)
@@ -22,4 +22,4 @@ tags:
 - [[arXiv2510.15857 — BLIP3o-NEXT (Chen et al., 2025)]] - `cites` [EXTRACTED]
 - [[arXiv2604.18168 — EMF Extending MeanFlow to Text-to-Image]] - `cites` [EXTRACTED]
 
-#graphify/paper #graphify/EXTRACTED #community/Flow-based_Text-to-Image_Generation
+#graphify/paper #graphify/EXTRACTED #community/이미지_생성·확산_모델_분석

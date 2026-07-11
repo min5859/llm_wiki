@@ -1,11 +1,11 @@
 ---
 source_file: "wiki/projects/gieok.md"
 type: "document"
-community: "gieok Knowledge Automation System"
+community: "OpenClaw·자동화 파이프라인"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/gieok_Knowledge_Automation_System
+  - community/OpenClaw·자동화_파이프라인
 ---
 
 # gieok Project Detail
@@ -17,4 +17,4 @@ tags:
 - [[macOS LaunchAgent (launchd scheduling)]] - `references` [EXTRACTED]
 - [[macOS LaunchAgent Catchup Behavior]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/gieok_Knowledge_Automation_System
+#graphify/document #graphify/EXTRACTED #community/OpenClaw·자동화_파이프라인

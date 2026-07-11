@@ -1,11 +1,11 @@
 ---
 source_file: "wiki/analyses/macos-launchagent-catchup-behavior.md"
 type: "document"
-community: "gieok Knowledge Automation System"
+community: "OpenClaw·자동화 파이프라인"
 tags:
   - graphify/document
   - graphify/EXTRACTED
-  - community/gieok_Knowledge_Automation_System
+  - community/OpenClaw·자동화_파이프라인
 ---
 
 # macOS LaunchAgent Catchup Behavior
@@ -16,4 +16,4 @@ tags:
 - [[gieok Project Detail]] - `references` [EXTRACTED]
 - [[macOS LaunchAgent (launchd scheduling)]] - `references` [EXTRACTED]
 
-#graphify/document #graphify/EXTRACTED #community/gieok_Knowledge_Automation_System
+#graphify/document #graphify/EXTRACTED #community/OpenClaw·자동화_파이프라인
