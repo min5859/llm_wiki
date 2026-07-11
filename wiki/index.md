@@ -14,7 +14,9 @@
 
 ### patterns
 
+- [[claude-code-model-tier-orchestration-gate]] — Claude Code 모델 계층 오케스트레이션 + PreToolUse 게이트 (off/hard/soft 모드 토글 · 하드블록 vs 소프트넛지(allow+additionalContext) · Opus메인 vs Sonnet메인 · 심링크 토글)
 - [[claude-code-token-optimization]] — Claude Code 토큰 최적화 — 소비 절반 줄이기
+- [[hermes-single-model-delegation]] — Hermes 단일 모델 delegate_task — context 부패 지연 + 약한 모델(소형 Qwen) 신뢰도
 - [[launchd-plist-symlink-from-project]] — launchd plist 프로젝트 폴더 마스터 + ~/Library/LaunchAgents symlink 패턴 (Homebrew 스타일)
 - [[launchd-secret-management]] — macOS launchd 환경 시크릿 분리 패턴 — ~/.zshrc 는 안 읽힌다
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 파싱 실패 시 raw 응답 덤프 + 재시도 패턴
@@ -137,6 +139,8 @@
 
 ## 변경 이력
 
+- 2026-07-11: 신규 1건 등록 — ai-agent: [[hermes-single-model-delegation]] (patterns — 단일 소형 모델 Hermes에서 delegate_task 동일모델 위임으로 context 부패 지연 + 약한 모델 신뢰도, `~/.hermes/config.yaml` delegation 블록 실측 기반, 회사 PC Qwen 대상).
+- 2026-07-11: 신규 1건 등록 — ai-agent: [[claude-code-model-tier-orchestration-gate]] (patterns — Opus 오케스트레이터+Sonnet 실행자+Haiku 러너 3계층을 서브에이전트 frontmatter·PreToolUse 게이트(메인 직접수정 턴당 2파일 제한·Bash 직접쓰기 차단·서브에이전트 예외·fail-open)·심링크 토글로 구성. 직접 구축·검증 22/22. 출처: raw-sources/claude-code-opus-orchestration-setup.md)
 - 2026-07-09: 신규 1건 등록 — trading: [[flask-jsonify-infinity-breaks-browser-json]] (bugs, 58a3 — ht_dde `/rs` 빈 화면이 응답 JSON 의 Infinity(vol/0)로 브라우저 JSON.parse 만 깨진 사례, Flask jsonify allow_nan 관측 비대칭 + 2겹 방어). 갱신 2건: [[scoring-system-ic-validation]] (라이브 out-of-sample 2차 확증 — 스코어 역예측 4주 재현·거래량급증만 양·가중치 미세조정 노이즈), [[ht-dde]] (4주 동작검토·Infinity 버그·vol_surge 단일규칙 슬롯). session-logs 미처리 24건 중 20260710 dev-blog cron 뉴스레터/dossier 23건은 뉴스성으로 스킵(Anubis 소스차단 회복 패턴은 [[research-write-agent-separation]] 07-07 항목에 이미 흡수 — 신규성 없음).
 - 2026-07-08: 신규 1건 등록 — trading: [[kis-derivative-etf-order-reject-apbk1497]] (bugs, 2c24 — 레버리지 ETF 24회 매수 거부가 코드가 아니라 계좌 파생ETF 미신청). 인덱스 드리프트 보정 — 07-07 cron 이 생성했으나 미등록이던 5건 추가: trading/analyses [[dca-intraday-buy-timing]]·[[kis-minute-chart-trs]] (fe2f), trading/bugs [[naver-finance-news-referer-required]]·[[pykrx-krx-login-required]] (ac9d)·[[relative-stop-benchmark-stale-price]] (fe2f). 갱신: [[ht-trading]]·[[n-stock-info]]·[[stock-screening-score-design]] (매수 시점 스코어 감사 로그·2단계 컷·멱등 vs point-in-time 2번째 실증, 2c24), [[gieok]]·[[claude-code-token-optimization]] (index 주입 반복 토큰 비용 모델·85% 축소, ea52). fe2f·ac9d 는 07-07 cron 이 이미 완전 인제스트해 플래그만 갱신. session-logs 미처리 49건 중 dev-blog cron 뉴스레터/dossier 45건은 뉴스성으로 스킵.
 - 2026-07-06: 신규 1건 등록 — ai-agent: [[stale-process-attributeerror-inprocess-coupling]] (bugs). session-logs 미처리 29건 중 뉴스레터/dossier cron 26건·일회성(디스크 상태·OCI 무료티어 셋업) 3건은 도메인 밖/뉴스성으로 스킵.
