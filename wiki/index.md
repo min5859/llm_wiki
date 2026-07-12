@@ -14,7 +14,7 @@
 
 ### patterns
 
-- [[claude-code-model-tier-orchestration-gate]] — Claude Code 모델 계층 오케스트레이션 + PreToolUse 게이트 (off/hard/soft 모드 토글 · 하드블록 vs 소프트넛지(allow+additionalContext) · Opus메인 vs Sonnet메인 · 심링크 토글)
+- [[claude-code-model-tier-orchestration-gate]] — Claude Code 모델 계층 오케스트레이션 + PreToolUse 게이트 (off/hard/soft 모드 토글 · 하드블록 vs 소프트넛지(allow+additionalContext) · Opus메인 vs Sonnet메인 · 심링크 토글 · 실측: 위임 강제는 hard 게이트뿐, Haiku는 지침 기반 · claude_env 멱등 install 패키징)
 - [[claude-code-token-optimization]] — Claude Code 토큰 최적화 — 소비 절반 줄이기
 - [[hermes-single-model-delegation]] — Hermes 단일 모델 delegate_task — context 부패 지연 + 약한 모델(소형 Qwen) 신뢰도
 - [[launchd-plist-symlink-from-project]] — launchd plist 프로젝트 폴더 마스터 + ~/Library/LaunchAgents symlink 패턴 (Homebrew 스타일)
@@ -145,6 +145,7 @@
 
 ## 변경 이력
 
+- 2026-07-13: 갱신 1건 — ai-agent: [[claude-code-model-tier-orchestration-gate]] (실측 "네이티브 위임은 알아서 안 일어남" 절 + PreToolUse payload 스키마 확정(`prompt_id` v2.1.196+ · agent_id/agent_type 서브에이전트 한정) + claude_env 멱등 install 패키징 절, 출처 ccc7). session-logs 미처리 23건 중 20260713 dev-blog cron 뉴스레터/dossier 22건은 뉴스성으로 스킵(표본 3건 확인 — WebFetch silent fail·프롬프트 스키마 vs 출력 편차는 기존 문서 계열로 신규성 없음).
 - 2026-07-12: 신규 2건 등록 — trading: [[surge-chasing-exclusion-filter]] (analyses — ht_dde 26거래일 전수 감사에서 급등 추격 배제 필터가 유일하게 시장 대비 초과수익, confidence medium 단일 하락장 레짐 표본, 출처 9413) / ai-agent: [[claude-code-opus-orchestration-setup]] (신설 `summaries` 카테고리 — raw-sources/claude-code-opus-orchestration-setup.md 요약, [[claude-code-model-tier-orchestration-gate]]와 상호링크). 갱신 4건: [[personal-llm-wiki-curation]]("v1→v2 재편 사례" — 선별이관 37.6%·vault 개명 교훈, 출처 1627), [[gieok]]("Vault 재개명" 절, 출처 1627), [[signal-overfit-date-dispersion-check]]("vol_surge 승률 착시" 사례, 출처 9413), [[ht-dde]]("2026-07-12 전략 전수 감사" — 방어규칙 3종 확정·vol_surge300_eod/combo_guard 신규, 출처 9413), [[claude-code-model-tier-orchestration-gate]](원본 명세서·요약 상호링크 + 명명 불일치 각주). 이관 121건 미대상은 v1 개별 복사 원칙 유지.
 - 2026-07-12: 신규 1건 등록 — ai-agent: [[oracle-cloud-free-tier-setup]] (patterns — v1(llm_wiki)에서 이관, domain personal → ai-agent 재분류(인프라·자동화 호스팅 용도). v1 06-06 회차에서 "일회성"으로 스킵됐던 항목을 재검토해 등록. related 의 `ssh-cli-toolkit-essentials.md` 는 v2 미존재로 제거).
 - 2026-07-11: 신규 1건 등록 — ai-agent: [[hermes-single-model-delegation]] (patterns — 단일 소형 모델 Hermes에서 delegate_task 동일모델 위임으로 context 부패 지연 + 약한 모델 신뢰도, `~/.hermes/config.yaml` delegation 블록 실측 기반, 회사 PC Qwen 대상).

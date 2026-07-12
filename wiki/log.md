@@ -1,5 +1,15 @@
 # 운영 로그
 
+## 2026-07-13 (ingest)
+
+- **session-logs 유래** — 미처리 23건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음(raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·내용 미변경 — sidecar 부재로 source_sha256 미설정 상태 유지, 멱등 스킵).
+  - 갱신 1건: `patterns/claude-code-model-tier-orchestration-gate` — ccc7(opus-orchestration 후속 세션)의 wiki 미반영 델타 3종:
+    1. **실측 — 네이티브 위임은 알아서 안 일어남**: 강모델 메인은 위임 인센티브 없음(CLAUDE.md 권고는 자주 무시), Sonnet 위임을 강제하는 유일 장치는 hard 게이트 편집 차단, Haiku 조사 위임은 강제 불가·지침 기반. soft의 "굳이 위임 안 함"(구현 자제) 문구가 조사 위임까지 억제 → 구현 자제/대량 조사 권장 분리 + runner description 트리거 보강.
+    2. **PreToolUse payload 스키마 확정**: `prompt_id` 는 CC v2.1.196+(구버전은 transcript fallback degrade), `agent_id`/`agent_type` 은 서브에이전트 컨텍스트에서만 채워짐, 서브에이전트 툴콜도 훅을 타므로 제외 로직 필수.
+    3. **claude_env 멱등 install 패키징**: 플러그인은 rc·CLAUDE.md 못 건드림 → git repo + 멱등 install.sh 가 전체 커버, 재설치 시 기존 모드 유지(무조건 off 리셋 금지), 레거시 `on` 자동 매핑 금지(하드블록→soft 의미 반전 위험), 가짜 HOME 실행 검증(신규/재설치/업그레이드/빈 HOME).
+  - 세션 전반부 지식(3모드 토글·소프트 넛지·[[hermes-single-model-delegation]] 신설)은 해당 세션이 실시간으로 이미 wiki 에 반영 완료 — 이번엔 후반부 델타만 추가하고 플래그 정리.
+  - 스킵 22건: 20260713 dev-blog cron 뉴스레터/리서치 dossier 전량 — 뉴스성. 표본 3건(82f6 AI Coding·956f Curation·9739 Kernel Weekly) 확인 결과, WebFetch silent fail·프롬프트 스키마 vs 출력 구조 편차 등 운영 메타는 기존 문서 계열([[research-write-agent-separation]]·[[highlights-action-validator-schema-drift]])과 동일 주제로 신규성 없음. 956f 가 평소(4K)보다 큰 35.7K 인 것은 후보 5개 레포 병렬 에이전트 조사 로그로 정상 동작.
+
 ## 2026-07-12 (ingest)
 
 - **session-logs 유래** — 미처리 28건 처리(1건은 아래 드리프트 보정).

@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["Claude Code", "orchestration", "subagent", "PreToolUse hook", "model tier", "Opus", "Sonnet", "Haiku", "soft nudge", "additionalContext", "escalation", "symlink toggle", "위임"]
 created: "2026-07-11"
-updated: "2026-07-12"
+updated: "2026-07-13"
 sources:
   - "raw-sources/claude-code-opus-orchestration-setup.md"
   - "wiki/summaries/claude-code-opus-orchestration-setup.md"
@@ -57,7 +57,8 @@ pin이 담당. env.sh는 상태 on일 때만 export.
 ### 3. PreToolUse 게이트 — 하드블록 vs 소프트 넛지
 훅을 `Write|Edit|NotebookEdit|MultiEdit|Bash`에 걸어 **메인 에이전트만** 대상으로 한다. 훅이 상태파일의
 모드값(off/hard/soft)을 읽어 분기한다. 공통: fail-open(`exit(0)`) 최우선 · off면 통과 ·
-`agent_id`/`agent_type` 있으면(서브에이전트) 통과.
+`agent_id`/`agent_type` 있으면(서브에이전트) 통과. **서브에이전트 툴콜도 PreToolUse 훅을 그대로 타므로**
+이 제외 로직이 필수다 — 두 필드는 서브에이전트 컨텍스트에서만 채워진다(payload 스키마 확인됨).
 
 - **하드블록**: 한 턴 distinct 코드 파일 2개 초과 시 `exit(2)` + stderr → 툴콜 거부. Bash 인플레이스
   (`sed -i`/`perl -i`/코드파일 `>`·`tee`)도 차단. 강제력 강하나 정당한 다중파일 수정도 막아 역효과.
@@ -90,8 +91,39 @@ off→`empty.md` · hard→`mode-hard.md` · soft→`mode-soft.md`. `~/.local/bi
 - **훅은 세션 시작 시 로드** — settings.json 등록해도 현재 세션엔 즉시 반영 안 됨(다음 CC 실행부터).
 - **env.sh는 셸 시작 시 1회 source** — 토글 후 새 셸부터 반영. `ANTHROPIC_MODEL`은 `/model`·`--model`이 우선.
 - **셸 rc 대상**: 로그인 zsh는 `.bashrc`를 안 읽는다 → 실효 파일(`.zshrc`)에 넣어야 동작.
-- **turn 경계**: payload에 `prompt_id`가 없을 수 있어 transcript 마지막 user turn uuid → session 순으로
-  fallback. 없으면 매 편집마다 transcript 스캔이라 긴 세션에선 tail 제한/캐시가 낫다(개선 여지).
+- **turn 경계**: payload `prompt_id`는 CC v2.1.196+부터 제공(확인됨). 그 이전 버전은 transcript 마지막
+  user turn uuid → session 순 fallback으로 degrade — 매 편집마다 transcript 스캔이라 긴 세션에선
+  tail 제한/캐시가 낫다(개선 여지).
+
+## 실측 — 위임은 "알아서" 일어나지 않는다
+
+Opus 메인을 켜 두면 Sonnet/Haiku가 거의 돌지 않는다는 실사용 관찰이 있었고, 그게 정상 동작이다.
+
+- **강한 메인은 위임 인센티브가 없다.** CC는 사용자 비용을 아끼도록이 아니라 과업을 끝내도록 튜닝돼 있어,
+  CLAUDE.md의 "위임해" 권고만으론 자주 무시된다. "네이티브가 알아서 tiering"은 사실상 일어나지 않는다.
+- **Sonnet(implementer) 위임을 신뢰할 수 있게 만드는 유일한 장치는 hard 게이트의 편집 차단.**
+  편집이 막히니 메인이 어쩔 수 없이 위임한다. 게이트 없으면 idle.
+- **Haiku(runner) 잡무 위임은 어떤 모드에서도 강제 불가** — 게이트는 편집만 막을 수 있고, 조사(read/grep)를
+  막으면 작업 자체가 마비된다. 대신 지침은 실제로 작동한다: 모드 지침의 "저비용 잡무는 runner에 위임" 한 줄이
+  Opus를 움직여 Haiku를 돌린 것이 실측으로 확인됨(지침 기반이라 보장은 아님).
+- **soft 모드 문구 함정**: "위임 왕복 비용이 크므로 굳이 위임하지 않는다"(구현 위임 자제)를 모델이 일반화해
+  **조사 위임까지 억제**한다. → 구현 자제와 조사 권장을 분리 명시: "여러 파일 훑기·대량 로그처럼 출력이 큰
+  조사만 runner에 위임"(판단 기준: 이 조사 출력이 길어질까? Yes→runner). runner description도 대량·고출력
+  조사 트리거 중심으로 보강. 과유도하면 단발 grep까지 위임돼 오히려 느려진다.
+
+## 배포 — 멱등 install 패키징 (claude_env)
+
+셋업 전체를 다른 PC로 옮기는 방식. **CC 플러그인은 agents·훅·커맨드만 번들 가능**하고 사용자
+`~/.zshrc`·`~/.claude/CLAUDE.md`는 못 건드린다 → env 모델 고정·import 토글이 플러그인 밖이라
+**git repo + 멱등 install.sh**(자기완결 패키지 폴더)가 전체를 커버하는 정답.
+
+- **재설치가 상태를 리셋하면 안 된다**: install이 상태를 무조건 off로 초기화하면 재설치 때 활성 모드가
+  조용히 꺼진다 → 기존 모드 유지, 신규 설치만 off.
+- **레거시 상태값은 자동 매핑하지 않는다**: 구판 `on`(=하드블록)을 신판이 soft로 매핑하면 의미가 조용히
+  뒤바뀐다. 값만으로 의도를 알 수 없으면 off + "hard/soft 명시 선택" 안내가 맞다.
+- **검증은 가짜 HOME으로 install/uninstall 실제 실행**(신규·재설치·구버전 업그레이드·완전 빈 HOME 시나리오,
+  실제 `~/.claude` 무접촉). 병합은 기존 훅(rtk 등)·rc 내용 보존 + 백업 + grep 중복 방지.
+- 남에게 줄 땐 개인 설정이 섞인 repo 전체가 아니라 **자기완결 패키지 폴더 하나만**.
 
 ## 관련 맥락
 
@@ -102,6 +134,7 @@ off→`empty.md` · hard→`mode-hard.md` · soft→`mode-soft.md`. `~/.local/bi
 
 ## 변경 이력
 
+- 2026-07-13: 실측 절 추가 — 네이티브 위임은 자발적으로 안 일어남(강모델 비위임 인센티브 · Sonnet 위임 강제는 hard 게이트뿐 · Haiku 조사 위임은 지침 기반, soft의 "굳이 위임 안 함" 문구가 조사 위임까지 억제 → 구현/조사 분리 + runner description 트리거 보강). PreToolUse payload 스키마 확정(`prompt_id` v2.1.196+ · `agent_id`/`agent_type` 서브에이전트 한정 · 서브 툴콜도 훅 탐). claude_env 멱등 install 패키징 절(모드 유지 · 레거시 비자동매핑 · 가짜 HOME 검증 · 플러그인 한계) (출처: session-log ccc7).
 - 2026-07-12: 관련 맥락에 원본 명세서(raw-sources/claude-code-opus-orchestration-setup.md) 및 요약([[claude-code-opus-orchestration-setup]]) 링크 추가. 명세서의 `deep-reasoner`(Sonnet 실행) 명명과 실제 구축본의 `implementer`/`deep-reasoner`(Opus 에스컬레이션) 명명 불일치를 각주로 기록 (모순 아님, 기존 내용 변경 없음).
 - 2026-07-11: 모드 전환(off/hard/soft) 도입 — 두 지향을 하나의 `opus-orchestration {off|hard|soft}` 토글로
   통합. 에이전트 3종(implementer/deep-reasoner/runner) 상시 공존, 훅·env.sh가 상태값을 읽어 hard=차단/soft=넛지,
