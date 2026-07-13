@@ -180,7 +180,7 @@ Task 10 (피드백 루프) ─ 독립, Task 0 골든셋 보충 경로
 
 ## Task 10: 온라인 피드백 루프
 
-- **목표**: 오프라인 골든셋만으로는 부족하다는 것이 복수 사례의 공통 보고 (Uber Genie 의 Helpful 라벨 수집, Sourcegraph 의 online-offline 평가 괴리 — 미검증이나 수렴). 실사용 피드백으로 품질 추적 + 골든셋 보충.
+- **목표**: 오프라인 골든셋만으로는 부족 — Uber Genie 가 응답마다 4단계 피드백 버튼(Resolved/Helpful/Not Helpful/Not Relevant)으로 평가 루프를 닫는 구조가 검증됨 (Sourcegraph 의 online-offline 평가 괴리 보고는 미검증). 실사용 피드백으로 품질 추적 + 골든셋 보충.
 - **인터뷰 항목 (착수 전 확인)**: 챗 플랫폼에서 응답별 버튼 UI 가능 여부, 피드백 로그 적재 위치.
 - **작업**: 응답마다 Resolved / Helpful / Not Helpful 버튼 → 로그 적재 → 주간 대시보드. Not Helpful 사례는 Task 0 골든셋 후보로 환류 (사람 검수 게이트 동일 적용).
 - **완료 조건**: 피드백 수집·저장 동작 + 주간 리포트 1회 생성.
@@ -191,3 +191,4 @@ Task 10 (피드백 루프) ─ 독립, Task 0 골든셋 보충 경로
 - 2026-07-12: 최초 생성 — analyses/code-change-rag-kb-design.md 의 권고 8건을 AI 실행용 Task 지시서로 재구성
 - 2026-07-12: 인터뷰 우선 실행 프로토콜 추가, Task 0 을 AI 추출(revert·SZZ 역추적)+사람 검수 방식으로 구체화
 - 2026-07-13: 리서치 검증 결과 반영 (analyses/code-change-rag-kb-research.md) — 파일 경로 임베딩(Task 1), code-aware 토크나이저·diff rerank 반박 주의(Task 2), similar_commits 도구·이중 쿼리 변환·bounded rerank 원칙(Task 3), stale 근거로 Task 8 우선순위 상향 + 현재 코드 co-retrieval, Task 9(출처 인용 강제)·Task 10(온라인 피드백 루프) 신설
+- 2026-07-13: 3차 검증 완료 반영 — Task 10 근거(Genie 피드백 버튼) 검증 확정으로 갱신
