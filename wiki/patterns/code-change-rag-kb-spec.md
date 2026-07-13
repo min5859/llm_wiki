@@ -4,12 +4,14 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["pattern", "ai-agent", "rag", "work-spec", "hybrid-search", "co-change", "graphify", "golden-set", "hermes"]
 created: "2026-07-12"
-updated: "2026-07-12"
+updated: "2026-07-13"
 sources:
   - "wiki/analyses/code-change-rag-kb-design.md"
+  - "wiki/analyses/code-change-rag-kb-research.md"
 confidence: medium
 related:
   - "wiki/analyses/code-change-rag-kb-design.md"
+  - "wiki/analyses/code-change-rag-kb-research.md"
   - "wiki/concepts/hermes-agent.md"
 ---
 
@@ -70,10 +72,12 @@ Task 1 (메타데이터) ──→ Task 3 (도구 분리) ──→ Task 6 (wiki
 Task 4 (co-change) ─── 독립, Task 3 의 도구로 노출
 Task 5 (graphify) ──── 독립
 Task 7 (provenance) ── 독립
-Task 8 (코드 접근) ─── 결정 2번 대기
+Task 8 (코드 접근) ─── 결정 2번 대기 (연구 근거로 우선순위 상향 — 조기 결정 요청 권장)
+Task 9 (출처 인용) ─── 독립, 즉시 가능 (프롬프트 변경만)
+Task 10 (피드백 루프) ─ 독립, Task 0 골든셋 보충 경로
 ```
 
-권장: Task 0 최우선(다른 모든 작업의 측정 기준) → 1·4·5 병렬 → 2 → 3 → 6·7 → 8.
+권장: Task 0 최우선(다른 모든 작업의 측정 기준) → 9(즉시, 저비용) → 1·4·5 병렬 → 2 → 3 → 8 → 6·7 → 10.
 
 ---
 
@@ -97,6 +101,7 @@ Task 8 (코드 접근) ─── 결정 2번 대기
 
 - **목표**: 관계·시간 질의를 SQL 로 풀 수 있게 커밋별 구조화 컬럼 추가.
 - **작업**: 스키마 확장 — `commit_id, jira_key, merged_at, author, files[] (경로), symbols[] (변경된 함수·클래스명), module`. 파일 경로는 diff 헤더에서 결정적으로 추출, 심볼은 hunk 헤더 또는 tree-sitter. ingest 파이프라인에 통합 + 기존 커밋 백필 (기간은 사람 결정 5번).
+- **임베딩 개선 (검증됨)**: 청크·요약을 임베딩할 때 **파일 상대 경로를 텍스트에 포함**한다 — 이것만으로 MRR +16.9% 개선이 검증됨 (arxiv 2605.17965). ingest 쪽 저비용 변경이므로 이 Task 에 포함해 함께 백필.
 - **산출물**: 마이그레이션 스크립트, 백필 스크립트, 갱신된 ingest 코드.
 - **완료 조건**: "경로 P 를 건드린 최근 30일 커밋" 이 SQL 한 방으로 응답.
 - **검증**: 샘플 커밋 20건 수동 대조 — 파일 목록 정확도 100%, 심볼 정확도 95%+.
@@ -105,6 +110,8 @@ Task 8 (코드 접근) ─── 결정 2번 대기
 
 - **목표**: 에러 메시지·함수명·설정 키 같은 exact-match 토큰 질의 개선. 디버깅 QA 유형에서 ROI 최고.
 - **작업**: Postgres full-text (또는 BM25 확장) 인덱스 추가 → vector 결과와 융합 (기본 RRF, 방식·가중치는 사람 결정 1번) → 융합 결과에 기존 rerank 적용.
+- **토크나이저 주의**: lexical 인덱스는 기본 텍스트 분석기가 아니라 **code-aware 토크나이저**로 — 구두점 보존, stemming 금지, stop-word 제거 금지 (GitHub 코드 검색 교훈, 미검증이나 방향 일치).
+- **반박된 가정 주의**: "diff 원문 rerank 가 커밋 메시지 rerank 보다 우수"라는 주장은 리서치 검증에서 반박됨(0-3) — diff 원문 rerank 단계 추가는 골든셋 측정으로 효과 확인 후에만 도입.
 - **산출물**: lexical 인덱스, 융합 로직, 갱신된 검색 API.
 - **완료 조건**: 골든셋 "디버깅 QA" 유형에서 hit@5 가 기준선 대비 개선. 다른 유형 회귀 없음.
 - **검증**: Task 0 스크립트로 전·후 비교표 산출.
@@ -116,8 +123,11 @@ Task 8 (코드 접근) ─── 결정 2번 대기
   - `vector_search(query, top_k, filters?)` / `keyword_search(query, top_k, filters?)`
   - `recent_commits(path_prefix, since, until?, limit)` — Task 1 컬럼 기반
   - `get_commit(commit_id)` → diff 원문 + 요약 + Jira 링크
+  - `similar_commits(query, top_k)` → 유사 커밋 메시지 검색 후 **그 커밋들이 수정한 파일 목록** 반환 — 회귀 추적의 검증된 1차 후보 신호 (BM25 커밋 메시지 → rerank 캐스케이드가 BM25 단독 대비 MRR 약 2배, arxiv 2502.07067)
   - `co_changed_files(path, min_support)` — Task 4 완료 후 활성화
   - agent profile 프롬프트에 다단계 절차 지침 추가: 증상 파악 → 해당 영역 최근 머지 목록 → diff 정독 → 추론.
+- **쿼리 변환 (검증됨)**: 버그·이슈 질의는 에이전트가 **구조적 쿼리**(식별자·트레이스백·모듈명)와 **행동적 쿼리**(증상, 기대 vs 실제 동작) 두 개로 분해해 각각 검색 후 결과를 병합한다 — 두 관점이 서로 다른 파일을 찾으며 병합 시 Top-10 recall 94.3% (arxiv 2605.17965).
+- **설계 원칙**: 에이전트의 LLM 검사·재랭킹은 검색으로 압축된 후보 집합 안에서만 수행 (bounded rerank). 개방형 리포 전체 탐색보다 정확도·비용 모두 우위가 검증됨 (Top-1 86.7%, 비용 1/18).
 - **완료 조건**: 회귀 추적 유형 골든셋 개선 + 에이전트가 실제로 2개 이상 도구를 조합한 트레이스 확인.
 - **검증**: 대표 시나리오 3건 수동 트레이스 검토 (도구 호출 순서가 절차 지침대로인지).
 
@@ -151,15 +161,33 @@ Task 8 (코드 접근) ─── 결정 2번 대기
 - **완료 조건**: 모든 신규 항목에 origin 기록, 기존 항목 백필, 가중치 차등 적용.
 - **검증**: conversation 유래 문서만 히트하는 질의에서 답변이 출처 한계를 명시하는지 3건 확인.
 
-## Task 8: 현재 코드 접근 도구 (결정 대기)
+## Task 8: 현재 코드 접근 도구 (우선순위 상향 — 정확성 요건)
 
-- **전제**: 사람 결정 2번 (저장소 read-only 접근 허용) 이후 착수.
-- **목표**: diff·Jira 중심 KB 는 "무엇이 바뀌었나"만 안다 — "지금 코드가 어떤가"는 도구로 직접 본다.
-- **작업**: read-only clone 대상 `grep_repo(pattern, path?)`, `read_file(path, range?)` 도구 제공. 임베딩하지 않는다 (비목표 참조).
+- **전제**: 사람 결정 2번 (저장소 read-only 접근 허용) 이후 착수. 아래 근거를 첨부해 **조기 결정을 요청**할 것.
+- **근거 (검증됨)**: stale 컨텍스트는 컨텍스트 없음보다 해롭다 — 낡은 스니펫만 검색되면 모델이 낡은 시그니처·상태에 확신을 갖고 답하며(17샘플 중 최대 15건), 현재 상태를 함께 검색하면 stale 참조율이 88.2%→23.5%로 급감. rerank 순서 튜닝은 효과 0 — "현재 상태가 검색되는가"가 지배 요인 (arxiv 2605.14478). 따라서 이 Task 는 부가 기능이 아니라 **답변 정확성 요건**이다.
+- **작업**:
+  - read-only clone 대상 `grep_repo(pattern, path?)`, `read_file(path, range?)` 도구 제공. 임베딩하지 않는다 (비목표 참조)
+  - diff 청크 검색 결과에 "이 파일의 현재 버전과 다를 수 있음" 표시 + 해당 파일의 **현재 코드 co-retrieval 을 기본 동작**으로 (에이전트가 diff 를 인용하기 전 현재 상태 확인)
 - **완료 조건**: 디버깅 QA 유형에서 에이전트가 KB 검색 + 현재 코드 확인을 조합한 트레이스 확인.
 - **검증**: 최근 리팩터링된 영역 질문 3건 — 낡은 diff 가 아니라 현재 코드 기준으로 답하는지.
+
+## Task 9: 답변 출처 인용 강제 (즉시 적용 가능)
+
+- **목표**: 환각 완화 — Uber Genie 검증 사례: 검색된 모든 청크에 출처가 붙은 sub-context 를 강제하고 "제공된 sub-context 에서만 답하라"로 grounding.
+- **작업**: 검색 API 응답의 각 청크에 출처(commit_id·Jira 키·wiki 페이지 링크) 필드 포함, agent profile 에 "제공된 컨텍스트에서만 답하고 근거 출처를 항상 인용, 컨텍스트에 없으면 모른다고 답할 것" 지시 추가.
+- **완료 조건**: 모든 답변에 근거 출처 링크 포함.
+- **검증**: 샘플 답변 10건 전수 — 출처 존재 여부 + 인용된 문서가 실제로 답의 근거인지 대조.
+
+## Task 10: 온라인 피드백 루프
+
+- **목표**: 오프라인 골든셋만으로는 부족하다는 것이 복수 사례의 공통 보고 (Uber Genie 의 Helpful 라벨 수집, Sourcegraph 의 online-offline 평가 괴리 — 미검증이나 수렴). 실사용 피드백으로 품질 추적 + 골든셋 보충.
+- **인터뷰 항목 (착수 전 확인)**: 챗 플랫폼에서 응답별 버튼 UI 가능 여부, 피드백 로그 적재 위치.
+- **작업**: 응답마다 Resolved / Helpful / Not Helpful 버튼 → 로그 적재 → 주간 대시보드. Not Helpful 사례는 Task 0 골든셋 후보로 환류 (사람 검수 게이트 동일 적용).
+- **완료 조건**: 피드백 수집·저장 동작 + 주간 리포트 1회 생성.
+- **검증**: Not Helpful 사례 중 1건 이상이 골든셋 후보로 등록되는 흐름 확인.
 
 ## 변경 이력
 
 - 2026-07-12: 최초 생성 — analyses/code-change-rag-kb-design.md 의 권고 8건을 AI 실행용 Task 지시서로 재구성
 - 2026-07-12: 인터뷰 우선 실행 프로토콜 추가, Task 0 을 AI 추출(revert·SZZ 역추적)+사람 검수 방식으로 구체화
+- 2026-07-13: 리서치 검증 결과 반영 (analyses/code-change-rag-kb-research.md) — 파일 경로 임베딩(Task 1), code-aware 토크나이저·diff rerank 반박 주의(Task 2), similar_commits 도구·이중 쿼리 변환·bounded rerank 원칙(Task 3), stale 근거로 Task 8 우선순위 상향 + 현재 코드 co-retrieval, Task 9(출처 인용 강제)·Task 10(온라인 피드백 루프) 신설
