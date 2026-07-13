@@ -1,5 +1,11 @@
 # 운영 로그
 
+## 2026-07-14 (ingest)
+
+- **session-logs 유래** — 미처리 26건 처리 (인터랙티브 trading 세션 1건 + dev-blog cron 25건). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 — 멱등 스킵).
+  - 갱신 1건: `bugs/kis-derivative-etf-order-reject-apbk1497` — 199d(ht_trading 무한매수 매수 실패 조사): 동일 종목 0195S0 이 이번엔 [APBK1681] "기본예탁금 충족한 계좌만 매수주문가능" 으로 거부. 권한 게이트(APBK1497) 다음에 기본예탁금 게이트가 별도로 존재하는 다층 구조 확인 + 주문 거부 백오프(count 2/2 상한 — 7/7 의 24회 → 이번 2회) 동작 실측. 같은 종목·같은 계열 거부의 두 번째 등장이라 승격 규칙 충족 — 신규 생성 대신 기존 문서 갱신.
+  - 스킵 25건: 20260714 dev-blog cron 뉴스레터/리서치 dossier 전량 — 뉴스성. runner 트리아지 결과 25건 모두 기대 JSON 출력 완료, 에러/실패/파이프라인 설계 변경 없음 (kernel.org 계열 Anubis 봇 차단 → WebSearch fallback 은 기지의 외부 제약, 정상 대응).
+
 ## 2026-07-13 (ingest)
 
 - **session-logs 유래** — 미처리 23건 처리. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음(raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·내용 미변경 — sidecar 부재로 source_sha256 미설정 상태 유지, 멱등 스킵).

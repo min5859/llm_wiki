@@ -123,7 +123,7 @@
 - [[equity-curve-max-vs-latest-aggregation]] — 평가곡선 집계 함정 — MAX(equity) 는 최신 잔고가 아니라 역대 고점
 - [[flask-jsonify-infinity-breaks-browser-json]] — Flask jsonify 의 Infinity/NaN 이 브라우저 JSON.parse 를 깨는 침묵 함정
 - [[kis-cash-d2-settlement-buy-rejection]] — KIS 매수가능 현금에 D+2 미정산분 누락 → RiskManager 매수 차단
-- [[kis-derivative-etf-order-reject-apbk1497]] — KIS 파생·레버리지 ETF 주문 거부 [APBK1497] — 코드가 아니라 계좌 권한(선택확인서·사전교육)
+- [[kis-derivative-etf-order-reject-apbk1497]] — KIS 파생·레버리지 ETF 주문 거부 [APBK1497·APBK1681] — 계좌 권한(선택확인서)·기본예탁금의 다층 게이트
 - [[kis-holiday-detection-bsop-date]] — KIS 공휴일 휴장 판정 실패 — bsop_date 비교 대신 휴장일조회 API
 - [[naver-finance-news-referer-required]] — 네이버 금융 종목 뉴스 크롤링 — Referer 헤더 없으면 빈 스텁 페이지
 - [[naver-finance-no-info-selector-drift]] — 네이버 금융 table.no_info 셀렉터 드리프트 — 거래량·시가·등락률 silent 0 (가짜 fixture가 가린 버그)
