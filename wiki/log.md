@@ -1,5 +1,16 @@
 # 운영 로그
 
+## 2026-07-15 (ingest)
+
+- **session-logs 유래** — 미처리 27건 처리 (전부 20260715 dev-blog cron: Research Dossier + Newsletter Write, 테마 Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents 각 1쌍 + Linux Kernel Lens 6렌즈). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 — sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).
+  - 갱신 1건: `analyses/research-write-agent-separation` — 봇 차단 스레드에 **Anubis PoW v1.25.0 기전 구체화 + 자율 솔버 시도의 비신뢰성** 한 줄 보강. kernel-security 렌즈(9ac3)에서 Anubis v1.25.0 이 SHA256 nonce·difficulty 4 PoW 를 요구, 에이전트가 Python 솔버(~2500 nonce)를 즉석 작성했으나 부분 성공에 그침 → 07-07 "PoW 가 curl 까지 차단" 의 다음 escalation. 솔버 작성은 비신뢰 폴백이고 우아한 강등(미러·commitMessage+WebSearch 교차검증·confidence 강등+openQuestions)이 유일한 안정 경로임을 재확인. index.md 변경 없음(신규 페이지 없음).
+  - 스킵 27건 (뉴스성 — 4대 runner 병렬 트리아지로 전건 확인, 파이프라인 메타는 아래 전부 기수록 패턴의 재현):
+    - **write 단계 더블런 5쌍** (Android edeb→7876, Opensource Trending 7076→5085, Opensource Curation 0659→1756, Kernel Lens toolchain 6b27→66e8, arch-platform 6306→3d9e) — 1차가 파일 산출/완료 후 약 3~4분 뒤 동일 dossier(`generatedAt` 동일) 재발사, 2차는 대체로 `assistant_turns:0` no-op 또는 경미 edit. 07-05 "더블런 4쌍·maxAttempts=2"·07-07 "write 스텝 더블런 지속" 과 동일 현상 → [[research-write-agent-separation]]/[[prompt-schema-pipeline-coupling]] 기수록.
+    - **write silent fail** (Linux Daily 96c6, Curation research f71c, kernel-security write 9979, perf-rt write 2433 등 `assistant_turns:0`) — 6/10 이래의 비결정적 고착 지속, 기수록.
+    - **JSON 스키마 표류** (linux-distro-stable write 03df 에서 highlights[3] 이후 `verifyLink` 필드에 markdown 본문 혼입) — 05-13 `highlights[].action` 표류·07-07 dossier 정합성 손상과 동류, [[llm-content-quality-guards]]/[[highlights-action-validator-schema-drift]] 기수록.
+    - **Anubis 봇 차단** (lore.kernel.org 포괄 + git.kernel.org, 다수 evidence url `https://***:***@` 마스킹, verified:false 다수) — v1.25.0 PoW escalation 만 위 갱신으로 흡수, 나머지 폴백 흐름은 6/18~7/7 사다리와 동일.
+    - AI Coding Agents dossier(6451) 뉴스 토픽(Copilot /security-review·Code Quality 유료화·CC env·MS 도입 연구·소스리크·OpenClaw 과금·성능 회귀)은 이미 [[claude-code-source-leak-internals]]/[[anthropic-oauth-third-party-billing-trap]]/[[ai-coding-agent-cost-and-context-patterns]] 수록 주제의 재탕. 휘발성 커널/OSS 뉴스는 단일 패치의 범용 패턴화=과잉추출로 durable 전량 스킵. **코드 변경 없음.**
+
 ## 2026-07-14 (ingest 2차)
 
 - **session-logs 유래** — 미처리 1건 처리 (claude_env opus-orchestration 검토·수정 세션 dfcb). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 — 멱등 스킵).
