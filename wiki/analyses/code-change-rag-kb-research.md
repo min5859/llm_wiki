@@ -4,10 +4,10 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["analysis", "ai-agent", "rag", "research", "agentic-rag", "bug-localization", "knowledge-freshness", "uber-genie", "meta", "sourcegraph", "eval"]
 created: "2026-07-13"
-updated: "2026-07-13"
+updated: "2026-07-14"
 sources:
-  - "deep-research 워크플로우 2026-07-12~13 (26개 1차 출처, 123개 주장 추출, 적대적 3표 검증)"
-confidence: medium
+  - "deep-research 워크플로우 2026-07-12~14 (26개 1차 출처, 125개 주장 추출, 상위 25개 적대적 3표 검증, 종합 14개 발견)"
+confidence: high
 related:
   - "wiki/analyses/code-change-rag-kb-design.md"
   - "wiki/patterns/code-change-rag-kb-spec.md"
@@ -15,71 +15,75 @@ related:
 
 # 코드 지식베이스 QA 에이전트 — 외부 사례·기법 리서치
 
-Jira+commit diff RAG 지식베이스 설계([[code-change-rag-kb-design]]) 너머의 개선 기법과 타 기업 사례 리서치 결과. deep-research 워크플로우로 26개 1차 출처에서 125개 주장을 추출하고 상위 25개에 주장별 3표 적대적 검증을 수행했다 (세션 한도로 3차에 걸쳐 재실행). 최종: **16건 확정, 3건 반박, 7건 미검증** (미검증은 전부 인프라 실패로, 기업 사례 상세 위주). 항목별 표기: ✅ = 검증 통과, ⚠️ = 미검증(출처 인용은 확보, 반박된 것 아님), ❌ = 검증에서 반박됨.
+Jira+commit diff RAG 지식베이스 설계([[code-change-rag-kb-design]]) 너머의 개선 기법과 타 기업 사례 리서치 최종본. deep-research 워크플로우로 26개 1차 출처에서 125개 주장을 추출, 상위 25개에 3표 적대적 검증을 수행해 **23건 확정·2건 반박** (전체 라운드 누적 반박 3건), 종합 단계에서 14개 발견으로 병합했다. 표기: ✅ = 검증 통과, ❌ = 반박됨, ⚠️ = 검증 대상에 미포함(인용만 확보).
 
 ## 1. 검색 품질
 
-- ✅ **커밋 히스토리 캐스케이드 검색** — BM25(커밋 메시지) → CommitReranker → CodeReranker 3단계가 버그 파일 로컬라이제이션을 BM25 단독 대비 약 2배 개선 (7개 OSS 리포 평균 MRR 0.227→0.434, P@1 0.139→0.299, 최대 80% 개선). [arxiv 2502.07067]
-  > 시사점: 우리 KB가 이미 커밋 기반이므로 직행 적용 가능. ✅ "유사 커밋이 수정한 파일"이 1차 후보 신호로 검증됨 — 후보 공간을 ~10,000 → ~1,000 파일로 한 자릿수 축소.
-- ✅ **파일 경로를 청크와 함께 임베딩** — 상대 경로를 코드 청크에 붙여 임베딩하는 것만으로 MRR +16.9% (텍스트 청킹 대비 최대 +20.4%). ingest 쪽 저비용 개선. [arxiv 2605.17965]
-- ✅ **이중 관점 쿼리 변환** — 버그 리포트를 구조적 쿼리(식별자·트레이스백)와 행동적 쿼리(증상·기대 vs 실제)로 분해해 결과를 병합 → Top-10 recall 94.3% (단독 92.0% / 88.7%). 두 관점이 체계적으로 다른 파일을 찾는다. [arxiv 2605.17965]
-- ❌ **주의**: "커밋 메시지 rerank보다 diff 원문 rerank가 유의미하게 우수하다"는 주장은 검증에서 반박됨(0-3). diff 원문 rerank 단계 추가를 당연한 개선으로 가정하지 말 것 — 골든셋으로 확인 후 도입.
+- ✅ **커밋 히스토리 캐스케이드 검색** — BM25(커밋 메시지)로 "유사 과거 커밋이 수정한 파일"을 1차 후보화하면 후보 공간이 ~10,000→~1,000 파일로 축소되면서 Recall@1000≈0.92 유지. 그 위에 CommitReranker+CodeReranker를 얹으면 BM25 단독 대비 MRR 0.227→0.434 (최대 80% 개선). [arxiv 2502.07067, CMU]
+  > 한계: 비심사 preprint, 평가 질의가 GPT-4 합성이라 실사용 질의와의 어휘 중첩 미검증, **과거에 수정된 적 없는 파일에는 맹점** — co-change 와 같은 약점이므로 그래프·현재 코드 접근으로 보완.
+- ✅ **파일 경로를 청크와 함께 임베딩** — 상대 경로 포함만으로 MRR +16.9% (텍스트 청킹 대비 최대 +20.4%). ingest 쪽 저비용 개선. [arxiv 2605.17965]
+- ✅ **이중 관점 쿼리 변환** — 버그 리포트를 구조적(식별자·트레이스백)과 행동적(기대 vs 실제) 쿼리로 분해·병합 → dense retrieval MRR +22.9%, Top-10 recall 94.3%, 상호보완적 회수 확인. [arxiv 2605.17965]
+  > **주의: 효과는 retrieval 단독 기준.** 전체 agentic 파이프라인 안에서는 +3.4% MRR 로 축소 — 저비용이라 여전히 가치 있으나 기대치 관리 필요.
+- ✅ **ingest 메타데이터 enrichment** — LLM 생성 문서 요약 외에 **FAQ·키워드**까지 생성해 청크 메타데이터로 주입, lexical 검색에 공급 (Uber, 단독 기여 ablation 은 없음). 우리처럼 요약 ingest 하는 구조에 자연스러운 확장.
+- ❌ **반박**: "커밋 메시지 rerank보다 diff 원문 rerank가 유의미하게 우수" 주장은 0-3 반박 — diff 원문 rerank 단계는 골든셋 측정 후에만 도입.
 
 ## 2. 에이전트 아키텍처
 
-- ✅ **단발 검색의 구조적 한계** — 저장소 수준 QA에서 정적 RAG는 multi-hop 질문의 컨텍스트를 충분히 못 모은다는 것이 반복 검증됨. ❌ 단, "실제 개발자 질문의 77.6%가 cross-file, 90.9%가 추론 깊이 2+"라는 세부 통계는 검증에서 반박됨(0-3) — 방향성 주장만 채택할 것. [SWE-QA, arxiv 2509.14635]
-- ✅ **agentic 검색이 우수하나 비용 ~10배** — Kimi K2 기준 51.47(직접) → 62.44(RAG) → 67.72(SWE-agent), 최고 70.79(GPT-5.1+OpenHands). [arxiv 2509.14635]
-- ✅ **bounded agentic rerank 가 비용-정확도 균형점** — 검색으로 후보를 압축한 뒤 그 안에서만 ReAct 에이전트가 구조 스켈레톤을 검사하는 2단계 방식(BLAgent)이 개방형 그래프 탐색(LocAgent)을 정확도·비용 모두 능가: Top-1 86.7%, MRR 0.900, API 비용 1/18. [arxiv 2605.17965]
-  > 시사점: "에이전트에게 도구를 주되, 후보를 먼저 좁혀라" — 우리 spec 의 도구 분리 설계와 일치하며, 개방형 리포 탐색보다 후보 압축 후 검사가 낫다는 정량 근거.
-- ✅ **쿼리 복잡도 라우팅 (Adaptive RAG)** — 분류기로 질의를 무검색/단일검색/다단계로 라우팅. 모든 질의에 같은 파이프라인을 태우는 현 구조의 개선 후보. [arxiv 2501.09136]
-- ✅ **검색 결과 자가 평가 (CRAG)** — 검색 직후 관련성 평가 단계를 넣어 부적합 시 재질의·폴백 후 답변 생성. top-k rerank 출력을 무조건 신뢰하지 않는 패턴. [arxiv 2501.09136]
-- ✅ **코드 그래프의 LLM 통합 (CGM, Ant Group)** — 리포 코드 그래프를 graph-aware attention mask + 인코더 어댑터로 LLM 에 통합, SWE-bench Lite 43.00% (오픈모델 1위). ❌ 단, "고정 4단계 agentless 파이프라인이 10단계 에이전트 루프를 능가"라는 비교 주장은 반박됨(0-3) — agentless 우위의 근거로 쓰지 말 것. [arxiv 2505.16901]
+- ✅ **단발 검색의 구조적 한계 + agentic 우위** — repo 수준 QA에서 tool-use 에이전트(SWE-agent, OpenHands)가 정적 RAG를 일관되게 능가 (Kimi K2: RAG 62.44 vs SWE-agent 67.72; completeness 최대 ~70% 증가). 단 토큰 비용 RAG 대비 ~10배 → **비용 라우팅이 전제 조건**. [SWE-QA, ACL 2026 Findings 게재]
+  ❌ "개발자 질문의 77.6%가 cross-file"이라는 세부 통계는 반박됨(0-3) — 방향성 주장만 인용할 것.
+- ✅ **bounded agentic rerank** — 검색으로 압축한 후보 집합 안에서만 에이전트가 검사·재랭킹 (BLAgent): Top-1 78%(오픈)/86%(클로즈드), 개방형 그래프 탐색(LocAgent) 대비 비용 1/18, ablation 에서 게인의 주 동인이 모델이 아니라 bounded reasoning 구조임을 확인. [ACM TOSEM 게재; 자기보고·Python-only 한계]
+- ✅ **쿼리 복잡도 라우팅 (Adaptive-RAG)** — 소형 분류기로 무검색/단일검색/다단계 라우팅. [NAACL 2024]
+- ✅ **검색 결과 자가 평가 (CRAG)** — 검색 직후 relevant/ambiguous/irrelevant 평가 → 임계 미달 시 질의 정제·폴백 후에만 생성. [arxiv 2401.15884]
+- ✅ **코드 그래프의 LLM 통합 (CGM, Ant Group)** — 그래프를 검색 인덱스 너머 graph-aware attention 으로 LLM에 직접 주입, Qwen2.5-72B로 SWE-bench Lite 43.00% (발표 시점 오픈모델 1위). 코드·가중치 공개. [NeurIPS 2025]
+  ❌ 단, "고정 4단계 agentless 파이프라인이 10단계 에이전트 루프를 능가"라는 비교 주장은 반박됨 — agentless 우위 근거로 쓰지 말 것.
 
-## 3. 지식 신선도 — 이번 리서치에서 가장 강한 신호
+## 3. 지식 신선도 — 가장 강한 실무 신호
 
-- ✅ **stale 컨텍스트는 no 컨텍스트보다 해롭다** — 낡은(이전 커밋) 스니펫만 검색되면 모델이 낡은 시그니처를 확신을 갖고 사용 (17샘플 중 15/17, 13/17 — +88.2/76.5%p). 무검색 시 stale 참조 0. [arxiv 2605.14478]
-- ✅ **현재 상태 co-retrieval 이 지배 요인** (3-0 재검증) — 현재 스니펫을 함께 검색하면 stale 참조율 88.2%→23.5%. 순위(rank order)는 부차적 — rerank 튜닝보다 "현재 상태가 검색되는가"가 우선. [arxiv 2605.14478]
-  > 시사점: 우리 설계의 stale 마킹(Task 6)·현재 코드 접근(Task 8)은 부가 기능이 아니라 **정확성 요건**. 우선순위 상향 근거. diff 청크에는 "이 파일의 현재 버전과 다를 수 있음" 표시 + 현재 코드 co-retrieval 을 기본으로.
+- ✅ **stale 컨텍스트는 노이즈가 아니라 능동적 오염원** — 낡은 스니펫만 검색되면 모델이 폐기된 시그니처를 확신을 갖고 사용(17샘플 중 15건, +88.2%p), 무검색 시 stale 참조 0 — 즉 **stale 검색이 무검색보다 나쁘다**. 현재 스니펫 co-retrieval 시 23.5%로 회복, 순위는 부차적. [arxiv 2605.14478]
+  > 한계: n=17, 2개 모델, oracle 검색 조건의 비심사 preprint — "진단적 발견"으로 취급. 다만 방향성은 knowledge-conflict 문헌(EMNLP 2025)과 합치.
+  > 시사점: commit diff 는 정의상 과거 스냅숏 — 답변 전 현재 파일 상태 조회·병기를 **강제**하는 단계가 필요 (spec Task 8).
 
 ## 4. 기업 사례
 
-### Uber — Genie (가장 가까운 선행 사례)
-- ✅ Slack 온콜 코파일럿. 내부 위키·내부 Stack Overflow·요구사항 문서 RAG. 2023-09 출시 후 154개 채널에서 7만+ 질문 처리, helpfulness 48.9%, 약 13,000 엔지니어링 시간 절감. [uber.com/blog/genie-ubers-gen-ai-on-call-copilot]
-- ✅ **환각 완화**: 검색된 모든 청크에 출처 URL 이 붙은 sub-context 섹션을 강제하고 "제공된 sub-context 에서만 답하라"고 지시 — 인용 기반 grounding.
-- ✅ (2-0) enhanced agentic-RAG 로 acceptable 답변 상대 +27%, 오답 조언 상대 -60% (SME 큐레이션 골든셋 기준). ⚠️ 상세 구조는 미검증: 검색 전후 3개 에이전트 삽입 — Query Optimizer(재작성·분해) / Source Identifier(대상 소스 축소) / Post-Processor(중복 제거·재정렬) — 및 문서 메타데이터의 LLM 생성 요약·FAQ·키워드 enrichment. [uber.com/blog/enhanced-agentic-rag]
-- ✅ 운영 평가: 응답마다 4단계 피드백 버튼(Resolved/Helpful/Not Helpful/Not Relevant)으로 평가 루프를 닫는 구조 검증됨. ⚠️ LLM-as-Judge ETL(0-5 스코어링) 상세는 미검증.
+### Uber — Genie (가장 가까운 선행 사례, 전 항목 검증)
+- ✅ Slack 온콜 코파일럿: 154개 채널, 70,000+ 질문, helpfulness 48.9%, ~13,000시간 절감(자체 추정). **순정 RAG의 현실적 상한이 50% 미만 helpfulness 라는 정직한 벤치마크.**
+- ✅ **sub-context 인용 계약**: 모든 청크에 출처 URL 부착 + "제공된 sub-context 에서만 답하고 URL 인용" 지시. **단, 이 계약 단독으로는 불충분** — 48.9%에 머물러 agentic 전환이 뒤따랐다 (기대치 관리).
+- ✅ enhanced agentic RAG 전환 (Query Optimizer / Source Identifier / BM25+vector hybrid / Post-Processor) + ingest enrichment → acceptable 상대 +27%, 오답 조언 상대 -60% (상대치·자기보고, 보안 도메인 골든셋 기준).
+- ✅ **평가·운영 루프 청사진**: 응답별 4단계 버튼(Resolved/Helpful/Not Helpful/Not Relevant) → Kafka → Hive → 대시보드 + LLM-as-Judge(0-5점)로 실험 평가를 주 단위→분 단위로 단축.
 
-### Meta — tribal knowledge 사전 계산
-- ⚠️ 50+ 특화 에이전트 스웜(탐색자·모듈 분석가·작성자·비평가·수정자)이 멀티리포 코드베이스(4 리포, 4,100+ 파일)를 오프라인으로 정독해 **간결한 컨텍스트 파일 59개**(각 25~35줄, ~1,000토큰 — 망라적 문서화 대신 내비게이션용)를 생성 — 런타임 검색이 아니라 사전 계산. 3라운드 독립 critic 에이전트로 품질 3.65→4.20/5.0, 참조 경로 전수 검증. 몇 주 주기의 자동 잡이 경로 검증·공백 탐지·critic 재실행으로 신선도 유지. 에이전트 도구 호출 40% 감소 보고. [engineering.fb.com 2026-04]
-  > 시사점: 우리 "수요 주도 wiki"와 상보적인 "공급 측 사전 계산" 사례. 단, 소규모 팀에는 비용 과잉 — critic 라운드와 주기적 경로 검증 아이디어만 차용 가치.
+### Meta — tribal knowledge 사전 계산 (전 항목 검증)
+- ✅ 단일 ingest LLM이 "충분히 빠르게 유용한 편집을 못 해서" **역할 분화 50+ 에이전트 스웜**으로 전환: explorer 2, module analyst 11(모듈당 표준화 5질문), writer 2, critic 3라운드 10+, fixer 4, upgrader 8, prompt tester 3, gap-filler 4. [engineering.fb.com 2026-04]
+- ✅ 산출물 설계: **"compass, not encyclopedia"** — 59개 compact context file (각 25~35줄 ~1,000토큰, 고정 섹션: Quick Commands / Key Files 3-5 / Non-Obvious Patterns / See Also), opt-in 로딩.
+  > 효과 수치는 Meta preliminary 자기보고(툴콜 -40%, 워크플로 안내 2일→30분, 경로 환각 0). **잘 알려진 OSS 리포에서는 AI 생성 컨텍스트 파일이 오히려 성공률을 낮췄다는 학계 결과를 Meta 스스로 인용** — 비공개 코드베이스 조건부로 읽을 것.
+- ✅ 신선도 자동화: 수 주 간격 잡이 경로 검증·커버리지 갭 탐지·critic 재실행·stale 참조 자동 수정 — "AI가 이 인프라의 소비자가 아니라 유지보수 엔진".
 
-### Sourcegraph — Cody 컨텍스트 엔진
-- ⚠️ **임베딩 폐기 결정**: text-embedding-ada-002 기반 검색을 버리고 자사 네이티브 검색으로 교체 — 사유: 서드파티 프라이버시, 관리자 운영 복잡성, 대규모 리포 수에서 벡터 검색 확장성. 컨텍스트 랭킹은 BM25 변형 + 태스크 튜닝 신호 + 전역 재랭킹. 컨텍스트 소스는 코드 밖(SCM 이력·코드리뷰·티케팅·위키·관측 대시보드)까지 확장. **online-offline 평가 괴리**가 최대 평가 문제 — 오프라인 골든셋만으로 부족하고 제품 내 피드백 신호 필수. [sourcegraph.com/blog, arxiv 2408.05344]
+### Google — 워크플로 내장형의 채택률
+- ✅ 내부 AI 코드 완성 수락률 37%(2025년 38%), 코드 문자의 50%(→67%)를 AI가 완성. **별도 챗봇보다 기존 워크플로(IDE·리뷰) 내장이 대규모 채택에 도달**한다는 근거. 볼륨 지표일 뿐 생산성 등가 해석 금지 (METR 2025 RCT는 숙련 개발자 19% 저속화 보고와 상충). [research.google]
 
-### GitHub — 코드 검색 인프라
-- ⚠️ 범용 텍스트 검색엔진은 코드에 부적합: 구두점 보존 인덱싱, stemming 금지, stop-word 제거 금지, regex 지원 필요. hybrid 의 lexical 레이어는 **code-aware 토크나이저**로. [github.blog]
+### Sourcegraph / GitHub (⚠️ 검증 대상 25에 미포함 — 인용만)
+- ⚠️ Cody: 임베딩 폐기 → 네이티브 검색 (프라이버시·운영·스케일 사유), BM25 변형 + 전역 재랭킹, 코드 밖 소스(SCM 이력·리뷰·티케팅·위키)로 컨텍스트 확장, **online-offline 평가 괴리**가 최대 평가 문제. [sourcegraph.com, arxiv 2408.05344]
+- ⚠️ GitHub 코드 검색: 범용 텍스트 엔진 부적합 — 구두점 보존, stemming·stop-word 제거 금지, regex 필요. [github.blog]
 
-## 5. 우리 시스템 적용 delta (spec 대비 신규 후보)
+## 5. 우리 시스템 적용 delta (spec 반영 완료 항목 포함)
 
-기존 spec([[code-change-rag-kb-spec]]) Task 0~8 위에 추가 검토할 것들, 근거 강도 순:
-
-1. 현재 코드 co-retrieval 을 기본 동작으로 (✅ 근거, Task 8 우선순위 상향 + diff 청크 stale 표시)
-2. 파일 경로 임베딩 (✅, ingest 1줄급 변경 — Task 1에 병합 가능)
-3. 이중 관점 쿼리 변환 (✅, 에이전트 프롬프트 수준에서 저비용 실험 가능)
-4. 유사 커밋 → 수정 파일 1차 후보 + 캐스케이드 rerank (✅, Task 3 도구에 `similar_commits(query)` 추가)
-5. 답변에 출처 인용 강제 — Genie sub-context 방식 (✅, agent profile 지시 변경만으로 가능)
-6. 온라인 피드백 루프 — 챗봇 응답에 4단계 피드백 버튼 → 골든셋 보충 + 대시보드 (✅ Genie 의 버튼 기반 평가 루프 검증됨; Sourcegraph 의 online-offline 괴리 보고는 ⚠️)
-7. 쿼리 복잡도 라우팅(Adaptive RAG) / 검색 결과 자가 평가(CRAG) (✅ 패턴 검증됨, 비용 최적화 단계에서)
+1. 현재 코드 co-retrieval 기본화 + stale 표시 (✅ → spec Task 8 상향)
+2. 파일 경로 임베딩 (✅ → spec Task 1)
+3. similar_commits 도구 + 캐스케이드 (✅ → spec Task 3)
+4. 이중 관점 쿼리 변환 (✅, 파이프라인 내 효과 축소 유의 → spec Task 3)
+5. 출처 인용 강제 (✅, 단독 불충분 유의 → spec Task 9)
+6. 온라인 피드백 루프 + LLM-as-Judge (✅, Genie 청사진 → spec Task 10)
+7. ingest enrichment: 요약 외 FAQ·키워드 (✅, spec Task 1 확장 후보)
+8. wiki 주기 자가 검증 잡: 경로 검증·갭 탐지·critic 재실행 (✅ Meta → spec Task 6 보완축)
+9. 쿼리 복잡도 라우팅 / 검색 자가 평가 (✅, 비용 최적화 단계)
 
 ## 1차 자료
 
-- arxiv 2509.14635 (SWE-QA) · 2502.07067 (commit cascade) · 2605.17965 (BLAgent) · 2605.14478 (stale context) · 2501.09136 (Adaptive/Corrective RAG survey) · 2505.16901 (CGM) · 2408.05344 (Cody context)
-- uber.com/blog/genie-ubers-gen-ai-on-call-copilot · uber.com/blog/enhanced-agentic-rag
-- engineering.fb.com "How Meta used AI to map tribal knowledge" (2026-04) · engineering.fb.com "Leveraging AI for efficient incident response" (2024-06)
-- sourcegraph.com/blog/how-cody-understands-your-codebase · github.blog "The technology behind GitHub's new code search"
-- research.google "Flake-aware culprit finding" (원인 커밋 triage, 미정독)
+- 논문: SWE-QA (ACL 2026 Findings, arxiv 2509.14635) · commit cascade (arxiv 2502.07067) · BLAgent (TOSEM, arxiv 2605.17965) · stale context (arxiv 2605.14478) · Adaptive-RAG (NAACL 2024, arxiv 2403.14403) · CRAG (arxiv 2401.15884) · CGM (NeurIPS 2025, arxiv 2505.16901) · Cody context (arxiv 2408.05344)
+- 블로그: uber.com/blog/genie-ubers-gen-ai-on-call-copilot · uber.com/blog/enhanced-agentic-rag · engineering.fb.com "tribal knowledge" (2026-04) · research.google "AI in SWE" · sourcegraph.com/blog/how-cody-understands-your-codebase · github.blog 코드 검색
+- 코드: github.com/peng-weihan/SWE-QA-Bench · github.com/afifaniks/BLAgent · github.com/codefuse-ai/CodeFuse-CGM
 
 ## 변경 이력
 
-- 2026-07-13: 최초 생성 — deep-research 워크플로우 결과 정리 (11건 검증 확정, 1건 반박, 나머지 미검증 표기. 2차 검증 재실행은 세션 한도로 실패)
-- 2026-07-13: 3차 검증 재실행 결과 반영 — 확정 11→16건 (similar-commits 후보 축소, Adaptive RAG, CRAG, CGM, Uber 피드백 버튼·enhanced RAG 성과), 반박 +2건 (77.6% cross-file 통계, agentless 비교 우위), 미검증 7건 잔존 (Meta 상세·Uber 운영 상세·Google)
+- 2026-07-13: 최초 생성 — 1차 실행 결과 (11건 확정, 1건 반박)
+- 2026-07-13: 3차 검증 재실행 반영 — 확정 16건, 반박 3건, 미검증 7건
+- 2026-07-14: 4차 실행으로 검증·종합 완료 — 확정 23건·미검증 0, 14개 발견으로 병합. 신규: 이중 쿼리 변환의 파이프라인 내 효과 축소, sub-context 단독 불충분(48.9% 상한), Meta 스웜·compact context 상세, Google 채택률, 캐스케이드 한계(합성 질의·무수정 파일 맹점), 게재 등급 표기(ACL/NAACL/NeurIPS/TOSEM)
