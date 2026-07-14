@@ -1,5 +1,11 @@
 # 운영 로그
 
+## 2026-07-14 (ingest 2차)
+
+- **session-logs 유래** — 미처리 1건 처리 (claude_env opus-orchestration 검토·수정 세션 dfcb). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 — 멱등 스킵).
+  - 갱신 1건: `patterns/claude-code-model-tier-orchestration-gate` — 실증 결함 2건 정정: ① 소프트 넛지의 `permissionDecision:"allow"` 는 툴콜을 권한 프롬프트 없이 자동 승인하는 우회 부작용 → `additionalContext` 단독 반환으로 JSON 블록 정정, ② Bash 인플레이스 정규식 감지 오탐 4종(파이프 뒤 `grep -i`·커밋 메시지 안 "sed -i" 문자열·`echo "a > b.py"` 등) → shlex 따옴표·heredoc 인지 토큰화 + 파이프라인 세그먼트 판정 + `bash -c` 재귀 스캔으로 재작성 (FP7·TP9·회귀 23/23). 보강 5건: hard 모드 CC v2.1.196+ 필수(구버전 `agent_id` 부재 → 서브에이전트 편집까지 차단, 위임 자체 붕괴), 모드 지침의 서브에이전트 누출 방어("메인 세션 전용" 헤더), env.sh 모델 핀 드리프트(`/model` 이 env 보다 우선 — hard 모드 메인이 Fable 5 로 동작한 실증), state 파일 prune, install.sh settings.json 파싱 실패 시 중단. 같은 패키지 지식의 후속 등장이라 신규 생성 없이 기존 페이지 갱신.
+  - 스킵: rtk 훅이 `ls`·`find` 출력을 삼키는 현상(`rtk proxy` 로 우회) — 단발 도구 트러블슈팅, 재등장 시 승격 검토.
+
 ## 2026-07-14 (ingest)
 
 - **session-logs 유래** — 미처리 26건 처리 (인터랙티브 trading 세션 1건 + dev-blog cron 25건). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 — 멱등 스킵).
