@@ -1,5 +1,15 @@
 # 운영 로그
 
+## 2026-07-16 (ingest)
+
+- **session-logs 유래** — 미처리 24건 처리 (전부 20260716 dev-blog cron 03:00~04:38 배치: Linux Daily R+W, Android Kernel R+W, Opensource Trending R1+W2, Opensource Curation R+W, AI Coding Agents R1(write 미발생), Linux Kernel Lens R6+W8). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(원본 07-11 커밋 < summary 07-12) — sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).
+  - **신규/갱신 0건. index.md 변경 없음.**
+  - 스킵 24건 (뉴스성 — runner 3대 병렬 트리아지로 전건 확인, 파이프라인 메타는 전부 기수록 패턴의 재현):
+    - **write 더블런 3쌍** (Opensource Trending c53e→d218 +2분32초 · Kernel Lens distro-stable fb8d→0cac · gpu-ai f0cc→727e) — 1차 파일 산출 후 동일 dossier 재발사, 2차는 파일 쓰기 없이 JSON 재검증 또는 경미 작업. 07-05 "더블런 4쌍"·07-15 "더블런 5쌍" 과 동일 현상 → [[research-write-agent-separation]]/[[prompt-schema-pipeline-coupling]] 기수록.
+    - **write/research silent fail·중단** (Linux Daily write 21e9 · Curation write cf00 `assistant_turns:0`, AI Coding Agents research ccf1 은 `exit_reason: unknown`·`assistant_turns:1` 로 리서치 중 중단 → write 스텝 자체가 미발사) — 6/10 이래 비결정적 고착의 지속, 기수록.
+    - **Anubis 봇 차단 + 폴백 사다리** (kernel.org·lore.kernel.org v1.22.0/v1.25.0 차단 → opennet.ru·linuxcompatible.org 미러, GitHub torvalds/linux(cgit 불가), 후보 payload 의 embedded commitMessage 인용 + confidence 강등·openQuestions 명시) — 6/18~7/15 사다리와 동일, [[research-write-agent-separation]] 기수록.
+    - AI Coding Agents dossier(ccf1) 뉴스 토픽(Copilot VS2026·JetBrains BYOK·CC v2.1.210·스테가노그래피 마킹 재탕·source leak 재탕·OpenClaw 과금 재탕·Cowork research preview·OpenAI skills 채택)은 기수록 주제([[claude-code-source-leak-internals]] 등)의 재탕 + 뉴스성. 휘발성 커널/OSS 뉴스는 전량 스킵. **위키 페이지 코드 변경 없음.**
+
 ## 2026-07-15 (ingest)
 
 - **session-logs 유래** — 미처리 27건 처리 (전부 20260715 dev-blog cron: Research Dossier + Newsletter Write, 테마 Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents 각 1쌍 + Linux Kernel Lens 6렌즈). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 — sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).
