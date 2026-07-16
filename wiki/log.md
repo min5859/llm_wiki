@@ -1,5 +1,11 @@
 # 운영 로그
 
+## 2026-07-17 (ingest)
+
+- **session-logs 유래** — 미처리 18건 처리 (전부 20260717 dev-blog cron 03:00~04:35 배치: Linux Daily R+W, Android Kernel R+W, Opensource Trending R+W, Opensource Curation R+W, AI Coding Agents R+W, Linux Kernel Lens R6+W2). runner 2대 병렬 트리아지로 파이프라인 운영 신호만 추출. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경으로 멱등 스킵).
+  - **갱신 1건**: `analyses/research-write-agent-separation` — 봇 차단(Anubis) 섹션에 **"PoW 솔버가 저-difficulty 일엔 완전 우회 성공"** 절 추가. `linux-arch-platform` 렌즈(041802)에서 07-15 와 동일한 Python SHA256 nonce 솔버가 `diff=4` 챌린지를 398~61582 회(1~69ms)에 풀어 `lore.kernel.org/<thread>/raw` mbox 3건을 `code=200`(10229·16379·10703 bytes, `challenged=False`)으로 완전 취득. 원문(041802 line 649~701)에서 solver 완전 성공을 직접 검증 후 기록. 07-15 의 "솔버=비신뢰 폴백" 결론을 *부분 정정*: 솔버 성공은 그날 서버 difficulty 에 좌우되는 비결정적 폴백이며, 저-difficulty 일엔 원문을 실제로 되살린다(고-difficulty 일엔 07-15 처럼 부분 성공). 우아한 강등이 안정 경로라는 실무 지침 자체는 유지. 두 번째 등장(07-15→07-17)이자 결과가 달라진 신규 데이터라 승격 규칙 충족.
+  - **스킵 17건**: 20260717 dev-blog cron 뉴스 콘텐츠 전량 — Linux Daily·Android Kernel·Opensource Trending/Curation·AI Coding Agents·Linux Kernel Lens 의 커널/OSS 뉴스(BPF arena·GPU panthor·stable 백포트 등)는 뉴스성이라 재조회 가치 없음. Newsletter Write 세션의 `assistant_turns:0` no-op(빈 산출물)·마스킹된 후보 URL(`https://***:***@…` message-ID `@domain` 오탐)은 6/28~7/15 기수록 패턴의 재현이라 본문 변경 없음. Research 세션의 서브에이전트 병렬 조사·계획 수립은 정상 동작.
+
 ## 2026-07-16 (ingest)
 
 - **session-logs 유래** — 미처리 24건 처리 (전부 20260716 dev-blog cron 03:00~04:38 배치: Linux Daily R+W, Android Kernel R+W, Opensource Trending R1+W2, Opensource Curation R+W, AI Coding Agents R1(write 미발생), Linux Kernel Lens R6+W8). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(원본 07-11 커밋 < summary 07-12) — sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).
