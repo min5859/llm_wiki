@@ -1,5 +1,17 @@
 # 운영 로그
 
+## 2026-07-18 (ingest)
+
+- **session-logs 유래** — 미처리 26건 처리 (전부 20260718 dev-blog cron 03:00~05:02 배치: Linux Daily R+W, Android Kernel R1+W2, Opensource Trending R1+W2, Opensource Curation R+W, AI Coding Agents R1+W2, Linux Kernel Lens R6+W7). runner 1대 병렬 트리아지로 파이프라인 운영 신호만 추출. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(raw 07-11 커밋 < summary 07-12)으로 멱등 스킵 — sidecar 부재로 source_sha256 미설정 유지).
+  - **신규/갱신 0건. index.md 변경 없음.**
+  - **첫 등장 관찰 (재등장 시 승격 후보)**: Opensource Trending research(032124, line 302)에서 **WebFetch 내장 fast model 이 GitHub 페이지의 수치 메타데이터를 hallucinate** — X4G 레포를 "5.8k stars / 10.7k forks" 로 읽었고, 세션이 "스타보다 포크가 많은 건 넌센스" 불변식으로 자가 감지. `gh` 부재 환경에서 `curl https://api.github.com/repos/<owner>/<repo>` 로 11개 후보 레포 메타데이터를 일괄 재검증했다. 교훈 후보: "WebFetch 는 페이지를 경량 모델로 요약하므로 수치·통계는 신뢰 불가 → 공개 API 를 1차 소스로, 도메인 불변식(forks>stars 넌센스)을 sanity check 로". 첫 등장이라 승격 규칙(2회 등장)상 보류 — 재등장 시 [[llm-content-quality-guards]] 결함 3(hallucination)의 연구 단계 변형으로 승격할 것.
+  - 스킵 26건 (뉴스성 + 기수록 패턴의 재현, 위 첫 등장 관찰 포함):
+    - 커널/OSS/AI 코딩 뉴스 콘텐츠 전량 — 재조회 가치 없음.
+    - Anubis 차단 재현 (Linux Daily 030016 · Kernel Lens 040224): "primary URL 전부 차단 → WebSearch + secondary + public-inbox raw/mbox 폴백" — [[research-write-agent-separation]] 폴백 사다리 기수록.
+    - HTTP 402(트윗 직접 페치, 034919 line 261 실측)·403(ccunpacked.dev) → WebSearch + 2차 출처 corroboration — 동일 사다리 패턴의 재현.
+    - 스테가노그래피 마킹·source leak·undercover mode·OpenClaw 단어 필터 — 07-05 이래 반복 재탕, "출처 없는 정보 기정사실화 금지" 원칙상 미기록 유지 ([[claude-code-source-leak-internals]] 계열 기수록).
+    - Claude Code v2.1.212 릴리스 노트 (plan-mode Bash 권한 우회 픽스 · worktree symlink 픽스 · `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION`/`CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` runaway cap · MCP 2분 초과 auto-background · `/fork`·`/subtask`) — "버전별 릴리스 노트는 재조회 가치 없음" 스킵 선례 유지.
+
 ## 2026-07-17 (ingest)
 
 - **session-logs 유래** — 미처리 18건 처리 (전부 20260717 dev-blog cron 03:00~04:35 배치: Linux Daily R+W, Android Kernel R+W, Opensource Trending R+W, Opensource Curation R+W, AI Coding Agents R+W, Linux Kernel Lens R6+W2). runner 2대 병렬 트리아지로 파이프라인 운영 신호만 추출. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경으로 멱등 스킵).
