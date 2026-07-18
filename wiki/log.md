@@ -1,5 +1,18 @@
 # 운영 로그
 
+## 2026-07-19 (ingest)
+
+- **session-logs 유래** — 미처리 21건 처리 (전부 20260719 dev-blog cron 03:00~04:44 배치: Linux Daily R(cad0, write 미발생) · Android Kernel R(6683)+W(7ab8) · Opensource Trending R(85e9)+W2(e9f7→8c17) · Opensource Curation R(2604)+W(a0df) · AI Coding Agents R(2b15)+W(6f56) · Linux Kernel Lens R6(c004·c501·8e4b·0d5b·a1e7·2d6a)+W5(5cb1·2480·6df0·6e93·793d)). runner 3대 병렬 트리아지로 파이프라인 운영 신호만 추출. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(raw 07-11 커밋 < summary 07-12) — sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).
+  - **신규/갱신 0건. index.md 변경 없음.**
+  - 스킵 21건 (뉴스성 + 기수록 패턴의 재현 — 파이프라인 메타는 아래 전부 기존 문서에 흡수됨):
+    - 커널/OSS/AI 코딩 뉴스 콘텐츠 전량 — 재조회 가치 없음.
+    - **Anubis PoW 솔버 완전 우회 재확인** (Linux Daily cad0): 즉석 Python SHA256 nonce 솔버가 `diff=4` 챌린지를 nonce 33426~131804 회(40~131ms)에 풀어 `/api/pass-challenge` 로 `techaro.lol-anubis-auth` 쿠키 획득 후 `lore.kernel.org/<thread>/raw` mbox 를 `code=200` 으로 취득. 07-17 에 이미 정제된 결론(솔버 성공은 서버 difficulty 에 좌우되는 *비결정적* 폴백 — 저-difficulty 일엔 완전 우회)의 재확인일 뿐, 새 기전·difficulty 상향·새 실패 양태 없음 → [[research-write-agent-separation]] line 93 기수록, 본문/변경이력 변경 없음.
+    - **git UA 우회 정착** (Kernel Lens c501 이후 5쌍): `git/2.43.0` 비-브라우저 UA 로 `t.mbox.gz` 직접 취득 — 06-18 실측(`curl -A "git/2.39.0"`)과 동일 축, 기수록.
+    - **write 더블런 1쌍** (Opensource Trending e9f7→8c17 +5분): 1차가 JSON 산출 완료 후 동일 dossier 재발사, 2차는 `assistant_turns:0` no-op. 07-05/07-15/07-16 더블런과 동일 현상 → [[research-write-agent-separation]]/[[prompt-schema-pipeline-coupling]] 기수록.
+    - **write no-op·고아 research** (Opensource Curation write a0df `assistant_turns:0`; Kernel Lens research c004 는 초기 Anubis 분석 14 bash 후 Topic 미확정·`exit_reason: unknown` 으로 대응 newsletter 없이 버려진 고아) — 6/10 이래 비결정적 고착의 지속, 기수록.
+    - **dossier/newsletter 스키마** (`seenBefore`·`verified`·`droppedCandidates`·`seenBeforeCount` 메타 + highlights `if/do/verify` 3분해) — 06-28·[[llm-newsletter-rewrite-metadata-grounding]] 기수록, 신규성 없음.
+    - AI Coding Agents dossier(2b15) 뉴스 토픽(Claude Code v2.1.214 권한검사 우회 fail-closed 픽스 · Copilot repo-level usage metrics GA/review 커스터마이징 · 스테가노그래피 마킹 재탕 `seenBefore:true`)은 "버전별 릴리스 노트·기수록 주제 재탕은 재조회 가치 없음" 선례(07-18 v2.1.212 동일 처리) 유지 + [[claude-code-source-leak-internals]] 계열 기수록. 07-18 의 첫 등장 관찰(WebFetch fast-model 의 GitHub 수치 메타데이터 hallucinate)은 이번 배치에서 재현되지 않아 승격 보류 유지. **위키 페이지 변경 없음.**
+
 ## 2026-07-18 (ingest)
 
 - **session-logs 유래** — 미처리 26건 처리 (전부 20260718 dev-blog cron 03:00~05:02 배치: Linux Daily R+W, Android Kernel R1+W2, Opensource Trending R1+W2, Opensource Curation R+W, AI Coding Agents R1+W2, Linux Kernel Lens R6+W7). runner 1대 병렬 트리아지로 파이프라인 운영 신호만 추출. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(raw 07-11 커밋 < summary 07-12)으로 멱등 스킵 — sidecar 부재로 source_sha256 미설정 유지).
