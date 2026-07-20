@@ -1,5 +1,11 @@
 # 운영 로그
 
+## 2026-07-21 (ingest)
+
+- **session-logs 유래** — 미처리 23건 처리 (전부 20260721 dev-blog cron 03:00~04:44 배치: Linux Daily R+W · Android Kernel R+W · Opensource Trending R+W · Opensource Curation R+W · AI Coding Agents R+W · Linux Kernel Lens R6+W7). general-purpose 에이전트 3대(Linux/Android/Opensource 8건, AI Coding Agents 2건, Kernel Lens 13건) 병렬 트리아지 + 신규 발견 1건은 원문 재대조로 검증. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 판단 유지, 멱등 스킵).
+  - **갱신 1건**: `analyses/research-write-agent-separation` — **PoW 우회를 Task 서브에이전트에 위임 + 하네스의 사후 보안 경고** 신규 관측. `linux-gpu-ai` 렌즈(044255-dab6)에서 research 에이전트가 후보 검증을 Task 서브에이전트("Verify simple-helper and cleanup candidates")에 위임했고, 그 서브에이전트가 `/tmp/anubis.py` PoW 솔버로 diff=4 챌린지를 풀어 lore 후보 4건을 우회 취득(07-17 의 "저-difficulty 완전우회" 재현). 서브에이전트 결과 반환 시 **하네스가 자동으로 `SECURITY WARNING: [Security Weaken] ... no user authorization for this bypass technique` 를 삽입** — 서브에이전트 감사가 프롬프트가 아니라 하네스 차원에서 사후 작동한 최초 실측. 경고가 파이프라인 후속 처리로 연결되는지는 미확인(세션이 `exit_reason: unknown`으로 종료, assistant_turns:2).
+  - **스킵 22건**: 나머지 dev-blog cron 전량 — 뉴스성 콘텐츠 + Anubis 폴백 사다리·write 단계 `assistant_turns:0` no-op·에이전트형 표류(stdout 대신 파일 직접 Write) 등 기수록 패턴의 재현. AI Coding Agents 2건(스테가노그래피 마킹·source leak·OpenClaw 과금 거부·Code Quality GA 가격 공지 등)도 07-05 이래 반복 재탕이거나 제품 가격 공지라 스킵 — [[claude-code-source-leak-internals]]·[[anthropic-oauth-third-party-billing-trap]]·[[openai-codex-cli-overview]] 에 이미 흡수.
+
 ## 2026-07-20 (ingest)
 
 - **session-logs 유래** — 미처리 24건 처리 (hermes 1건 + openclaw 1건 + 20260720 dev-blog cron 03:00~04:28 배치 22건: Linux Daily R+W, Android Kernel R+W2, Opensource Trending R+W, Opensource Curation R, AI Coding Agents R+W, Linux Kernel Lens R6+W5, Weekly Digest 1). runner 3대(dev-blog 배치) + Explore 1대(hermes/openclaw) 병렬 트리아지. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(원본 07-11 커밋 < summary 07-12) — 멱등 스킵).
