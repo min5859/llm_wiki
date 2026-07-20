@@ -1,5 +1,18 @@
 # 운영 로그
 
+## 2026-07-20 (ingest)
+
+- **session-logs 유래** — 미처리 24건 처리 (hermes 1건 + openclaw 1건 + 20260720 dev-blog cron 03:00~04:28 배치 22건: Linux Daily R+W, Android Kernel R+W2, Opensource Trending R+W, Opensource Curation R, AI Coding Agents R+W, Linux Kernel Lens R6+W5, Weekly Digest 1). runner 3대(dev-blog 배치) + Explore 1대(hermes/openclaw) 병렬 트리아지. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(원본 07-11 커밋 < summary 07-12) — 멱등 스킵).
+  - **신규 1건**: `bugs/openclaw-provider-id-legacy-rename` — openclaw `2026.7.1-2` 업데이트가 provider ID `openai-codex`→`openai` 로 리네임, 설정·인증 프로파일이 옛 ID 참조해 기본+fallback 모델 전부 `Unknown model` 실패(텔레그램 전 토픽 무응답). 3계층(Node 엔진 게이트 24.14.0<24.15.0 → nvm 업그레이드 / 게이트웨이 plist 옛 node 하드코딩 → daemon install 재생성 / provider ID 리네임(진짜 원인) → `doctor --fix`)이 겹쳐 발현. `openclaw-coder-silent-3-layer`(05-07)와 증상(텔레그램 무응답)은 같지만 원인은 무관 — "텔레그램 무응답"이 매번 다른 근본원인으로 재발하는 OpenClaw 증상 패턴임을 재확인 (출처 b1d7).
+  - **갱신 2건**:
+    - `projects/openclaw` — 인트로 프로바이더 표기(`openai-codex/gpt-5.4`→`openai/gpt-5.6-sol`, fallback `openai/gpt-5.5`, `thinkingDefault: xhigh`), 버전 이력에 `2026.7.1-2` 추가, 2026-07-19 사건 섹션(3계층 요약 + 이월 과제 5건) 추가.
+    - `projects/hermes` — 구성 표가 프로필 2개(default+maccoder)로만 기록돼 있었으나 실제로는 **8개**(architect/coder/designer/maccoder/news/reporter/reviewer/trading)로 확장된 상태 확인, 표 갱신. base+8프로필 모델 `gpt-5.5`→`gpt-5.6-sol`, effort `medium`→`xhigh` 일괄 변경 회고 추가 — **base config.yaml 은 프로필로 전파 안 됨**, 프로필마다 개별 gateway 재시작 필요, `delegation.reasoning_effort` 빈 값 유지가 위임 시 agent 설정 상속의 핵심이라는 신규 운영 사실 반영 (출처 2222).
+  - **스킵 22건**: 20260720 dev-blog cron 뉴스레터/리서치 dossier 전량 — 뉴스성, 파이프라인 메타 지식은 기존 문서(research-write-agent-separation·llm-newsletter-rewrite-metadata-grounding·llm-content-quality-guards·highlights-action-validator-schema-drift·dev-blog)에 이미 흡수.
+    - Kernel Lens/Weekly 배치를 맡은 runner 가 "write 완전 실패 집중화·research truncation·malformed JSON" 3종을 신규로 보고했으나 **직접 원문 검증 결과 전부 오탐**: (a) "truncation" 으로 지목한 034042 는 실은 `assistant_turns:0`(무응답) 세션의 **프롬프트에 임베드된 후보 데이터**를 assistant 출력으로 오독한 것, (b) 042628 을 `assistant_turns:0` 이라 보고했으나 실측은 `1`(수치 환각), (c) 041346 의 "malformed JSON"(`verifyLink` 필드에 markdown 본문 혼입)은 07-15 에 이미 `linux-distro-stable write 03df` 로 기수록된 동일 패턴의 재현. 서브에이전트 보고를 그대로 신뢰하지 않고 `grep`+원문 대조로 재검증한 뒤 스킵 확정 — 향후 유사 배치에서도 "신규 발견" 보고는 원문 재대조 필수.
+    - Opensource Trending Newsletter(032059)의 X4G(`x4gKing/X4G`) openQuestions 에 07-18 관찰과 동일한 WebFetch stars/forks 수치(5.8k/10.8k vs 검색 요약 ~3,500/~6,600)가 재등장. 그러나 이 dossier 항목은 `seenBefore: true` 이고 오늘 research 단계는 미완료(계획만 하고 종료)였던 정황상 **오늘 새로 관측된 게 아니라 이전 날짜 dossier 가 그대로 캐리오버된 동일 관측치** — 독립된 두 번째 재현으로 볼 수 없어 승격 보류 유지 (07-19 와 동일 결정).
+    - 나머지(Anubis PoW 폴백 재현·write 더블런·seenBefore 메타데이터 정상 동작 등)는 06-18~07-19 사다리와 동일한 재현.
+
+## 2026-07-19 (ingest)
 ## 2026-07-19 (ingest)
 
 - **session-logs 유래** — 미처리 21건 처리 (전부 20260719 dev-blog cron 03:00~04:44 배치: Linux Daily R(cad0, write 미발생) · Android Kernel R(6683)+W(7ab8) · Opensource Trending R(85e9)+W2(e9f7→8c17) · Opensource Curation R(2604)+W(a0df) · AI Coding Agents R(2b15)+W(6f56) · Linux Kernel Lens R6(c004·c501·8e4b·0d5b·a1e7·2d6a)+W5(5cb1·2480·6df0·6e93·793d)). runner 3대 병렬 트리아지로 파이프라인 운영 신호만 추출. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경(raw 07-11 커밋 < summary 07-12) — sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).

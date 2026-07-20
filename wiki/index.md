@@ -63,6 +63,7 @@
 - [[highlights-action-validator-schema-drift]] — publish validator 가 옛 스키마(action) 만 강제해 신 스키마(if/do/verify) 게시 전부 실패
 - [[ndjson-stdout-parser-greedy-regex]] — AI CLI 어댑터의 stdout 파서가 NDJSON·envelope·잡음 텍스트에 깨지는 함정
 - [[openclaw-coder-silent-3-layer]] — OpenClaw 코더 응답 무 — 3계층 디버깅 (plugins.allow / 좀비 task / OAuth 403)
+- [[openclaw-provider-id-legacy-rename]] — OpenClaw provider ID 리네임 브레이킹 체인지 — openai-codex → openai (전 모델 Unknown model 실패)
 - [[stale-process-attributeerror-inprocess-coupling]] — 속성은 디스크에 있는데 AttributeError — in-process 강결합 데몬의 stale 프로세스 (재시작으로 해결)
 
 ### projects

@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["project", "openclaw", "ai-agent", "telegram", "automation", "npm"]
 created: "2026-04-23"
-updated: "2026-06-21"
+updated: "2026-07-19"
 sources:
   - "session-logs/20260423-113736-72aa-openclaw-를-업데이트-하려고-합니다.-가이드를-알려주세요.md"
   - "session-logs/20260621-181739-bf68-지금-openclaw-agent-의-AI-provider-연결이-끊긴것-같은데-현재-상태를.md"
@@ -15,12 +15,14 @@ sources:
   - "session-logs/20260426-141208-ad61-맥비-지금-코드가-어디까지-구현되었는지-확인해-주세요.md"
   - "session-logs/20260426-184740-49b5-지금-실행되는-next.js-에서-5-issues-라고-뜹니다.-##-Error-Type.md"
   - "session-logs/20260507-011504-7932-지즘-openclaw-agent-중에-coding-agent-인-맥코더가-텔레그램-채팅-창.md"
+  - "session-logs/20260719-213640-b1d7-현재-openclaw-모델이-뭐지.md"
 confidence: "high"
 related:
   - "wiki/projects/gieok.md"
   - "wiki/analyses/openclaw-telegram-group-setup.md"
   - "wiki/analyses/openclaw-acp-runtime-internals.md"
   - "wiki/bugs/openclaw-coder-silent-3-layer.md"
+  - "wiki/bugs/openclaw-provider-id-legacy-rename.md"
   - "wiki/decisions/openclaw-coder-default-model-codex.md"
   - "wiki/analyses/oauth-refresh-token-rotation-multi-client.md"
   - "wiki/projects/hermes.md"
@@ -28,7 +30,7 @@ related:
 
 # OpenClaw — AI 에이전트 자동화 도구
 
-Telegram 등 채널과 연동하는 AI 에이전트 자동화 도구. npm으로 전역 설치. 현재 사용 중인 AI 프로바이더: `openai-codex/gpt-5.4`.
+Telegram 등 채널과 연동하는 AI 에이전트 자동화 도구. npm으로 전역 설치. 현재 기본 모델: `openai/gpt-5.6-sol` (fallback `openai/gpt-5.5`, `thinkingDefault: xhigh`). **2026-07-19 부로 provider ID 가 `openai-codex` → `openai` 로 리네임**됐다 (아래 표의 `openai-codex/` 접두어는 과거 시점 기록이며 현재는 `openai/` 로 마이그레이션됨, 자세히 → [[openclaw-provider-id-legacy-rename]]).
 
 ## 설치 및 업데이트
 
@@ -178,6 +180,7 @@ openclaw agents list --bindings   # 에이전트 라우팅 규칙 확인
 
 | 날짜 | 버전 | 비고 |
 |------|------|------|
+| 2026-07-19 | 2026.7.1-2 | provider ID `openai-codex`→`openai` 리네임, Node 요구 `>=24.15.0` 상향 |
 | 2026-04-23 | 2026.4.21 | npm install -g openclaw@latest |
 | 이전 | 2026.3.28 | — |
 
@@ -355,6 +358,18 @@ OpenClaw 가 모든 텔레그램 토픽에서 응답이 끊긴 사건. 5/7 의 3
 
 쟁탈 vs 단순 만료 구별·경쟁 앱 선종료 순서·end-to-end 검증 등 일반 교훈은 [[oauth-refresh-token-rotation-multi-client]] 2026-06-21 절. (Hermes 동반 재발은 [[hermes]])
 
+## 2026-07-19 openclaw 2026.7.1-2 업데이트 — provider ID 리네임 (3계층)
+
+`openclaw update` 실행 중 텔레그램 전 토픽 무응답이 재발. 5/7·6/3·6/21 사건과 마찬가지로 "텔레그램 무응답"이지만 이번엔 **또 다른 새 원인** — provider ID 리네임.
+
+- **계층 A**: Node 엔진 게이트 — nvm node `24.14.0` 이 신 요구치(`>=24.15.0`)에 0.0.1 모자라 `openclaw update` 자체가 막힘 → `nvm install 24 --reinstall-packages-from=24.14.0`
+- **계층 B**: 게이트웨이 LaunchAgent plist 가 옛 Node 경로 하드코딩 → Node 를 올려도 서비스는 구버전 실행 → `openclaw daemon install`(또는 update 재실행)로 plist 재생성
+- **계층 C (진짜 원인)**: provider ID `openai-codex` → `openai` 리네임. 설정·인증 프로파일이 옛 ID 그대로라 기본+fallback 모델 전부 `Unknown model` 실패 → `openclaw doctor --fix` 로 일괄 마이그레이션
+
+복구 후: 기본 모델 `openai/gpt-5.6-sol`, fallback `openai/gpt-5.5`, `thinkingDefault: xhigh`. 상세 디버깅·교훈은 [[openclaw-provider-id-legacy-rename]] 로 분리.
+
+이월 과제: nvm 의존 게이트웨이 탈피(시스템 Node 로 고정), 세션 메모리 훅 오류 점검, `openai:default` 중복/만료 프로필 정리, anthropic `:manual` 토큰 403 재발급, doctor-fix 백업 파일 정리.
+
 ## 변경 이력
 
 - 2026-04-23: 최초 작성 (세션 로그 20260423-113736-72aa에서 추출)
@@ -364,3 +379,4 @@ OpenClaw 가 모든 텔레그램 토픽에서 응답이 끊긴 사건. 5/7 의 3
 - 2026-05-07: 코더 응답 무 사건 (3계층 디버깅) 섹션 추가, 모델 정책 변경 (Anthropic → Codex). 자세한 분석은 별도 페이지로 분리 (세션 로그 20260507-011504-7932)
 - 2026-06-03: 전 토픽 응답 무 사건 (Codex OAuth refresh token 쟁탈) 섹션 추가. OpenClaw·Hermes 가 동일 Codex OAuth 공유 + 회전형 토큰 → 핑퐁. 진단 함정(status "ok expires" 는 로컬 만료시각, 서버측 무효화는 raw log 401), fallback 이 같은 provider 뿐이면 무의미. 해결은 클라이언트별 독립 device-flow 등록. 일반 분석은 [[oauth-refresh-token-rotation-multi-client]] (세션 로그 20260603-140159-fbbf)
 - 2026-06-21: AI provider 연결 끊김 재발 섹션 추가. 6/3 와 같은 증상이나 주원인은 OpenAI 결제 미납 만료(쟁탈 아님) + 일시 네트워크 장애 중첩. `openclaw agent` PONG 호출로 end-to-end 진단·검증, 결제 재개 후 독립 device-flow 재등록으로 복구. 일반 교훈(쟁탈 vs 단순 만료, 경쟁 앱 선종료)은 [[oauth-refresh-token-rotation-multi-client]] (세션 로그 20260621-181739-bf68)
+- 2026-07-19: `2026.7.1-2` 업데이트 사건 섹션 추가. Node 엔진 게이트 → 게이트웨이 plist 고정 → provider ID `openai-codex`→`openai` 리네임(진짜 원인)의 3계층. 기본 모델 `openai/gpt-5.6-sol`(fallback `openai/gpt-5.5`), `thinkingDefault: xhigh` 로 갱신. 버전 이력·인트로 프로바이더 표기 갱신, 상세 디버깅은 [[openclaw-provider-id-legacy-rename]] 신설로 분리 (세션 로그 20260719-213640-b1d7)
