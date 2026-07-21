@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-07-12"
+updated: "2026-07-22"
 sources:
+  - "session-logs/20260721-231802-bb66-지금-폴더의-프로그램이-잘-동작하고-있는지-상태-체크좀-해줘.md"
   - "session-logs/20260712-002737-9413-현재까지-쌓인-데이터를-심층적으로-분석해서-성공-매매전략을-도출해줘.md"
   - "session-logs/20260709-230951-58a3-현재까지-동작-결과-검토해줘-표면적으로만-보지-말고-가능성과-인사이트까지-감안해서-검토해줘.md"
   - "session-logs/20260704-215721-8c43-현재-프로젝트는-최적의-주식-자동매매-알고리즘을-찾는-것이-목표임-이-목표에-도달하게-위해.md"
@@ -36,6 +37,8 @@ related:
   - "wiki/bugs/pykrx-krx-login-required.md"
   - "wiki/bugs/naver-finance-news-referer-required.md"
   - "wiki/analyses/surge-chasing-exclusion-filter.md"
+  - "wiki/bugs/sqlite-cross-thread-connection-threading-local.md"
+  - "wiki/analyses/polling-interval-vs-bar-interval.md"
 ---
 
 # ht_dde — DDE 스타일 실시간 매수후보 스캐너
@@ -198,6 +201,16 @@ related:
 
 **다음 단계**: `vol_surge`(300%/400% 두 임계)는 스냅샷 행이 아닌 **독립 종목-일 이벤트 30건** 축적 후, 실현손익이 검증치(+30분 +1.01%/승률64%)와 부호·방향 일치 + baseline 대비 우위인지로 재판정. `vol_surge` 근거 자체가 스냅샷 행 수 착시였다는 재검증은 [[signal-overfit-date-dispersion-check]] 참고.
 
+## 상태 점검 — rt 청산 4일 침묵 마비 & launchd 정식 등록 (2026-07-21)
+
+RS 페이퍼에 추가된 **감시 주기 A/B(tier vs rt, rt 는 7/17 도입)** 를 점검하다 운영 결함 셋을 발견·수정한 세션.
+
+**A/B 설계**: 같은 KRX EOD 스캔 추천을 tier·rt 두 가상계좌(각 1천만원)가 동일하게 받아, 진입(추천 상위 당일 종가 매수, 최대 10종목)·청산 규칙(트레일링 발동 +3%, 고점 대비 -2/-4/-8% 단계 거리, 발동 전 손절 -5%)까지 동일하게 두고 **감시 주기만 분리** — tier 는 저녁 배치(일 1회, 종가), rt 는 상주 앱의 데몬 스레드(2분, 현재가). "tier−기존"=청산 규칙 효과, "rt−tier"=감시 주기 효과로 변수 분리, 20거래일 판정 기준 사전 등록. ([[polling-interval-vs-bar-interval]] "실시간 가격 기반 청산은 폴링 해상도가 유의미" 가설의 통제 실험.)
+
+- **SQLite 크로스스레드 버그로 rt 완전 비동작** — rt 데몬 스레드가 메인 스레드에서 생성된 커넥션을 재사용해 `ProgrammingError` 누적 388회(15~20초 폴링마다), 7/17~7/21 장중 청산 0건. 같은 종목에 진입한 tier 는 11건 매도 vs rt 0건(포지션 10개 미정산) → **A/B 오염 확정, 데이터 리셋 후 재시작**. `threading.local()` 지연 생성 @property 로 수정(호출부 무변경, pytest 24 passed) → 상세는 [[sqlite-cross-thread-connection-threading-local]].
+- **launchd 임시 등록 → 정식 등록** — plist 4개(본체·rs·reweight·report)가 `config/` 경로에서 직접 bootstrap 된 임시 상태로 발견(재부팅 시 전부 소멸). `~/Library/LaunchAgents/` symlink + `launchctl bootstrap gui/$(id -u)` 로 전환 ([[launchd-plist-symlink-from-project]] 함정 5).
+- **0바이트 로그 오판** — reweight·report 의 `StandardOutPath` 로그가 0바이트라 "미실행"으로 오판할 뻔했으나, 실제는 1개월간(6/15~7/21) 매일 정시 실행 중. 래퍼 스크립트가 stdout 을 자체 날짜별 파일로 리다이렉트하기 때문. 실행 여부 판정은 **날짜별 산출물 mtime + `launchctl print` 의 `runs` 카운트** 병용 ([[launchd-plist-symlink-from-project]] 함정 6).
+
 ## 관련 맥락
 
 - 실거래 봇 [[ht-trading]] 의 자매 프로젝트 — 인증/토큰/도메인 모듈과 휴장 판정 패턴을 재사용하되 주문은 안 함.
@@ -206,6 +219,7 @@ related:
 
 ## 변경 이력
 
+- 2026-07-22: "상태 점검 — rt 청산 4일 침묵 마비 & launchd 정식 등록" 절 추가 — 감시 주기 A/B(tier 일1회 vs rt 2분) 설계 기록, SQLite 크로스스레드 커넥션 버그로 rt 청산 7/17~7/21 비동작(tier 11건 vs rt 0건 → A/B 오염 리셋), plist 4개 config/ 직접 bootstrap 임시 등록을 symlink+bootstrap 정식 등록으로 전환, StandardOutPath 0바이트 오판 진단법. 신규 [[sqlite-cross-thread-connection-threading-local]] 분리 (출처: session-logs/20260721-231802-bb66-*)
 - 2026-07-12: "2026-07-12 전략 전수 감사" 절 추가 — 26거래일(단일 하락장) 전수 분석 결론(장중 스캐너 전패 PF≤0.55·RS 승률 0~8%·reweight 는 급등배제만 초과수익), 방어 규칙 3종 확정, `vol_surge300_eod`·`combo_guard` 신규 구현(테스트 113개 통과), 왕복비용 0.38% 실측. 신규 [[surge-chasing-exclusion-filter]] 분리, [[signal-overfit-date-dispersion-check]] 교차링크 (출처: session-logs/20260712-002737-9413-*)
 - 2026-07-09: "4주 동작 검토 & Infinity 버그 & vol_surge 슬롯" 절 추가 — 세 서브시스템 전부 손실이나 원인이 "스코어 역예측(4주 재현)"임을 검증 데이터로 확정, 거래량증가율 유일 양(+)이라 `vol_surge` 단일규칙 슬롯 격리 신설(20거래일 사전등록), 가중치 미세조정 은퇴·RS 소형주 되돌림 구조 진단. `/rs` 빈 화면 = 응답 JSON 의 `Infinity`(vol/0) → 브라우저 JSON.parse 실패, 2겹 방어로 수정. 신규 [[flask-jsonify-infinity-breaks-browser-json]] 분리, [[scoring-system-ic-validation]] 라이브 2차 확증 보강 (출처: session-logs/20260709-230951-58a3-*)
 - 2026-07-02: "2차 평가 & 신호 발굴 (2026-07-01)" 절 추가. ①과매매=거래비용 드래그(공격형 수수료 113만=자본 11%) ②리웨이트 baseline이 최선+튜닝여지 최대(payoff 0.65·손실이 −10% 절대손절 8건에 집중 → 손절폭 −10%→−5~6%가 유일·최우선 레버, 승률 58%면 산술적 흑자전환) ③스냅샷 라벨에서 EOD 복합필터(오후+VWAP위+시가위+체결100~130) 발굴, 단일지표는 예측력 0·조합만 엣지. 신규 [[signal-overfit-date-dispersion-check]](날짜분산+시장대조로 과최적화 판별) 분리, [[dca-trailing-stop-tuning]] 교차링크 (출처: session-logs/20260701-231304-df33-*)

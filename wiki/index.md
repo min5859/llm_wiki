@@ -132,6 +132,7 @@
 - [[pykrx-krx-login-required]] — pykrx — KRX 로그인 의무화로 비로그인 조회가 JSONDecodeError·빈 DataFrame
 - [[reentry-after-full-liquidation-no-cooldown]] — ht_trading 전량 청산 직후 재매수 — flat 재진입 쿨다운 부재
 - [[relative-stop-benchmark-stale-price]] — 상대손절의 벤치마크 stale price — 종목은 실시간가, 지수는 일봉 캐시 종가
+- [[sqlite-cross-thread-connection-threading-local]] — SQLite 커넥션 스레드 간 공유 → ProgrammingError 로 데몬 스레드 청산 침묵 마비 (threading.local 지연 생성으로 해결)
 - [[utc-iso-date-kst-rollover]] — new Date().toISOString() 가 KST 새벽~오전에 어제 날짜로 떨어지는 버그
 - [[yahoo-finance-concurrent-silent-fail]] — Yahoo Finance 동시 호출 시 일부 응답에 regularMarketPrice 누락 (silent fail)
 
@@ -146,6 +147,7 @@
 
 ## 변경 이력
 
+- 2026-07-22: 신규 1건 등록 — trading: [[sqlite-cross-thread-connection-threading-local]] (bugs, bb66 — ht_dde rt 데몬 스레드가 메인 스레드 생성 SQLite 커넥션을 재사용해 ProgrammingError 388회, 장중 청산 7/17~7/21 침묵 마비 → A/B 오염 리셋. threading.local 지연 생성 @property 로 수정). 갱신 4건: [[ht-dde]] (07-21 상태 점검 — 감시 주기 A/B(tier/rt) 설계·오염 리셋·launchd 정식 등록, bb66), [[launchd-plist-symlink-from-project]] (함정 5 「config/ 직접 bootstrap 은 재부팅 소멸」+ 함정 6 「StandardOutPath 0바이트 ≠ 미실행」, bb66), [[polling-interval-vs-bar-interval]] (매도 감시 2분→10~30초 검토 — 잔고 캐시 TTL 하한·매도 전용 경량 루프 전제·1분봉 백테스트 재검증 전 미적용, 8f9d), [[n-stock-info]] (§8 유동성 게이트가 만드는 "추천 0종목" — 80.25점 종목도 시총·거래대금 컷 탈락, 8f9d). session-logs 미처리 23건 중 20260722 dev-blog cron 뉴스레터/dossier 20건은 뉴스성 스킵, ea52 는 07-04 기수집 확인(플래그 이미 true).
 - 2026-07-17: 갱신 1건 — ai-agent: [[research-write-agent-separation]] (봇 차단 함정에 "PoW 솔버가 저-difficulty 일엔 완전 우회 성공" 절 추가 — 07-15 의 "솔버=비신뢰 폴백" 을 부분 정정: `linux-arch-platform` 렌즈에서 동일 SHA256 nonce 솔버가 `diff=4` 를 1~69ms 에 풀어 lore raw mbox 3건 완전 취득, 솔버 성공은 그날 difficulty 에 좌우되는 비결정적 폴백, 출처 1119). session-logs 미처리 18건(20260717 dev-blog cron 뉴스레터/dossier) 중 나머지 17건은 뉴스성 + write 단계 `assistant_turns:0` no-op(기수록)으로 스킵. raw-sources/·.cache/extracted/·fetched/·mcp-note 대상 없음.
 - 2026-07-13: 갱신 1건 — ai-agent: [[claude-code-model-tier-orchestration-gate]] (실측 "네이티브 위임은 알아서 안 일어남" 절 + PreToolUse payload 스키마 확정(`prompt_id` v2.1.196+ · agent_id/agent_type 서브에이전트 한정) + claude_env 멱등 install 패키징 절, 출처 ccc7). session-logs 미처리 23건 중 20260713 dev-blog cron 뉴스레터/dossier 22건은 뉴스성으로 스킵(표본 3건 확인 — WebFetch silent fail·프롬프트 스키마 vs 출력 편차는 기존 문서 계열로 신규성 없음).
 - 2026-07-12: 신규 2건 등록 — trading: [[surge-chasing-exclusion-filter]] (analyses — ht_dde 26거래일 전수 감사에서 급등 추격 배제 필터가 유일하게 시장 대비 초과수익, confidence medium 단일 하락장 레짐 표본, 출처 9413) / ai-agent: [[claude-code-opus-orchestration-setup]] (신설 `summaries` 카테고리 — raw-sources/claude-code-opus-orchestration-setup.md 요약, [[claude-code-model-tier-orchestration-gate]]와 상호링크). 갱신 4건: [[personal-llm-wiki-curation]]("v1→v2 재편 사례" — 선별이관 37.6%·vault 개명 교훈, 출처 1627), [[gieok]]("Vault 재개명" 절, 출처 1627), [[signal-overfit-date-dispersion-check]]("vol_surge 승률 착시" 사례, 출처 9413), [[ht-dde]]("2026-07-12 전략 전수 감사" — 방어규칙 3종 확정·vol_surge300_eod/combo_guard 신규, 출처 9413), [[claude-code-model-tier-orchestration-gate]](원본 명세서·요약 상호링크 + 명명 불일치 각주). 이관 121건 미대상은 v1 개별 복사 원칙 유지.

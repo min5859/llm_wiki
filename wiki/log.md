@@ -1,5 +1,13 @@
 # 운영 로그
 
+## 2026-07-22 (ingest)
+
+- **session-logs 유래** — 미처리 23건 처리 (인터랙티브 2건 + dev-blog cron 20건 + ea52 재확인 1건). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재 + 원본 마지막 변경(07-11 commit 6a9858e)이 summary 작성(07-12) 이전이라 멱등 스킵). runner 서브에이전트 4대 병렬 트리아지(인터랙티브 2건 개별 + 뉴스레터 일괄 + ea52) 후 기존 페이지와 중복 대조.
+  - **신규 1건**: trading `bugs/sqlite-cross-thread-connection-threading-local` — ht_dde rt 데몬 스레드가 `RsPaperStore.__init__` 의 메인 스레드 생성 SQLite 커넥션을 재사용 → `ProgrammingError` 누적 388회, rt 장중 청산 7/17~7/21 완전 비동작(tier 11건 매도 vs rt 0건 → 감시 주기 A/B 오염, 데이터 리셋). `threading.local()` 지연 생성 @property 로 수정(호출부 무변경, pytest 24 passed). 첫 등장이나 도메인 핵심 운영 버그라 즉시 기록 (출처 bb66).
+  - **갱신 4건**: `projects/ht-dde` (07-21 상태 점검 절 — tier vs rt 감시 주기 A/B 설계·오염 리셋, plist 4개 config/ 직접 bootstrap 임시 등록 → symlink+bootstrap 정식 전환, 0바이트 로그 오판 진단, 출처 bb66), `patterns/launchd-plist-symlink-from-project` (함정 5 「config/ 직접 bootstrap 은 재부팅 소멸」+ 함정 6 「StandardOutPath 0바이트 ≠ 미실행 — dated 산출물 mtime + launchctl print runs 병용」, 출처 bb66), `analyses/polling-interval-vs-bar-interval` (「매도 감시 2분→10~30초 검토」 절 — 0195S0 슬립 -3.54% 실측, 잔고 캐시 TTL 30초가 해상도 하한, 매도 전용 경량 루프 분리 전제, 감시 촘촘=트레일링 실질 타이트닝이라 1분봉 백테스트 재검증 전 미적용, 출처 8f9d), `projects/n-stock-info` (§8 유동성 게이트 "추천 0종목" — 자이에스앤디 80.25점도 min_market_cap 900억/min_trade_value 200억 미달로 is_recommended=0, 18회 연속 Filtered to 0, ht_trading "기준일=N/A"는 오늘자 추천만 읽는 stale 매수 방지 설계의 결과, 출처 8f9d).
+  - **기수집 확인 (신규 없음)**: ea52 (llm_wiki v2 셋업 논의) — frontmatter 이미 `ingested: true`(본문 속 `ingested: false` 문자열에 grep 오탐). 내용은 07-04 사이클에서 [[personal-llm-wiki-curation]]·[[gieok]]·[[claude-code-token-optimization]] 에 완전 반영 확인.
+  - **스킵 20건**: 20260722 dev-blog cron 뉴스레터/리서치 dossier (Linux Daily·Opensource Trending/Curation·AI Coding Agents·Linux Kernel Lens) 전량 — 뉴스성, 파이프라인 메타 지식은 기존 문서에 이미 흡수. 파이프라인 관찰 2건은 첫 등장·원인 미상이라 승격 보류: ① 7e5a dossier 에서 `gh` CLI 미설치(`command not found`)로 REPO API FAILED — 저장소 3건 메타데이터 누락 ② cc55 dossier 의 url 필드 42줄에 Claude Code 체인지로그 텍스트 혼입(데이터 무결성 손상, 원인 미상). 재발 시 [[dev-blog]]·[[research-write-agent-separation]] 으로 승격.
+
 ## 2026-07-21 (ingest)
 
 - **session-logs 유래** — 미처리 23건 처리 (전부 20260721 dev-blog cron 03:00~04:44 배치: Linux Daily R+W · Android Kernel R+W · Opensource Trending R+W · Opensource Curation R+W · AI Coding Agents R+W · Linux Kernel Lens R6+W7). general-purpose 에이전트 3대(Linux/Android/Opensource 8건, AI Coding Agents 2건, Kernel Lens 13건) 병렬 트리아지 + 신규 발견 1건은 원문 재대조로 검증. raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재·원본 미변경 판단 유지, 멱등 스킵).

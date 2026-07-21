@@ -4,9 +4,10 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["launchd", "macos", "plist", "symlink", "homebrew", "project-layout"]
 created: "2026-05-14"
-updated: "2026-06-07"
+updated: "2026-07-22"
 sources:
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
+  - "session-logs/20260721-231802-bb66-지금-폴더의-프로그램이-잘-동작하고-있는지-상태-체크좀-해줘.md"
 confidence: high
 related:
   - "wiki/patterns/launchd-secret-management.md"
@@ -140,6 +141,23 @@ $ launchctl list | grep com.user.disk-monitor
 
 실제 첫 실행 후 종료 코드가 0 이 아니면 `scan.err` 확인.
 
+### 5. config/ 경로 직접 bootstrap 은 임시 등록 — 재부팅 시 소멸
+
+`launchctl bootstrap gui/$(id -u) /path/to/project/config/com.user.foo.plist` 처럼 **프로젝트 경로의 plist 를 직접 bootstrap 하면 그 로그인 세션에서만 유효**하다. launchd 가 로그인 시 자동 로드하는 대상은 `~/Library/LaunchAgents/` 안의 plist 뿐이라, symlink 없이 직접 bootstrap 만 한 잡은 재부팅 후 조용히 사라진다.
+
+개발 중 수동 bootstrap 으로 돌리다 운영 전환을 잊는 패턴이 전형적 — ht_dde 는 plist 4개(본체·rs·reweight·report)가 전부 이 상태로 발견됐다(2026-07-21, [[ht-dde]]). 운영 전환은 두 줄:
+
+```bash
+ln -s /path/to/project/config/com.user.foo.plist ~/Library/LaunchAgents/
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.foo.plist
+```
+
+### 6. StandardOutPath 0바이트 ≠ 미실행
+
+래퍼 셸 스크립트가 내부에서 stdout 을 자체 로그 파일(날짜별 등)로 리다이렉트하면, plist 의 `StandardOutPath` 파일은 **정상 실행 중에도 영원히 0바이트**다. 로그 크기만 보고 실행 여부를 판정하면 오탐.
+
+판정은 두 가지 병용: ① 잡이 만드는 **날짜별 산출물의 mtime** ② `launchctl print gui/$(id -u)/com.user.foo` 출력의 **`runs` 카운트**(실행마다 누적, 0이면 진짜 미실행). ht_dde 의 reweight·report 잡이 0바이트 로그로 "미실행" 오판될 뻔했으나 실제는 1개월간 매일 실행 중이었다.
+
 ## 영구 비활성화 — `unload` 만으로는 부족하다
 
 잡을 **당분간/영구 중지**하려면 `launchctl unload` 한 번으로는 안 된다. `RunAtLoad`/`KeepAlive` 가 켜진 plist 는 **재부팅 시 macOS 가 `~/Library/LaunchAgents/` 의 plist 를 다시 자동 로드**하므로, unload 는 현재 세션에서만 멈춘 것이다.
@@ -179,3 +197,4 @@ launchctl load ~/Library/LaunchAgents/com.user.foo.plist
 
 - 2026-05-14: 최초 생성. disk_monitor 의 plist 위치 이전 사례 기반 (출처: session-logs/20260514-220947-2eee)
 - 2026-06-07: 「영구 비활성화 — unload 만으로는 부족」 섹션 추가. `RunAtLoad`/`KeepAlive` plist 는 재부팅 시 재로드되므로 LaunchAgents symlink 제거가 곧 자동 시작 차단 (원본 plist 보존 → 무손실 원복). upbit_trading 봇 당분간 중지 사례 (출처: session-logs/20260606-210943-6534-*)
+- 2026-07-22: 함정 5 「config/ 직접 bootstrap 은 임시 등록 — 재부팅 소멸」 + 함정 6 「StandardOutPath 0바이트 ≠ 미실행 (dated 산출물 mtime + launchctl print runs 로 판정)」 추가. ht_dde plist 4개 임시 등록 발견·정식 전환 사례 (출처: session-logs/20260721-231802-bb66-*)

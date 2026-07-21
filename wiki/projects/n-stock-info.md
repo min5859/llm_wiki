@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "screening", "python", "telegram", "backtest"]
 created: "2026-06-03"
-updated: "2026-07-08"
+updated: "2026-07-22"
 status: active
 tech_stack: ["python", "requests", "beautifulsoup", "sqlite", "ruff", "pytest"]
 sources:
@@ -14,6 +14,7 @@ sources:
   - "session-logs/20260620-101936-aba2-여기-페이퍼-트레이딩-대쉬보드에-몇가지-더-추가하고-싶음.md"
   - "session-logs/20260701-232403-58cb-지금까지-쌓인-데이터를-바탕으로-알고리즘-개선을-할-만한게-있는지-분석해줘.md"
   - "session-logs/20260707-223019-2c24-오늘-남성이라는-종목이-추천되서-매수가-되었는데-실제-스코어가-62-점이-넘었는지-확인해줘.md"
+  - "session-logs/20260721-231701-8f9d-오늘-동작-로그좀-분석해줘-매수조건에-들어온-종목이-있는-것-같은데-매수를-하지-않은-것.md"
 confidence: high
 related:
   - "wiki/projects/ht-trading.md"
@@ -135,6 +136,16 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 - 수정 (commit `57153e5`): `get_all_candidate_records(db_path, since_date=None)` → `WHERE report_date >= ?`; `main.py --backtest`에 `--since ISO_DATE` 플래그(전달+로깅); `compare_weights.py`는 **기본값 `SINCE=2026-06-16`(버그 수정일)** 로 재검증이 오염 없이 기본 동작; `test_db`에 하한 필터 검증 추가. 173 테스트 통과, ruff 통과.
 - 일반 원칙(버그 수정 + 데이터 축적 대기 + **평가 도구의 수정일 이후 필터** 셋이 다 있어야 재검증 성립, 컷오프는 도구에 디폴트로 박기)은 [[post-bugfix-reverification-data-cutoff]] 로 분리.
 
+### 8. 유동성 게이트가 만드는 "추천 0종목" — 고점수 마이크로캡 배제 (2026-07-21)
+
+[[ht-trading]] 라이브 로그 분석("매수조건에 들어온 종목이 있는데 매수를 안 했다")의 원인 추적. `rank_and_filter`(scorer.py)의 4단계 필터를 **전부** 통과해야 `is_recommended=1` 이 된다:
+
+① `min_score` 컷 → ② stability gate (적자·고부채 제외, §2) → ③ trend gate (하락추세 veto, §가중치 변천) → ④ **liquidity gate — `min_market_cap: 900`(억)·`min_trade_value: 200`(억), config screening 섹션**
+
+- 실측(07-21): 자이에스앤디는 total_score **80.25** 로 점수·안정성·추세를 모두 통과하고도 liquidity gate 미달로 `is_recommended=0`. 오리엔트바이오(73.25)는 손실기업(PER·EPS 음수)이라 stability gate 탈락. 그날 18회 실행 전부 "Filtered to 0 candidates".
+- ht_trading 스크리너의 "기준일=N/A" 표시는 DB 누락이 아니라 **오늘자 `is_recommended=1` 만 매수 대상으로 읽는 설계**의 결과 (stale 매수 방지, screener.py — 어느 게이트에서든 탈락하면 그날 추천 레코드가 없다).
+- 판단: 고점수 마이크로캡 배제는 유동성 보호로 의도된 설계일 수 있으나, 900억/200억 임계가 **추천 공급 자체를 0으로 만드는 날이 반복**되면 §6과 같은 방식으로 실제 분포를 보고 임계를 재검토해야 한다 — 병목이 점수 컷이 아니라 유동성 컷일 수 있다.
+
 ## 현재 상태
 
 - 테스트 173 passed(07-01), ruff 통과.
@@ -151,6 +162,7 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 
 ## 변경 이력
 
+- 2026-07-22: §8 "유동성 게이트가 만드는 추천 0종목" 추가 — 4단계 필터(점수→안정성→추세→유동성) 중 liquidity gate(시총 900억·거래대금 200억)가 80.25점 종목(자이에스앤디)도 탈락시켜 18회 연속 "Filtered to 0 candidates", ht_trading "기준일=N/A"는 is_recommended 필터 설계의 결과. 임계 재검토는 분포 기반(§6 사상) (출처: session-logs/20260721-231701-8f9d-*)
 - 2026-07-08: §5 에 "하류 관측성 비용" 절 추가 — 일자 멱등 저장(DELETE→INSERT)이 당일 point-in-time 이력을 파괴해, 다운스트림 [[ht-trading]] 이 매수한 종목(남성)의 매수 시점 추천 스냅샷이 사후 소실됨(그날 전 종목 is_recommended=0). ht_trading 이 매수 감사 로그를 별도 도입한 배경. 자체 추천 컷 55 vs ht_trading 매수 컷 62 의 2단계 컷 관계 명시 (출처: session-logs/20260707-223019-2c24-*)
 - 2026-07-02: "재검증 도구의 오염 데이터 하한 필터" 절 추가 (2026-07-01 세션). 06-16 버그 수정 후 재검증 예정 시점 도래, 재검증 도구가 날짜 하한이 없어 오염 행 재포함 함정 → `since_date`/`--since`/`compare_weights.py` 기본 SINCE=2026-06-16 추가(commit `57153e5`, 173 테스트). DB 접근 없이 코드만으로 계측기 결함 확정·선수정. 신규 [[post-bugfix-reverification-data-cutoff]] 분리 (출처: session-logs/20260701-232403-58cb-*)
 - 2026-06-20: **가중치 변천 + 추세 게이트** 절 추가 — 유효 가중치가 40/40/20 → (0/80/20 실험 4일 -19.6% falling knife 실패) → **50/30/20** 으로 안착, `_passes_trend_gate`(현재가<20일선 veto)로 하락추세 종목 컷오프. IC 근거 일부는 e13765f 이전 오염 데이터라 재검증 필요. 별 프로젝트 [[ht-dde]] 의 종이거래로 가중치 변형을 A/B 비교하려는 방향이 제안됨(이 세션은 검토 단계). (출처: session-logs/20260620-101936-aba2-*)
