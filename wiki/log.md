@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-23 — wiki-ingest
+
+- Project: dev-blog
+- Mode: diff
+- Input: commits e28df77·7a8a83f (rewrite 어댑터 에이전트형 표류 차단 — `--tools ""`·cwd 격리·모델 고정·교정 재시도·덤프 adapter/model 메타)
+- Created/Updated:
+  - 신규: `patterns/agentic-cli-text-generation-lockdown` (에이전트형 CLI 를 순수 텍스트 생성기로 쓸 때의 잠금 7항목 — 7/5 "에이전트형 표류" 관측 1회차 + 7/22 원인 확정·수정 2회차로 승격 기준 충족)
+  - 갱신: `patterns/llm-json-parse-retry-with-dump` (「확률적 vs 행동적 실패」 절 — 동일 프롬프트 재시도 회복률 54% 실측, 교정 재시도 + 덤프 adapter/model 메타 추가), `projects/dev-blog` (7/22 수정 섹션 + 연혁 엔트리 — 6/10 이래 write 실패 서사 종결), `index.md`
+
 ## 2026-07-22 (ingest)
 
 - **session-logs 유래** — 미처리 23건 처리 (인터랙티브 2건 + dev-blog cron 20건 + ea52 재확인 1건). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재 + 원본 마지막 변경(07-11 commit 6a9858e)이 summary 작성(07-12) 이전이라 멱등 스킵). runner 서브에이전트 4대 병렬 트리아지(인터랙티브 2건 개별 + 뉴스레터 일괄 + ea52) 후 기존 페이지와 중복 대조.

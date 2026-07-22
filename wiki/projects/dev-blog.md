@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["project", "static-site", "newsletter", "claude-cli", "kernel", "lkml", "github-pages", "cron", "node20"]
 created: 2026-05-08
-updated: 2026-07-07
+updated: 2026-07-22
 sources:
   - "session-logs/20260705-034956-d436-#-AI-Coding-Agents-Newsletter-—-Write-from-Dossier.md"
   - "session-logs/20260705-040030-a330-#-Linux-Kernel-Lens-Newsletter-—-Write-from-Dossie.md"
@@ -94,6 +94,7 @@ related:
   - "wiki/patterns/shell-set-eu-topic-isolation.md"
   - "wiki/patterns/prompt-schema-pipeline-coupling.md"
   - "wiki/patterns/llm-json-parse-retry-with-dump.md"
+  - "wiki/patterns/agentic-cli-text-generation-lockdown.md"
   - "wiki/analyses/github-pages-base-path-pattern.md"
   - "wiki/analyses/llm-content-quality-guards.md"
   - "wiki/analyses/llm-newsletter-rewrite-metadata-grounding.md"
@@ -336,6 +337,22 @@ Error: highlights[0].action required
 - **lens 의 LENS_DEFAULT_ADAPTER 상수처럼 모듈 상수로 default 를 빼둔 패턴**도 같은 가치 — 한 줄 변경으로 lens 8종 일괄 영향.
 - **테스트의 빈 입력 단언**이 default 변경의 첫 가드 — `normalizeDailyRewriteAdapter defaults empty to claude and maps cursor-agent to cursor` 한 테스트 케이스가 의도와 실 코드의 일치를 회귀 방지.
 
+## rewrite 어댑터 에이전트형 표류 차단 (2026-07-22, commit e28df77)
+
+6/10 이래 이어진 write 단계 실패 서사(7/5 의 "에이전트형 표류" 관측 포함)의 **근본 원인 확정 + 수정**. `logs/ai-rewrite-failures/` 128건 전수 분석: 89건이 `AI response did not contain JSON` 이고 그 raw 응답은 **100% 자연어 보고** ("작성했습니다 / 이미 유효하니 수정 불필요") — 잘림·코드펜스·빈 응답 0건. 7/8~7/17 에 평시 2.6배로 급증했는데 그 구간 저장소 커밋은 자동 briefing 뿐 → 원인은 저장소 밖 (CLI 자동 업데이트 / `sonnet` 별칭의 실모델 표류).
+
+기전: rewrite 용 `claude -p` 가 **저장소 cwd 에서 도구 제한 없이** 실행돼, 모델이 기존 `data/generated/` 산출물을 발견하고 JSON 출력 대신 에이전트처럼 행동 후 대화형 요약만 stdout 에 남김. 프롬프트의 "JSON만 출력" 지시로는 못 막았고, 동일 프롬프트 재시도 회복률도 54% 에 그침 (attempt1 실패 61건 중 33건 회복).
+
+수정 (`scripts/lib/ai-rewrite-adapter.mjs`, 3 어댑터 모두 대비):
+
+| 어댑터 | 잠금 |
+|--------|------|
+| claude (기본) | `--tools ""` 도구 전면 차단 + `cwd: tmpdir()` 격리 + 모델 `'sonnet'`→`'claude-sonnet-5'` 고정 + `DISABLE_AUTOUPDATER=1`. research 경로 (도구 필요) 는 불변 |
+| codex | `--sandbox read-only` |
+| cursor | 변경 없음 (기존 `--mode=ask` 가 이미 읽기 전용) |
+
+공통: attempt≥2 에 교정 지시("[재시도] … 도구 사용 없이 JSON 객체 하나만") 를 프롬프트에 덧붙임, 실패 덤프 헤더에 `# adapter:` / `# model:` 기록 (7월 사고 때 이 메타 부재로 원인 모델 소급 확정 실패). 회귀 테스트 117/117 (신규 2건 포함), 실지 실행 1회 attempt1 즉시 성공·실패 덤프 무증가. `--tools` 뒤 빈 문자열 인자가 `split(/\s+/).filter(Boolean)` 에 소실되는 함정 때문에 기본 인자를 배열 리터럴로 전환한 것이 구현 디테일. 일반 패턴은 [[agentic-cli-text-generation-lockdown]] 로 분리, [[llm-json-parse-retry-with-dump]] 에 「확률적 vs 행동적 실패」 절 보강.
+
 
 - 2026-05-10: Multi-topic 전제가 실제로 정상 가동 중임을 확인 — Linux 외에 Android Kernel Daily Briefing 과 Open Source Trending Daily Briefing 의 2개 토픽이 매일 07:00 KST cron 으로 추가 발행 중. 토픽별 시스템 프롬프트는 각각 다른 큐레이션 정책을 정의: Linux 는 LKML maintainer/`fromMaintainer`/`maintainerComments` 메타로 머지 신호 추출 + ACK prefix 풀어쓰기, Android 는 `ANDROID:`/`FROMGIT:`/`FROMLIST:`/`BACKPORT:`/`UPSTREAM:` prefix 를 한국어로 풀고 GKI/ABI 영향에 가중, OSS Trending 은 HN frontpage hit 을 1순위 신호로 두고 별 100k+ long-tail giants 는 별도 카테고리로 격리. 공통 휴리스틱: 3-tier priority 분포 강제 (상 1~2 / 중 2 / 하 0~1), `implications`/`nextActions` 같은 LLM 의 자동 보충 섹션 금지, 데이터 부족 시 솔직한 fallback 표현. (출처: session-logs/20260510-070019-a130-* Linux, 20260510-070200-f6f1-* Android, 20260510-070412-fd9a-* OSS Trending)
 - 2026-05-12: 5/11 일일 파이프라인 사고와 콘텐츠 품질 회고 — (1) cursor 어댑터 NDJSON 파싱 깨짐 + `daily-deploy.sh` `set -eu` 연쇄 중단으로 12개 토픽 누락 사고 발생, 파서 4 경로 폴백 + 토픽 `if !` 격리로 수정 (commit 2cc5ff5). (2) 12개 게시본 정독에서 발견된 4 결함 (토픽 중복 / action 일반성 / opensource hallucination / 저신호일 부풀리기) 을 파이프라인 가드로 보강 (commit 2a4b2ec, 11 files +208/-8). README excerpt fetcher 신규 도입으로 OSS 토픽 hallucination 그라운딩, `signalLevel` 메타 노출. 일반 패턴은 [[ndjson-stdout-parser-greedy-regex]] / [[shell-set-eu-topic-isolation]] / [[llm-content-quality-guards]] 로 분리 (출처: session-logs/20260511-230001-14d5-*)
@@ -373,3 +390,4 @@ Error: highlights[0].action required
 - 2026-07-05 (03:00~04:44 cron 사이클 25건 — **write 단계의 "에이전트형 표류" 전환**, 3주 silent fail 서사의 상태 변화): Research Dossier 11건 + Newsletter Write 14건 발사. **운영 관찰**: (1) **dossier 11/11 전건 1턴 산출** — 6/29(6/11)·7/1(7/10) 대비 완전 회복. bash 폴백(3건, `git log`/grep/curl)은 기존 사다리와 동일, 에러 없음. (2) **write 5건이 1턴 산출인데 그중 3건이 "에이전트형"** — Bash 로 repo 관례 확인, quality-guard 검증 스크립트 직접 실행, headline 99→80자 자기 교정, 실제 파일 편집(edit 1~2)까지 수행. 6/22~7/4 의 간헐 1턴 회복이 전부 도구·편집 없는 순수 산출이었던 것과 질적으로 다름. **write 프롬프트는 "JSON 객체 하나만 출력" 그대로 불변** — 즉 프롬프트가 아니라 `claude -p` 기저 하네스/모델의 기본 동작이 에이전트형으로 표류한 것으로 추정(같은 날 후보 피드에 Sonnet 5/CC v2.1.201 등장 — 미확정 가설). (3) **에이전트형 1차 시도가 재시도를 유발** — 더블런 4쌍(입력 dossier `generatedAt` 동일로 재시도 확정) 중 3쌍이 "1차가 에이전트형(편집까지 완료)인데 2차 호출 발생" → stdout 이 깨끗한 단일 JSON 이 아니게 되어 파서가 1차 산출을 수용 못 하고 `maxAttempts=2` 가 도는 것으로 강추정(파서 에러 로그는 세션 로그 범위 밖이라 단정 불가). 2차는 3건 중 2건이 무응답으로 끝나 **"일은 했는데 파이프라인상 순 실패"** 라는 새 실패 양태 — stdout 계약 기반 파이프라인이 기저 CLI 의 에이전트화에 깨지는 [[prompt-schema-pipeline-coupling]] 의 신종 변형. (4) 7/3·7/4 의 후보 공급 정체(Android 동일 세트 재투입·seenBefore 다수)는 7/5 재현 안 됨(전건 `seenBeforeCount: 0`). (5) gpu-ai 렌즈는 dossier 만 있고 write 로그 없음(윈도 밖 또는 미실행). 자격증명형 URL 마스킹·MIME 미디코딩·Anubis 봇차단은 기수록 함정의 재발(신규 아님). 뉴스 콘텐츠는 기존 결정대로 durable 전량 스킵. **코드 변경 없음** (출처: session-logs/20260705-03*, 20260705-04* 사이클 25건)
 - 2026-07-01 (03:00 cron 사이클 21건 — write silent fail 약 3주째 + 간헐 1턴 회복 2건 [Android Write] 관측): research(dossier)→write(newsletter) 2단계 cron 이 03:00~03:58 KST 에 발사 (Research Dossier 10건 + Newsletter Write 11건; 테마: Linux Daily/Android Kernel/Opensource Trending/AI Coding Agents 각 1쌍 + Linux Kernel Lens 6쌍, Android Kernel 만 write 2건). **운영 관찰**: (1) **Newsletter Write 11건 중 9건이 `assistant_turns: 0` 무응답**이나 **Android Kernel Write 2건(030911·031249)만 `assistant_turns: 1` 로 정상 산출** — 6/29(Linux Daily 1건)·6/30(Lens gpu-ai 1건)에 이어 *간헐 1턴 부분 회복*이 토픽만 바뀐 채 지속(이번엔 동일 토픽 2건 모두 산출, 원인 미상·비결정적). 6/10 이래 약 3주째 write 단계 비결정적 고착. (2) Research Dossier 는 7건 1턴 정상(Opensource Trending·AI Coding + Lens 5건), 3건은 `assistant_turns: 0` 무응답(Linux Daily 030012·Android Kernel 030529·Lens 033809) — 6/30(7/10)과 동일 산출 수준, research/write 비대칭 지속(이번엔 평소 정상이던 Linux Daily·Android dossier 가 무응답으로 토픽 분포만 교대). (3) Anubis 봇 차단(`lore.kernel.org`) 폴백 사다리(raw mbox·commitMessage+WebSearch 교차검증·미확인 confidence 강등+openQuestions 격리)는 6/18~6/30 와 동일하게 흡수, bash 폴백 로그에 에러·실패 흔적 없음. 휘발성 커널/OSS·AI 코딩 속보 콘텐츠는 **단일 패치/릴리스를 범용 패턴으로 일반화 = 과잉추출**이라 6/14~6/30 결정과 동일하게 durable 전량 스킵. AI 코딩 dossier 의 skills 상호운용 수렴(ponytail·eve·BuilderIO/skills)·devspace 셀프호스트 MCP·CC v2.1.197 Sonnet 5 기본전환 등도 그날치 뉴스로 이미 [[ai-coding-agent-cost-and-context-patterns]]/[[self-hosted-agent-webui-integration]]/[[mcp-config-secret-exposure-via-ps]]/[[everything-claude-code]] 범위. **코드 변경 없음** (출처: session-logs/20260701-03* 03:00~03:58 사이클 21건)
 - 2026-07-07 (03:00~04:42 cron 사이클 22건 — write "에이전트형" 이 실제 퍼블리시 성공까지 진행 + dossier 1건 정합성 손상): Research Dossier 11건 + Newsletter Write 11건. **운영 관찰**: (1) **write 에이전트형이 퍼블리시 성공으로 귀결** — AI Coding Agents write(034422)가 JSON 검증→`rewritten-latest.json` 반영→publish 스크립트 실행까지 수행(bash 5·edit 1). 7/5 의 "에이전트형 표류"(1차 산출을 파서가 수용 못해 순 실패) 와 달리 이번엔 실제 게시 완료. 단 9분 뒤 동일 토픽 write 재트리거(035303) 발생 — 기존 산출 확인 후 재퍼블리시 회피(멱등)로 중복 게시는 방지됐으나 **write 스텝 더블런 자체는 지속**. (2) **security/stable 렌즈 dossier(041331) 정합성 손상** — 22건 중 유일하게 assistant 턴 없이 Bash python heredoc 으로 dossier JSON 을 조립·출력, evidence 객체에 `kind`/`quote` 키 중복 + claim(GFS2 `i_size` OOB)↔quote(skb_segment 네트워킹) 혼입, 짝 뉴스레터도 부재(dossier→write 플로우 단절 — 6/28 evidence-stuffing 계열의 조립 아티팩트). (3) **Anubis 차단 강화** — `curl` 우회까지 차단되는 날 관측(040449 "PoW blocks curl too"), 042340 은 WebFetch 네트워크 레이어 전면 차단 의심, Phoronix 403(030011). 폴백은 기존 사다리로 흡수, 차단 강화는 [[research-write-agent-separation]] 에 보강. (4) 경미: security 뉴스레터(040227) evidence url 필드에 한국어 문구 혼입(필드 mangling), AI Coding dossier(033549) fetch 1건 재시도. GitHub/HN/googlesource 계열 dossier 4건은 차단 없이 정상. 뉴스 콘텐츠는 기존 결정대로 durable 전량 스킵. **코드 변경 없음** (출처: session-logs/20260707-03*, 20260707-04* 사이클 22건)
+- 2026-07-22 (rewrite 에이전트형 표류 — 근본 원인 확정 + 수정, commits e28df77·7a8a83f): 사용자 제보 "실패 토픽 증가" 로 시작한 조사가 6/10 이래의 write 실패 서사를 종결. `logs/ai-rewrite-failures/` 128건 전수 분석 — JSON 파싱 실패 89건의 raw 응답이 100% 자연어 보고 (7/5 관측한 "에이전트형 표류" 의 확정 증거), 7/8~7/17 급증 (평시 2.6배) 구간에 저장소 변경 없음 → CLI 자동 업데이트/`sonnet` 별칭 표류가 유력 (덤프에 모델 메타 부재로 소급 확정 불가). 수정: claude rewrite 경로에 `--tools ""` + `cwd: tmpdir()` 격리 + `claude-sonnet-5` 고정 + `DISABLE_AUTOUPDATER=1`, codex `--sandbox read-only`, 교정 재시도 (attempt≥2), 덤프 헤더 adapter/model 기록, SCHEDULING.md 기본 어댑터 표기 정정 (Cursor→claude). 테스트 117/117 + 실지 실행 attempt1 성공·덤프 무증가. 일반 패턴 [[agentic-cli-text-generation-lockdown]] 신설 (승격: 7/5 관측 1회차 + 7/22 확정 2회차), [[llm-json-parse-retry-with-dump]] 에 「확률적 vs 행동적 실패」 절 보강 (출처: dev-blog commits e28df77·7a8a83f, 2026-07-22 세션)

@@ -4,12 +4,14 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["pattern", "llm", "json", "retry", "reliability", "ai-adapter", "claude-cli", "diagnostics"]
 created: 2026-05-18
-updated: 2026-05-18
+updated: 2026-07-22
 sources:
   - "session-logs/20260518-232056-c7c2-오늘은-실패한-포스팅이-많은데-원인이-뭔지-분석해-주세요.md"
+  - "dev-blog commit e28df77 (2026-07-22 세션)"
 confidence: high
 related:
   - "wiki/projects/dev-blog.md"
+  - "wiki/patterns/agentic-cli-text-generation-lockdown.md"
   - "wiki/analyses/multi-llm-provider-adapter-pattern.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
   - "wiki/analyses/llm-content-quality-guards.md"
@@ -176,6 +178,14 @@ test('returns null when adapter returns null (template mode)', async () => {
 ls logs/ai-rewrite-failures/$(date -u +%Y-%m-%d)*.txt 2>/dev/null | wc -l
 ```
 
+## 재시도의 한계 — 확률적 실패 vs 행동적 실패 (2026-07-22 보강)
+
+본 패턴의 재시도는 **확률적 실패** (같은 프롬프트에 간헐적으로 JSON 외 텍스트 혼입) 전제다. 2026-07 dev-blog 에서 다른 종류가 관측됨: `claude -p` 기저 하네스/모델이 에이전트화되어 **일관되게** 자연어 보고를 반환하는 **행동적 실패** (89건, 전수 자연어 응답·잘림 0건). 이 경우:
+
+- **동일 프롬프트 재전송의 회복률이 낮다** — attempt1 실패 61건 중 attempt2 회복 33건 (54%). 재시도가 같은 행동을 다시 유발하기 때문
+- **대응 2가지를 패턴에 추가**: (1) attempt≥2 의 프롬프트 끝에 교정 지시("[재시도] 직전 응답이 유효한 JSON이 아니었습니다. 도구 사용·설명 없이 JSON 객체 하나만 출력") 를 덧붙임 — 원본 prompt 변수는 오염시키지 않고 attempt 별 지역 변수로. (2) 덤프 헤더에 `# adapter:` / `# model:` 기록 — 행동적 실패는 CLI 버전·모델 별칭 표류가 원인일 수 있어 소급 진단에 필수 (7월 사고 때 이 메타가 없어 원인 모델을 확정 못 했다)
+- **근본 대책은 재시도 계층 밖** — 도구 차단·cwd 격리·모델 고정. [[agentic-cli-text-generation-lockdown]] 참조 (본 패턴 = 대응, 잠금 패턴 = 예방)
+
 ## 안티패턴
 
 - **try / catch 로 감싸 silent 통과** — 다운스트림 publisher 가 비어 있는 산출물 게시 또는 빌더가 깨짐. 모델 응답이 잘못된 거지 그날 게시본을 빼면 안 됨. **template fallback 또는 throw 둘 중 하나만**
@@ -192,3 +202,4 @@ ls logs/ai-rewrite-failures/$(date -u +%Y-%m-%d)*.txt 2>/dev/null | wc -l
 ## 변경 이력
 
 - 2026-05-18: 최초 작성. dev-blog 5/18 cron 의 10개 토픽 중 4개 동일 JSON 파싱 실패 사고에서 도출. `runAiAdapterAndParse` 헬퍼 (raw 덤프 + 1회 재시도) + 6개 newsletter rewrite 호출부 일괄 치환 + 회귀 테스트 3건 (재시도 성공 / 끝까지 실패 / template null 경로). 일반 패턴으로 분리 (출처: session-logs/20260518-232056-c7c2-*)
+- 2026-07-22: 「확률적 vs 행동적 실패」 절 추가. dev-blog 7월 실패 급증(89건, 100% 자연어 응답) 분석에서 동일 프롬프트 재시도의 한계(회복률 54%) 확인 → 교정 재시도 + 덤프 헤더 adapter/model 기록을 패턴에 추가, 예방 계층은 [[agentic-cli-text-generation-lockdown]] 로 분리 (출처: dev-blog commit e28df77)
