@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-23 (ingest)
+
+- **session-logs 유래** — 미처리 24건 처리 (인터랙티브 2건 + 테스트 1건 + dev-blog cron 뉴스레터/dossier 21건). raw-sources/·.cache/extracted/·fetched/·mcp-note 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재 + sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).
+  - **신규 2건**: ai-agent `patterns/homebrew-python-upgrade-breaks-cron-venv` (oss-radar `run.sh` 의 venv activate 후 PATH 재-prepend·research-wiki 의 venv 부재 — 2026-04-28 analyze.sh venv 버그에 이은 2회차 등장으로 패턴 승격, 출처 b228), `bugs/gieok-session-log-url-credential-masking-false-positive` (gieok 마스킹이 lore.kernel.org 스타일 URL 을 `***:***@` 로 파괴 — 첫 등장이나 ingest 판단 자체를 오염시키는 핵심 버그라 즉시 기록, 출처 7948 외 12건)
+  - **갱신 2건**: [[oss-radar]] (7/5~7/22 17일간 Step 1 중단 사건 + Step 4 게이트 결함 수정 + companion research-wiki 수정 기록, 출처 b228), [[gieok]] (마스킹 오탐 절 + 링크 추가)
+  - **기수집 확인 2건**: 34ec (dev-blog cron 실패 토픽 분석 요청 — 07-23 커밋 `4a033ce` 로 `patterns/agentic-cli-text-generation-lockdown`·`patterns/llm-json-parse-retry-with-dump`·`projects/dev-blog` 에 이미 반영, 신규 정보 없음), bd44 (JSON 헬스체크 테스트, `assistant_turns: 0`, 내용 없음)
+  - **스킵 21건**: 20260723 dev-blog cron 뉴스레터/dossier 뉴스 콘텐츠 전량 (뉴스성). 07-22 승격 보류 2건 대조 결과 — ① gh CLI 미설치 REPO API FAILED: 오늘 재발 없음 (보류 유지) ② url 필드 텍스트 혼입(cc55): 오늘 로그의 `***:***@` 유사 패턴은 dossier 결함 재발이 아니라 gieok 로거 마스킹 오탐으로 판명 (위 신규 bugs 문서 참조). lore Anubis 봇 차단 관찰은 [[research-write-agent-separation]] 에 기수록이라 스킵. `exit_reason: unknown` 전건은 로거 기본값(정상 완료 세션 bd44 도 unknown)이라 이상 신호 아님.
+  - **stray 파일 정리**: runner 가 임시 생성한 `wiki/projects/oss-radar-research-wiki-7월5일-중단-원인분석-및-수정.md` 는 내용 흡수 후 삭제.
+
 ## 2026-07-23 — wiki-ingest
 
 - Project: dev-blog

@@ -18,6 +18,7 @@
 - [[claude-code-model-tier-orchestration-gate]] — Claude Code 모델 계층 오케스트레이션 + PreToolUse 게이트 (off/hard/soft 모드 토글 · 하드블록 vs 소프트넛지(additionalContext 단독 — allow 동반 시 권한 우회) · Bash 감지는 정규식 아닌 shlex 토큰화 · hard 는 CC v2.1.196+ 필수 · Opus메인 vs Sonnet메인 · 심링크 토글 · 실측: 위임 강제는 hard 게이트뿐, Haiku는 지침 기반 · claude_env 멱등 install 패키징)
 - [[claude-code-token-optimization]] — Claude Code 토큰 최적화 — 소비 절반 줄이기
 - [[hermes-single-model-delegation]] — Hermes 단일 모델 delegate_task — context 부패 지연 + 약한 모델(소형 Qwen) 신뢰도
+- [[homebrew-python-upgrade-breaks-cron-venv]] — Homebrew python 메이저 업그레이드가 cron/launchd venv 파이프라인을 조용히 깨뜨리는 패턴 — PATH prepend 로 venv 무력화 + venv 부재 전역 의존
 - [[launchd-plist-symlink-from-project]] — launchd plist 프로젝트 폴더 마스터 + ~/Library/LaunchAgents symlink 패턴 (Homebrew 스타일)
 - [[launchd-secret-management]] — macOS launchd 환경 시크릿 분리 패턴 — ~/.zshrc 는 안 읽힌다
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 파싱 실패 시 raw 응답 덤프 + 재시도 패턴
@@ -61,6 +62,7 @@
 
 ### bugs
 
+- [[gieok-session-log-url-credential-masking-false-positive]] — gieok session-log 의 credential 마스킹이 lore.kernel.org 스타일 URL 을 파괴하는 오탐 — ingest 트리아지 오판 위험
 - [[highlights-action-validator-schema-drift]] — publish validator 가 옛 스키마(action) 만 강제해 신 스키마(if/do/verify) 게시 전부 실패
 - [[ndjson-stdout-parser-greedy-regex]] — AI CLI 어댑터의 stdout 파서가 NDJSON·envelope·잡음 텍스트에 깨지는 함정
 - [[openclaw-coder-silent-3-layer]] — OpenClaw 코더 응답 무 — 3계층 디버깅 (plugins.allow / 좀비 task / OAuth 403)

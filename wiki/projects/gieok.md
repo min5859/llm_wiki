@@ -4,16 +4,18 @@ sensitivity: "public"
 title: gieok — 프로젝트 설계 상세
 tags: [project, gieok, claude-code, automation, launchagent]
 created: 2026-04-22
-updated: 2026-07-12
+updated: 2026-07-23
 sources:
   - "session-logs/20260422-002046-60a1-*.md"
   - "session-logs/20260702-235052-ea52-근데-내가-처음-질문했던거는-llm-wiki-를-잘-셋업하는-방법을-물어봤는데-이걸-어떻게.md"
   - "session-logs/20260712-000307-1627-llm_wiki-와-llm_wiki2-비교해줘.md"
+  - "session-logs/20260723-041432-7948-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
 confidence: "high"
 related:
   - "wiki/concepts/gieok.md"
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
   - "wiki/analyses/personal-llm-wiki-curation.md"
+  - "wiki/bugs/gieok-session-log-url-credential-masking-false-positive.md"
 ---
 
 ## 프로젝트 개요
@@ -136,12 +138,19 @@ vault 디렉터리명을 `llm_wiki2` → `llm_wiki` 로 개명. gieok LaunchAgen
 - **수정**: `com.kioku` → `com.gieok` 으로 템플릿 파일명 변경
 - **발생 시점**: 초기 설치 과정에서 발견, 즉시 수정
 
+### session-log credential 마스킹이 lore.kernel.org 스타일 URL 을 파괴 (관찰, 미수정)
+- **증상**: session-logger 의 credential 마스킹이 `https://lore.kernel.org/bpf/20260722...-leon.hwang@linux.dev/` 같이 경로에 `<msgid>@<domain>` 을 포함한 URL 을 `https://***:***@linux.dev/` 로 파괴 — host·경로 전체가 사라지고 이메일 도메인만 남음. 같은 로그 안에서도 일부 URL은 원형 생존하는 비결정적 동작.
+- **실질 피해**: 세션 로그에서 소스 URL 감사 불가 + wiki ingest 트리아지가 이를 「dossier 데이터 무결성 손상」으로 오판할 위험 (2026-07-23 사이클에서 실제 발생).
+- **상태**: 관찰만, 마스킹 코드 수정 미착수. 상세는 [[gieok-session-log-url-credential-masking-false-positive]].
+
 ## 관련 페이지
 - [[gieok]]
 - [[macos-launchagent-catchup-behavior]]
 - [[personal-llm-wiki-curation]]
+- [[gieok-session-log-url-credential-masking-false-positive]]
 
 ## 변경 이력
+- 2026-07-23: "알려진 버그 및 수정 이력"에 session-log credential 마스킹이 lore.kernel.org 스타일 URL 을 파괴하는 오탐 절 추가 — ingest 트리아지 오판 위험 포함, 상세는 [[gieok-session-log-url-credential-masking-false-positive]] (출처: session-logs/20260723-041432-7948-* 외 11건)
 - 2026-07-12: "Vault 재개명 (llm_wiki2 → llm_wiki)" 절 추가 — LaunchAgent 3개 + settings.json 훅 7곳 경로 일괄 갱신, kakao-summary 는 자동 일치. 교훈: vault 경로는 자동화 여러 곳에 하드코딩되어 개명 전 경로 참조 전수조사 필요 (출처: session-logs/20260712-000307-1627-*)
 - 2026-04-22: 최초 작성 (세션 로그 20260422-002046-60a1 에서 추출)
 - 2026-07-08: "토큰 비용 모델 — 'LLM 미호출' ≠ '토큰 0'" 절 추가. wiki 목차 주입이 `claude -p` 는 안 부르지만 매 세션·매 턴 입력에 index 전문이 실림 → 비용 = index 크기 × 세션 수. v1→v2 index 85% 감소(55KB→9KB) 실측, index 는 제목 한 줄만 유지·크기 상한 lint. 토큰 최적화 일반론은 [[claude-code-token-optimization]] (출처: session-logs/20260702-235052-ea52-*)

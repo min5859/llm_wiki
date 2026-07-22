@@ -4,8 +4,9 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-05-23T08:00:00+09:00"
+updated: "2026-07-23"
 sources:
+  - "session-logs/20260722-235919-b228-지금-프로젝트가-7월5일-이후로-동작을-안하고-있는-것-같은데-확인좀-해줘.md"
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
   - "session-logs/20260428-231551-12d1-현재-프로젝트를-실행시키려면-어떻게-해야-하나요.md"
@@ -236,6 +237,22 @@ fi
 
 모든 `python3` 참조를 `$PYTHON3`로 교체. `export PATH="$HOME/.local/bin:$PATH"` 선언 위치도 파일 상단으로 이동 (cron 환경에서 claude CLI PATH 확보 목적).
 
+### 2026-07-22: run.sh PATH prepend 로 venv 무력화 → 17일간 Step 1 silent 중단
+
+**증상**: 7/5 Homebrew python 3.14 업그레이드 이후 7/6~7/22 **17일간** 매일 Step 1 (`discover.py`) 이 `ModuleNotFoundError: No module named 'requests'` 로 실패, 산출물 0건. 원인·일반 패턴은 [[homebrew-python-upgrade-breaks-cron-venv]] 참조.
+
+**원인**: `run.sh` 가 `.venv` activate 뒤 PATH 앞에 `/opt/homebrew/bin` 을 다시 prepend해 venv 효과를 지움 → `python3` 가 Homebrew 3.14 (requests 미설치) 를 가리킴.
+
+**수정**: `run.sh` 의 `python3` 호출 4곳(discover/fetch/analyze/publish) 전부 `"$SCRIPT_DIR/.venv/bin/python"` 직접 호출로 교체. 커밋 `b7ca8dd`·`b267aaa`.
+
+**동반 수정**:
+- Step 4 게이트가 누적 분석 파일 전체를 카운트해 이번 실행이 실패해도 통과하던 결함 → `-newer` 마커 파일로 이번 실행분만 카운트하도록 수정
+- `log()`/`error()` 의 `tee -a` + launchd `StandardOutPath` 이중 기록으로 인한 cron.log 중복 출력 제거
+
+**companion**: 같은 호스트의 research-wiki 도 동일 원인(venv 부재로 전역 site-packages 암묵 의존) 으로 동시 중단 — `.venv` 신규 생성(python3.12) + `requirements.txt` 설치 + `python3` 5곳 명시 호출. 커밋 `2bf5be8`·`1e0910b`.
+
+**검증**: `launchctl kickstart` 로 실제 launchd 환경에서 양쪽 다 재실행 — research-wiki(04:00) 5단계 완주 exit 0, oss-radar(05:00) 4단계 완주 exit 0. (출처: session-logs/20260722-235919-b228-*)
+
 ## 변경 이력
 
 - 2026-04-28: 최초 생성 — Phase 1~6 전체 구현 완료 기록
@@ -253,3 +270,4 @@ fi
 - 2026-05-22 (companion: 08:00 research-wiki 전체 silent fail): alive 핑 1건 + 논문 분석 prompt 2건 (arXiv 2605.11609 "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information" / arXiv 2605.19833 "Mega-ASR: Towards In-the-wild² Speech Recognition") 3건 전부 `assistant_turns: 0` — 5/21 와 동일. (출처: session-logs/20260522-080023-e89d-*, 080031-e3ce-*, 080133-111f-*)
 - 2026-05-23 (09:00 cron): alive 핑 1건 + 5건 OSS 레포 분석 prompt (yt-dlp/yt-dlp, Kong/kong, patchy631/ai-engineering-hub, wshobson/agents, facefusion/facefusion). 6건 **전부 `assistant_turns: 0`** — 2일 연속 광범위 silent fail. **5/22 와 5/23 두 사이클 연속 100% 미응답은 5/17 이후 처음**이며 시스템 단 (claude CLI 모델 백엔드 / 네트워크 / OAuth) 원인 의심 신호. 산출물 0, 코드 변경 0. (출처: session-logs/20260523-090052-4183-*, 090100-b1b9-*, 090134-1ffc-*, 090204-b8a1-*, 090235-9ff4-*, 090307-512e-*)
 - 2026-05-23 (companion: 08:00 research-wiki 전체 silent fail): alive 핑 1건 + 논문 분석 prompt 2건 (arXiv 2605.22355 "TransitLM: Map-Free Transit Route Generation" / arXiv 2605.22109 "Perception or Prejudice — MLLMs Beyond First Impressions of Personality") 3건 전부 `assistant_turns: 0`. 3일 연속 research-wiki 전체 미응답 — prompt 길이가 가장 긴 잡이 단발 미응답에 가장 취약하다는 일관된 패턴. 산출물 0, 코드 변경 0. (출처: session-logs/20260523-080019-b4a0-*, 080025-b8b2-*, 080120-509d-*)
+- 2026-07-22: 7/5 Homebrew python 3.14 업그레이드로 7/6~7/22 **17일간** Step 1(discover.py) 실패·산출물 0 발견·수정 — `run.sh` 가 venv activate 뒤 PATH 에 `/opt/homebrew/bin` 을 재-prepend해 venv 무력화 (원인·일반 패턴은 [[homebrew-python-upgrade-breaks-cron-venv]]). `python3` 호출 4곳(discover/fetch/analyze/publish) → `"$SCRIPT_DIR/.venv/bin/python"` 직접 호출로 교체, Step 4 게이트가 누적 분석 파일 전체를 세어 실패해도 통과하던 결함을 `-newer` 마커로 수정, cron.log 중복 출력 제거. 커밋 `b7ca8dd`·`b267aaa`. companion: research-wiki 도 동일 원인(venv 부재)으로 동시 중단 — `.venv` 신규 생성 + `requirements.txt` 설치 + `python3` 5곳 명시 호출, 커밋 `2bf5be8`·`1e0910b`. `launchctl kickstart` 로 양쪽 다 exit 0 검증. (출처: session-logs/20260722-235919-b228-*)
