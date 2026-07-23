@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-24 (ingest)
+
+- **session-logs 유래** — 2026-07-24 dev-blog cron 로그 21건 처리 (03:00~04:33 사이클: Linux Daily R+W, Android Kernel R+W, Opensource Trending R+W, Opensource Curation R+W, AI Coding Agents R+W, Linux Kernel Lens R6+W5). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵(7/22와 동일 방침). AI Coding Agents dossier(033656) 내 뉴스 항목(skills 포맷 벤더 간 수렴, Gemma 4 벤치마크, undercover mode 논쟁)도 뉴스성·미검증 소스로 스킵.
+  - **신규 1건**: ai-agent `bugs/newsletter-research-anti-bot-blocking` — Linux Daily(030015)·Kernel Lens `lore-stable-new`(040043)·AI Coding Agents(033656) 3건에서 각각 Anubis 봇 챌린지·403+봇검사(UA 5종 스푸핑 전부 무효)·HTTP 402 차단 관측. `lore-stable-new` 렌즈는 dossier 자체가 끝내 산출되지 않아(assistant_turns:0) 해당 회차 newsletter 가 결손(Kernel Lens 6렌즈 중 dossier 6/newsletter 5) — 상위 파이프라인의 자동 재시도·결손 감지 없음. 2026-07-03(20260703-030007) Anubis 관측의 두 번째 등장으로 승격.
+  - **갱신 2건**: [[research-write-agent-separation]] (「Research 단계의 병렬 서브에이전트 클러스터링」 신규 절 — AI Coding Agents dossier(033656)에서 후보 12건을 4개 주제 클러스터로 나눠 병렬 `Task` 서브에이전트에 위임, "분리의 가치는 도구에 있다" 원리가 research 단계 내부에도 재귀 적용됨을 실측 + anti-bot 차단 단락을 신규 bugs 문서로 링크), [[dev-blog]] (운영 노트 — Kernel Lens dossier/newsletter 비대칭 + anti-bot 차단 이슈, 신규 bugs 문서 링크).
+  - **mcp-note 유래** — 해당 없음 (type: mcp-note 파일 0건).
+  - **raw-sources 유래** — `raw-sources/claude-code-opus-orchestration-setup.md` 는 기존 summary(`summaries/claude-code-opus-orchestration-setup`, 2026-07-12 작성)보다 원본 최종 변경(커밋 6a9858e, 2026-07-11)이 앞서 변경 없음 — 멱등 스킵.
+  - **PDF 유래(.cache/extracted/)** — 대상 파일 없음.
+
 ## 2026-07-23 (ingest)
 
 - **session-logs 유래** — 미처리 24건 처리 (인터랙티브 2건 + 테스트 1건 + dev-blog cron 뉴스레터/dossier 21건). raw-sources/·.cache/extracted/·fetched/·mcp-note 신규 대상 없음 (raw 1건 `claude-code-opus-orchestration-setup.md` 은 summary 기존재 + sidecar 부재로 source_sha256 미설정 유지, 멱등 스킵).
