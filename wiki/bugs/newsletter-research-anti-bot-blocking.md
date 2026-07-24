@@ -4,8 +4,11 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["dev-blog", "anubis", "cloudflare", "anti-bot", "research-dossier", "pipeline-failure", "newsletter"]
 created: "2026-07-24"
-updated: "2026-07-24"
+updated: "2026-07-25"
 sources:
+  - "session-logs/20260725-034709-524e-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260725-035718-34ba-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260725-042607-586c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260724-030015-a3a0-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md"
   - "session-logs/20260724-040043-5ae1-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260724-033656-7388-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md"
@@ -18,7 +21,7 @@ related:
 
 # 뉴스레터 research 파이프라인의 anti-bot 차단 — 1급 실패 모드로 설계되지 않은 소스 접근 장애
 
-dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소스의 anti-bot 방어에 막히는 사건이 2026-07-03·2026-07-24 두 차례 관측됐다. 개별 URL 차단은 confidence 강등·openQuestions 격리로 흡수되지만, **소스가 전면 차단된 렌즈는 dossier 자체가 산출되지 않아 해당 회차 newsletter 가 조용히 결손**된다. 파이프라인 레벨의 자동 재시도·폴백·결손 감지 장치는 없다.
+dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소스의 anti-bot 방어에 막히는 사건이 2026-07-03·2026-07-24·2026-07-25 세 차례 관측됐다 (연이틀 재현으로 산발 사건이 아니라 **상시 운영 조건**에 가깝다). 개별 URL 차단은 confidence 강등·openQuestions 격리로 흡수되지만, **소스가 전면 차단된 렌즈는 dossier 자체가 산출되지 않아 해당 회차 newsletter 가 조용히 결손**된다. 파이프라인 레벨의 자동 폴백·결손 감지 장치는 없다 — 단, 2026-07-25 에 차단으로 실패한 렌즈가 10분 뒤 재발사되어 성공한 사례가 관측돼 재시도에 대해서는 서술을 완화한다 (아래 07-25 절 참조).
 
 ## 증상
 
@@ -58,6 +61,15 @@ dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소�
 
 > 교훈: 웹 리서치형 에이전트 파이프라인은 소스 차단을 **1급 실패 모드**로 설계에 반영해야 한다. 렌즈별 결손 감지, 대체 소스(미러·2차 아카이브), 재시도 정책이 없으면 파이프라인은 "정상 완료"처럼 보이는 로그를 남긴 채 조용히 결손된다. UA 우회 같은 임기응변은 방어 강화 시 무효화될 수 있는 비신뢰 폴백이다.
 
+## 2026-07-25 후속 관측 — 우회 성공 2건 + 차단 렌즈 재발사 성공
+
+같은 cron 사이클(03:00~04:32)에서 세 번째 관측. 차단은 지속됐지만 이번에는 **통한 대응**이 두 가지 기록됐다:
+
+1. **mbox.gz raw 엔드포인트 우회 성공** (`042607`, dri-devel 렌즈) — `lore.kernel.org/dri-devel/` 이 `403 Forbidden` 을 반환했으나 mbox.gz 대체 엔드포인트로 우회 다운로드에 성공해 dossier 를 정상 산출. 7/24 에 UA 스푸핑 5종이 전멸했던 것과 달리, raw mbox 엔드포인트는 이날 열려 있었다 — [[research-write-agent-separation]] 폴백 사다리의 "raw 엔드포인트" 계층이 실효한 사례 (단 7/7 에는 raw mbox 까지 차단된 날도 있어 신뢰 가능한 상수는 아님).
+2. **차단 렌즈의 10분 후 재발사 성공** (`034709` → `035718`, linux-kernel-security 렌즈) — 03:47 dossier 가 Anubis 챌린지("Making sure you're not a bot!")에 막혀 실패한 뒤, 03:57 동일 렌즈 dossier 세션이 다시 발사되어 정상 산출. 7/24 의 "자동 재시도 없음" 관측과 배치되는 움직임 — 파이프라인에 재시도 장치가 추가된 것인지 스케줄상 재발사인지는 세션 로그만으로 미확정 (dev-blog 저장소 쪽 확인 필요).
+
+그 외: Linux Daily dossier(`030015`)는 kernel.org·lore.kernel.org Anubis 차단에 `cdn.kernel.org` 폴백을 시도했고, 다른 렌즈(`041951`)는 "lore 스레드 원문이 Anubis 봇 차단으로 독립 재확인 불가"를 openQuestions 로 격리 — 기존 대응 계층(2차 corroborate·openQuestions 격리)은 계속 작동.
+
 ## 관련 맥락
 
 - [[research-write-agent-separation]] — 봇 차단 폴백 사다리(raw 엔드포인트 → 미러 → commitMessage+WebSearch 교차검증 → confidence 강등+openQuestions 격리)의 누적 기록. 이번 사건은 그 사다리가 끝까지 실패했을 때(전면 차단) 무슨 일이 일어나는지를 보여준다.
@@ -66,3 +78,4 @@ dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소�
 ## 변경 이력
 
 - 2026-07-24: 최초 작성 (2026-07-03·07-24 dev-blog cron 로그에서 승격)
+- 2026-07-25: 3번째 관측 반영 — mbox.gz raw 엔드포인트 우회 성공, 차단 렌즈 10분 후 재발사 성공(재시도 장치 여부 미확정), cdn.kernel.org 폴백 시도. "자동 재시도 없음" 단정 완화

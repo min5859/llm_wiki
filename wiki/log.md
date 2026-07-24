@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-25 (ingest)
+
+- **session-logs 유래** — 2026-07-25 dev-blog cron 로그 20건 처리 (03:00~04:32 사이클: Research Dossier 11 + Newsletter Write 9). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 2건**: [[newsletter-research-anti-bot-blocking]] (3번째 관측 반영 — dri-devel 렌즈 403 을 mbox.gz raw 엔드포인트로 우회 성공, 차단된 linux-kernel-security 렌즈가 10분 뒤 재발사돼 성공[재시도 장치 여부 미확정], cdn.kernel.org 폴백 시도·openQuestions 격리 지속, "자동 재시도 없음" 단정 완화), [[dev-blog]] (7/25 운영 노트 — 7/22 lockdown 의 `cwd: tmpdir()` 격리가 write 세션 로그 cwd 로 실증 + 정상 write 5건은 도구 없는 1턴 순수 산출로 에이전트형 표류 재발 없음 + write 4건·Android dossier 1건 `assistant_turns: 0` 간헐 무응답 잔존)
+  - **스킵**: AI Coding write(033621) 입력 dossier 의 `***:***@` URL 마스킹 오탐은 [[gieok-session-log-url-credential-masking-false-positive]] 기수록 재발(신규 정보 없음), Trending·Curation dossier 의 병렬 서브에이전트 위임은 [[research-write-agent-separation]] 기수록 패턴 지속.
+  - **mcp-note 유래** — 해당 없음 (type: mcp-note 파일 0건).
+  - **raw-sources 유래** — `raw-sources/claude-code-opus-orchestration-setup.md` 는 원본 최종 변경(커밋 6a9858e, 2026-07-11)이 기존 summary(2026-07-12 작성)보다 앞서 변경 없음 — 멱등 스킵 (frontmatter·sidecar 모두 source_sha256 부재라 미설정 유지).
+  - **PDF 유래(.cache/extracted/)** — 대상 파일 없음. **fetched/ 유래** — 대상 없음.
+
 ## 2026-07-24 (ingest)
 
 - **session-logs 유래** — 2026-07-24 dev-blog cron 로그 21건 처리 (03:00~04:33 사이클: Linux Daily R+W, Android Kernel R+W, Opensource Trending R+W, Opensource Curation R+W, AI Coding Agents R+W, Linux Kernel Lens R6+W5). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵(7/22와 동일 방침). AI Coding Agents dossier(033656) 내 뉴스 항목(skills 포맷 벤더 간 수렴, Gemma 4 벤치마크, undercover mode 논쟁)도 뉴스성·미검증 소스로 스킵.
