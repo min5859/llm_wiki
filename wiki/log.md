@@ -1,5 +1,19 @@
 # 운영 로그
 
+## 2026-07-26 (ingest)
+
+- **session-logs 유래** — 27건 처리 (07-25 저녁 + 07-26 새벽 dev-blog 뉴스레터 cron: Opensource Curation Write 5 + Linux Kernel Lens Research/Newsletter 12 + Linux Daily/Android Kernel/Opensource Trending Research/Write 8 + AI Coding Agents Research/Write 2). 뉴스레터 기사 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일).
+  - **신규 1건**: ai-agent `bugs/dossier-evidence-kind-enum-reject` — dev-blog `opensource-curation` research 가 07-24·07-25 아침 cron 에서 반복 실패한 원인. research LLM 이 evidence 근거로 GitHub repo 를 들며 `evidence.kind: "repo"` 를 창발했으나 schema enum(`commit/thread/changelog/cve/article`) 밖이라 `validateEvidence()` 가 throw, evidence 1건 거부가 topic 전체 drop 으로 증폭 — 모니터링·알림 없이 이틀 연속 발생 후 발견. commit `823213a` 로 enum 에 `"repo"` 추가해 수정(3파일, 테스트 118/118). 도메인 핵심 파이프라인 버그라 첫 등장 즉시 기록.
+  - **갱신 4건**:
+    - [[llm-content-quality-guards]] — 「가드 5 의 오탐 클래스」절 추가. enum 수정 직후 write 재실행에서 CJK 가드가 중국어 repo `Lordog/dive-into-llms` 커밋 메시지 **원문 인용**을 혼입으로 오판해 4 attempt 전부 차단(결정론적 실패라 재시도 무효). 해소는 가드 완화가 아니라 dossier 재생성으로 해당 소스를 `droppedCandidates` 배제. 5/14 의 진짜 혼입(true positive)과 대비되는 첫 false positive 실측.
+    - [[newsletter-research-anti-bot-blocking]] — 「2026-07-26 — 4번째 관측」절 추가. lore.kernel.org 403/Anubis 차단이 07-26 새벽 cron 로그 7건에서 지속 관측됐으나, patchwork.kernel.org API·infradead.org 메일 아카이브·yhbt.net 미러·NNTP 직접 접근·git ls-remote/shallow clone 다채널 우회가 실측돼 Research 5회·Write 4회 전부 산출 성공.
+    - [[prompt-schema-pipeline-coupling]] — 「흔한 안티패턴」에 재발 변형 한 단락 추가. evidence.kind 케이스는 사람이 프롬프트/코드를 비동기로 고친 기존 사례들과 달리, LLM 이 스스로 enum 밖 값을 창발한 케이스 — prompt 값 목록과 validator enum 의 이중 정의가 결합 지점. 이 파일은 05-13 최초 작성 후 첫 갱신이라 「## 변경 이력」섹션 신설.
+    - [[dev-blog]] — 「알려진 함정 — evidence.kind enum 거부 + CJK 인용 오탐 연쇄 (2026-07-25)」신설. 아침 cron 결손 → 22:22 enum fix → 22:28~31 write 4 attempt CJK 차단 → 22:40 dossier 재생성 성공 → `f956b88` 수동 복구의 전체 타임라인 요약, 상세는 신규 bugs 문서·llm-content-quality-guards 로 위임. 07-26 daily 정상 복귀 + anti-bot 4번째 관측을 1~2문장으로 언급.
+  - **스킵**: 나머지 뉴스레터 콘텐츠(커널 패치·오픈소스 트렌드·AI 코딩 도구 뉴스) 전량 — 뉴스성, 파이프라인 메타 지식은 위 4건에 이미 흡수.
+  - **mcp-note 유래** — 해당 없음 (type: mcp-note 파일 0건).
+  - **raw-sources 유래** — `raw-sources/claude-code-opus-orchestration-setup.md` 는 변경 없음 (summary 기존재, 멱등 스킵).
+  - **PDF 유래(.cache/extracted/)** — 대상 파일 없음. **fetched/ 유래** — 대상 없음.
+
 ## 2026-07-25 (ingest)
 
 - **session-logs 유래** — 2026-07-25 dev-blog cron 로그 20건 처리 (03:00~04:32 사이클: Research Dossier 11 + Newsletter Write 9). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.

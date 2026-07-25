@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["pattern", "llm", "schema", "validator", "pipeline", "ci", "json"]
 created: 2026-05-13
-updated: 2026-05-13
+updated: 2026-07-26
 sources:
   - "session-logs/20260513-074737-a32f-오늘날짜-포스팅이-안-보입니다.-오늘-동작-했는지-확인해-주세요.md"
 confidence: medium
@@ -12,6 +12,7 @@ related:
   - "wiki/bugs/highlights-action-validator-schema-drift.md"
   - "wiki/projects/dev-blog.md"
   - "wiki/analyses/llm-content-quality-guards.md"
+  - "wiki/bugs/dossier-evidence-kind-enum-reject.md"
 ---
 
 # 프롬프트 ↔ Validator 결합 관리
@@ -56,6 +57,7 @@ LLM 출력 스키마를 바꾸는 PR 은 다음 모두를 동시에 갱신해야
 - **Validator 함수 복붙** — 5개 publisher 가 `validatePost` 의 highlight 검증 블록을 각자 갖고 있는 형태. 한 군데를 고치면 나머지 4개가 silently 옛 스키마에 묶여 있음. 해결: `scripts/lib/<thing>-validator.mjs` 같은 공용 모듈 추출.
 - **"옛 필드만 강제" vs "옛+신 OR 신만"** — 빌더는 양쪽 받고 (관대), validator 는 옛 것만 강제 (엄격) 같이 *동일 데이터에 대한 검증 기준이 단계마다 다른* 상태. 해결: 단계 간 검증 정책을 명시적으로 표준화 (예: "모든 단계에서 hasOld OR hasNew").
 - **Cron 사일런트 — 실패 가시성 부재** — `daily-deploy.sh` 가 토픽별 `if !` 격리로 한 토픽 실패가 다음을 막지 않는 패턴 (좋음) 인데, *모든* 토픽이 실패해도 git push 가 `nothing to push` 로 정상 종료해 cron 알림이 안 옴. 해결: "today's run produced 0 content commits" 를 명시적 에러 신호로.
+- **재발 변형 — 코드가 아니라 LLM 이 스스로 표류** ([[dossier-evidence-kind-enum-reject]], 2026-07-25): 위 사례들은 전부 사람이 프롬프트/코드를 고치다가 한쪽만 갱신해 결합이 깨진 경우지만, 이번 변형은 코드 변경이 없었다. LLM 이 evidence 근거를 "GitHub repo" 로 서술하며 스스로 `evidence.kind: "repo"` 라는 enum 밖 값을 창발했고, prompt 의 kind 값 목록과 validator enum 이 별도 파일에 이중 정의돼 있던 것이 결합 지점이었다. 사람의 실수 없이도 LLM 의 자유도가 곧 스키마 표류의 원천이 될 수 있음을 보여준다.
 
 ## 권장 작업 순서 (스키마 변경 시)
 
@@ -114,3 +116,9 @@ API 클라이언트의 "버전 헤더 + 양쪽 받기 → deprecation" 흐름과
 - [[highlights-action-validator-schema-drift]] — dev-blog 에서 이 패턴이 무너졌던 실제 사례
 - [[llm-content-quality-guards]] — 콘텐츠 측면의 일반 가드
 - [[ndjson-stdout-parser-greedy-regex]] — LLM 출력 *형태* 의 비결정성에서 발생한 다른 사례
+- [[dossier-evidence-kind-enum-reject]] — LLM 이 스스로 enum 밖 값을 창발한 재발 변형
+
+## 변경 이력
+
+- 2026-05-13: 최초 작성 (출처: session-logs/20260513-074737-a32f-*)
+- 2026-07-26: 「흔한 안티패턴」에 재발 변형 추가 — evidence.kind 케이스는 사람이 아니라 LLM 이 스스로 enum 밖 값을 창발한 사례 (출처: [[dossier-evidence-kind-enum-reject]])

@@ -4,18 +4,20 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["analysis", "llm", "newsletter", "content-quality", "hallucination", "prompt-engineering", "cjk-leak", "language-enforcement"]
 created: 2026-05-12
-updated: 2026-06-28
+updated: 2026-07-26
 source_session: "20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
 sources:
   - "session-logs/20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
   - "session-logs/20260514-080604-8120-자동-파이프라인-상태-2026-05-14-1개-토픽-실패---9개-성공.-linux-gpu.md"
   - "session-logs/20260628-030337-d36d-#-Linux-Daily-Newsletter-—-Write-from-Dossier-당신은.md"
   - "session-logs/20260628-032046-b0b8-#-Opensource-Trending-Newsletter-—-Write-from-Doss.md"
+  - "dev-blog logs/ai-rewrite-failures/2026-07-25T13-28-26/ (opensource-curation write attempt1/2 실패 덤프, KST 22:28~22:31)"
 confidence: medium
 related:
   - "wiki/projects/dev-blog.md"
   - "wiki/analyses/llm-news-prediction-pitfalls.md"
   - "wiki/analyses/research-write-agent-separation.md"
+  - "wiki/bugs/dossier-evidence-kind-enum-reject.md"
 ---
 
 # LLM 기반 자동 콘텐츠 발행의 5 가지 품질 가드
@@ -167,6 +169,31 @@ LLM 은 프롬프트 룰만으로는 100% 보장하지 못함 — 가드 5-1 의
 
 이 가드는 한국어에만 한정되지 않는다. 다국어 콘텐츠 시스템에서 "Lang A 만 출력해야 하는데 Lang B 가 섞이면 안 됨" 인 모든 경우에 동일. 영어 강제일 때 한자 혼입, 일본어 강제일 때 한글 혼입 등 — 유니코드 블록 단위 검출이 단순하고 안정적이다.
 
+## 가드 5 의 오탐 클래스 — 인용 vs 혼입 (2026-07-25)
+
+가드 5-1 (비-한글 CJK 차단) 이 5/14 에는 진짜 혼입을 잡은 true positive 였지만, 7/25 에는 외국어 소스 원문 인용을 차단한 **false positive** 사례가 실측됐다. dev-blog `opensource-curation` write 가 22:28~22:31 사이 2회 호출 × 각 2 attempt 전부 실패한 원인:
+
+```
+# error: [quality-guard] 1 critical issue(s):
+  - non-Korean CJK chars in sections[0].body: "큽니다.
+
+> 添加了大模型隐写"
+```
+
+중국어 LLM 튜토리얼 repo `Lordog/dive-into-llms` 의 커밋 메시지 **원문 인용(blockquote)** 이 한국어 강제 CJK 가드에 그대로 걸린 것 — 생성문 자체에 혼입된 게 아니라, 인용 대상 원문이 애초에 비한글 CJK 이었다.
+
+- **혼입(5-14)과 인용(7-25)의 구분 불가** — 가드는 유니코드 블록만 보므로 "LLM 이 실수로 섞은 것"과 "출처 원문을 그대로 인용한 것"을 구분하지 못한다.
+- **결정론적 차단이라 재시도 무효** — `[재시도]` 교정 프롬프트로도 회복 안 됨. 같은 dossier 를 다시 주면 같은 인용을 또 생성하는 결정론적 실패라, [[agentic-cli-text-generation-lockdown]] 이 다루는 확률적/행동적 실패와는 다른 클래스다.
+- **이번 해소는 소스 배제** — 가드를 완화하는 대신 dossier 를 재생성해 Lordog 항목을 `droppedCandidates` 로 이동(reason: "중국어 전용 자료 — 한국어 뉴스레터 부적합")하고 다른 후보(julep-ai/julep)로 대체했다. 가드는 그대로 두고 입력을 정리한 것.
+
+> 오탐이더라도 가드 완화가 먼저는 아니다. 5/14 의 교훈("가드 작동 = 코드 수정으로 오인 말 것")은 여기서도 유효하지만 방향이 반대다 — 이번엔 진짜 오탐이지만, 그렇다고 가드부터 느슨하게 풀면 다음 진짜 혼입(true positive)을 놓칠 위험이 커진다. 입력(소스 선택) 을 먼저 정리하는 게 안전한 순서다.
+
+설계 선택지 (미구현, 후보만 기록):
+- 인용 블록(blockquote·`quote` 필드 등 원문 인용임이 명시된 영역)은 CJK 검사에서 제외
+- 큐레이션 단계에서 비한국어 소스를 사전 필터링 — 애초에 write 단계까지 안 넘어오게
+
+→ 상세 사건: [[dossier-evidence-kind-enum-reject]] (같은 07-25 연쇄의 1단계, enum 거부)
+
 ## 5 가지 가드의 적용 위치
 
 | 가드 | 적용 위치 | 비용 |
@@ -203,3 +230,4 @@ LLM 은 프롬프트 룰만으로는 100% 보장하지 못함 — 가드 5-1 의
 - 2026-05-12: 최초 작성 (session-logs/20260511-230001-14d5-*.md). dev-blog 5/11 콘텐츠 품질 회고에서 도출된 4 가드 패턴을 일반화
 - 2026-06-28: 일반 원칙 #5(결함 패턴은 토픽별로 다름)에 **anti-prediction 가드의 토픽별 tailoring 실증** 1건 보강 — "미래 버전 번호 발명 금지" 가드가 Linux Daily·AI Coding Agents write 프롬프트엔 있고 Opensource Trending 엔 없음(버전 신호가 핵심인 토픽만 on). 관련: dossier 의 `verified`/`seenBefore` 스키마 성숙과 grounding≠정확성 함정은 [[research-write-agent-separation]] 에 수록 (출처: session-logs/20260628-030337-d36d-*, -032046-b0b8-* 외 dev-blog 03:00 사이클 22건)
 - 2026-05-14: 5번째 가드 (비-한글 CJK 혼입 차단) 추가. 5/14 dev-blog `linux-gpu-ai` 토픽 rewrite stdout 에 한자 "明文" 두 글자가 혼입돼 `auditPostQuality` 가 차단한 운영 사례에서 일반화. 유니코드 블록 단위 검출 + 차단 후 stdout 교정·publish 재실행 복구 흐름 + `markPublishOk` 같은 status 갱신 헬퍼와의 짝 패턴. "정독 회고로는 너무 후행" → 사전 가드의 비용 효과성 강조 (출처: session-logs/20260514-080604-8120-*.md)
+- 2026-07-26: "가드 5 의 오탐 클래스" 절 추가 — 7/25 `opensource-curation` write 4 attempt 전부가 CJK 가드에 차단, 원인은 혼입이 아니라 중국어 repo `Lordog/dive-into-llms` 커밋 메시지 원문 인용. 혼입(5-14, true positive)과 인용(7-25, false positive)의 구분 불가 + 결정론적 차단이라 재시도 무효 + 해소는 가드 완화가 아니라 소스(Lordog) 배제였음을 기록. [[dossier-evidence-kind-enum-reject]] 링크 (출처: dev-blog logs/ai-rewrite-failures/2026-07-25T13-28-26/, session-logs/20260725-22{2700,2829,2944,3114,4021}-*)

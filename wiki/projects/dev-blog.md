@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["project", "static-site", "newsletter", "claude-cli", "kernel", "lkml", "github-pages", "cron", "node20"]
 created: 2026-05-08
-updated: 2026-07-25
+updated: 2026-07-26
 sources:
   - "session-logs/20260725-034709-524e-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260725-042607-586c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
@@ -87,8 +87,13 @@ sources:
   - "session-logs/20260530-112824-bd1b-현재-프로젝트를-분석해-주세요.md"
   - "session-logs/20260606-151702-d243-지금-프로그램을-개선하고-싶은데-개선할만한-포인트를-찾아줘-관점은-블로그-내용의-질적인-향.md"
   - "session-logs/20260606-184227-1875-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md"
+  - "session-logs/20260725-224215-c0eb-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260725-222700-b9b2-#-Opensource-Curation-Newsletter-—-Write-from-Doss.md"
+  - "session-logs/20260725-223114-bf01-#-Opensource-Curation-Newsletter-—-Write-from-Doss.md"
+  - "session-logs/20260725-224021-7851-#-Opensource-Curation-Newsletter-—-Write-from-Doss.md"
+  - "session-logs/20260726-040855-2b13-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
 confidence: high
-updated: 2026-06-06
+updated: 2026-07-26
 related:
   - "wiki/bugs/utc-iso-date-kst-rollover.md"
   - "wiki/bugs/ndjson-stdout-parser-greedy-regex.md"
@@ -105,6 +110,7 @@ related:
   - "wiki/patterns/launchd-secret-management.md"
   - "wiki/projects/kernel-digest.md"
   - "wiki/bugs/newsletter-research-anti-bot-blocking.md"
+  - "wiki/bugs/dossier-evidence-kind-enum-reject.md"
 ---
 
 # dev-blog — AI 보조 한국어 엔지니어링 뉴스레터
@@ -357,6 +363,19 @@ Error: highlights[0].action required
 
 공통: attempt≥2 에 교정 지시("[재시도] … 도구 사용 없이 JSON 객체 하나만") 를 프롬프트에 덧붙임, 실패 덤프 헤더에 `# adapter:` / `# model:` 기록 (7월 사고 때 이 메타 부재로 원인 모델 소급 확정 실패). 회귀 테스트 117/117 (신규 2건 포함), 실지 실행 1회 attempt1 즉시 성공·실패 덤프 무증가. `--tools` 뒤 빈 문자열 인자가 `split(/\s+/).filter(Boolean)` 에 소실되는 함정 때문에 기본 인자를 배열 리터럴로 전환한 것이 구현 디테일. 일반 패턴은 [[agentic-cli-text-generation-lockdown]] 로 분리, [[llm-json-parse-retry-with-dump]] 에 「확률적 vs 행동적 실패」 절 보강.
 
+## 알려진 함정 — evidence.kind enum 거부 + CJK 인용 오탐 연쇄 (2026-07-25)
+
+07-24·07-25 아침 cron 에서 `opensource-curation` research 가 반복 실패해 07-25 게시가 결손된 2단 연쇄 장애.
+
+1. **enum 거부** — research LLM 이 evidence 근거로 GitHub repo 를 들며 `evidence.kind: "repo"` 를 생성했으나 스키마 enum 에 없어 `validateEvidence()` 가 throw, evidence 1건 거부가 topic 전체 drop 으로 증폭. 22:22 commit `823213a` 로 enum 에 `"repo"` 추가해 수정 (3파일, 테스트 118/118).
+2. **CJK 인용 오탐** — 같은 날 22:28~22:31, enum 수정 후 재실행한 write 가 2회 호출 × 각 2 attempt 전부 실패. 원인은 혼입이 아니라 중국어 repo `Lordog/dive-into-llms` 커밋 메시지 **원문 인용**이 한국어 강제 CJK 가드(5/14 신설)에 걸린 것 — 결정론적 차단이라 `[재시도]` 교정으로도 회복 안 됨. 22:40 dossier 재생성으로 Lordog 를 `droppedCandidates` 이동(대체: julep-ai/julep) 후 write 성공.
+3. commit `f956b88` 로 07-25 분 수동 복구, 07-26 daily 는 정상 복귀.
+
+같은 07-26 새벽 cron 에서는 lore.kernel.org 403/Anubis 차단이 4번째로 관측됐지만, patchwork API·infradead.org·yhbt.net 미러·NNTP·git ls-remote 등 우회 채널이 다변화돼 이날은 Research 5회·Write 4회 전부 산출 성공했다.
+
+상세는 [[dossier-evidence-kind-enum-reject]] (1단계), [[llm-content-quality-guards]] 「가드 5 의 오탐 클래스」 (2단계), [[newsletter-research-anti-bot-blocking]] 「4번째 관측」 (07-26 사건) 로 분리.
+
+## 변경 이력
 
 - 2026-05-10: Multi-topic 전제가 실제로 정상 가동 중임을 확인 — Linux 외에 Android Kernel Daily Briefing 과 Open Source Trending Daily Briefing 의 2개 토픽이 매일 07:00 KST cron 으로 추가 발행 중. 토픽별 시스템 프롬프트는 각각 다른 큐레이션 정책을 정의: Linux 는 LKML maintainer/`fromMaintainer`/`maintainerComments` 메타로 머지 신호 추출 + ACK prefix 풀어쓰기, Android 는 `ANDROID:`/`FROMGIT:`/`FROMLIST:`/`BACKPORT:`/`UPSTREAM:` prefix 를 한국어로 풀고 GKI/ABI 영향에 가중, OSS Trending 은 HN frontpage hit 을 1순위 신호로 두고 별 100k+ long-tail giants 는 별도 카테고리로 격리. 공통 휴리스틱: 3-tier priority 분포 강제 (상 1~2 / 중 2 / 하 0~1), `implications`/`nextActions` 같은 LLM 의 자동 보충 섹션 금지, 데이터 부족 시 솔직한 fallback 표현. (출처: session-logs/20260510-070019-a130-* Linux, 20260510-070200-f6f1-* Android, 20260510-070412-fd9a-* OSS Trending)
 - 2026-05-12: 5/11 일일 파이프라인 사고와 콘텐츠 품질 회고 — (1) cursor 어댑터 NDJSON 파싱 깨짐 + `daily-deploy.sh` `set -eu` 연쇄 중단으로 12개 토픽 누락 사고 발생, 파서 4 경로 폴백 + 토픽 `if !` 격리로 수정 (commit 2cc5ff5). (2) 12개 게시본 정독에서 발견된 4 결함 (토픽 중복 / action 일반성 / opensource hallucination / 저신호일 부풀리기) 을 파이프라인 가드로 보강 (commit 2a4b2ec, 11 files +208/-8). README excerpt fetcher 신규 도입으로 OSS 토픽 hallucination 그라운딩, `signalLevel` 메타 노출. 일반 패턴은 [[ndjson-stdout-parser-greedy-regex]] / [[shell-set-eu-topic-isolation]] / [[llm-content-quality-guards]] 로 분리 (출처: session-logs/20260511-230001-14d5-*)
@@ -397,3 +416,4 @@ Error: highlights[0].action required
 - 2026-07-22 (rewrite 에이전트형 표류 — 근본 원인 확정 + 수정, commits e28df77·7a8a83f): 사용자 제보 "실패 토픽 증가" 로 시작한 조사가 6/10 이래의 write 실패 서사를 종결. `logs/ai-rewrite-failures/` 128건 전수 분석 — JSON 파싱 실패 89건의 raw 응답이 100% 자연어 보고 (7/5 관측한 "에이전트형 표류" 의 확정 증거), 7/8~7/17 급증 (평시 2.6배) 구간에 저장소 변경 없음 → CLI 자동 업데이트/`sonnet` 별칭 표류가 유력 (덤프에 모델 메타 부재로 소급 확정 불가). 수정: claude rewrite 경로에 `--tools ""` + `cwd: tmpdir()` 격리 + `claude-sonnet-5` 고정 + `DISABLE_AUTOUPDATER=1`, codex `--sandbox read-only`, 교정 재시도 (attempt≥2), 덤프 헤더 adapter/model 기록, SCHEDULING.md 기본 어댑터 표기 정정 (Cursor→claude). 테스트 117/117 + 실지 실행 attempt1 성공·덤프 무증가. 일반 패턴 [[agentic-cli-text-generation-lockdown]] 신설 (승격: 7/5 관측 1회차 + 7/22 확정 2회차), [[llm-json-parse-retry-with-dump]] 에 「확률적 vs 행동적 실패」 절 보강 (출처: dev-blog commits e28df77·7a8a83f, 2026-07-22 세션)
 - 2026-07-24 (anti-bot 차단으로 Kernel Lens 6렌즈 중 1개 결손): 03:00~04:33 cron 사이클에서 Kernel Lens 렌즈(`lore-stable-new`)의 research dossier 가 `lore.kernel.org/stable/*` 의 anti-bot 차단(403 + 봇 검사 페이지, `curl`/`Mozilla`/`git`/`Wget`/`Googlebot` UA 전부 무효)으로 끝내 산출되지 못해 해당 렌즈의 newsletter 가 생성되지 않음 — 그날 dossier 6회 / newsletter 5회로 비대칭. 같은 사이클의 Linux Daily·AI Coding Agents dossier 도 각각 Anubis·HTTP 402 차단을 WebSearch 2차 corroborate 로 흡수. 파이프라인 레벨의 결손 감지·재시도는 없음 — 일반화는 [[newsletter-research-anti-bot-blocking]]. AI Coding Agents dossier 는 후보 12건을 4개 주제 클러스터로 나눠 병렬 서브에이전트에 위임하는 패턴도 관측(일반 패턴은 [[research-write-agent-separation]]에 추가). 나머지 뉴스레터 콘텐츠는 뉴스성 스킵 (출처: session-logs/20260724-030015-a3a0-*, -040043-5ae1-*, -033656-7388-* 외 20260724 cron 21건)
 - 2026-07-25 (03:00~04:32 cron 사이클 20건 — 차단 렌즈 재발사 성공 + mbox.gz 우회 + 7/22 lockdown 가동 확인): Research Dossier 11건 + Newsletter Write 9건 발사 (Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents + Kernel Lens 렌즈들). **운영 관찰**: (1) **차단 렌즈의 10분 후 재발사 성공** — linux-kernel-security 렌즈 dossier(034709)가 lore.kernel.org Anubis 챌린지("Making sure you're not a bot!")로 실패한 뒤 03:57 동일 렌즈 dossier(035718)가 재발사돼 정상 산출. 7/24 의 "자동 재시도·결손 감지 없음" 관측과 배치 — 재시도 장치가 추가된 것인지 스케줄상 재발사인지 세션 로그만으로 미확정(dev-blog 저장소 확인 필요). (2) **mbox.gz raw 엔드포인트 우회 성공** — dri-devel 렌즈 dossier(042607)가 `lore.kernel.org/dri-devel/` 403 후 mbox.gz 대체 엔드포인트로 다운로드 성공(7/24 UA 스푸핑 5종 전멸과 대비). Linux Daily(030015)는 kernel.org·lore 차단에 cdn.kernel.org 폴백 시도, 다른 렌즈(041951)는 openQuestions 격리로 흡수 — 상세는 [[newsletter-research-anti-bot-blocking]] 07-25 절. (3) **7/22 lockdown(e28df77) 가동 확인** — write 세션의 cwd 가 tmpdir(`/private/var/folders/…/T`)로 기록돼 `cwd: tmpdir()` 격리가 실제 운영에 반영됨. 정상 write(034442·040641·041652·042428·043220)는 도구 사용 없는 1턴 순수 산출로 에이전트형 표류 재발 없음. (4) 단 write 4건(Linux Daily 030358·Android 030909·Trending 031823·AI Coding 033621)과 Android dossier(030519) 1건이 `assistant_turns: 0` 무응답 — lockdown 이후에도 간헐 무응답(6/10 이래 서사의 잔존)은 남아 있음. AI Coding write 입력 dossier 의 `***:***@` 마스킹 오탐은 [[gieok-session-log-url-credential-masking-false-positive]] 기수록 재발. Trending(031211)·Curation(032657) dossier 는 4~5개 병렬 서브에이전트 위임 지속(7/24 패턴), AI Coding dossier(033039)는 백그라운드 서브에이전트 기동 후 완료가 로그에 미기록. 뉴스 콘텐츠는 기존 결정대로 durable 전량 스킵. **코드 변경 없음** (출처: session-logs/20260725-03*, 20260725-04* 사이클 20건)
+- 2026-07-25/26 (evidence.kind enum 거부 + CJK 인용 오탐 2단 연쇄 + 07-26 anti-bot 4번째 관측): 07-24·07-25 아침 cron `opensource-curation` research 반복 실패 → 22:22 commit `823213a` 로 evidence.kind enum 에 `"repo"` 추가해 수정, 그러나 22:28~22:31 write 4 attempt 가 이번엔 중국어 소스(`Lordog/dive-into-llms`) 커밋 메시지 원문 인용이 CJK 가드에 걸려 전부 실패 — 22:40 dossier 재생성으로 해당 소스를 배제(julep-ai/julep 로 대체)해 write 성공, commit `f956b88` 로 07-25 분 수동 복구. 07-26 daily 는 정상 복귀했고, 같은 07-26 새벽 cron 에서 lore.kernel.org 차단이 4번째로 관측됐으나 patchwork API·infradead.org·yhbt.net·NNTP·git ls-remote 다채널 우회로 Research 5회·Write 4회 전부 산출 성공. 상세는 [[dossier-evidence-kind-enum-reject]]·[[llm-content-quality-guards]]·[[newsletter-research-anti-bot-blocking]] 로 분리 (출처: session-logs/20260725-222700-b9b2-*, -223114-bf01-*, -224021-7851-*, -224215-c0eb-*, 20260726-040855-2b13-* 외 07-25 저녁·07-26 새벽 cron)
