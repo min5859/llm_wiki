@@ -4,8 +4,9 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["dev-blog", "anubis", "cloudflare", "anti-bot", "research-dossier", "pipeline-failure", "newsletter"]
 created: "2026-07-24"
-updated: "2026-07-26"
+updated: "2026-07-27"
 sources:
+  - "session-logs/20260727-041837-175a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260725-034709-524e-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260725-035718-34ba-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260725-042607-586c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
@@ -65,6 +66,8 @@ dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소�
 
 > 교훈: 웹 리서치형 에이전트 파이프라인은 소스 차단을 **1급 실패 모드**로 설계에 반영해야 한다. 렌즈별 결손 감지, 대체 소스(미러·2차 아카이브), 재시도 정책이 없으면 파이프라인은 "정상 완료"처럼 보이는 로그를 남긴 채 조용히 결손된다. UA 우회 같은 임기응변은 방어 강화 시 무효화될 수 있는 비신뢰 폴백이다.
 
+> 2026-07-27 정밀화 — 무효는 브라우저형 UA 에 한함, `git/2.43` 은 통과 (아래 5번째 관측 참조).
+
 ## 2026-07-25 후속 관측 — 우회 성공 2건 + 차단 렌즈 재발사 성공
 
 같은 cron 사이클(03:00~04:32)에서 세 번째 관측. 차단은 지속됐지만 이번에는 **통한 대응**이 두 가지 기록됐다:
@@ -86,6 +89,45 @@ dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소�
 
 결과: Research 5회·Write 4회 전부 dossier/뉴스레터 산출 성공 — 다채널 폴백이 이날은 전면 결손을 막았다. lore.kernel.org 단일 소스에 의존하지 않고 미러·API·메일아카이브·NNTP 를 다중 경로로 병행하는 것이 anti-bot 차단 상시화 국면에서 실효 있는 완화책임을 실측으로 뒷받침한다.
 
+## 2026-07-27 — 5번째 관측: 차단은 2층 구조, git 클라이언트 UA 는 양층을 모두 통과
+
+linux-perf-rt 렌즈 dossier 세션(04:19, 출처 `session-logs/20260727-041837-175a-*`)에서 `lore.kernel.org` `/bpf/<msgid>/raw` 접근을 User-Agent 3종으로 실측:
+
+```
+$ curl -sS -m 25 -A "curl/8.7.1" -o /tmp/lore1.txt -w "HTTP:%{http_code} SIZE:%{size_download}\n" \
+    "https://lore.kernel.org/bpf/20260726070122.2407344-1-zirajs7@gmail.com/raw"
+HTTP:403 SIZE:146
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx</center>
+</body>
+</html>
+```
+
+```
+== UA: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36
+HTTP:200 SIZE:4473
+<!doctype html><html lang="en"><head><title>Making sure you&#39;re not a bot!</title><link rel="stylesheet" href="/.within.website/x/xess/xess.min.css?cachebuster=1.25.0">...
+== UA: git/2.43
+HTTP:200 SIZE:7058
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No ...
+```
+
+- `curl/8.7.1`(기본 UA) → `HTTP 403`, 146바이트 순수 nginx 에러 페이지. Anubis 챌린지가 아니라 **nginx 레벨 UA 필터**.
+- 브라우저 UA(`Mozilla/5.0 … Chrome/126`) → `HTTP 200` 이지만 본문은 Anubis 챌린지 HTML("Making sure you're not a bot!", cachebuster=1.25.0, 4473바이트).
+- `git/2.43` UA → `HTTP 200` + **정상 raw mbox 수신**(`From mboxrd@z …`, 7058바이트).
+
+함의:
+
+1. 차단이 **2층 구조**임이 확인됨 — nginx 레벨에서 curl 류 UA 를 bare 403 으로 거부하고, 그 아래(통과 시)에는 Anubis 가 브라우저형 UA 에 챌린지를 제시.
+2. 07-24 관측의 "UA 5종 스푸핑 전부 무효"는 **브라우저형 UA 에 한한 이야기**였다 — 비브라우저 도구 UA(`git/2.43`)는 양층을 모두 통과하는 유효한 우회 채널로 실측됨(Anubis 가 기본적으로 "Mozilla" 포함 UA 만 챌린지 대상으로 삼는 동작과 부합하는 것으로 **추정** — 원인 확정은 아님).
+3. 우회 채널 목록에 **"git UA 로 lore raw(mbox) 직접 수신"** 추가.
+
 ## 관련 맥락
 
 - [[research-write-agent-separation]] — 봇 차단 폴백 사다리(raw 엔드포인트 → 미러 → commitMessage+WebSearch 교차검증 → confidence 강등+openQuestions 격리)의 누적 기록. 이번 사건은 그 사다리가 끝까지 실패했을 때(전면 차단) 무슨 일이 일어나는지를 보여준다.
@@ -96,3 +138,4 @@ dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소�
 - 2026-07-24: 최초 작성 (2026-07-03·07-24 dev-blog cron 로그에서 승격)
 - 2026-07-25: 3번째 관측 반영 — mbox.gz raw 엔드포인트 우회 성공, 차단 렌즈 10분 후 재발사 성공(재시도 장치 여부 미확정), cdn.kernel.org 폴백 시도. "자동 재시도 없음" 단정 완화
 - 2026-07-26: 4번째 관측 추가 — lore.kernel.org 403/Anubis 차단 지속(새벽 cron 로그 7건). 실측 성공 우회 채널 확장 기록: patchwork.kernel.org API·infradead.org 메일 아카이브·yhbt.net 미러·NNTP 직접 접근·git ls-remote/shallow clone 병행. Research 5회·Write 4회 전부 산출 성공 — 다채널 폴백의 실효 실증 (출처: session-logs/20260726-040855-2b13-*, -042144-44bc-*, -042949-7f1b-*, -030018-b165-*)
+- 2026-07-27: 5번째 관측 — 2층 차단 구조 확인(nginx 레벨 UA 필터 bare 403 → 통과 시 Anubis 챌린지) + `git/2.43` UA 가 양층을 모두 통과해 raw mbox 정상 수신을 실측. "UA 스푸핑 무효" 단정을 브라우저형 UA 로 한정, 우회 채널에 "git UA 로 lore raw 직접 수신" 추가 (출처: session-logs/20260727-041837-175a-*)

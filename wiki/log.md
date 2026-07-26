@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-27 (ingest)
+
+- **session-logs 유래** — 21건 처리 (07-27 새벽 dev-blog cron 03:00~04:49: Research Dossier 11 + Newsletter Write 9 + Linux Kernel Weekly Digest 1). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 2건**: [[newsletter-research-anti-bot-blocking]] (「2026-07-27 — 5번째 관측」절 — lore.kernel.org 차단의 2층 구조 실측: curl 기본 UA→nginx bare 403, 브라우저 UA→200+Anubis 챌린지, git/2.43 UA→양층 통과 raw mbox 정상 수신. "UA 스푸핑 무효" 단정을 브라우저형 UA 로 한정, 우회 채널에 git UA 추가. 출처 175a), [[dev-blog]] (07-27 운영 노트 — Weekly Digest 입력 dailies 가 7일 계약 대비 3건[07-19·07-23·07-25]으로 주중 결손의 주간 전파 실측 + weekly wrapper 의 externalSignals[lwn·phoronix RSS]·mainlineMerges 주입이 07-13 부터 존재 확인. 출처 1335)
+  - **기각·스킵 판정**: ① 트리아지가 제기한 "write 전건 assistant_turns: 0 무응답" — 이미 인제스트된 07-26 로그도 동일 메타데이터(exit_reason: unknown, turns 0)로 headless 로거 특성이며 07-23("로거 기본값, 이상 신호 아님")·07-25(간헐 0턴 관측) 판정에 흡수, 신규 정보 없음. ② Weekly Digest 출력의 externalSignals "창발 필드" 의혹 — 원문 검증 결과 해당 파일은 user_prompt 1건뿐(출력 자체가 없음)이고 externalSignals 는 입력 wrapper 필드로 판명, 기각. ③ Android Newsletter seenBefore 9/16 등 반복 항목 과다 — 주말 뉴스 사이클 특성, 스킵. ④ dri-devel 메일링리스트의 sashiko-bot 자동 리뷰 지적 11건 — 커널 커뮤니티 콘텐츠(도메인 밖), 스킵. ⑤ dd23 의 CloudFlare 차단→yhbt.net 미러 폴백·mbox 파싱 — 07-26 4번째 관측에 기수록, 지속 확인만.
+  - **mcp-note 유래** — 해당 없음 (type: mcp-note 파일 0건).
+  - **raw-sources 유래** — `raw-sources/claude-code-opus-orchestration-setup.md` 는 원본 최종 변경(07-11)이 기존 summary(07-12 작성)보다 앞서 변경 없음 — 멱등 스킵 (frontmatter·sidecar 모두 source_sha256 부재라 미설정 유지).
+  - **PDF 유래(.cache/extracted/)** — 대상 파일 없음 (디렉터리 비어 있음). **fetched/ 유래** — 대상 없음.
+
 ## 2026-07-26 (ingest)
 
 - **session-logs 유래** — 27건 처리 (07-25 저녁 + 07-26 새벽 dev-blog 뉴스레터 cron: Opensource Curation Write 5 + Linux Kernel Lens Research/Newsletter 12 + Linux Daily/Android Kernel/Opensource Trending Research/Write 8 + AI Coding Agents Research/Write 2). 뉴스레터 기사 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일).
