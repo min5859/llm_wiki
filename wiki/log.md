@@ -1,5 +1,19 @@
 # 운영 로그
 
+## 2026-07-28 (ingest)
+
+- **session-logs 유래** — 26건 처리 (07-27 저녁 21:31~21:46 4건 + 07-28 새벽 03:00~05:01 22건: Research Dossier 13 + Newsletter Write 13, 전부 dev-blog cron). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 2건**: [[newsletter-research-anti-bot-blocking]] (「2026-07-28 — 6번째 관측」절 — lore.kernel.org Anubis 차단 지속(094c, "Access Denied" error 9e4edb5b6b850c41) + UA 5종 스윕 실측(14e9): `git/2.45.0`·`Wget/1.21`·`public-inbox-mirror` 통과(200), `python-requests`·curl 기본 UA 403. `Wget/1.21` 이 07-24엔 403·07-28엔 200 으로 판정이 시점에 따라 바뀜을 확인해 "브라우저형 UA 만 차단" 정밀화를 "알려진 스크레이퍼 UA 블록리스트 + 시점별 변동"으로 재정밀화 + 발신 1일 이내 lore 메시지는 patchwork 등 미러 폴백이 전부 미인덱스라는 신선도 한계 신규 기록), [[dev-blog]] (07-27 저녁~07-28 새벽 운영 노트 — linux-distro-stable·linux-toolchain 의 research/write 쌍이 새벽 cron(03~05시) 밖인 21:31~21:46 에 실행된 사례 최초 실측(원인 미상, [[macos-launchagent-catchup-behavior]] 가능성만 언급) + bbb5 dossier 의 claim↔quote 정합성 갭이 `verified: true` 상태로 부착된, 기존 06-28 기록보다 한 단계 악화된 사례 + credential 마스킹 span 파괴 지속(bbb5·36fe)). 각 출처 세션 단축 id: 094c·14e9·bbb5·36fe.
+  - **기각·스킵 판정**:
+    ① write 세션 assistant_turns: 0 — 07-23·07-25·07-27 판정(headless 로거 특성) 흡수, 신규 정보 없음
+    ② 트리아지가 제기한 "dev-blog-collector/0.1 UA 로 lore 통과" — 원문 검증 결과 트렌딩 수집 스크립트(`collect-opensource.mjs`)의 UA 상수(`dev-blog-collector/0.1 (+opensource trending)`)를 lore 전용 변형(`(+lore body fetcher)` 등)과 혼동한 오독, 기각
+    ③ 트리아지가 제기한 "bbb5 verifiedDowngradeCount: 4" — 원문 실측 0, 기각
+    ④ 커널·OSS 커뮤니티 콘텐츠(vmwgfx TTM 에러 처리 지적, drm_panel.c.orig 유입, kconfirm, Assisted-by: Claude 표기 논의 등) — 도메인 밖 스킵
+    ⑤ AI Coding Agents 뉴스(스테가노그래피 마킹·npm sourcemap 소스 유출·skills 형식 수렴·로컬 구동 가이드) — seenBeforeCount 9 재순환으로 기존 [[claude-code-source-leak-internals]] 등에 기수록, 스킵
+  - **mcp-note 유래** — 해당 없음 (type: mcp-note 파일 0건).
+  - **raw-sources 유래** — `raw-sources/claude-code-opus-orchestration-setup.md` 는 원본 최종 변경(07-11 commit 6a9858e)이 기존 summary(07-12 작성)보다 앞서 변경 없음 — 멱등 스킵 (07-27 판정 동일, frontmatter·sidecar 모두 source_sha256 부재라 미설정 유지).
+  - **PDF 유래(.cache/extracted/)** — 대상 파일 없음. **fetched/ 유래** — 대상 없음.
+
 ## 2026-07-27 (ingest)
 
 - **session-logs 유래** — 21건 처리 (07-27 새벽 dev-blog cron 03:00~04:49: Research Dossier 11 + Newsletter Write 9 + Linux Kernel Weekly Digest 1). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.

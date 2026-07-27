@@ -4,8 +4,10 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["dev-blog", "anubis", "cloudflare", "anti-bot", "research-dossier", "pipeline-failure", "newsletter"]
 created: "2026-07-24"
-updated: "2026-07-27"
+updated: "2026-07-28"
 sources:
+  - "session-logs/20260728-040459-14e9-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260727-213100-094c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260727-041837-175a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260725-034709-524e-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260725-035718-34ba-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
@@ -67,6 +69,7 @@ dev-blog 뉴스레터 파이프라인의 research(dossier) 단계가 외부 소�
 > 교훈: 웹 리서치형 에이전트 파이프라인은 소스 차단을 **1급 실패 모드**로 설계에 반영해야 한다. 렌즈별 결손 감지, 대체 소스(미러·2차 아카이브), 재시도 정책이 없으면 파이프라인은 "정상 완료"처럼 보이는 로그를 남긴 채 조용히 결손된다. UA 우회 같은 임기응변은 방어 강화 시 무효화될 수 있는 비신뢰 폴백이다.
 
 > 2026-07-27 정밀화 — 무효는 브라우저형 UA 에 한함, `git/2.43` 은 통과 (아래 5번째 관측 참조).
+> 2026-07-28 재정밀화 — 차단은 브라우저형/도구형의 고정 이분법이 아니라 UA 문자열별 블록리스트에 가깝고 시점에 따라 변동한다(`Wget/1.21` 이 07-24엔 403, 07-28엔 200). 아래 6번째 관측 참조.
 
 ## 2026-07-25 후속 관측 — 우회 성공 2건 + 차단 렌즈 재발사 성공
 
@@ -128,6 +131,35 @@ Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.18
 2. 07-24 관측의 "UA 5종 스푸핑 전부 무효"는 **브라우저형 UA 에 한한 이야기**였다 — 비브라우저 도구 UA(`git/2.43`)는 양층을 모두 통과하는 유효한 우회 채널로 실측됨(Anubis 가 기본적으로 "Mozilla" 포함 UA 만 챌린지 대상으로 삼는 동작과 부합하는 것으로 **추정** — 원인 확정은 아님).
 3. 우회 채널 목록에 **"git UA 로 lore raw(mbox) 직접 수신"** 추가.
 
+## 2026-07-28 — 6번째 관측: 차단 지속 + UA 스윕 정밀화 + 폴백 채널의 신선도 한계
+
+07-27 저녁 Kernel Lens dossier 세션(21:31, 출처 `session-logs/20260727-213100-094c-*`)에서 WebFetch 는 여전히 `lore.kernel.org` 전 경로에서 Anubis 로 막혔다:
+
+```
+I could not directly read any of the three lore.kernel.org pages: the entire host is behind
+Anubis anti-bot protection, which returns "Access Denied" (error 9e4edb5b6b850c41) to WebFetch
+on every URL variant tried (canonical `/` and raw `/raw`).
+```
+
+같은 세션에서 lore 후보를 검증하던 병렬 서브에이전트 두 그룹의 결과가 갈렸다: patchwork.kernel.org 로 메시지 ID·Fixes 태그까지 교차확인된 그룹은 `confidence: high`, 반면 발신 1일 이내(07-26자) 메시지라 patchwork·lkml.iu.edu·marc·spinics 그 어디에도 아직 색인되지 않은 그룹은 `medium/low` + `openQuestions` 로 강등됐다. 즉 [[research-write-agent-separation]] 이 기록한 폴백 사다리(raw 엔드포인트 → 미러 → commitMessage+WebSearch 교차검증)는 **lore 메시지가 색인될 시간(수일)이 지나야 유효해지는 신선도 한계**를 갖는다 — 발신 직후 시간창에서는 미러 폴백 자체가 무력하고, git/Wget 등 도구형 UA 로 lore 를 직접 수신하는 경로만이 실측 가능하다.
+
+07-28 새벽 dossier 세션(04:07, 출처 `session-logs/20260728-040459-14e9-*`)이 `lore.kernel.org/linux-kbuild/.../raw`(90,051바이트 mbox) 대상으로 UA 5종을 스윕했다:
+
+```
+UA[git/2.45.0]          -> HTTP 200 size=90051  From mboxrd@z Thu Jan  1 00:00:00 1970...
+UA[Wget/1.21]           -> HTTP 200 size=90051  (git 과 동일 본문)
+UA[public-inbox-mirror] -> HTTP 200 size=90051  (git 과 동일 본문)
+UA[python-requests/2.31]-> HTTP 403 size=146   <html><head><title>403 Forbidden</title>...
+UA[] (curl 기본)        -> HTTP 403 size=146   <html><head><title>403 Forbidden</title>...
+```
+
+함의:
+
+1. `git` UA 채널은 07-27 관측(`git/2.43`)에 이어 `git/2.45.0` 에서도 유효 — 버전 무관하게 통과.
+2. **`Wget/1.21` 이 07-24 관측에서는 403 이었으나 이번엔 200 으로 통과** — 같은 UA 문자열의 판정이 시점(또는 대상 경로)에 따라 바뀐다. 07-27 의 "무효는 브라우저형 UA 에 한함" 정밀화를 한 단계 더 정밀화해야 한다: nginx 레벨 필터는 브라우저형/도구형의 고정 이분법이 아니라 **알려진 스크레이퍼 UA(curl 기본·python-requests)를 겨냥한 블록리스트에 가깝고, 통과 여부가 UA 문자열별·시점별로 변동**한다. 도구형이라도 `python-requests` 는 여전히 차단되므로 "도구형 UA 는 통과"라는 단순화도 정확하지 않다.
+3. `public-inbox-mirror` 라는 자기서술적 UA 문자열도 통과 — 필터가 특정 알려진 문자열을 화이트리스트/블랙리스트하는 방식에 가까움을 시사(원인 확정은 아님).
+4. 릴리스류 검증(kernel.org `releases.json` + CDN ChangeLog)은 이번에도 lore 없이 가능함이 재확인됐다(094c 의 릴리스 후보 4건 전부 이 경로로 검증, 커밋 수 정확히 일치).
+
 ## 관련 맥락
 
 - [[research-write-agent-separation]] — 봇 차단 폴백 사다리(raw 엔드포인트 → 미러 → commitMessage+WebSearch 교차검증 → confidence 강등+openQuestions 격리)의 누적 기록. 이번 사건은 그 사다리가 끝까지 실패했을 때(전면 차단) 무슨 일이 일어나는지를 보여준다.
@@ -139,3 +171,4 @@ Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.18
 - 2026-07-25: 3번째 관측 반영 — mbox.gz raw 엔드포인트 우회 성공, 차단 렌즈 10분 후 재발사 성공(재시도 장치 여부 미확정), cdn.kernel.org 폴백 시도. "자동 재시도 없음" 단정 완화
 - 2026-07-26: 4번째 관측 추가 — lore.kernel.org 403/Anubis 차단 지속(새벽 cron 로그 7건). 실측 성공 우회 채널 확장 기록: patchwork.kernel.org API·infradead.org 메일 아카이브·yhbt.net 미러·NNTP 직접 접근·git ls-remote/shallow clone 병행. Research 5회·Write 4회 전부 산출 성공 — 다채널 폴백의 실효 실증 (출처: session-logs/20260726-040855-2b13-*, -042144-44bc-*, -042949-7f1b-*, -030018-b165-*)
 - 2026-07-27: 5번째 관측 — 2층 차단 구조 확인(nginx 레벨 UA 필터 bare 403 → 통과 시 Anubis 챌린지) + `git/2.43` UA 가 양층을 모두 통과해 raw mbox 정상 수신을 실측. "UA 스푸핑 무효" 단정을 브라우저형 UA 로 한정, 우회 채널에 "git UA 로 lore raw 직접 수신" 추가 (출처: session-logs/20260727-041837-175a-*)
+- 2026-07-28: 6번째 관측 — 차단 지속(094c, Anubis Access Denied 전 경로) + UA 5종 스윕 실측(14e9, git/2.45.0·Wget/1.21·public-inbox-mirror 통과, python-requests·curl 기본 403). `Wget/1.21` 이 07-24엔 403·07-28엔 200 으로 판정이 시점에 따라 바뀜을 확인해 "브라우저형 UA 만 차단" 정밀화를 "알려진 스크레이퍼 UA 블록리스트 + 시점별 변동"으로 재정밀화. 신규: 발신 1일 이내 lore 메시지는 미러 폴백 전부 미인덱스라 도구형 UA 직접 수신이 유일한 실측 경로임을 확인(신선도 한계) (출처: session-logs/20260727-213100-094c-*, 20260728-040459-14e9-*)
