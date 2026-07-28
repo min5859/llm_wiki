@@ -4,10 +4,11 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["pattern", "llm", "json", "retry", "reliability", "ai-adapter", "claude-cli", "diagnostics"]
 created: 2026-05-18
-updated: 2026-07-22
+updated: 2026-07-29
 sources:
   - "session-logs/20260518-232056-c7c2-오늘은-실패한-포스팅이-많은데-원인이-뭔지-분석해-주세요.md"
   - "dev-blog commit e28df77 (2026-07-22 세션)"
+  - "session-logs/20260729-033152-cec7-#-Opensource-Trending-Newsletter-—-Write-from-Doss.md"
 confidence: high
 related:
   - "wiki/projects/dev-blog.md"
@@ -185,6 +186,7 @@ ls logs/ai-rewrite-failures/$(date -u +%Y-%m-%d)*.txt 2>/dev/null | wc -l
 - **동일 프롬프트 재전송의 회복률이 낮다** — attempt1 실패 61건 중 attempt2 회복 33건 (54%). 재시도가 같은 행동을 다시 유발하기 때문
 - **대응 2가지를 패턴에 추가**: (1) attempt≥2 의 프롬프트 끝에 교정 지시("[재시도] 직전 응답이 유효한 JSON이 아니었습니다. 도구 사용·설명 없이 JSON 객체 하나만 출력") 를 덧붙임 — 원본 prompt 변수는 오염시키지 않고 attempt 별 지역 변수로. (2) 덤프 헤더에 `# adapter:` / `# model:` 기록 — 행동적 실패는 CLI 버전·모델 별칭 표류가 원인일 수 있어 소급 진단에 필수 (7월 사고 때 이 메타가 없어 원인 모델을 확정 못 했다)
 - **근본 대책은 재시도 계층 밖** — 도구 차단·cwd 격리·모델 고정. [[agentic-cli-text-generation-lockdown]] 참조 (본 패턴 = 대응, 잠금 패턴 = 예방)
+- **교정 재시도 프롬프트의 cron 실운영 첫 실측 (2026-07-29)**: attempt≥2 에 붙이는 교정 지시문이 2026-07-22 commit 으로 도입된 뒤, 2026-07-29 dev-blog 새벽 cron 에서 실제로 발사된 것이 세션 로그로 처음 확인됨. Opensource Trending write 가 03:29(`eff4`) 1차 시도 후 03:31(`cec7`) 동일 프롬프트 끝에 `[재시도] 직전 응답이 유효한 JSON이 아니었습니다. 파일 읽기/쓰기나 도구 사용 없이, 설명 문장 없이, 유효한 JSON 객체 하나만 출력하세요.` 를 덧붙여 재발사됨 — attempt≥2 경로가 도입 후 실운영에서 발사된 최초 사례. 다만 `cec7` 세션도 `assistant_turns: 0` 으로 종료돼 최종 성공 여부는 로그에 남지 않음(헤드리스 로거 특성).
 
 ## 안티패턴
 
@@ -203,3 +205,4 @@ ls logs/ai-rewrite-failures/$(date -u +%Y-%m-%d)*.txt 2>/dev/null | wc -l
 
 - 2026-05-18: 최초 작성. dev-blog 5/18 cron 의 10개 토픽 중 4개 동일 JSON 파싱 실패 사고에서 도출. `runAiAdapterAndParse` 헬퍼 (raw 덤프 + 1회 재시도) + 6개 newsletter rewrite 호출부 일괄 치환 + 회귀 테스트 3건 (재시도 성공 / 끝까지 실패 / template null 경로). 일반 패턴으로 분리 (출처: session-logs/20260518-232056-c7c2-*)
 - 2026-07-22: 「확률적 vs 행동적 실패」 절 추가. dev-blog 7월 실패 급증(89건, 100% 자연어 응답) 분석에서 동일 프롬프트 재시도의 한계(회복률 54%) 확인 → 교정 재시도 + 덤프 헤더 adapter/model 기록을 패턴에 추가, 예방 계층은 [[agentic-cli-text-generation-lockdown]] 로 분리 (출처: dev-blog commit e28df77)
+- 2026-07-29: 교정 재시도의 cron 실운영 첫 실측 한 단락 추가 — Opensource Trending write 가 03:29 1차 실패 후 03:31 `[재시도]` 교정 지시문이 붙은 채 재발사된 것을 세션 로그로 확인, 최종 성공 여부는 헤드리스 로거 특성상 미기록 (출처: session-logs/20260729-033152-cec7-*)

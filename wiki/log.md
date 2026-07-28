@@ -1,5 +1,21 @@
 # 운영 로그
 
+## 2026-07-29 (ingest)
+
+- **session-logs 유래** — 21건 처리 (07-29 새벽 03:00~05:00 dev-blog cron: Research Dossier 6[Kernel Lens 6렌즈] + Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents R+W 10 + Kernel Lens Write 4 + Opensource Trending write 더블런 1). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 3건**: [[newsletter-research-anti-bot-blocking]] (「2026-07-29 — 7번째 관측」절 — lore.kernel.org 차단 6일 연속(1ece·b662·feda·d7dd·425d·3f8a·d39c). `d39c` UA 스윕이 07-28 판정과 일치(git/2.43.0·Wget/1.21 통과, curl·python-requests 403). `3f8a` 에서 브라우저 Mozilla UA 가 처음으로 `200`+Anubis 챌린지 대신 `500 Server Error`("Oh noes!")를 반환하는 신규 변형 확인, 자체 수집기 UA + infradead.org 메일 아카이브로 우회, base64 CTE mbox 는 python 디코딩 처리. `b662` yhbt.net 미러·`425d` patchwork.kernel.org API 병행 지속. `1ece` 에서 NNTP 직접 접근(GREET 201·ARTICLE 220·HEAD 221·BODY 222)의 프로토콜 상세가 처음 확정 — 07-26 4번째 관측의 "NNTP 직접 접근 1건"에 대한 재실측), [[llm-json-parse-retry-with-dump]] (「재시도의 한계」절 말미에 한 단락 추가 — 2026-07-22 commit `e28df77` 로 도입된 attempt≥2 교정 재시도 프롬프트가 cron 실운영에서 발사된 것을 세션 로그로 첫 실측: Opensource Trending write 가 03:29(`eff4`) 1차 시도 후 03:31(`cec7`) `[재시도] 직전 응답이 유효한 JSON이 아니었습니다 …` 지시문이 붙어 재발사, `cec7` 도 `assistant_turns: 0` 이라 최종 성공 여부는 로그 미기록), [[dev-blog]] (07-29 운영 노트 — 위 두 갱신 요약 링크 + Kernel Lens 로그 소실 확산: research 된 6렌즈 중 `b662`·`d7dd`·`3f8a`·`d39c` 4건은 로그에 최종 dossier JSON 이 없으나 이 중 stable·arch-platform·gpu-ai 3건은 대응 write(`082f`·`cb54`·`8470`)가 dossier 를 입력받아 정상 발사돼 산출물 자체는 생성됨을 확인(로거의 assistant 출력 소실 특성의 연장), 보안(`b662`)·perf-rt(`425d`) 렌즈는 대응 write 자체가 배치에 부재(결손인지 로그 미캡처인지 미확정) + credential 마스킹 span 파괴 지속(lens write 4건 전부 `https://***:***@…`)). 각 출처 세션 단축 id: 1ece·b662·feda·d7dd·425d·3f8a·d39c·cec7.
+  - **기각·스킵 판정**:
+    ① 트리아지가 제기한 "`cb54`·`8470` evidence quote 가 주제와 무관한 텍스트(claim↔quote 정합성 갭 재발)" — 원문 대조 결과 정합 확인, 기각. 예: `8470` cold-reset 항목의 claim "fault-inject 가 정작 문제 구간을 건너뛴다는 지적" ↔ quote "That entirely defeats the purpose! :)" 일치(Rodrigo Vivi 가 게이팅이 검증 목적을 무력화한다고 반대하는 발언 그대로).
+    ② 커널·오픈소스·AI 도구 뉴스 콘텐츠 전량(뉴스성, 기존 방침) — 스킵.
+    ③ 커널 기술 지식(stable 백포트 결함 패턴·defconfig 위험·벤더 훅 다중 include·GKI bazel 목록·RISC-V ACPI 훅·DT ABI 정책 등) — 도메인 밖, 스킵.
+    ④ Sashiko AI 리뷰 봇 관찰 — 커널 커뮤니티 콘텐츠(07-27 판정 동일), 스킵.
+    ⑤ dossier 스키마·grounding 규칙 상세 — [[research-write-agent-separation]] 등에 이미 기수록, 스킵.
+    ⑥ write 세션 `assistant_turns: 0` — 헤드리스 로거 특성으로 기수록(07-20 이래) 흡수, 신규 정보 없음.
+    ⑦ AI Coding Agents 뉴스(Cursor 가격 조정 등) — 뉴스성, 스킵.
+  - **mcp-note 유래** — 해당 없음 (type: mcp-note 파일 0건).
+  - **raw-sources 유래** — `raw-sources/claude-code-opus-orchestration-setup.md` 는 원본 최종 변경(07-11 commit 6a9858e)이 기존 summary(07-12 작성)보다 앞서 변경 없음 — 멱등 스킵 (07-28 판정 동일, frontmatter·sidecar 모두 source_sha256 부재라 미설정 유지).
+  - **PDF 유래(.cache/extracted/)** — 대상 파일 없음. **fetched/ 유래** — 대상 없음.
+
 ## 2026-07-28 (ingest)
 
 - **session-logs 유래** — 26건 처리 (07-27 저녁 21:31~21:46 4건 + 07-28 새벽 03:00~05:01 22건: Research Dossier 13 + Newsletter Write 13, 전부 dev-blog cron). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.

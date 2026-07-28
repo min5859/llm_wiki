@@ -4,8 +4,15 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["dev-blog", "anubis", "cloudflare", "anti-bot", "research-dossier", "pipeline-failure", "newsletter"]
 created: "2026-07-24"
-updated: "2026-07-28"
+updated: "2026-07-29"
 sources:
+  - "session-logs/20260729-030012-1ece-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md"
+  - "session-logs/20260729-044041-3f8a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260729-045245-d39c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260729-035106-b662-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260729-040000-feda-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260729-041304-d7dd-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
+  - "session-logs/20260729-042651-425d-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260728-040459-14e9-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260727-213100-094c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260727-041837-175a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
@@ -160,6 +167,23 @@ UA[] (curl 기본)        -> HTTP 403 size=146   <html><head><title>403 Forbidde
 3. `public-inbox-mirror` 라는 자기서술적 UA 문자열도 통과 — 필터가 특정 알려진 문자열을 화이트리스트/블랙리스트하는 방식에 가까움을 시사(원인 확정은 아님).
 4. 릴리스류 검증(kernel.org `releases.json` + CDN ChangeLog)은 이번에도 lore 없이 가능함이 재확인됐다(094c 의 릴리스 후보 4건 전부 이 경로로 검증, 커밋 수 정확히 일치).
 
+## 2026-07-29 — 7번째 관측: 브라우저 UA 의 500 변형 + NNTP 프로토콜 확정 + 다채널 폴백 지속
+
+07-29 새벽 cron Kernel Lens research 6렌즈(03:51~05:00)와 Linux Daily dossier(1ece) 전체에서 `lore.kernel.org` 차단이 다시 관측됨 — 07-24 이래 6일 연속 관측으로 상시 운영 조건 판단을 재확인한다.
+
+1. **UA 스윕 재확인** (`d39c`, GPU/DRM 렌즈) — 07-28 스윕과 동일한 목록으로 재실측: `curl/8.7.1`·`python-requests/2.32` 기본 UA → `403`, `git/2.43.0`·`Wget/1.21` → `200`. 판정이 07-28 과 정확히 일치.
+   ```
+   for ua in "curl/8.7.1" "python-requests/2.32" "git/2.43.0" "" "Wget/1.21"; do ...
+   UA='Wget/1.21' -> 200
+   ```
+2. **브라우저 UA 의 신규 변형 — `500 Server Error`** (`3f8a`, arch/전력관리 렌즈) — `curl` 기본 UA → `403 Forbidden`(nginx, 146바이트)까지는 기존과 동일하나, 이번엔 `Mozilla/5.0 (Macintosh…) Chrome/126.0` 브라우저 UA 가 07-27·07-28 이 관측한 "`200` + Anubis 챌린지 HTML" 이 아니라 **`500`** 을 반환했다(타이틀 `Oh noes!`, `cachebuster=1.25.0` — 같은 Anubis 프런트지만 응답 코드 자체가 달라진 첫 관측). 이후 프로젝트 자체 수집기 UA(`dev-blog-collector/0.1 (+…)`)로 재시도해 `200` 을 얻었고, `lists.infradead.org` 메일링리스트 아카이브 경로(같은 세션에서 28회 참조)를 병행해 나머지 후보를 확보했다. 수신한 raw mbox 하나는 `Content-Transfer-Encoding: base64` 라 본문이 그대로 읽히지 않아, python `base64.b64decode()` 로 직접 디코딩해서 본문을 복원했다.
+3. **yhbt.net 미러 폴백 지속** (`b662`, 커널 보안 렌즈) — `yhbt.net/lore/all/<message-id>/raw` 및 `t.mbox.gz` + `gunzip` 조합으로 6회 성공 조회 — 07-26 4번째 관측 이래의 상시 폴백 채널로 재확인.
+4. **patchwork.kernel.org API 병행** (`425d`, perf-rt 렌즈) — 21회 조회로 리뷰 상태(Reviewed-by / changes-requested / pw-bot 태그)를 교차검증하며 lore 원문 없이 dossier(6 entries)를 완성.
+5. **NNTP 직접 접근 — 프로토콜 상세 최초 확인** (`1ece`, Linux Daily) — python `nntplib` 스크립트로 `nntp.lore.kernel.org` 에 접속해 `GREET: 201 nntp.lore.kernel.org ready - post via email` 를 받고, `ARTICLE <Message-ID>` 요청에 `220 … article retrieved - head and body follow` 로 헤더+본문을 통째로 수신(`HEAD`/`BODY` 개별 커맨드도 각각 `221`/`222` 로 성공). 07-26 4번째 관측이 "NNTP 직접 접근 1건"으로만 기록했던 채널이 이번에 처음으로 실제 명령·응답 코드 수준까지 재실측·확정됐다.
+6. **릴리스 검증 경로 지속** — `kernel.org/releases.json` + `cdn.kernel.org` ChangeLog 조합이 이번에도(1ece, d7dd 양쪽) lore 없이 릴리스 정보를 200 으로 검증.
+
+결과: 6렌즈 research 전부와 Linux Daily 가 실제로 발사돼 위 채널들로 조사를 진행했고, anti-bot 차단으로 인한 완전 결손(dossier 자체가 아예 없음)은 관측되지 않았다 — 다만 `b662`(보안)·`d7dd`(stable)·`3f8a`(arch/전력관리)·`d39c`(GPU) 4개 세션은 로그 자체에 최종 dossier JSON 이 남지 않았다(Assistant 텍스트 턴도 `Write` 파일 콜도 기록 없이 bash 탐색만 존재 — `feda`(툴체인)만 `/tmp/lore/dossier.json` 에 명시적 `Write` + 파이썬 스키마 검증(`valid True`, entries=6)이 로그에 남았고, `425d`(perf-rt)는 Assistant 턴에 dossier JSON 전문을 직접 출력했다). 이 로그 상 최종 산출 소실 현상과 그 여파는 [[dev-blog]] 07-29 운영 노트로 분리.
+
 ## 관련 맥락
 
 - [[research-write-agent-separation]] — 봇 차단 폴백 사다리(raw 엔드포인트 → 미러 → commitMessage+WebSearch 교차검증 → confidence 강등+openQuestions 격리)의 누적 기록. 이번 사건은 그 사다리가 끝까지 실패했을 때(전면 차단) 무슨 일이 일어나는지를 보여준다.
@@ -172,3 +196,4 @@ UA[] (curl 기본)        -> HTTP 403 size=146   <html><head><title>403 Forbidde
 - 2026-07-26: 4번째 관측 추가 — lore.kernel.org 403/Anubis 차단 지속(새벽 cron 로그 7건). 실측 성공 우회 채널 확장 기록: patchwork.kernel.org API·infradead.org 메일 아카이브·yhbt.net 미러·NNTP 직접 접근·git ls-remote/shallow clone 병행. Research 5회·Write 4회 전부 산출 성공 — 다채널 폴백의 실효 실증 (출처: session-logs/20260726-040855-2b13-*, -042144-44bc-*, -042949-7f1b-*, -030018-b165-*)
 - 2026-07-27: 5번째 관측 — 2층 차단 구조 확인(nginx 레벨 UA 필터 bare 403 → 통과 시 Anubis 챌린지) + `git/2.43` UA 가 양층을 모두 통과해 raw mbox 정상 수신을 실측. "UA 스푸핑 무효" 단정을 브라우저형 UA 로 한정, 우회 채널에 "git UA 로 lore raw 직접 수신" 추가 (출처: session-logs/20260727-041837-175a-*)
 - 2026-07-28: 6번째 관측 — 차단 지속(094c, Anubis Access Denied 전 경로) + UA 5종 스윕 실측(14e9, git/2.45.0·Wget/1.21·public-inbox-mirror 통과, python-requests·curl 기본 403). `Wget/1.21` 이 07-24엔 403·07-28엔 200 으로 판정이 시점에 따라 바뀜을 확인해 "브라우저형 UA 만 차단" 정밀화를 "알려진 스크레이퍼 UA 블록리스트 + 시점별 변동"으로 재정밀화. 신규: 발신 1일 이내 lore 메시지는 미러 폴백 전부 미인덱스라 도구형 UA 직접 수신이 유일한 실측 경로임을 확인(신선도 한계) (출처: session-logs/20260727-213100-094c-*, 20260728-040459-14e9-*)
+- 2026-07-29: 7번째 관측 — UA 스윕 재확인(d39c, 07-28 판정과 일치) + 브라우저 Mozilla UA 의 신규 응답 변형(3f8a, 기존 `200`+Anubis 챌린지 대신 `500 Server Error` "Oh noes!" 최초 관측, 자체 수집기 UA + infradead.org 메일 아카이브로 우회, base64 CTE mbox 는 python 디코딩) + yhbt.net 미러(b662)·patchwork.kernel.org API(425d) 병행 지속 + NNTP 직접 접근의 프로토콜 상세 최초 확정(1ece, GREET 201·ARTICLE 220·HEAD 221·BODY 222). 6렌즈 research 전부 발사, anti-bot 로 인한 완전 결손은 없었으나 4개 세션(b662·d7dd·3f8a·d39c)은 로그에 최종 dossier JSON 이 남지 않음(feda·425d 만 명시적 완료 확인) — 상세는 [[dev-blog]] 07-29 운영 노트로 분리 (출처: session-logs/20260729-030012-1ece-*, -035106-b662-*, -040000-feda-*, -041304-d7dd-*, -042651-425d-*, -044041-3f8a-*, -045245-d39c-*)
