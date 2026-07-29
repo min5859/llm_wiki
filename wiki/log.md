@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-30 (ingest)
+
+- **session-logs 유래** — 미처리 23건 처리 (07-30 새벽 03:00~05:00 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 12 [Trending 교정 재시도 더블런 포함]). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 2건**: [[llm-json-parse-retry-with-dump]] (교정 재시도 cron 실사용 2번째 실측 — Opensource Trending write `cfd8` 03:32 1차 후 `d0f7` 03:35 `[재시도]` 지시문 재발사. 07-29 에 이어 이틀 연속 같은 토픽에서만 발화해 토픽 상관 가능성 메모, 2차도 `assistant_turns: 0` 이라 성공 여부 미기록), [[dev-blog]] (07-30 운영 관찰 — Kernel Lens research 로그 소실 6/6 전면화[대응 write 6건이 dossier 를 입력으로 수신해 산출 자체는 확인], write 11/12 무응답성 로그 + `bdd6` 1턴 한 줄 선언 후 무산출, anti-bot 8번째 관측은 07-28 판정과 일치[`public-inbox-fetch` UA 통과 포함 — 07-28 "자기서술적 UA 통과" 판정의 재확인]해 bug 페이지 본문 변경 없음, credential 마스킹 span 파괴 재발)
+  - **트리아지 기각 3건**: ① "dossier `verifiedDowngradeCount`·`seenBefore`·per-evidence `verified` 필드 신규" — 06-28 [[research-write-agent-separation]] 기수록 확인(로그상 07-03 부터 존재), 기각. ② "write 전건 무응답 = 파이프라인 전면 장애" — 헤드리스 로거의 assistant 출력 소실 특성(07-20 이래 기수록)으로 흡수, 기각. ③ "041931 로그에서 Wget UA 통과 실측" — 해당 로그에 UA 스윕 자체가 없음(트리아지 서브에이전트의 오귀속), 기각.
+  - **스킵**: AI Coding Agents dossier 의 Cursor iPad "병목이 작성→감시·승인으로 이동" 통찰·Copilot GA 모델 opt-out 기본값 전환·usage API 시계열 단절 — 뉴스성 단일 출처(과잉추출 선례 06-27~07-07 동일 판정). Curation droppedCandidates 의 이중 라이선스(Fair Source `/ee` + MIT) 거절 사유 — 일회성 후보 평가 상세.
+- **raw-sources 유래** — 신규 대상 없음: `raw-sources/claude-code-opus-orchestration-setup.md` 는 summary 기존재(07-12 생성)·원본 최종 커밋 07-11 로 미변경이라 스킵. sidecar(`.cache/raw-md-sha/`)가 비어 있어 source_sha256 백필도 보류(규칙 3 — 멱등 판정 불가하나 부작용 없음).
+- **PDF 유래(.cache/extracted/)·fetched/·mcp-note** — 대상 없음(전부 비어 있음).
+
 ## 2026-07-29 (ingest)
 
 - **session-logs 유래** — 21건 처리 (07-29 새벽 03:00~05:00 dev-blog cron: Research Dossier 6[Kernel Lens 6렌즈] + Linux Daily/Android Kernel/Opensource Trending/Opensource Curation/AI Coding Agents R+W 10 + Kernel Lens Write 4 + Opensource Trending write 더블런 1). 뉴스레터 콘텐츠(커널·오픈소스·AI 도구 뉴스)는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
