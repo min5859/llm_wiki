@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-07-31 (ingest)
+
+- **session-logs 유래** — 미처리 23건 처리 (07-31 새벽 03:00~05:00 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 12). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 1건**: [[newsletter-research-anti-bot-blocking]] (07-31 9번째 관측 — 6e61 UA 스윕에서 `mutt/2.2` 통과 신규 실측·`git/2.53.0` 세 버전째 통과·브라우저 Mozilla UA 응답이 `500` 변형에서 `200`+Anubis 챌린지로 복귀·git.kernel.org cgit 는 기본 curl 로 200. 차단 자체는 0836·87b6 bare 403 + fdc4 Anubis 챌린지로 8일 연속 지속. 4개 로그 원문에서 인용 직접 검증 완료)
+  - **스킵 판정**: ① AI Coding dossier 의 Claude Code 스테가노그래피 마커 분석(c75c) — 07-05 에 이어 두 번째 등장이나 두 번 모두 dossier 뉴스 후보(`seenBefore: true`)로 나타난 뉴스 콘텐츠이지 사용자 운영 지식이 아님 → 뉴스성 스킵 유지 (07-30 "뉴스성 단일 출처" 선례와 동일 기준). ② Kernel Lens 콘텐츠 내 Rust GPU VM 32비트 빌드 실패(9a60)·RISC-V 스텁 함수명 불일치(31c7)·Sashiko AI 리뷰 봇의 커널 패치 Critical 발견(fdc4) — 전부 뉴스레터가 다룬 커널 개발 뉴스 자체, 도메인 밖. ③ X/HN 403/429 대응 "근거 확보 가능 후보만 채택"(c75c) — 기존 대응 계층(2차 corroborate)에 기수록, 신규성 없음. runner 서브에이전트 트리아지 후 주요 신호 4건은 메인이 원문 재검증.
+- **raw-sources 유래** — 신규 대상 없음: `raw-sources/claude-code-opus-orchestration-setup.md` 는 summary 기존재(07-12 생성)·원본 미변경(mtime 07-11)이라 스킵. sidecar(`.cache/raw-md-sha/`) 비어 있음.
+- **PDF 유래(.cache/extracted/)·fetched/·mcp-note** — 대상 없음(전부 비어 있음).
+- 비고: `ingested: false` 전문 검색에 20260702 ea52 가 걸렸으나 frontmatter 는 `ingested: true` — 본문에 "`ingested: false`" 문자열이 인용되어 있는 false positive. frontmatter 앵커(`^ingested: false`) 기준으로 재확인해 대상에서 제외.
+
 ## 2026-07-30 (ingest)
 
 - **session-logs 유래** — 미처리 23건 처리 (07-30 새벽 03:00~05:00 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 12 [Trending 교정 재시도 더블런 포함]). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
