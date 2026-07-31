@@ -1,5 +1,13 @@
 # 운영 로그
 
+## 2026-08-01 (ingest)
+
+- **session-logs 유래** — 미처리 21건 처리 (08-01 새벽 03:00~05:04 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 10 — Opensource Trending write 로그 부재). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 1건**: [[newsletter-research-anti-bot-blocking]] (10번째 관측 — **patchwork.kernel.org API 가 Mozilla UA 호출에 Anubis 챌린지(v1.18.0, lore 의 1.25.0 과 별도 배포)를 처음 반환**해 폴백 채널 자체로 차단 확산. 도구형 UA 재실측은 미수행(ad7e 세션은 cdn ChangeLog 분석으로 전환). Mozilla 포함 복합 UA `… curl-lore-fetch` 도 챌린지 대상(76ce, 07-27 가설 부합). git/2.43.0 UA lore 통과·cdn ChangeLog·releases.json 200 은 기존 판정 재확인. 차단 자체는 99ee·ad7e·76ce·ebf0 4건으로 07-24 이래 9일 연속 지속)
+  - **스킵 판정**: ① Lens dossier(a03e) 후보 `commitMessage` 의 quoted-printable 미디코딩(`=E2=80=AFPM`·`=20` 잔재) — 07-04 [[dev-blog]] 기수록 "수집기 MIME 미디코딩" 함정의 재발, 신규 아님. ② 커널 커밋 메시지의 `Assisted-by: Claude` 표기 관측(8f32·2a8e) — 커널 개발 동향 뉴스 콘텐츠, 도메인 밖. ③ 99ee 의 자격증명형 URL 마스킹 span 파괴 재발 — 기수록. assistant_turns 은 21건 중 4건만 1턴(99ee·6b76·2a8e·a03e), 17건은 0턴 무응답성 로그 — 07-29 이래 추적 중인 로그 상 산출 소실 패턴과 동일 수준, 질적 신규성 없음. runner 서브에이전트 트리아지 후 anti-bot·MIME 신호는 메인이 원문 재검증.
+- **raw-sources 유래** — 신규 대상 없음: `raw-sources/claude-code-opus-orchestration-setup.md` 는 summary 기존재(07-12 생성)·원본 미변경(git 최종 변경 07-11)이라 스킵. sidecar(`.cache/raw-md-sha/`) 비어 있음.
+- **PDF 유래(.cache/extracted/)·fetched/·mcp-note** — 대상 없음(전부 비어 있음).
+
 ## 2026-07-31 (ingest)
 
 - **session-logs 유래** — 미처리 23건 처리 (07-31 새벽 03:00~05:00 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 12). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
