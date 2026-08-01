@@ -1,5 +1,15 @@
 # 운영 로그
 
+## 2026-08-02 (ingest)
+
+- **session-logs 유래** — 미처리 21건 처리 (08-02 새벽 03:00~04:36 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 10). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
+  - **갱신 1건**: [[dev-blog]] (08-02 운영 관찰 — anti-bot **11번째 관측, 신규 변형 없음**: 차단 07-24 이래 10일 연속, UA 스윕(`ccc6`)에서 `git/2.39.0` 통과[기존 실측 2.43·2.44·2.45·2.53 보다 낮은 버전 첫 실측 — "버전 무관" 하향 확장 재확인]·curl 기본/`curl/8.7.1` bare 403·Mozilla UA 는 `200`+Anubis 1.25.0 챌린지 복귀 형태 유지·releases.json 200 재확인 — 판정 동일이라 [[newsletter-research-anti-bot-blocking]] 본문 무변경, 07-30 8번째 관측 선례와 동일 처리. write 9/10 무응답성 로그 + perf-rt(`fc0f`)만 1턴 완성 JSON — 07-20 이래 기수록 수준)
+  - **트리아지 기각 2건**: ① "write 9/10 무응답 = 파이프라인 90% 실패율 진입" — 헤드리스 로거의 assistant 출력 소실 특성(07-20 이래 기수록)으로 흡수, write 전건이 dossier 를 입력으로 정상 수신했고 07-30 "write 전건 무응답 ≠ 전면 장애" 기각 선례와 동일, 기각. ② "dossier `verifiedDowngradeCount`·quote 검증 게이트 신규 도입" — 06-28 [[research-write-agent-separation]] 기수록(07-30 동일 기각 선례), 기각.
+  - **스킵 판정**: 자격증명형 URL 마스킹 span 파괴 재발(Lens write 4건) — [[gieok-session-log-url-credential-masking-false-positive]] 기수록. 커널 커밋·OSS 릴리스·AI Coding 제품 소식 등 dossier/뉴스레터 콘텐츠 전량 — 도메인 밖 뉴스성. runner 서브에이전트 2대 트리아지 후 anti-bot 신호는 메인이 `91e9`·`ccc6` 원문 재검증(Anubis 챌린지 HTML·UA 스윕 인용 직접 확인).
+- **raw-sources 유래** — 신규 대상 없음: `raw-sources/claude-code-opus-orchestration-setup.md` 는 summary 기존재(07-12 생성)·원본 미변경(git 최종 변경 07-11)이라 스킵. sidecar(`.cache/raw-md-sha/`) 비어 있음.
+- **PDF 유래(.cache/extracted/)·fetched/·mcp-note** — 대상 없음(전부 비어 있음).
+- 비고: `ingested: false` 전문 검색에 20260702 ea52 가 다시 걸렸으나 frontmatter 는 `ingested: true` (본문 인용 문자열의 false positive, 07-31 비고와 동일) — frontmatter 앵커 기준으로 재확인해 대상에서 제외.
+
 ## 2026-08-01 (ingest)
 
 - **session-logs 유래** — 미처리 21건 처리 (08-01 새벽 03:00~05:04 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 10 — Opensource Trending write 로그 부재). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.
