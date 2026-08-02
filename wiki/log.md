@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-08-02 — wiki-ingest
+
+- Project: dev-blog
+- Mode: diff
+- Input: commit 1608b20 (반복 파이프라인 실패의 3부류 구조적 수정 — evidence.kind soft-fail·CJK 필터 일반화·실패 토픽 자동 재시도) + 239c5b7 (arch-platform 08-02 복구)
+- Created/Updated:
+  - 갱신: `bugs/dossier-evidence-kind-enum-reject` (「재발과 근본 수정」 절 — 07-25 "repo" band-aid 가 08-02 "patch" 로 재발 → normalizeDossier soft-fail 로 근본 수정, 교훈 #1·#2 를 실제 구현한 닫힌 루프), `projects/dev-blog` (구조적 수정 세션 엔트리 — fleet 자가회복 재구성 + 3부류 대응 + per-cause whack-a-mole vs 구조적 대응 교훈)
+  - 신규 없음 (transient 자동재시도 인사이트는 기존 [[shell-set-eu-topic-isolation]] 격리 패턴의 연장으로 projects/dev-blog 에 흡수 — 2회째 재등장 시 별도 패턴 승격 검토)
+
 ## 2026-08-02 (ingest)
 
 - **session-logs 유래** — 미처리 21건 처리 (08-02 새벽 03:00~04:36 dev-blog cron: Research Dossier 11 [Linux Daily·Android Kernel·Opensource Trending·Opensource Curation·AI Coding Agents + Kernel Lens 6렌즈] + Newsletter Write 10). 뉴스레터 콘텐츠는 뉴스성으로 전량 스킵 (기존 방침 동일). 신규 문서 0건.

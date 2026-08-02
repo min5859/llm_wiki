@@ -4,10 +4,11 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["bug", "dev-blog", "dossier", "schema", "validator", "enum", "research-write-agent-separation", "silent-failure"]
 created: "2026-07-26"
-updated: "2026-07-26"
+updated: "2026-08-02"
 sources:
   - "session-logs/20260725-224215-c0eb-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "dev-blog commit 823213a / f956b88"
+  - "dev-blog commit 1608b20 (2026-08-02 세션)"
 confidence: "high"
 related:
   - "wiki/patterns/prompt-schema-pipeline-coupling.md"
@@ -42,6 +43,18 @@ dev-blog commit `823213a` (2026-07-25 22:22:52 +0900) "fix(dossier): allow evide
 
 테스트 118/118 통과.
 
+## 재발과 근본 수정 (2026-08-02) — band-aid 확인 + soft-fail 적용
+
+`823213a` 의 "enum 에 `repo` 추가" 는 **band-aid** 였고, 본 페이지 교훈 #1(reject 보다 normalize·soft-fail) 이 이미 그렇게 지적해 뒀었다. 8일 뒤 **정확히 재발** — 08-02 아침 cron 에서 `linux-arch-platform` research 가 이번엔 `evidence.kind: "patch"` 로 같은 방식으로 topic drop. 값을 하나씩 enum 에 추가하는 방식은 LLM 이 창발하는 다음 값(`patch` → 그다음 무엇이든)을 영원히 쫓는 whack-a-mole 임이 실증됐다.
+
+근본 수정 commit `1608b20` (2026-08-02) — 교훈 #1·#2 가 가리킨 **soft-fail(normalize)** 을 실제 적용:
+
+- `scripts/lib/research-runner.mjs` — `normalizeDossier`(validateDossier 직전 정규화 지점)에서 `EVIDENCE_KIND_VALUES` 에 없는 `ev.kind` 를 `'other'` 로 강등하고 경고 로그. 이로써 **미래의 어떤 kind 값이 와도 throw 대신 강등** → topic 은 살아남는다.
+- `scripts/lib/dossier-schema.mjs` — enum 에 `patch`/`release`(흔한 라벨 보존용) + `other`(catch-all) 추가.
+- 테스트 — normalizeDossier 가 미지 kind(`"blahblah"`)를 `other` 로 강등하고 validateDossier 를 통과시키는 회귀 추가. 128/128 통과.
+
+**핵심**: whitelist enum 검증이 걸린 필드가 다운스트림 display-only 라면, 값을 추가하는 게 아니라 **미지 값을 정규화(강등)해 검증을 통과**시키는 게 blast-radius 를 실패 단위(evidence 1건)로 되돌리는 진짜 수정이다. 이번 사건은 「위키가 예언한 올바른 수정을 band-aid 로 미뤘다가 재발 후 결국 적용」한 닫힌 루프 사례다.
+
 ## 일반 교훈
 
 1. **LLM 이 채우는 분류 라벨 필드는 enum 밖 값을 창발한다** — 자유 텍스트 근거를 구조화된 enum 으로 강제 매핑시키면, LLM 은 맥락상 합리적이지만 정의되지 않은 값을 만들어낼 수 있다. 그 필드가 다운스트림에서 display-only(분기 없음)라면 reject 보다 enum 확장·normalize·soft-fail 을 먼저 검토한다.
@@ -52,3 +65,4 @@ dev-blog commit `823213a` (2026-07-25 22:22:52 +0900) "fix(dossier): allow evide
 ## 변경 이력
 
 - 2026-07-26: 최초 작성 (출처: session-logs/20260725-224215-c0eb-*, dev-blog commit 823213a/f956b88)
+- 2026-08-02: 「재발과 근본 수정」 절 추가. 08-02 `linux-arch-platform` 이 `kind:"patch"` 로 동일 재발 → band-aid(enum 값 추가) 실증. commit 1608b20 이 normalizeDossier soft-fail(미지 kind→'other' 강등)로 근본 수정, 교훈 #1·#2 를 실제 구현 (출처: dev-blog commit 1608b20)
