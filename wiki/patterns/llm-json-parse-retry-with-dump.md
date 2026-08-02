@@ -188,6 +188,7 @@ ls logs/ai-rewrite-failures/$(date -u +%Y-%m-%d)*.txt 2>/dev/null | wc -l
 - **근본 대책은 재시도 계층 밖** — 도구 차단·cwd 격리·모델 고정. [[agentic-cli-text-generation-lockdown]] 참조 (본 패턴 = 대응, 잠금 패턴 = 예방)
 - **교정 재시도 프롬프트의 cron 실운영 첫 실측 (2026-07-29)**: attempt≥2 에 붙이는 교정 지시문이 2026-07-22 commit 으로 도입된 뒤, 2026-07-29 dev-blog 새벽 cron 에서 실제로 발사된 것이 세션 로그로 처음 확인됨. Opensource Trending write 가 03:29(`eff4`) 1차 시도 후 03:31(`cec7`) 동일 프롬프트 끝에 `[재시도] 직전 응답이 유효한 JSON이 아니었습니다. 파일 읽기/쓰기나 도구 사용 없이, 설명 문장 없이, 유효한 JSON 객체 하나만 출력하세요.` 를 덧붙여 재발사됨 — attempt≥2 경로가 도입 후 실운영에서 발사된 최초 사례. 다만 `cec7` 세션도 `assistant_turns: 0` 으로 종료돼 최종 성공 여부는 로그에 남지 않음(헤드리스 로거 특성).
 - **2번째 실측 (2026-07-30) — 이틀 연속 동일 토픽에서만 발화**: 다음 날 새벽 cron 에서도 Opensource Trending write 가 03:32(`cfd8`) 1차 시도 후 03:35(`d0f7`) 같은 교정 지시문이 붙어 재발사됨. 이틀 모두 다른 토픽 write 에서는 재시도가 관측되지 않아, attempt1 실패가 무작위 혼입이 아니라 토픽(입력 dossier 의 형태·크기)에 상관될 가능성을 시사 — 단 표본 2회라 미확정. `d0f7` 도 `assistant_turns: 0` 으로 종료돼 최종 성공 여부는 로그에 남지 않음.
+- **3번째 실측 (2026-08-03) — 토픽 상관 가설 강화 + 상위 계층(retry_once)과의 연쇄 첫 관측**: 08-03 새벽 cron 에서도 Opensource Trending write 만 1차(03:24 `861a`) 후 03:28(`ae2b`) 교정 지시문이 붙어 재발사 — **3회 실측 전부 Opensource Trending write** 로 토픽 상관 가설이 강화됨(표본 3회, 여전히 원인 미확정). 새 관측: 교정 재시도(`ae2b`)까지 실패하자 08-02 도입된 `daily-deploy.sh` 의 `retry_once`(topic 단위 1회 재시도, commit `1608b20`)가 **research 부터 토픽 전체를 재실행** — 동일 collect 후보 payload 로 두 번째 dossier(`generatedAt` 18:31Z)를 만들어 세 번째 write(03:37 `e697`)에 공급. 어댑터 내부 교정 재시도(본 패턴) → 실패 시 topic 단위 retry_once 라는 **2계층 재시도의 연쇄 발화**가 세션 로그로 처음 실측됨. 최종 성공 여부는 역시 로그 미기록(헤드리스 로거 특성).
 
 ## 안티패턴
 
@@ -208,3 +209,4 @@ ls logs/ai-rewrite-failures/$(date -u +%Y-%m-%d)*.txt 2>/dev/null | wc -l
 - 2026-07-22: 「확률적 vs 행동적 실패」 절 추가. dev-blog 7월 실패 급증(89건, 100% 자연어 응답) 분석에서 동일 프롬프트 재시도의 한계(회복률 54%) 확인 → 교정 재시도 + 덤프 헤더 adapter/model 기록을 패턴에 추가, 예방 계층은 [[agentic-cli-text-generation-lockdown]] 로 분리 (출처: dev-blog commit e28df77)
 - 2026-07-29: 교정 재시도의 cron 실운영 첫 실측 한 단락 추가 — Opensource Trending write 가 03:29 1차 실패 후 03:31 `[재시도]` 교정 지시문이 붙은 채 재발사된 것을 세션 로그로 확인, 최종 성공 여부는 헤드리스 로거 특성상 미기록 (출처: session-logs/20260729-033152-cec7-*)
 - 2026-07-30: 교정 재시도 2번째 실측 불릿 추가 — 이틀 연속 Opensource Trending write 에서만 발화(토픽 상관 가능성 메모, 표본 2회 미확정) (출처: session-logs/20260730-033534-d0f7-*)
+- 2026-08-03: 교정 재시도 3번째 실측 불릿 추가 — 3회 전부 Opensource Trending write 로 토픽 상관 가설 강화 + 교정 재시도 실패 후 `retry_once`(08-02 도입)가 research 부터 토픽 재실행하는 2계층 재시도 연쇄 첫 실측 (출처: session-logs/20260803-032805-ae2b-*, -033102-36d0-*, -033706-e697-*)

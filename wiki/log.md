@@ -1,5 +1,14 @@
 # 운영 로그
 
+## 2026-08-03 (ingest)
+
+- **session-logs 유래** — 미처리 28건 처리 (08-02 저녁 2건 + 08-03 새벽 03:00~05:00 dev-blog cron 26건: Research Dossier 12 + Newsletter Write 13 + Weekly Digest 1). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw-sources/claude-code-opus-orchestration-setup.md 는 summary 생성 이후 무변경이라 스킵). 신규 문서 0건, index.md 변경 없음.
+  - **갱신 2건**:
+    - [[llm-json-parse-retry-with-dump]] — 교정 재시도 3번째 실측(`861a`→`ae2b`): 3회 전부 Opensource Trending write 로 토픽 상관 가설이 표본 3회로 강화 + 교정 재시도 실패 후 `retry_once`(08-02 도입, commit `1608b20`)가 research 부터 토픽 전체를 재실행하는 **2계층 재시도 연쇄 첫 실측**.
+    - [[dev-blog]] — 08-03 운영 관찰 항목: retry_once 첫 cron 실전 발화(R#1 `1d25`→W#1 `861a`→W#2 교정 `ae2b`→R#2 `36d0`→W#3 `e697` 의 5세션 체인 — 두 dossier `generatedAt` 18:19Z/18:31Z 와 동일 collect payload 재실행으로 실증), anti-bot 12번째 관측 신규 변형 없음(`054b` 1턴 "모든 대상 URL이 Anubis 봇 차단…대체 경로로 재시도"), 로그 소실 지속(research 12건 중 `054b` 만 1턴·write 13건 전건 0턴), `56cb`(08-02 20:55 단독 Lens write 0턴)는 `239c5b7` arch-platform 수동 복구 세션의 부산물로 그 세션 자체는 08-02 wiki-ingest 로 기수집.
+  - 스킵: 뉴스레터/dossier 뉴스 콘텐츠 전량 20건(기존 방침 동일 — 파이프라인 메타 지식만 위 2건으로 흡수), Weekly Digest `551b`(07-27 기수록 유형·0턴), `389a`("model"/"hi" 노이즈 세션, 지식 없음).
+  - 참고: `20260702-*-ea52` 로그는 본문에 "ingested: false" 문자열이 포함돼 grep 오탐되나 frontmatter 는 이미 true(07-04 인제스트 완료분) — 처리 대상 아님.
+
 ## 2026-08-02 — wiki-ingest
 
 - Project: dev-blog
