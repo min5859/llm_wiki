@@ -105,7 +105,7 @@
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
 - [[holding-period-signal-mismatch]] — 보유기간-신호 미스매치 — 같은 진입신호가 홀딩 호라이즌에 따라 손실↔초과수익으로 뒤집힌다
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
-- [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — 실제 체결·점수·국면·VI 꼬리위험
+- [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드 배포, 스크리너 점수·시장 국면·InfiniteBuying 관찰 대장과 재평가 트리거
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
@@ -153,6 +153,7 @@
 
 ## 변경 이력
 
+- 2026-08-17: [[ht-trading-live-data-improvement-analysis]] 갱신 — 국내 BUY 안전가드 구현·배포 결과와 스크리너 점수(30건), 시장 국면 필터(나쁜 장의 실제 BUY), InfiniteBuying(실제 라운드 종료) 추적 조건을 인덱스에 반영.
 - 2026-08-01: 신규 0건. 갱신 1건 — [[newsletter-research-anti-bot-blocking]] (08-01 10번째 관측 — patchwork.kernel.org API 가 Mozilla UA 호출에 Anubis 챌린지 v1.18.0(lore 의 1.25.0 과 별도 배포)을 처음 반환해 폴백 채널 자체로 차단 확산 + Mozilla 포함 복합 UA `… curl-lore-fetch` 도 챌린지 대상 + git/2.43.0 UA·cdn ChangeLog·releases.json 통과 재확인, 차단 9일 연속). session-logs 유래 21건 처리(20260801 dev-blog cron 03:00~05:04 사이클), 뉴스레터 기사 콘텐츠는 전량 뉴스성 스킵(MIME 미디코딩·마스킹 span 파괴는 기수록 재발, `Assisted-by: Claude` 커밋 표기는 도메인 밖 뉴스).
 - 2026-07-31: 신규 0건. 갱신 1건 — [[newsletter-research-anti-bot-blocking]] (07-31 9번째 관측 — `mutt/2.2` 메일 클라이언트 UA 통과 신규 실측 + `git/2.53.0` 세 버전째 통과 + 브라우저 Mozilla UA 응답이 07-29 `500` 변형에서 `200`+Anubis 챌린지 형태로 복귀 + git.kernel.org cgit 는 기본 curl 로 200 이라 필터는 lore 국한). session-logs 유래 23건 처리(20260731 dev-blog cron 03:00~05:00 사이클), 뉴스레터 기사 콘텐츠는 전량 뉴스성 스킵.
 - 2026-07-29: 신규 0건. 갱신 3건 — [[newsletter-research-anti-bot-blocking]] (07-29 7번째 관측 — 브라우저 Mozilla UA 의 신규 `500 Server Error` 변형 + NNTP GREET/ARTICLE 프로토콜 상세 최초 확정 + yhbt.net·patchwork.kernel.org 병행 지속, 차단 6일 연속), [[llm-json-parse-retry-with-dump]] (2026-07-22 도입한 교정 재시도 프롬프트가 dev-blog cron 실운영에서 발사된 것을 세션 로그로 첫 실측 — Opensource Trending write 1차 실패 → `[재시도]` 지시문 부착 재발사, 최종 성공 여부는 로그 미기록), [[dev-blog]] (07-29 운영 노트 — 교정 재시도 실사용 실측 + Kernel Lens 6렌즈 중 4개 로그에 최종 dossier 미기록[대응 write 는 3건 정상 발사] + anti-bot 7번째 관측 + credential 마스킹 파괴 지속). session-logs 유래 21건 처리(20260729 dev-blog cron 03:00~05:00 사이클), 뉴스레터 기사 콘텐츠는 전량 뉴스성 스킵.
