@@ -1,5 +1,11 @@
 # 운영 로그
 
+## 2026-08-16 — HT-001 누적 분석 착수
+
+- 신규: [[ht-trading-live-data-improvement-analysis]] — `ht_trading` 운영 로그·1분봉·스냅샷·일봉 백테스트를 연결한 누적 분석 원장. 8/5~8/14 실제 체결 33건, 신규 스크리너 진입 10건, 2024~2025 장기 baseline과 단일변수 실험을 기록.
+- 핵심 관찰: 고득점 신규 진입이 더 좋은 당일 성과를 보이지 않은 초기 표본, 2024/2025 성과 역전, `181710` 시장가 주문의 19분 대기·급등 재개 체결, 현재 일봉 백테스트가 라이브 스크리너·추세 게이트를 재현하지 못하는 구조적 한계.
+- 운영 코드·전략 설정은 변경하지 않음. 분석 결과는 대표님과 논의 후 별도 승인된 항목만 적용 검토.
+
 ## 2026-08-03 (ingest)
 
 - **session-logs 유래** — 미처리 28건 처리 (08-02 저녁 2건 + 08-03 새벽 03:00~05:00 dev-blog cron 26건: Research Dossier 12 + Newsletter Write 13 + Weekly Digest 1). raw-sources/·.cache/extracted/·fetched/·mcp-note 는 신규 대상 없음 (raw-sources/claude-code-opus-orchestration-setup.md 는 summary 생성 이후 무변경이라 스킵). 신규 문서 0건, index.md 변경 없음.
