@@ -4,8 +4,14 @@ domain: "ai-agent"
 sensitivity: internal
 tags: ["project", "hermes", "ai-agent", "self-hosted", "telegram", "macos", "launchd", "operations"]
 created: 2026-05-09
-updated: 2026-08-23
+updated: 2026-10-03
 sources:
+  - "local-only: /Users/wooki/.hermes/config.yaml"
+  - "local-only: /Users/wooki/.hermes/profiles/*/config.yaml"
+  - "local-only: /Users/wooki/.hermes/cron/jobs.json"
+  - "local-only: /Users/wooki/.hermes/profiles/news/cron/jobs.json"
+  - "local-only: /Users/wooki/.hermes/profiles/maccoder/cron/jobs.json"
+  - "local-only: /Users/wooki/.hermes/channel_directory.json"
   - "/Users/wooki/project/toy/hermes/CLAUDE.md"
   - "/Users/wooki/project/toy/hermes/README.md"
   - "/Users/wooki/project/toy/hermes/tasks/todo.md"
@@ -40,25 +46,24 @@ related:
 
 ## 1. 현재 상태 요약
 
-기준 시각: **2026-08-23 KST**. 실제 상태는 2026-08-22 23:54 전후에 검증했다.
+기준일: **2026-10-03 KST**. 버전·모델·추론 레벨·예약 작업은 당일 CLI와 파일로 재확인했다. API 포트·WebUI·인증 공유 구성은 2026-08-23 기록이며 이번에는 재검증하지 않았다.
 
 | 항목 | 현재 값 |
 |---|---|
 | 설치 위치 | `~/.hermes/hermes-agent` |
-| Hermes 버전 | `v0.18.0 (2026.7.1)` |
-| 체크아웃 | `main`, HEAD `047b48dfdd` |
-| upstream 표시 | `56526bc0`, 현재 체크아웃은 10,193 commits behind |
-| Python | `3.11.14` (Hermes venv) |
+| Hermes 버전 | `v0.21.5+6217.gd526f14 (2026.9.24)` |
+| 체크아웃 HEAD | `d526f14714` |
+| upstream 표시 | `d526f147`, CLI에서 Up to date 표시 |
+| Python | `3.14.7` (Hermes CLI 출력) |
 | Provider | `openai-codex` |
-| 모델 | base + 8개 프로필 모두 `gpt-5.6-sol` |
-| reasoning effort | base + 8개 프로필 모두 `high` |
+| 기본 모델 설정 | base + 8개 프로필 모두 `gpt-6.1-sol` |
+| reasoning effort 설정 | base + 8개 프로필 모두 `medium` |
 | 프로필 수 | base `default` + 하위 프로필 8개 = 총 9개 |
 | 자동 시작 | 모든 gateway와 Hermes WebUI가 launchd에 등록됨 |
 | Hermes WebUI | `127.0.0.1:8787` |
 | 비밀값 로그 마스킹 | 모든 프로필 `security.redact_secrets: true` |
 
-> 과거 문서의 `effort: xhigh`, `maccoder 전용 Telegram 봇` 설명은 현재 상태와
-> 다르다. 2026-08-23 실측값은 `high`이며, 현재 `maccoder`는 WebUI API 전용이다.
+> 2026-08-23에는 전 프로필 `gpt-5.6-sol` / `high`였으나 2026-10-03에 위 설정으로 변경했다. 설정값과 실행 중 세션은 구분한다. 당일 `news`·`maccoder`는 Gateway 재시작과 `gpt-6.1-sol` cron 실행을 확인했지만, 나머지 하위 프로필의 기존 세션 모델까지 실검증한 것은 아니다. `maccoder` 자체 Telegram 봇은 없는 구성이다.
 
 ## 2. 현재 프로필·채널·포트 배치
 
@@ -96,6 +101,36 @@ Hermes WebUI :8787 ─────────────> maccoder API :8642
 - 플랫폼이 필요 없는 역할 프로필에는 Telegram token과 API server key를 두지 않는다.
 
 ## 3. 런타임 파일과 자동 시작 구조
+
+### 2026-10-03 프로필 역할·최근 활동
+
+아래는 각 프로필의 `SOUL.md`, `state.db`, cron 실행 기록 기준이다. 대화 응답과 실제 작업을 구분한다.
+
+| 프로필 | 만든 목적 | 마지막 확인된 활동 |
+|---|---|---|
+| `default` | 일반 비서·Hermes 운영·프로젝트 지원 | 10/3 업데이트·설정 관리, AI 알림·Wiki 자동 커밋 실행 |
+| `maccoder` | 코딩·디버깅·리팩토링, 필요 시 Claude Code 위임 | 10/3 14:11 Wiki lint 정상 완료 |
+| `news` | AI·금융·개발·국내 뉴스 브리핑 | 10/3 14:21 브리핑 정상 완료(당시 local 저장) |
+| `trading` | `ht_trading`·`n_stock_info` 로그·성과·코드 분석 | 7/5 동시 에이전트 운영 리스크 분석; 일일 보고 cron의 소유자는 default |
+| `architect` | 칸반 상위 설계, `ARCHITECTURE.md` | 실제 작업 7/5 AI 환경 발표자료 설계, 마지막 대화 7/19 연결 테스트 |
+| `designer` | 칸반 상세 설계, `DESIGN.md` | 7/5 AI 환경 HTML 발표자료 제작 |
+| `coder` | 칸반 코드·테스트 구현 | 실제 작업 7/5 Hermes 실행 근거 수집, 마지막 대화 8/23 호출 응답 |
+| `reviewer` | 설계·구현·테스트 검수 | 7/5 HTML 발표자료 검수 |
+| `reporter` | 산출물 종합·최종 보고 | 7/5 AI 환경 발표자료 종합 |
+
+칸반 기본 파이프라인은 `architect → designer → coder → reviewer → reporter`다. 로마숫자 변환기 PoC와 PC AI 환경 소개 자료에 사용했다. `coder`와 `maccoder`는 별도 프로필이다.
+
+### 예약 작업·Telegram 토픽
+
+| 작업 / 소유 프로필 | 일정(KST) | 전달 / 모델 정책 |
+|---|---|---|
+| Trading daily analysis report / `default` (`018e8af17160`) | 매일 21:00 | origin = 맥비 작업실 topic 25; `ht_trading`만 보고; model/provider pin 없음 |
+| daily-news-brief / `news` (`1d128439bd39`) | 매일 19:00 | `telegram:-1003551298957:609` = 맥비 작업실 뉴스 토픽; model/provider pin 없음 |
+| weekly-wiki-lint / `maccoder` (`da2387b35196`) | 일요일 20:00 | local 저장; 공유 `hermes-wiki` 점검; model/provider pin 없음 |
+
+뉴스는 별도 Telegram 봇을 새로 만들지 않고 기존 맥비 작업실의 뉴스 토픽으로 전달하도록 설정했다. 10/3 토픽 609의 사용자 메시지 수신·맥비 응답과 저장된 deliver 값은 확인했다. **이 토픽으로 변경한 뒤 실제 cron 발송은 아직 미검증**이며, local 저장으로 성공한 14:21 실행과 구분한다. 트레이딩 프롬프트에서 Upbit 경로·분석·출력 항목을 모두 제거했으며, 변경 후 보고서 실행도 아직 미검증이다.
+
+모델 해제는 CLI `hermes [--profile NAME] cron edit JOB_ID --unpin`을 사용한다. pin 없는 작업은 `cron.model` 설정을 우선하고, 없으면 해당 프로필의 기본 모델을 따른다. 당일 확인 범위에서 별도 cron 모델은 설정되어 있지 않았다.
 
 ```text
 ~/.hermes/
@@ -232,8 +267,8 @@ device-flow 인증이 정석이다. 자세한 원인은
 
 ### 코어 업데이트
 
-`hermes update`는 안정 릴리스가 아니라 `origin/main`을 따라간다. 현재 체크아웃은
-10,193 commits behind로 표시되므로 무심코 실행하지 않는다.
+`hermes update`는 안정 릴리스가 아니라 `origin/main`을 따라간다. 2026-08-23의
+10,193 commits behind 상태는 과거 기록이며, 2026-10-03 업데이트 후 CLI는 Up to date를 표시했다. 업데이트 전 백업·사용자 변경 보존·재시작 범위를 확인한다.
 
 통제된 업데이트 순서:
 
@@ -243,8 +278,7 @@ device-flow 인증이 정석이다. 자세한 원인은
 4. `uv pip install --python venv/bin/python -e .`로 editable install을 갱신한다.
 5. 모든 프로필 gateway를 재시작하고 API·Telegram을 실검증한다.
 
-현재 코어 저장소에는 기존 사용자 변경 `package-lock.json`이 있으므로 업데이트 전에
-보존 또는 정리 방향을 먼저 결정해야 한다.
+2026-08-23에는 코어 저장소의 `package-lock.json`에 사용자 변경이 있었다. 10/3 문서 갱신에서는 해당 파일 상태를 재검증하지 않았으므로 후속 업데이트 전에 다시 확인한다.
 
 ## 6. 2026-08-22 gateway 충돌·로그 폭증 해결
 
@@ -380,7 +414,20 @@ gateway.error.log.after-first-fix-20260822-235426.gz
   문서를 이 페이지로 통합했다.
 - 현재 런타임을 다시 실측해 과거의 maccoder Telegram·xhigh 설명을 정정했다.
 
+### 2026-10-03 — 모델·추론 통일, cron 복구·보고 범위 변경
+
+- 전체 9개 프로필 기본 모델을 `gpt-6.1-sol`, provider를 `openai-codex`, reasoning effort를 `medium`으로 맞추고 각 config를 확인했다.
+- 뉴스와 Wiki lint는 생성 당시 `gpt-5.5`와 이후 `gpt-5.6-sol` 사이의 모델 변경을 구버전 보호장치가 감지하여 inference 전에 차단하고 있었다. 최신 코드에서는 legacy model/provider snapshot을 모델 고정으로 취급하지 않는다.
+- 두 작업의 pin을 해제하고 `news`·`maccoder` Gateway를 재시작했다. Wiki lint는 14:11, 뉴스는 14:21 실행 기록이 `ok`, `last_error` 및 `last_delivery_error`가 null인 것을 확인했다. 두 실행은 당시 local 저장 대상이었다.
+- Wiki lint 실행 보고에 따르면 공유 Wiki의 내용 충돌 페이지를 `contested: true`로 표시하고 커밋 `850c19b`를 생성했다. 이는 작업 산출물 보고 기준이다.
+- 트레이딩 일일 보고서는 `gpt-5.6-sol` 고정을 해제하고 default 모델을 따르게 했다. 이후 Upbit 관련 지시를 제거하고 `ht_trading`만 보고하도록 프롬프트를 수정했다. prompt 외 설정 변경 없음도 확인했다.
+- 뉴스 전달은 local에서 맥비 작업실 뉴스 토픽 609로 변경했다. topic 수신과 deliver 설정은 검증했고, 새 대상의 실제 발송은 다음 19시 실행에서 확인할 예정이다.
+
 ## 8. 남은 위험과 후속 점검
+
+아래 기존 위험 1–7은 2026-08-23 조사 기록이며, 2026-10-03에 크기·파일 상태·해결 여부를 재검증한 것은 아니다.
+
+- **당일 후속:** 뉴스 토픽 609 첫 발송 확인, 수정된 HT 전용 21시 보고서 확인, 나머지 하위 프로필 기존 세션의 새 모델 반영 여부 확인.
 
 1. **Hermes 코어 git garbage**: `~/.hermes/hermes-agent/.git`이 약 1.4 GiB이고,
    `git count-objects -vH` 기준 `tmp_pack_*` garbage가 약 593.6 MiB다. gateway
@@ -415,6 +462,8 @@ gateway.error.log.after-first-fix-20260822-235426.gz
 역할 배치는 이 문서를 우선**한다.
 
 ## 변경 이력
+
+- 2026-10-03: 실제 CLI·config·cron 기록을 바탕으로 버전·모델·추론 설정 갱신. 프로필 역할·활동, cron 장애 복구, HT 전용 보고 및 뉴스 토픽 전달 설정 추가. 실행 성공과 새 전달 대상 미검증 상태를 구분하고 과거 운영 수치를 과거 기록으로 표시.
 
 - 2026-05-09: 최초 생성. default 위에 maccoder 프로필을 추가한 셋업을 기록.
 - 2026-05-23: Telegram reconnect loop 복구 기록 추가.
