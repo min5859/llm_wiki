@@ -25,6 +25,7 @@ sources:
   - "session-logs/20260719-211542-2222-hermes-에-aI-provider로-모델이-뭘로-설정되어-있지.md"
 confidence: high
 related:
+  - "wiki/bugs/hermes-webui-runtime-import-offline.md"
   - "wiki/concepts/hermes-agent.md"
   - "wiki/projects/hermes-dashboard.md"
   - "wiki/analyses/multi-profile-cli-agent-isolation.md"
@@ -46,7 +47,7 @@ related:
 
 ## 1. 현재 상태 요약
 
-기준일: **2026-10-03 KST**. 버전·모델·추론 레벨·예약 작업은 당일 CLI와 파일로 재확인했다. API 포트·WebUI·인증 공유 구성은 2026-08-23 기록이며 이번에는 재검증하지 않았다.
+기준일: **2026-10-03 KST**. 버전·모델·추론 레벨·예약 작업은 당일 CLI와 파일로 재확인했다. WebUI는 당일 offline 장애 복구 후 메인 페이지·프로필 API HTTP 200을 확인했다. 개별 프로필 API 포트·인증 공유 구성은 2026-08-23 기록이며 이번에는 재검증하지 않았다.
 
 | 항목 | 현재 값 |
 |---|---|
@@ -265,7 +266,14 @@ hermes auth add openai-codex --type oauth
 device-flow 인증이 정석이다. 자세한 원인은
 [[oauth-refresh-token-rotation-multi-client]] 참고.
 
-### 코어 업데이트
+### WebUI 업데이트 후 offline 복구·예방
+
+- 원인·해결·재발 복구 명령은 [[hermes-webui-runtime-import-offline]] 참고.
+- 10/3 기존 Python 3.11 서비스에서 최신 Hermes runtime으로 전환되며 `api` 모듈 경로를 잃어 서버가 반복 종료됐다. 현재 runtime과 WebUI 경로를 명시한 1차 복구 후 HTTP 200 확인.
+- 버전 경로를 고정하지 않는 영구 런처 `~/.hermes/scripts/webui_runtime_launcher.py`를 만들고 import·서로 다른 runtime argv·별도 포트 2회 기동 테스트를 통과했다.
+- plist는 `/usr/bin/python3` + 영구 런처로 수정하고 인증값 등 나머지 필드 보존을 확인했다. **마지막 외부 Mac 터미널 service reload 전이라 production은 아직 기존 1차 복구 방식으로 실행 중**이다.
+
+### 코어 업데이트 절차
 
 `hermes update`는 안정 릴리스가 아니라 `origin/main`을 따라간다. 2026-08-23의
 10,193 commits behind 상태는 과거 기록이며, 2026-10-03 업데이트 후 CLI는 Up to date를 표시했다. 업데이트 전 백업·사용자 변경 보존·재시작 범위를 확인한다.
@@ -462,6 +470,8 @@ gateway.error.log.after-first-fix-20260822-235426.gz
 역할 배치는 이 문서를 우선**한다.
 
 ## 변경 이력
+
+- 2026-10-03: WebUI 업데이트 후 offline의 runtime/import 경로 원인과 복구 기록을 별도 bug Runbook에 추가. 자동 탐색 런처·회귀/HTTP 테스트·plist 수정 완료, production reload는 사용자 실행 대기로 구분.
 
 - 2026-10-03: 실제 CLI·config·cron 기록을 바탕으로 버전·모델·추론 설정 갱신. 프로필 역할·활동, cron 장애 복구, HT 전용 보고 및 뉴스 토픽 전달 설정 추가. 실행 성공과 새 전달 대상 미검증 상태를 구분하고 과거 운영 수치를 과거 기록으로 표시.
 
