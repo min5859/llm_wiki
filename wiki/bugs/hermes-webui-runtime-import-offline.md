@@ -68,12 +68,13 @@ related:
 
 Hermes/WebUI 저장소 내부 코드는 수정하지 않아 git update로 로컬 패치가 사라지는 문제를 피했다. 다만 Hermes CLI의 runtime 출력 형식이나 저장소 위치가 바뀌면 런처도 점검해야 한다. 모든 종류의 업데이트 장애를 막는다는 보장은 아니다.
 
-### 적용 상태 — 2026-10-03 18:33 KST
+### 적용 상태 — 2026-10-03 최종 검증
 
 - 자동 탐색 런처 설치 및 테스트 완료.
 - plist를 새 런처로 변경하고 read-back 검증 완료. ProgramArguments 외 모든 기존 필드 동일 확인.
-- 실행 중인 production 서버는 기존 1차 복구 프로세스이며 HTTP 200 유지.
-- **새 plist를 launchd에 reload하는 마지막 단계는 대표님의 외부 Mac 터미널 실행 대기. 아직 새 방식으로 production 서비스가 기동했다고 주장하지 않는다.**
+- 대표님이 외부 Mac 터미널에서 service reload 완료. 최초 연속 bootout/bootstrap은 error 5로 등록 실패했으며, 서비스 제거 완료 뒤 bootstrap만 재실행하여 성공했다. 로그상 제거 완료 전에 등록이 시도된 타이밍 문제 가능성이 있었지만 error 5 원인을 단정하지 않는다.
+- **production 적용 검증 완료:** launchd loaded program `/usr/bin/python3`, argv `webui_runtime_launcher.py`, running, PID 9157, 당시 기동 이후 종료 기록 없음.
+- `/` 및 `/api/profiles` 모두 HTTP 200, 프로필 9개 확인. 실제 채팅·다음 업데이트 버튼 동작은 이번 최종 검증 범위에 포함하지 않았다.
 
 백업:
 
@@ -92,8 +93,15 @@ Hermes/WebUI 저장소 내부 코드는 수정하지 않아 git update로 로컬
 
 `WEBUI_RUNTIME_IMPORT_OK` 확인 후, 이미 수정된 서비스 정의를 다시 불러온다:
 
+먼저 기존 서비스를 내린다:
+
 ```bash
-launchctl bootout gui/$(id -u)/com.hermestalk.webui &&
+launchctl bootout gui/$(id -u)/com.hermestalk.webui
+```
+
+기존 서비스 제거가 완료됐는지 확인한 뒤 등록을 별도로 실행한다. 즉시 `&&`로 연결하면 10/3처럼 error 5가 발생할 수 있다.
+
+```bash
 launchctl bootstrap gui/$(id -u) /Users/wooki/Library/LaunchAgents/com.hermestalk.webui.plist
 ```
 
@@ -122,12 +130,14 @@ HTTP 200과 프로필 목록을 확인하고 브라우저를 새로고침한다.
 - 별도 포트·임시 WebUI state에서 실제 서버를 두 번 기동: 매회 `/`·`/api/profiles` 200, 프로필 9개.
 - 테스트 서버는 종료했고 production 포트는 건드리지 않았다.
 - 실제 Hermes 업그레이드를 다시 실행하거나 WebUI 업데이트 버튼을 재클릭하는 파괴적/네트워크 변경 테스트는 하지 않았다.
-- 새 launchd 정의의 production 활성화와 실제 채팅은 마지막 reload 뒤 확인해야 한다.
+- 새 launchd 정의의 production 활성화 및 HTTP/API는 마지막 reload 뒤 확인 완료. 실제 채팅은 별도 확인 대상이다.
 
 ## 관련 맥락
 
 운영 정본은 [[hermes]], 프로필별 실행 환경 원리는 [[multi-profile-cli-agent-isolation]] 참고.
 
 ## 변경 이력
+
+- 2026-10-03: 외부 터미널 reload 및 error 5 후 단독 bootstrap 재실행 성공. 자동 탐색 런처가 loaded service에 적용됐고 HTTP/API 200·프로필 9개를 확인하여 활성화 대기 상태를 완료로 갱신.
 
 - 2026-10-03: 장애 원인·1차 복구 결과, 자동 runtime 탐색 런처·테스트·백업·재발 복구 명령 기록. 새 production 서비스 활성화 대기는 별도 표시.

@@ -337,3 +337,11 @@
 - 수집 기준·승격 규칙·읽기 경로를 CLAUDE.md에 명문화.
 - v1에서 73건 이관 완료 (ai-agent 44 · trading 29). 선별 기준: 참조 5+ 또는 변경 이력 2+ 또는 도메인 고유 지식. 상세는 MIGRATION.md.
 - frontmatter `domain` 을 `ai-agent | trading` 으로 전건 갱신, index.md 전건 등록.
+
+
+## 2026-10-03 (ingest — default/맥비)
+
+- 사용자 요청으로 Notion Oracle Cloud 페이지 전체 115개 블록을 조회하고 기존 wiki/patterns/oracle-cloud-free-tier-setup.md와 비교했다. 핵심 가입·PAYG 내용은 기수록, 한국 가입 폼·운영 명령·OCI CLI 인증 재현·Windows 접속은 미수록으로 확인했다.
+- 생성: raw-sources/2026-10-03-notion-oracle-cloud-free-tier.md (원본 Markdown·SHA256), wiki/patterns/oracle-cloud-operations-cheatsheet.md (누락 보충·시점 주의·internal).
+- 수정: wiki/patterns/oracle-cloud-free-tier-setup.md (출처·보충문서 링크·변경 이력), wiki/index.md (신규 문서 등록), wiki/log.md (본 기록).
+- 기존 2026-10-03 무료 한도·디스크 증설 조사 내용 보존. Notion 및 원격 서버 변경 없음. git commit/push 없음.

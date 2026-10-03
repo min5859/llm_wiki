@@ -24,6 +24,7 @@
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 파싱 실패 시 raw 응답 덤프 + 재시도 패턴
 - [[macos-tcc-full-disk-access]] — macOS TCC: 터미널이 다른 앱 sandbox 에 접근할 때 토스트 팝업 처리
 - [[oracle-cloud-free-tier-setup]] — Oracle Cloud Free Tier 무료 VM 가입·셋업 가이드 — ARM A1 재고 품귀 실전 기록과 PAYG 전환 해법
+- [[oracle-cloud-operations-cheatsheet]] — Notion에서 보충한 OCI 운영 명령어·한국 가입 입력 팁·CLI API 키 설정·Windows SSH 접속 (과거 실행 기록)
 - [[parallel-review-adversarial-fix-workflow]] — 병렬 리뷰 → 교차검증 → TDD 수정 + 적대적 검증 워크플로
 - [[prompt-schema-pipeline-coupling]] — LLM 프롬프트 출력 스키마와 다운스트림 validator 간 결합 관리
 - [[shell-set-eu-topic-isolation]] — shell 의 set -eu 와 multi-topic 파이프라인의 격리 패턴

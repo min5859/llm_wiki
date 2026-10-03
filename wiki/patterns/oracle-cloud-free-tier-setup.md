@@ -6,6 +6,7 @@ tags: ["pattern", "oracle-cloud", "oci", "free-tier", "always-free", "iaas", "ub
 created: 2026-06-21
 updated: "2026-10-03"
 sources:
+  - "raw-sources/2026-10-03-notion-oracle-cloud-free-tier.md"
   - "대화 세션 20260621 (Oracle Cloud Free Tier 조사)"
   - "대화 세션 20260705~10 (실제 가입·A1 인스턴스 확보·셋업)"
   - "2026-10-03 OCI API 및 SSH 읽기 전용 점검"
@@ -221,10 +222,14 @@ systemctl list-timers dev-blog.timer research-wiki.timer oss-radar.timer
 
 ## 관련 맥락
 
+- [[oracle-cloud-operations-cheatsheet]] — Notion에서 보충한 한국 가입 입력 팁·운영 명령어·OCI CLI 인증 재현·Windows SSH 접속. 원본 과거 기록을 보존하며 현재 무료 한도는 이 문서가 기준.
+
 - SSH 키 관리·접속 도구는 `wiki/patterns/ssh-cli-toolkit-essentials.md` 참고
 - 클라우드 DB 가 필요하면 Supabase(`wiki/patterns/supabase-region-migration.md`) 등 BaaS 대안도 검토
 
 ## 변경 이력
+
+- 2026-10-03 [default/맥비]: Notion 전체 115개 블록과 비교. 중복 가입·PAYG 내용은 유지하고 미수록 운영/자동화/Windows 접속 내용을 별도 치트시트로 추가, 원본과 상호 연결. 오늘의 무료 한도·디스크 증설 조사 기록은 보존.
 
 - 2026-06-21: 최초 생성 (출처: Oracle Cloud Free Tier 조사 세션). 수치는 2026-01 기준 지식이며 가입 직전 공식 페이지 재확인 권장 (confidence: medium)
 - 2026-07-10: 실제 도쿄 계정으로 A1.Flex(4 OCPU/24GB) 확보·셋업 완료. "실전 기록 — 도쿄 재고 품귀와 PAYG 해결" 섹션 추가, iptables 규칙 순서 함정 추가, confidence high 로 상향 (출처: 20260705~10 실행 세션)
