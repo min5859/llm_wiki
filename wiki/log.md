@@ -1,5 +1,124 @@
 # 운영 로그
 
+## 2026-10-10 (ingest — 지정된 2026-08-04~08-08 세션)
+
+- **session-logs 유래** — 지정된 104건 전수 검토, 104건 스킵 후 `ingested: true`. 날짜별 22/22/20/20/20건. 모두 `type: session-log`이며 mcp-note는 없음. 신규·갱신 지식 페이지 0건.
+- **판단 근거** — 전건 조사 요청·입력 후보만 기록되어 있고 Session Summary는 `assistant_turns: 0`, `bash_commands_logged: 0`, `file_edits: 0`. 완성된 dossier, 유용한 비교·분석의 결론, 구현·검증 결과가 없어 Phase I 승격 대상이 아님. 반복 입력은 독립된 지식 검증이나 두 번째 학습 사례로 세지 않음.
+- **기존 wiki 대조** — 조사/작문 분리·evidence 계약·미확인 항목 격리는 [[research-write-agent-separation]]에 기수록. AI 후보의 소스 유출·OAuth 과금·스킬·CLI 주제는 [[claude-code-source-leak-internals]], [[anthropic-oauth-third-party-billing-trap]], [[claude-code-skills-plugins]], [[openai-codex-cli-overview]]와 겹치며 이번 입력에 새 검증 결론은 없음. 로깅 한계는 [[dev-blog]]의 2026-07-30·08-03 기록, URL 마스킹 훼손은 [[gieok-session-log-url-credential-masking-false-positive]]에 기수록. 0턴만으로 실행·게시 실패를 확정하거나 짝지어진 요청만으로 재시도 원인을 추정하지 않음.
+- **raw-sources 유래** — 요청 범위인 하위 서브디렉터리의 MD/fetched 자료 없음. 루트의 `raw-sources/claude-code-opus-orchestration-setup.md`와 `raw-sources/2026-10-03-notion-oracle-cloud-free-tier.md`는 이번 하위 디렉터리 수집 범위 밖이므로 수정·재요약하지 않음. summary 신규/갱신 및 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 디렉터리 없음, chunk/index 수집 대상 0건.
+- **변경 파일 전체** — `wiki/index.md`, `wiki/log.md`, 아래 104개 세션 파일. 세션은 frontmatter의 `ingested` 한 줄만 변경. raw-sources 및 목록 외 세션, 기존 사용자 변경 보존.
+
+### 파일별 스킵 근거 및 변경 세션 전체 목록
+
+공통 근거는 위의 응답·실행 기록 부재입니다. 아래 각 파일에 추가적인 내용 기준을 명시합니다.
+
+- `session-logs/20260804-030015-9eea-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-030046-c44b-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-030052-af40-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-030118-1da7-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-030127-2800-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260804-030152-6b12-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260804-030744-adac-#-Opensource-Curation-Research-Dossier-당신은-오픈소스-큐레.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260804-031826-56b9-#-Opensource-Curation-Research-Dossier-당신은-오픈소스-큐레.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260804-031841-9e6f-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260804-031914-a124-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260804-031929-ac96-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032000-8430-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032012-315e-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032045-acc6-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032057-5d2c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032129-fae6-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032141-3719-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032214-a0ac-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032231-f9d6-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032303-6dc4-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032311-e559-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260804-032339-35c6-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-030012-8f98-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-030041-6364-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-030047-31c4-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-030113-75cd-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-030122-921f-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260805-030147-e14b-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260805-030827-ccca-#-Opensource-Curation-Research-Dossier-당신은-오픈소스-큐레.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260805-032152-63d1-#-Opensource-Curation-Research-Dossier-당신은-오픈소스-큐레.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260805-032207-47d7-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260805-032241-e439-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260805-032255-c838-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032327-a9d1-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032344-4fc4-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032420-d62a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032434-949a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032506-23da-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032518-af81-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032552-f535-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032604-d6e7-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032638-27c8-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032649-d71f-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260805-032721-e254-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030017-b538-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030049-cc62-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030055-bd71-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030121-56b6-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030129-28b3-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260806-030155-dc81-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260806-030336-9a1e-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260806-030408-88df-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260806-030425-ec83-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030500-dd3a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030517-6872-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030549-7d13-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030602-e576-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030634-756a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030646-f459-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030718-068c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030731-0e81-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030804-ecbd-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030814-de6a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260806-030846-4e6d-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030018-720a-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030051-786a-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030057-589e-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030122-dfef-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030130-719d-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260807-030156-ebea-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260807-030338-ab26-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260807-030410-f286-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260807-030425-7140-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030457-ffcd-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030509-1b48-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030541-5c2e-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030555-0c3c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030628-8677-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030639-7dc7-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030711-6072-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030723-125d-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030754-1d3d-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030806-4556-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260807-030839-9117-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030014-8be9-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030045-e4dc-#-Linux-Daily-Research-Dossier-당신은-리눅스-커널-개발-뉴스레터의.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030051-e6f6-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030116-4ebc-#-Android-Kernel-Research-Dossier-당신은-Android-커널-개.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030124-0d9e-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260808-030149-0cb2-#-Opensource-Trending-Research-Dossier-당신은-오픈소스-트렌.md` — 스킵: OSS 트렌딩·도입 조사 후보만 존재; AI/트레이딩 관련 레포도 검증된 설계·비교 결과 없음.
+- `session-logs/20260808-030313-3167-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260808-030345-866f-#-AI-Coding-Agents-Research-Dossier-당신은-AI-코딩-에이전트.md` — 스킵: AI 제품 뉴스·기수록 주제의 입력 후보만 존재; 새로운 범용 분석 결론 없음.
+- `session-logs/20260808-030358-a6cf-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030428-49b7-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030441-d76f-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030514-c85f-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030526-e4cc-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030558-97e3-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030610-793d-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030643-a846-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030656-5bad-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030734-4b13-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030748-ecbf-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+- `session-logs/20260808-030820-4ad3-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md` — 스킵: 커널 패치·릴리스 뉴스 후보로 수집 도메인 밖; 조사 계약은 기존 research-write-agent-separation에 기수록.
+
+
 ## 2026-08-16 — HT-001 누적 분석 착수
 
 - 신규: [[ht-trading-live-data-improvement-analysis]] — `ht_trading` 운영 로그·1분봉·스냅샷·일봉 백테스트를 연결한 누적 분석 원장. 8/5~8/14 실제 체결 33건, 신규 스크리너 진입 10건, 2024~2025 장기 baseline과 단일변수 실험을 기록.

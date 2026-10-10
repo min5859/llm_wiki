@@ -154,6 +154,8 @@
 
 ## 변경 이력
 
+- 2026-10-10: 지정된 2026-08-04~08-08 Research Dossier 세션 104건 검토·스킵 처리. 조사 요청과 후보만 남아 새 지식 페이지 없음. 기존 조사 계약·로깅 한계 문서와 대조했으며 파일별 근거와 변경 파일 전체 목록은 [[log]]의 해당 일자 기록 참조.
+
 - 2026-08-17: [[ht-trading-live-data-improvement-analysis]] 갱신 — 국내 BUY 안전가드 구현·배포 결과와 스크리너 점수(30건), 시장 국면 필터(나쁜 장의 실제 BUY), InfiniteBuying(실제 라운드 종료) 추적 조건을 인덱스에 반영.
 - 2026-08-01: 신규 0건. 갱신 1건 — [[newsletter-research-anti-bot-blocking]] (08-01 10번째 관측 — patchwork.kernel.org API 가 Mozilla UA 호출에 Anubis 챌린지 v1.18.0(lore 의 1.25.0 과 별도 배포)을 처음 반환해 폴백 채널 자체로 차단 확산 + Mozilla 포함 복합 UA `… curl-lore-fetch` 도 챌린지 대상 + git/2.43.0 UA·cdn ChangeLog·releases.json 통과 재확인, 차단 9일 연속). session-logs 유래 21건 처리(20260801 dev-blog cron 03:00~05:04 사이클), 뉴스레터 기사 콘텐츠는 전량 뉴스성 스킵(MIME 미디코딩·마스킹 span 파괴는 기수록 재발, `Assisted-by: Claude` 커밋 표기는 도메인 밖 뉴스).
 - 2026-07-31: 신규 0건. 갱신 1건 — [[newsletter-research-anti-bot-blocking]] (07-31 9번째 관측 — `mutt/2.2` 메일 클라이언트 UA 통과 신규 실측 + `git/2.53.0` 세 버전째 통과 + 브라우저 Mozilla UA 응답이 07-29 `500` 변형에서 `200`+Anubis 챌린지 형태로 복귀 + git.kernel.org cgit 는 기본 curl 로 200 이라 필터는 lore 국한). session-logs 유래 23건 처리(20260731 dev-blog cron 03:00~05:00 사이클), 뉴스레터 기사 콘텐츠는 전량 뉴스성 스킵.
