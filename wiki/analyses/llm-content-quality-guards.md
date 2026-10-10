@@ -4,9 +4,12 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["analysis", "llm", "newsletter", "content-quality", "hallucination", "prompt-engineering", "cjk-leak", "language-enforcement"]
 created: 2026-05-12
-updated: 2026-07-26
+updated: "2026-10-10"
 source_session: "20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
 sources:
+  - "session-logs/codex-019e6ee9-3c6c-7930-bf1e-428ce5df35eb.md"
+  - "session-logs/codex-019e5525-08d4-7620-90eb-04c6e3d81c25.md"
+  - "session-logs/codex-019e5f49-2074-7ed0-8a85-fbf004b4e51d.md"
   - "session-logs/20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
   - "session-logs/20260514-080604-8120-자동-파이프라인-상태-2026-05-14-1개-토픽-실패---9개-성공.-linux-gpu.md"
   - "session-logs/20260628-030337-d36d-#-Linux-Daily-Newsletter-—-Write-from-Dossier-당신은.md"
@@ -225,7 +228,23 @@ LLM 은 프롬프트 룰만으로는 100% 보장하지 못함 — 가드 5-1 의
 - [[llm-news-prediction-pitfalls]] — LLM 시장 예측의 검증 결여 함정 (동일 사상의 도메인 다른 적용)
 - [[news-driven-market-signal-framework]] — 시그널의 7-축 구조 (검증 가능 시그널 분리)
 
+## 구조 검증과 의미·근거 검증의 재시도 경계 (2026-05 사례)
+
+dev-blog는 JSON 파싱만 재시도하던 경로에 스키마 validator와 입력 근거 URL whitelist 검사를 포함했다. `postValidator` 실패도 같은 제한된 재시도 대상이 됐다. 깨진 중간 JSON 뒤의 정상 결과 후보를 복구하는 파서와 quality guard는 별개다.
+
+CLI의 JSON 이벤트/envelope가 콘텐츠 스키마 보장을 뜻하지는 않는다. 한편 현재 Codex `--output-schema`는 최종 출력 구조를 지정할 수 있으므로, 과거 세션의 “CLI에는 구조 강제 기능이 없다”는 설명을 현재 제약으로 재사용하지 않는다. 구조가 맞아도 입력에 없는 URL·의미 왜곡은 별도 grounding 검증이 필요하다.
+
+## 로그 분석도 근거를 구조화한다 (2026-05~06 wide 기록)
+
+개인 IDE의 Android Log M1~M4 구현에서는 선택 로그·주변 로그·stacktrace로 얻은 코드를 AI 입력으로 구성하고, 답변의 근거 로그를 강조하며 코드 위치 링크를 표시했다. 자연어 진단뿐 아니라 입력의 로그 행·코드 위치로 돌아갈 수 있는 UI를 구현한 기록이다.
+
+후속 redaction hook·설정 UI·추가 필터는 마지막 세션에서 미실행 계획이었다. MVP 완료와 모든 아이디어 적용을 혼동하지 않는다. 새 근거 유형에서도 참조 ID의 실재·workspace 내부 코드 위치·모델 전송 전 비밀 정보 제거를 각각 검증한다.
+
 ## 변경 이력
+
+- 2026-10-10: Codex 과거 세션에서 구현 완료와 미실행 계획을 구분해 보강.
+
+- 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 
 - 2026-05-12: 최초 작성 (session-logs/20260511-230001-14d5-*.md). dev-blog 5/11 콘텐츠 품질 회고에서 도출된 4 가드 패턴을 일반화
 - 2026-06-28: 일반 원칙 #5(결함 패턴은 토픽별로 다름)에 **anti-prediction 가드의 토픽별 tailoring 실증** 1건 보강 — "미래 버전 번호 발명 금지" 가드가 Linux Daily·AI Coding Agents write 프롬프트엔 있고 Opensource Trending 엔 없음(버전 신호가 핵심인 토픽만 on). 관련: dossier 의 `verified`/`seenBefore` 스키마 성숙과 grounding≠정확성 함정은 [[research-write-agent-separation]] 에 수록 (출처: session-logs/20260628-030337-d36d-*, -032046-b0b8-* 외 dev-blog 03:00 사이클 22건)

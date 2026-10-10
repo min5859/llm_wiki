@@ -4,8 +4,9 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-07-23"
+updated: "2026-10-10"
 sources:
+  - "session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md"
   - "session-logs/20260722-235919-b228-지금-프로젝트가-7월5일-이후로-동작을-안하고-있는-것-같은데-확인좀-해줘.md"
   - "session-logs/20260428-152446-9b5b-project-toy-oss-radar--프로젝트를-시작하려고합니다.-현재상태를-분석해주세.md"
   - "session-logs/20260428-153031-2553-project-toy-oss-radar--프로젝트의-phase-1부터-진행해-주세요.md"
@@ -253,7 +254,17 @@ fi
 
 **검증**: `launchctl kickstart` 로 실제 launchd 환경에서 양쪽 다 재실행 — research-wiki(04:00) 5단계 완주 exit 0, oss-radar(05:00) 4단계 완주 exit 0. (출처: session-logs/20260722-235919-b228-*)
 
+## OCI 이관·공용 게시 계정 운영 이력 (2026-09~10)
+
+OCI systemd service/timer와 비게시 dry-run을 준비하고 Python 환경·AI CLI 인증·Wiki 쓰기 권한을 각각 검증했다. GitHub API 인증 성공과 Wiki push 권한 성공은 별개다. 분석 history는 파일 생성 시점이 아니라 실제 게시 성공 기준과 대조해야 한다.
+
+최종 기록에서는 Dev Blog·Research Wiki와 `wiki-publisher` 계정으로 통합됐고, 정기 실행은 KST 03:00·04:00·05:00에 분리했다. 기존 Mac 예약 중단 후 OCI 정기 게시를 검증했고, OSS 게시 날짜·생성 시각·Home 링크를 KST로 맞췄다. 10월 10일 세션에는 OSS 5개 게시와 원격 commit 일치가 기록됐다.
+
+AI CLI 업데이트는 모델 지원 확인·실제 응답·프로젝트 테스트·다음 정기 실행으로 검증했다. 이전 Codex 설치본·캐시 누적은 게시물 데이터 증가와 분리해 진단했다. 오래된 서비스 계정 정리는 전환 성공·백업/소유 파일 확인 뒤 진행한 이력이며, 이번 ingest에서 계정·서버를 변경하지 않았다.
+
 ## 변경 이력
+
+- 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 
 - 2026-04-28: 최초 생성 — Phase 1~6 전체 구현 완료 기록
 - 2026-04-28: 자동화 스케줄 매주 월요일 → 매일 09:00 변경, GITHUB_TOKEN 보안 패턴, analyze.sh venv 버그 수정, 중복 방지 한계 3가지 추가

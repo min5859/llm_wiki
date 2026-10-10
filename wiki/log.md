@@ -1,3 +1,79 @@
+## 2026-10-10 (Codex 미수집 기록 보강)
+
+- Codex 원본은 동일 세션의 재개 파일을 합쳐 **65개 고유 세션 기록**으로 검토했다. 이 중 26개는 기존 문서/신규 문서에 반영하고 39개는 중복·도메인 밖·단발 사용·내부 승인 심사·미완료 입력으로 스킵했다. 이번 훅 스모크 세션도 포함된다.
+- CLI 사용량 한도로 별도 Codex 실행이 중단되어, 나머지는 현재 Codex 대화에서 질문·최종 결과·정정 및 필요한 원본 발췌를 대조했다. 일반화하기 어려운 수치와 미실행 계획은 구현 완료로 기록하지 않았다.
+- 신규: [[codex-session-capture-and-curation]], [[trailing-activation-current-profit-gate]], [[trading-performance-cash-flow-reconciliation]].
+- 보강: gieok, ht-trading, ht-dde, dev-blog, oss-radar, finance-analysis-nextjs, scoring-version-comparison-methodology, optimal-strategy-search-preconditions, shared-broker-appkey-token-cache, multi-agent-orchestration-taxonomy, openai-codex-cli-overview, llm-content-quality-guards. 기존 데이터·계좌·원격 서버 변경 없음.
+- 동일 Codex 세션 ID의 원본 두 개가 서로 덮어쓰지 않도록 수집기와 회귀 테스트를 수정했다. 아래 검토 표는 처리 시점의 로그 스냅샷 기준이며 새 대화가 생기면 해당 세션은 다시 미처리로 돌아간다.
+
+| 세션 로그 | 판단·근거 |
+|---|---|
+| `session-logs/codex-019d91a6-e931-7bb3-acfd-12bc49260658.md` | 반영: Codex 상태라인의 컨텍스트/누적 토큰/사용량 구분. 강의 검수·Tips 보강은 기존 위키와 중복. |
+| `session-logs/codex-019d96ad-2498-7e00-a865-f3adf37de6f5.md` | 스킵: 4월 코드 리뷰의 이름 표시·분할 시점·미수정 지적. 후속 상태와 혼동하지 않으며 기존 시점/체결 패턴과 중복. |
+| `session-logs/codex-019d96ad-9ab5-7c80-81ae-eeb1b660fa8f.md` | 스킵: 단일일 매매 상황·분할 체결/pending 분석. 기존 위험/실패 횟수 기록 원칙과 중복. |
+| `session-logs/codex-019d96b5-ecf1-74f2-860c-0d277a094067.md` | 반영: 상태라인 ctx/tok/rate 구분과 좁은 표시 폭 처리. |
+| `session-logs/codex-019d96ba-5c40-7382-867e-848037e8c782.md` | 반영: 상태라인 이력. 회사 원본 로컬 격리는 기존 gieok/위키 수집 원칙과 중복. |
+| `session-logs/codex-019db8f4-139a-7a71-864f-ca4c29244465.md` | 반영: 4월 분할 가드 최종 변경을 역사로 보강. 이후 변경보다 오래된 값임을 명시. |
+| `session-logs/codex-019db8f6-9373-77e2-8cb1-80ef1ee29289.md` | 스킵: OpenClaw 코더·Telegram 바인딩·ACP 및 모델 캐시 구성. 기존 OpenClaw 아키텍처/런타임 문서와 중복. |
+| `session-logs/codex-019db94c-08b0-71a2-8788-9560ba832443.md` | 스킵: codex_ok 스모크 응답만 존재. |
+| `session-logs/codex-019dbaa3-ca31-73d3-a231-1154dd14453c.md` | 스킵: 자산 대시보드 초기 스캐폴딩과 외부 DB 연결 보류. 단일 초기 구현·미실행 계획으로 추가 승격 보류. |
+| `session-logs/codex-019df090-25fd-7e60-83e4-8174097452e1.md` | 스킵: URL 요청만 있고 분석 응답 없음. |
+| `session-logs/codex-019df091-d751-7953-bbdc-315079153465.md` | 스킵: kakaocli 설치·Xcode 조건 등의 단발 도구 사용. 기존 카카오/TCC 기록과 중복. |
+| `session-logs/codex-019df589-b806-72d0-a244-f502ebb415ed.md` | 스킵: Gmail 메일 정리와 건수. 수집 도메인 밖의 개인 작업. |
+| `session-logs/codex-019df5c1-f42b-7b73-ae5e-bf0f56cb9f69.md` | 스킵: 현재 폴더 확인만 존재. |
+| `session-logs/codex-019df5c2-47aa-74c0-9f07-60062af7cbf2.md` | 스킵: 현재 폴더 확인만 존재. |
+| `session-logs/codex-019e1757-4492-73a0-8bb8-5b9a959d3bec.md` | 스킵: 인사·구독 만료일 질문. 새로운 검증된 지식 없음. |
+| `session-logs/codex-019e1c2c-311e-7c33-aa19-d5528d77bad2.md` | 스킵: 인사만 있고 응답 없음. |
+| `session-logs/codex-019e3b82-158c-7c41-a94e-907f9fb5ff38.md` | 반영: codex exec 비대화형 실행의 운영 이력. 단발 Git 검사 회피 예시는 일반 운영 권고로 승격하지 않음. |
+| `session-logs/codex-019e3b85-33db-7a62-9310-a1dab8be91ee.md` | 스킵: 일반 자동화 아이디어 목록. 검증되지 않은 첫 제안. |
+| `session-logs/codex-019e4adc-3dd2-7671-ac06-f533f162e83a.md` | 반영: M&A 데이터 구조·저장 경로의 구현 이력. 미검증 평가 정확성과 미완료 기능을 분리. |
+| `session-logs/codex-019e5525-08d4-7620-90eb-04c6e3d81c25.md` | 반영: LLM 출력의 스키마·근거 검증. impactType/affectedAudience 등의 기존 구현은 중복. |
+| `session-logs/codex-019e5f49-2074-7ed0-8a85-fbf004b4e51d.md` | 반영: 파싱뿐 아니라 validator/URL grounding 실패도 제한 재시도. 과거 CLI 구조 강제 제약은 현재 기능과 구분. |
+| `session-logs/codex-019e6987-c6d4-7b11-8644-dce5a939736d.md` | 스킵: 커뮤니티 SaaS·에이전트 사업 아이디어와 Finder 사용법. 검증되지 않은 제안/단발 사용. |
+| `session-logs/codex-019e698e-7600-7963-89a0-19397bd4feb9.md` | 스킵: 일회 전역 권한·컨텍스트 설정. 큰 창과 구독 한도 차이는 기존/보강 Codex 문서로 대조. |
+| `session-logs/codex-019e6ee9-3c6c-7930-bf1e-428ce5df35eb.md` | 반영: Android Log AI의 근거 로그·코드 context 구현과 후속 redaction 미실행 계획 구분. 일반 IDE UI/플러그인 구현은 범위 밖/단발. |
+| `session-logs/codex-019e7848-92b0-7fa3-8c65-18a2d07b35e8.md` | 스킵: wide 편집기·파일 트리/Markdown preview smoke와 단일 UI 구현. 재조회용 새 도메인 지식 없음. |
+| `session-logs/codex-019e837c-d7e0-7212-b02b-de0b576c8a17.md` | 반영: 모든 보유 종목을 모든 전략에 붙이던 유니버스 오염 수정과 잔존 상태 정리. |
+| `session-logs/codex-019e8bd9-50d3-7643-8de8-a5ea9f2e2beb.md` | 스킵: MCP 인증 오류 입력만 있고 응답 없음. |
+| `session-logs/codex-019e8bda-9532-7fb1-b7eb-e19466206c1b.md` | 스킵: MCP token_invalidated 재로그인 설명. 단일 일반 인증 문제이며 기수록 원인 분리와 중복. |
+| `session-logs/codex-019e8bf9-efd1-7560-9116-64686dd4e594.md` | 스킵: exit/Done 종료 응답. |
+| `session-logs/codex-019e9bf8-5adc-7902-a7d3-7036f75f7f0f.md` | 스킵: Qualcomm/Exynos ISP 드라이버 비교. 지정된 지식 도메인 밖. |
+| `session-logs/codex-019e9f8c-6a37-7f82-829d-647131c0dc03.md` | 스킵: 내부 승인 심사 사본. 사용자 세션과 중복이며 독립 지식 자료 아님. |
+| `session-logs/codex-019ec60d-989b-70f3-ab2e-af8bb3a222ce.md` | 반영: 페이퍼 검증 목적/비용/청산 기준. 단일 전략 추가는 기록된 구현과 검증 경계를 유지. |
+| `session-logs/codex-019ee96f-cf6a-72a3-a8de-9cf104420eaf.md` | 스킵: 인사만 있고 응답 없음. |
+| `session-logs/codex-019ee970-b79e-7af1-af47-2b9eba57daad.md` | 스킵: 인사 응답. |
+| `session-logs/codex-019f2c87-dbb4-7d40-995d-9990af86261f.md` | 스킵: Hermes Paperclip 분석은 이미 같은 문서/index/log에 반영 완료. |
+| `session-logs/codex-019fc25a-8ecf-7501-a0a6-06a5e058a9c9.md` | 스킵: 단일 Koji MCP 제품 조사. 실제 도구 범위를 일반 RAG로 오인하지 않는 정정이 있으나 제품 조사/첫 등장으로 승격 보류. |
+| `session-logs/codex-019fdf6f-a6bc-7570-9d19-0a712511078b.md` | 반영: provider 선택 일원화·research/rewrite 권한 분리·터미널/예약 CLI 버전 차이와 최종 Cursor 전환 이력. |
+| `session-logs/codex-019fdf72-0da4-7832-8bca-5b93a8a5559e.md` | 반영: 동일시작 A/B, 수정 규칙 이후 데이터 분리, 비용·집중도·검증 진행률. |
+| `session-logs/codex-019fe15c-0401-73c0-a1ef-fe77f09fbc21.md` | 반영: Codex profile의 메인 역할과 위임 강도를 분리. hard/soft 초기 오구현과 최종 구성을 구분. |
+| `session-logs/codex-019fe6c4-c2ca-70a1-a8e7-4705897e649e.md` | 스킵: Chrome 설치 방법. 단발 도구 사용/도메인 밖. |
+| `session-logs/codex-019febfc-81e8-7e02-b6d4-4bed0f6c469b.md` | 반영: 페이퍼 성과 해석과 정합성. 시장 하루 등락/당일 손익은 뉴스성 수치로 새 지식에 승격하지 않음. |
+| `session-logs/codex-01a026fa-0133-7623-8ddc-b58ab508c57e.md` | 반영: 성과 원본·KIS 대조·스냅샷 감사. 시초 손절 구현은 역사로 유지하고 새 매매 규칙을 권고하지 않음. |
+| `session-logs/codex-01a026fc-184f-72a1-abb9-3bccc966d2c4.md` | 반영: 매도대금 누락→사이징 오염, 깨끗한 A/B 재시작, 공유 토큰 재독. 현금 가산만으로 성과 복구할 수 없음. |
+| `session-logs/codex-01a029d3-6952-7f53-8b64-06b34970c4ae.md` | 스킵: 일반 PC 디스크 분석/스캔 로깅. 실패 스캔의 delta 제외는 유용하나 지정 도메인 밖. |
+| `session-logs/codex-01a04b94-9332-7a01-8b0d-4528d2cf7565.md` | 반영: OCI 준비/전환/실제 게시 검증과 원 PC 스케줄 중단 경계. |
+| `session-logs/codex-01a076f4-c4ea-7962-937d-57bda1b9b108.md` | 반영: 급락 가드·현금흐름 추정·fast tick 재시도 억제·트레일링 스톱 여유. 재개 원본 두 개를 합친 기록에서 검토. |
+| `session-logs/codex-01a076f9-f190-7a13-ae40-c67d13d037e8.md` | 반영: 동일시작 페이퍼의 표본·비용·MDD/성과 집중도. 단기 시장 수익률은 확정 우위로 승격하지 않음. |
+| `session-logs/codex-01a07702-8bf2-7360-9aa4-c0fd75c5787a.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a07711-e0e1-7431-b8aa-8a03fdcd93b1.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a095ef-0396-7580-bde3-c286f25e219f.md` | 스킵: fast tick 구현 하위 작업. 부모 46번 세션에 결과가 포함되어 별도 중복 승격하지 않음. |
+| `session-logs/codex-01a095ef-03f3-7a30-81e5-9bf6f8e60d68.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a0980b-4781-7292-acd3-90606bae921b.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a0983e-b9e4-7252-b20c-40aaacff8bc8.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a09918-602f-7293-8f80-3f785a785af8.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a09919-cdc7-73a3-b5d0-3e7bd50e078f.md` | 반영: KIS 예탁금/시장 수급을 참고 지표로 수집. 단기 반등 해석은 성과 개선 검증과 분리. |
+| `session-logs/codex-01a09b03-3a64-74b3-8a44-c59f3d3ce4f4.md` | 반영: 트레일링 활성 후 검사 누락 재현·공통화, 장마감 성공 후 완료 및 재시도. 의도된 전략을 결함으로 표현한 초기 설명은 철회 반영. |
+| `session-logs/codex-01a09b07-8178-75d3-8703-d5cf716d4ebf.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a09b1e-af89-7892-a428-3a573c0c40ed.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a09cba-c650-7060-889e-57ada21ebc01.md` | 스킵: 내부 승인 심사 사본. |
+| `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md` | 반영: OCI 세 게시 파이프라인 이관·공용 계정·KST·정상 후보없음 처리·실제 게시 검증. 단발 모델 릴리스/일일 숫자/이미 반영된 무료볼륨 문서는 중복 스킵. |
+| `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` | 반영: 데이터 원천 전환의 점수 분포·운영 DB 연결, 페이퍼 청산 정합, 정상 거래일/수집 복구 및 실거래 승인 게이트. |
+| `session-logs/codex-01a0e84a-090d-7963-8d78-c213bb16e3af.md` | 스킵: macOS 업데이트/APFS 디스크 변동. 지정 도메인 밖의 단발 OS 운영. |
+| `session-logs/codex-01a0ff2b-aad2-7bc3-be61-749ab20409db.md` | 스킵: 일일 디스크 현황. AI 설치본 증가 관찰은 반복 OCI 운영 기록에 포함됐고 이 로컬 스냅샷은 추가 승격하지 않음. |
+| `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md` | 반영: 이번 gieok Codex 수집/정리 전환과 검증. |
+| `session-logs/codex-01a125c8-3e17-7de2-9855-9b2eaacd74fc.md` | 반영: 실제 Codex 훅의 질문·응답 저장 검증 근거. |
+
 # 운영 로그
 
 ## 2026-10-10 (ingest — 지정된 2026-08-04~08-08 세션)

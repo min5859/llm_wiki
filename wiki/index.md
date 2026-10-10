@@ -152,6 +152,12 @@
 - [[n-stock-info]] — n_stock_info — 네이버 금융 기반 종목 스크리닝·스코어링·텔레그램 리포트
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
 
+## Codex 미수집 기록 보강 (2026-10-10)
+
+- [[codex-session-capture-and-curation]] — Claude 훅 유지, Codex 전역 수집·정리, 재개 세션 원본 합치기
+- [[trailing-activation-current-profit-gate]] — 활성화 이후 현재 수익률로 트레일링 검사를 끄는 공통 오류
+- [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
+
 ## 변경 이력
 
 - 2026-10-10: 지정된 2026-08-04~08-08 Research Dossier 세션 104건 검토·스킵 처리. 조사 요청과 후보만 남아 새 지식 페이지 없음. 기존 조사 계약·로깅 한계 문서와 대조했으며 파일별 근거와 변경 파일 전체 목록은 [[log]]의 해당 일자 기록 참조.

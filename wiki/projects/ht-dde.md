@@ -4,8 +4,15 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-07-22"
+updated: "2026-10-10"
 sources:
+  - "session-logs/codex-019ec60d-989b-70f3-ab2e-af8bb3a222ce.md"
+  - "session-logs/codex-019fdf72-0da4-7832-8bca-5b93a8a5559e.md"
+  - "session-logs/codex-019febfc-81e8-7e02-b6d4-4bed0f6c469b.md"
+  - "session-logs/codex-01a026fc-184f-72a1-abb9-3bccc966d2c4.md"
+  - "session-logs/codex-01a076f9-f190-7a13-ae40-c67d13d037e8.md"
+  - "session-logs/codex-01a09919-cdc7-73a3-b5d0-3e7bd50e078f.md"
+  - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/20260721-231802-bb66-지금-폴더의-프로그램이-잘-동작하고-있는지-상태-체크좀-해줘.md"
   - "session-logs/20260712-002737-9413-현재까지-쌓인-데이터를-심층적으로-분석해서-성공-매매전략을-도출해줘.md"
   - "session-logs/20260709-230951-58a3-현재까지-동작-결과-검토해줘-표면적으로만-보지-말고-가능성과-인사이트까지-감안해서-검토해줘.md"
@@ -217,7 +224,21 @@ RS 페이퍼에 추가된 **감시 주기 A/B(tier vs rt, rt 는 7/17 도입)** 
 - 종목 스코어링 본체 [[n-stock-info]] — ht_dde 가 검증하려는 가중치/점수식의 출처.
 - 점수 설계는 [[stock-screening-score-design]], 폴링 주기 vs 봉 간격은 [[polling-interval-vs-bar-interval]], 백테스트 봉 민감도는 [[backtest-timeframe-sensitivity]] 와 연결.
 
+## Codex 기록으로 보강한 검증 이력 (2026-08~10)
+
+목표는 비용·MDD·시장 대비 성과·성과 집중도를 포함해 실자금 투입 전에 소수 알고리즘을 검증하는 것이다. 단기 수익률 순위만으로 운영 전략을 확정하지 않는다.
+
+8월 장마감 매도대금 누락은 이후 매수 사이징까지 오염시켰다. 단순 현금 가산으로 과거 A/B를 유효하게 만들 수 없어, 이력을 보존하고 신규 진입을 중단한 뒤 같은 자본·무포지션 A/B 계좌를 새로 시작했다. 실시간 매도대금의 즉시 장중 재투자와 장마감 일봉 기반 재진입은 서로 다른 실행 계약이다.
+
+9월 리웨이트는 40/40/20 등의 후보를 동일시작 대조군과 비교했으나 관찰 거래일·필터 사건 수가 부족한 결과는 보류했다. 예탁금·시장별 외국인/기관 수급은 참고 지표로 수집했으며, 특정 주의 반등 해석을 성과 개선 효과로 단정하지 않았다.
+
+10월 시장 추세·ATR 비중·업종 강세의 독립 A/B 페이퍼를 추가했다. 공통 청산의 트레일링 오류를 고친 뒤 `청산정합 v2`에서 비교를 재시작했다. 10월 10일 기록에서는 휴장일을 제외한 정상 관측이 18일이었고, KRX 인증·RS 수집·오래된 추천·매도대금 처리를 보완했다. 10월 12~13일 정상 2거래일 관찰과 09:35 무주문 시세 검증을 준비했을 뿐, 하락일 역행 실거래는 자동 활성화되지 않는다. 예산·중단 기준과 사용자 승인이 별도다.
+
+검증 기준은 [[optimal-strategy-search-preconditions]], 회계 오류는 [[trading-performance-cash-flow-reconciliation]], 청산 정합성은 [[trailing-activation-current-profit-gate]]를 참조한다.
+
 ## 변경 이력
+
+- 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 
 - 2026-07-22: "상태 점검 — rt 청산 4일 침묵 마비 & launchd 정식 등록" 절 추가 — 감시 주기 A/B(tier 일1회 vs rt 2분) 설계 기록, SQLite 크로스스레드 커넥션 버그로 rt 청산 7/17~7/21 비동작(tier 11건 vs rt 0건 → A/B 오염 리셋), plist 4개 config/ 직접 bootstrap 임시 등록을 symlink+bootstrap 정식 등록으로 전환, StandardOutPath 0바이트 오판 진단법. 신규 [[sqlite-cross-thread-connection-threading-local]] 분리 (출처: session-logs/20260721-231802-bb66-*)
 - 2026-07-12: "2026-07-12 전략 전수 감사" 절 추가 — 26거래일(단일 하락장) 전수 분석 결론(장중 스캐너 전패 PF≤0.55·RS 승률 0~8%·reweight 는 급등배제만 초과수익), 방어 규칙 3종 확정, `vol_surge300_eod`·`combo_guard` 신규 구현(테스트 113개 통과), 왕복비용 0.38% 실측. 신규 [[surge-chasing-exclusion-filter]] 분리, [[signal-overfit-date-dispersion-check]] 교차링크 (출처: session-logs/20260712-002737-9413-*)

@@ -4,8 +4,13 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["Codex CLI", "OpenAI", "AI coding agent", "CLI", "로컬 모델", "Gemma", "Ollama", "Claude Code 대안"]
 created: "2026-06-08"
-updated: "2026-06-08"
+updated: "2026-10-10"
 sources:
+  - "session-logs/codex-019d91a6-e931-7bb3-acfd-12bc49260658.md"
+  - "session-logs/codex-019d96b5-ecf1-74f2-860c-0d277a094067.md"
+  - "session-logs/codex-019e3b82-158c-7c41-a94e-907f9fb5ff38.md"
+  - "session-logs/codex-019fdf6f-a6bc-7570-9d19-0a712511078b.md"
+  - "session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md"
   - "session-logs/20260608-033356-dbf4-AI-Coding-Agents-Newsletter.md"
 confidence: "medium"
 related:
@@ -53,6 +58,16 @@ Daniel Vaughan 의 실험: Codex CLI 의 custom model provider(`config.toml`, `w
 - 강건한 테스트가 있으면 Codex CLI 루프를 대규모 포팅에 자율 위임 가능 → [[test-driven-agent-loop]] (JustHTML 포팅 사례).
 - 로컬 vs 클라우드 vs 허브 선택 기준은 [[llm-provider-aggregator-vs-local-vs-hub]].
 
+## 실제 운영에서 확인한 구분 (2026-04~10)
+
+`codex exec`는 비대화형 정리에 사용할 수 있다. 설치된 0.160.1에서 `--ephemeral`, `--output-last-message`, `--output-schema`, read-only/workspace-write 및 lifecycle hooks 지원을 확인했다. [[codex-session-capture-and-curation]]의 gieok 전환은 실제 질문·응답 캡처와 Claude 로그 104건 정리로 검증했다.
+
+컨텍스트 창 사용량, 누적 토큰, 구독의 시간별 사용량 한도는 서로 다르다. 4월 상태라인 구현에서는 좁은 tmux 영역에 중요한 ctx/rate가 잘려 보였고 앞쪽 배치와 폭 조정으로 해결했다. 큰 컨텍스트 설정이 사용량 한도를 늘려주는 것은 아니다.
+
+8월 dev-blog 사례에서 터미널과 LaunchAgent가 서로 다른 nvm global Codex 설치본을 사용했다. Node 버전별 global 패키지와 예약 PATH를 직접 확인해야 한다. 인증 만료, 오래된 CLI/모델 호환성, MCP 인증, 구독 사용량 제한을 같은 장애로 묶지 않는다.
+
 ## 변경 이력
+
+- 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 
 - 2026-06-08: 최초 생성 — dev-blog AI 코딩 에이전트 뉴스레터 dossier 인제스트(Codex CLI 소개 + 로컬 Gemma 4 실험). 출처: session-logs/20260608-033356-dbf4-*

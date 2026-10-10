@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: internal
 tags: ["nextjs", "prisma", "ai-extract", "dart-api", "valuation", "ma", "pdf-extraction"]
 created: 2026-04-30
-updated: 2026-05-16
+updated: "2026-10-10"
 sources:
+  - "session-logs/codex-019e4adc-3dd2-7671-ac06-f533f162e83a.md"
   - "session-logs/20260430-174408-1a2e-*.md"
   - "session-logs/20260501-233118-b6e0-*.md"
   - "session-logs/20260505-101659-115c-*.md"
@@ -295,7 +296,15 @@ CSV 내보내기 (Phase 2) 작성 중 `Record<string, unknown>` 으로 캐스팅
 - M&A 가치평가 도구로의 발전을 염두에 두고 있어, 단순 대시보드가 아니라 "측정 신뢰도" 와 "검증 가능성" 이 핵심 요구사항이 된다.
 - Vercel timeout 의 또 다른 갈래 (cron / DB acquire 누적) 는 [[vercel-cron-best-practices]], [[prisma-connection-pool-vercel-supabase]].
 
+## Codex M&A 구현 기록 보강 (2026-05)
+
+해당 세션에는 M&A 후보가 계획에만 머문 상태에서 일부 구현으로 넘어간 이력이 있다. `CompanyFinancialData.mna_analysis`와 저장 API·DataLoader를 연결하고 정상화 EBITDA, 조정 항목, 순차입금, debt-like items, 운전자본 peg, 이익의 질, red flags, source references를 구조화했다. 커밋 `66fa02c`를 포함한 패치 요약이 기록돼 있다.
+
+이는 해당 시점의 데이터 구조·저장·AI 추출 지침 보강이다. M&A 가격 결정의 정확성, 실사 자료 충분성, 후속 미구현 기능을 검증 완료로 주장하지 않는다. 기존의 미래 기능 후보 목록을 전체 구현 완료 목록으로 바꾸지 않는다.
+
 ## 변경 이력
+
+- 2026-10-10: Codex 과거 세션에서 구현 완료와 미실행 계획을 구분해 보강.
 
 - 2026-04-30: 최초 생성. 프로젝트 구조·기능·약점 정리 (출처: session-logs/20260430-174408-1a2e-*)
 - 2026-04-30: 코드 깊이 분석 추가 — 4가지 구조적 결함 (AI 환각 + 수식 오류 / 단위 강제 부재 / 빈 인풋 → 가짜 데이터 5곳 / 스캔 PDF 침묵 실패) 식별, 4단계 우선순위 백로그 + M&A 기능 11개 후보 정리. 일반 패턴은 [[ai-valuation-trustworthiness]], [[pdf-text-extraction-vs-ocr]] 로 분리.

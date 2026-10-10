@@ -4,8 +4,10 @@ sensitivity: "public"
 title: gieok — 프로젝트 설계 상세
 tags: [project, gieok, claude-code, automation, launchagent]
 created: 2026-04-22
-updated: 2026-07-23
+updated: "2026-10-10"
 sources:
+  - "session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md"
+  - "session-logs/codex-01a125c8-3e17-7de2-9855-9b2eaacd74fc.md"
   - "session-logs/20260422-002046-60a1-*.md"
   - "session-logs/20260702-235052-ea52-근데-내가-처음-질문했던거는-llm-wiki-를-잘-셋업하는-방법을-물어봤는데-이걸-어떻게.md"
   - "session-logs/20260712-000307-1627-llm_wiki-와-llm_wiki2-비교해줘.md"
@@ -149,7 +151,17 @@ vault 디렉터리명을 `llm_wiki2` → `llm_wiki` 로 개명. gieok LaunchAgen
 - [[personal-llm-wiki-curation]]
 - [[gieok-session-log-url-credential-masking-false-positive]]
 
+## Codex 병행 수집과 정리 전환 (2026-10-10)
+
+Claude 구독 만료 뒤 Codex만 사용했지만 기존 훅은 Claude에만 붙어 있었다. 예약 작업은 계속 실행되어도 8월 4일부터 인증 오류로 실패했고, 미처리 Claude 로그 104건이 남았다. 예약 PATH에는 nvm Node도 빠져 있었다.
+
+Claude 훅은 유지하고 Codex 전역 훅 6개와 전용 로거를 추가했다. ingest·lint LaunchAgent는 `GIEOK_LLM=codex`, 실제 Node 경로, 기존 사용자 모델·reasoning 설정으로 전환·재로드했다. 실제 Codex 대화와 기존 Claude 로거 회귀를 검증했다.
+
+세부 구현·중복 방지·사용량 한도에 의한 실행 제한은 [[codex-session-capture-and-curation]]을 참조한다. 세션 수집은 모델 호출이 없어 정리용 CLI의 사용량 한도와 독립적으로 계속 작동한다.
+
 ## 변경 이력
+
+- 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 - 2026-07-23: "알려진 버그 및 수정 이력"에 session-log credential 마스킹이 lore.kernel.org 스타일 URL 을 파괴하는 오탐 절 추가 — ingest 트리아지 오판 위험 포함, 상세는 [[gieok-session-log-url-credential-masking-false-positive]] (출처: session-logs/20260723-041432-7948-* 외 11건)
 - 2026-07-12: "Vault 재개명 (llm_wiki2 → llm_wiki)" 절 추가 — LaunchAgent 3개 + settings.json 훅 7곳 경로 일괄 갱신, kakao-summary 는 자동 일치. 교훈: vault 경로는 자동화 여러 곳에 하드코딩되어 개명 전 경로 참조 전수조사 필요 (출처: session-logs/20260712-000307-1627-*)
 - 2026-04-22: 최초 작성 (세션 로그 20260422-002046-60a1 에서 추출)

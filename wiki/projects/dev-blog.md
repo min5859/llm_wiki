@@ -4,8 +4,11 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["project", "static-site", "newsletter", "claude-cli", "kernel", "lkml", "github-pages", "cron", "node20"]
 created: 2026-05-08
-updated: 2026-08-02
+updated: "2026-10-10"
 sources:
+  - "session-logs/codex-019fdf6f-a6bc-7570-9d19-0a712511078b.md"
+  - "session-logs/codex-01a04b94-9332-7a01-8b0d-4528d2cf7565.md"
+  - "session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md"
   - "session-logs/20260729-033152-cec7-#-Opensource-Trending-Newsletter-—-Write-from-Doss.md"
   - "session-logs/20260729-044041-3f8a-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
   - "session-logs/20260729-045245-d39c-#-Linux-Kernel-Lens-Research-Dossier-당신은-특정-커널-서브시.md"
@@ -387,7 +390,17 @@ Error: highlights[0].action required
 
 상세는 [[dossier-evidence-kind-enum-reject]] (1단계), [[llm-content-quality-guards]] 「가드 5 의 오탐 클래스」 (2단계), [[newsletter-research-anti-bot-blocking]] 「4번째 관측」 (07-26 사건) 로 분리.
 
+## Codex 기록 보강 — provider와 OCI 운영 전환 (2026-08~10)
+
+8월 Claude 인증 만료 후 Codex 전환 과정에서 일일/주간/큐레이션에 남은 개별 provider 고정값과 예약 환경의 구형 Codex가 드러났다. 최종적으로 provider 선택을 공통 설정으로 모으고 Cursor를 기본으로 바꿨다. research와 순수 rewrite의 도구·읽기 권한은 분리했다. 한 곳의 기본값만 바꿔도 실제 모든 경로가 그 값을 따르는지 end-to-end 검증해야 한다.
+
+9~10월 OCI Linux systemd로 이관하고 `wiki-publisher` 운영 계정에 세 게시 파이프라인을 통합했다. 테스트·build·비게시 실행·Git fetch/push dry-run 후 실제 정기 게시를 연속 확인했다. Mac 예약 중단과 OCI timer 활성화는 중복 게시 방지의 별도 전환 단계였다.
+
+후보가 0개인 정상 수집일은 `no_candidates`로 research/rewrite/publish를 생략하고 빈 게시물을 만들지 않는다. 네트워크·수집·입력 오류는 계속 실패다. `PrivateTmp` 및 임시 파일 정리와 KST 날짜 정합도 검증했다. 10월 10일 세션에는 10개 게시와 GPU 1개 정상 생략이 기록됐으며 이번 수집에서 서버를 다시 확인하지는 않았다.
+
 ## 변경 이력
+
+- 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 
 - 2026-05-10: Multi-topic 전제가 실제로 정상 가동 중임을 확인 — Linux 외에 Android Kernel Daily Briefing 과 Open Source Trending Daily Briefing 의 2개 토픽이 매일 07:00 KST cron 으로 추가 발행 중. 토픽별 시스템 프롬프트는 각각 다른 큐레이션 정책을 정의: Linux 는 LKML maintainer/`fromMaintainer`/`maintainerComments` 메타로 머지 신호 추출 + ACK prefix 풀어쓰기, Android 는 `ANDROID:`/`FROMGIT:`/`FROMLIST:`/`BACKPORT:`/`UPSTREAM:` prefix 를 한국어로 풀고 GKI/ABI 영향에 가중, OSS Trending 은 HN frontpage hit 을 1순위 신호로 두고 별 100k+ long-tail giants 는 별도 카테고리로 격리. 공통 휴리스틱: 3-tier priority 분포 강제 (상 1~2 / 중 2 / 하 0~1), `implications`/`nextActions` 같은 LLM 의 자동 보충 섹션 금지, 데이터 부족 시 솔직한 fallback 표현. (출처: session-logs/20260510-070019-a130-* Linux, 20260510-070200-f6f1-* Android, 20260510-070412-fd9a-* OSS Trending)
 - 2026-05-12: 5/11 일일 파이프라인 사고와 콘텐츠 품질 회고 — (1) cursor 어댑터 NDJSON 파싱 깨짐 + `daily-deploy.sh` `set -eu` 연쇄 중단으로 12개 토픽 누락 사고 발생, 파서 4 경로 폴백 + 토픽 `if !` 격리로 수정 (commit 2cc5ff5). (2) 12개 게시본 정독에서 발견된 4 결함 (토픽 중복 / action 일반성 / opensource hallucination / 저신호일 부풀리기) 을 파이프라인 가드로 보강 (commit 2a4b2ec, 11 files +208/-8). README excerpt fetcher 신규 도입으로 OSS 토픽 hallucination 그라운딩, `signalLevel` 메타 노출. 일반 패턴은 [[ndjson-stdout-parser-greedy-regex]] / [[shell-set-eu-topic-isolation]] / [[llm-content-quality-guards]] 로 분리 (출처: session-logs/20260511-230001-14d5-*)

@@ -4,8 +4,9 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["analysis", "ai-agent", "orchestration", "multi-agent", "delegate", "kanban", "langgraph", "crewai"]
 created: "2026-07-05"
-updated: "2026-07-05"
+updated: "2026-10-10"
 sources:
+  - "session-logs/codex-019fe15c-0401-73c0-a1ef-fe77f09fbc21.md"
   - "session-logs/20260704-132738-e509-지금-세션에서-작업했던-hermes-webui-설치가-pc-를-껏다켜니-접속이-안되네-다시.md"
 confidence: high
 related:
@@ -39,6 +40,14 @@ related:
 
 방식 B(작업 큐)는 dispatcher 구성이 급소다 — 공유 보드를 여러 dispatcher 가 동시에 돌리면 claim churn 으로 태스크가 진행되지 않는다 → [[single-dispatcher-per-queue]].
 
+## 위임 강도와 메인 역할을 분리한다 (2026-08 Codex 사례)
+
+Claude의 hard/soft 개념을 Codex에 옮길 때, 위임 빈도만 낮추고 메인 모델을 유지한 soft는 원래 역할 구조와 같지 않았다. 최종 구현은 profile을 새 세션에 적용했다: hard는 Sol 메인·Terra 구현·Luna 러너, soft는 Terra 메인·Sol advisor·Luna 러너, off는 자동 위임 없음이다.
+
+상태 파일을 바꾸는 토글과 실제 profile로 새 세션을 시작하는 런처도 다르다. 메인 모델·reasoning 설정·서브에이전트 모델·위임 규칙을 각각 검증한다. 이것은 해당 사용자 환경의 8월 구성 이력이며 모든 작업에 자동 위임을 요구하는 규칙은 아니다.
+
 ## 변경 이력
+
+- 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 
 - 2026-07-05: 최초 생성 — Hermes 멀티에이전트 실험 중 오케스트레이션 리서치에서 정리 (출처: session-logs/20260704-132738-e509-*)
