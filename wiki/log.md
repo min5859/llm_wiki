@@ -1,3 +1,14 @@
+## 2026-10-11 (ingest — 지정 Codex 세션 재검토)
+
+- **session-logs 유래** — `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md` 1건 검토. 읽기용 `.cache/ingest-views/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md`와 원본의 감사 체크섬 정정 기록을 대조했다.
+- 갱신 1건: [[codex-session-capture-and-curation]] — 완료 플래그만 정규화하고 본문의 동일 문자열은 보존해야 하는 변경 판정 기준을 보강. 도메인 핵심 수집 무결성 문제로 기존 문서에 반영했다. 신규 페이지·별도 analyses 생성 없음.
+- 중복 스킵: Claude 훅 보존, Codex 전용 로거·ingest/lint 전환, 예약 PATH, 재귀 수집 방지, 재개 원본 병합, 처리 중 원문 변경 보호는 위 패턴 문서와 `wiki/projects/gieok.md`에 이미 반영되어 있다. 104개 Claude/65개 Codex 검토 건수도 기존 2026-10-10 기록에 있어 반복 수집하지 않았다. 해당 과거 세션들은 이번 처리 대상이 아니다.
+- 보류: 실제 lint는 읽기용 대화의 마지막 응답에서 검증 중으로만 보고되므로 성공 완료로 기록하지 않았다. 일회성 실행 현황과 탐색 과정은 제외했다.
+- **raw-sources 유래** — 하위 디렉터리의 MD·fetched 대상 없음. 루트의 `raw-sources/claude-code-opus-orchestration-setup.md`는 기존 summary가 있으며, `raw-sources/2026-10-03-notion-oracle-cloud-free-tier.md`는 루트 배치로 이번 하위 디렉터리 대상 밖이다. 원본·summary 변경 없음.
+- **PDF 유래** — `.cache/extracted/` chunk 대상 없음. 지정 세션은 `type: session-log`이며 mcp-note 대상 없음.
+- wiki·index·본 기록 갱신 후 지정 세션의 `ingested`만 `true`로 변경. 다른 세션·원본 자료는 변경하지 않았다.
+- 변경 파일: `wiki/patterns/codex-session-capture-and-curation.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md`.
+
 ## 2026-10-10 (Codex 미수집 기록 보강)
 
 - Codex 원본은 동일 세션의 재개 파일을 합쳐 **65개 고유 세션 기록**으로 검토했다. 이 중 26개는 기존 문서/신규 문서에 반영하고 39개는 중복·도메인 밖·단발 사용·내부 승인 심사·미완료 입력으로 스킵했다. 이번 훅 스모크 세션도 포함된다.
