@@ -1,3 +1,25 @@
+## 2026-10-11 (오늘 작업 위키 정리)
+
+- 사용자 요청에 따라 오늘의 gieok 작업을 기존 프로젝트·패턴 문서에 통합했다. 신규 페이지를 중복 생성하지 않았다.
+- `wiki/projects/gieok.md`: Claude 훅 유지, Codex 수집, Sol 6.1 medium, 예약·보존 정책, 이전 169개 처리, 실제 Sol 테스트·51개 회귀 검증, 설치 전 세션 적용 범위와 당시 Git 저장 상태를 최종 요약했다.
+- `wiki/patterns/codex-session-capture-and-curation.md`: 리미트/CLI 실패 뒤 부분 완료 플래그를 되돌리는 재시도 계약과 재현 테스트를 기록하고 구현·검증 출처를 보강했다.
+- `wiki/index.md`에 갱신 이력을 추가했다. 아래 상세 실행 기록·기존 출처·과거 이력은 보존했다.
+
+## 2026-10-11 (전환 설정 재검토)
+
+- ingest/lint plist와 launchd에 실제 로드된 `gpt-6.1-sol / medium`, Vault·Node 경로와 기존 실행 시간을 대조했다. 두 모델 작업은 재로드 이후 예약 실행을 기다리는 상태다.
+- 운영 기록에서는 07:00 Astra ingest가 exit 0으로 완료됐고, Sol 전환 후 이번에는 동일 환경값을 사용한 임시 Git Vault에서 실제 Sol ingest와 read-only lint를 각각 실행해 exit 0을 확인했다. 테스트 자료는 종료 후 제거했고 실 Vault의 내용은 테스트에 사용하지 않았다.
+- 실제 Sol ingest는 로그 완료 플래그·위키 작성·배치 검증을 통과했다. lint는 리포트를 생성하고 원래 지식 페이지를 바꾸지 않았음을 해시로 확인했다.
+- 중단 재현에서 발견한 부분 완료 플래그 보호를 보완: CLI 실패 시 선택한 배치 전체를 다시 미처리로 돌려 다음 실행에서 검토하며 원래 실패 코드는 유지한다. 재현 실패 테스트를 먼저 확인한 뒤 관련 Node 테스트 총 51개 통과.
+- 최초 점검과 비교해 Claude settings SHA256이 일치한다. 미처리 과거 로그·수집 오류·남은 잠금/임시 파일 없음. 설치 전부터 열려 있던 대화는 새 훅 적용 전 상태이며, 예약 원본 reconciliation이 추가 내용을 보완한다.
+- Git 저장은 별개다. gieok 소스 변경은 아직 로컬 미커밋이며, Wiki는 기존 자동 커밋 1개가 원격 main보다 앞서 있다. 사용자 Kakao 변경은 보존하고 수동 커밋·push·rebase는 수행하지 않았다.
+
+## 2026-10-11 (정리 모델 변경)
+
+- 사용자 요청으로 자동 ingest와 lint의 `GIEOK_CODEX_MODEL`을 `gpt-6-astra` → `gpt-6.1-sol`로 변경하고 reasoning effort는 `medium` 유지.
+- 두 LaunchAgent를 백업 후 재로드하고 실제 로드된 환경값을 확인. 기존 작업은 실행 중이 아니었으며 예약 시간·수집 훅은 유지.
+- 로컬 Codex 모델 목록에서 `gpt-6.1-sol`과 `medium` 지원을 확인. 이번 변경은 예약 정리 작업에만 적용하며 사용자 전역 대화 모델은 변경하지 않음.
+
 ## 2026-10-11 (ingest — 지정 Codex 세션 재검토)
 
 - **session-logs 유래** — `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md` 1건 검토. 읽기용 `.cache/ingest-views/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md`와 원본의 감사 체크섬 정정 기록을 대조했다.

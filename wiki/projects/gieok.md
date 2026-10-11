@@ -8,6 +8,11 @@ updated: "2026-10-11"
 sources:
   - "session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md"
   - "session-logs/codex-01a125c8-3e17-7de2-9855-9b2eaacd74fc.md"
+  - "local-only: ~/.codex/gieok-sol-review.log"
+  - "local-repo: gieok/scripts/auto-ingest.sh"
+  - "local-repo: gieok/scripts/ingest-batch.mjs"
+  - "https://developers.openai.com/api/docs/pricing"
+  - "https://learn.chatgpt.com/docs/pricing"
   - "session-logs/20260422-002046-60a1-*.md"
   - "session-logs/20260702-235052-ea52-근데-내가-처음-질문했던거는-llm-wiki-를-잘-셋업하는-방법을-물어봤는데-이걸-어떻게.md"
   - "session-logs/20260712-000307-1627-llm_wiki-와-llm_wiki2-비교해줘.md"
@@ -159,7 +164,36 @@ Claude 훅은 유지하고 Codex 전역 훅 6개와 전용 로거를 추가했�
 
 세부 구현·중복 방지·사용량 한도에 의한 실행 제한은 [[codex-session-capture-and-curation]]을 참조한다. 세션 수집은 모델 호출이 없어 정리용 CLI의 사용량 한도와 독립적으로 계속 작동한다.
 
+## 2026-10-11 최종 운영 설정과 재검증
+
+Claude 구독을 다시 사용할 가능성을 고려해 기존 Claude 훅은 제거하지 않았다. Codex 전역 훅을 병행 설치하고, 위키를 정리하는 예약 작업만 Codex로 전환했다.
+
+| 항목 | 최종 설정·확인 결과 |
+|---|---|
+| 세션 수집 | Claude 훅 유지 + Codex 전역 훅 6개. 수집에는 모델 호출 없음 |
+| ingest·lint 모델 | `gpt-6.1-sol`, reasoning effort `medium` |
+| ingest 예약 | 매일 07:00·13:00·19:00 KST |
+| lint 예약 | 매월 1일 08:00 KST |
+| 로그 보존 | 처리 완료 로그만 30일 경과 후 삭제, 매일 07:40 실행 |
+| 이전 미처리 기록 | Claude 104건 + Codex 고유 기록 65건 처리 완료. Codex에는 훅 검증용 1건 포함 |
+
+처음에는 사용자 기존 설정인 Astra medium으로 전환했고, 이후 요청에 따라 Sol 6.1 medium으로 바꿨다. plist 파일과 launchd에 실제 로드된 환경값이 일치하는지 확인했다. 터미널·예약 실행의 Node/Codex 경로 차이도 보완했다.
+
+10월 11일 확인한 API Standard 기본 컨텍스트 요금은 100만 토큰당 Sol의 입력/출력 $2/$10, Astra의 $10/$50이었다. 같은 토큰량이면 80% 저렴하며 캐시 입력은 $0.10 대 $1로 90% 저렴하다. 실제 파이프라인은 ChatGPT 구독 로그인으로 실행하므로 이 API 요금이 별도로 직접 청구되는 방식이 아니며, 포함 사용량을 정확히 5배로 환산하지 않는다. 가격 비교는 당시 공식 요금표 기준이다.
+
+실제 Sol 실행은 동일 환경값을 사용한 임시 Git Vault에서 검증했다. ingest의 위키 작성·완료 플래그·배치 검증과 read-only lint의 리포트 생성이 모두 exit 0이었다. lint 전후 지식 페이지 해시가 같았고 검증용 자료는 종료 후 제거했다. 운영 Vault의 07:00 ingest 성공은 모델 변경 전 Astra 실행 결과이므로 Sol 예약 성공과 혼동하지 않는다.
+
+리미트·CLI 실패를 재현하며 부분 완료 표시 보호를 추가했다. 실행이 실패하면 선택한 배치의 완료 플래그를 모두 다시 미처리로 돌리고 다음 실행에서 재검토한다. 부분 위키 편집은 보존하고 중복 여부를 확인하며, 원래 실패 코드는 유지한다. 관련 Node 테스트 51개, 셸 문법·diff 검사를 통과했다.
+
+재검토 시점에 과거 169개 로그는 모두 처리 완료였고, 남은 잠금·임시 파일·수집 오류는 없었다. 설치 전에 열려 있던 대화는 새 훅 적용 전 상태라 예약 원본 재수집이 보완한다. 새 세션부터 훅을 사용하며 새 내용이 추가되면 해당 로그는 다시 미처리로 돌아간다.
+
+코드·설정의 로컬 적용과 Git 저장은 별개다. 재검토 시점에는 gieok 소스 변경이 미커밋이고 Wiki 자동 커밋 1개가 미푸시였다. 사용자 Kakao 변경을 보존했고 별도 수동 커밋·push·rebase는 수행하지 않았다.
+
 ## 변경 이력
+
+- 2026-10-11: 사용자 요청으로 오늘 작업을 최종 설정·이전 기록 처리·Sol 실실행 검증·중단 복구·남은 Git 저장 상태로 정리. 상세 패턴 문서와 작업 로그 연결.
+
+- 2026-10-11: 사용자 요청으로 ingest/lint LaunchAgent의 모델을 `gpt-6.1-sol`, reasoning effort `medium`으로 변경·재로드. 기존 Astra 설정의 plist 백업을 보존하고 로드된 환경을 확인.
 
 - 2026-10-11: 실제 Codex lint 정상 종료와 07:00 예약 ingest 성공을 확인. 현재 정리 주체와 예약/호출 횟수의 구분을 명시.
 

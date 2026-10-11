@@ -10,6 +10,10 @@ sources:
   - "session-logs/codex-01a125c8-3e17-7de2-9855-9b2eaacd74fc.md"
   - "local-repo: gieok/hooks/codex-session-logger.mjs"
   - "local-repo: gieok/scripts/lib/llm.sh"
+  - "local-repo: gieok/scripts/auto-ingest.sh"
+  - "local-repo: gieok/scripts/ingest-batch.mjs"
+  - "local-repo: gieok/tests/codex-automation.test.mjs"
+  - "local-only: ~/.codex/gieok-sol-review.log"
   - "https://learn.chatgpt.com/docs/hooks"
   - "https://learn.chatgpt.com/docs/non-interactive-mode"
 confidence: "high"
@@ -39,6 +43,20 @@ Codex 전역 `~/.codex/hooks.json`에 SessionStart, UserPromptSubmit, Stop, Post
 - ingest는 대상 배치를 제한하고 대화 읽기용 로컬 뷰를 제공한다. 원본 로그는 유지한다. 처리 중 소스가 바뀌면 완료 플래그를 되돌려 새 내용을 다시 검토한다.
 - lint는 read-only로 읽고 최종 Markdown만 반환한다. 셸이 형식을 검증한 뒤 리포트를 교체하므로 실패하면 이전 리포트가 남는다.
 
+## 리미트·CLI 실패 뒤 부분 완료를 재시도한다
+
+모델이 일부 로그에 `ingested: true`를 쓴 뒤 사용량 한도나 CLI 오류로 종료될 수 있다. 비정상 종료를 확인하기 전에 완료 표시만 믿으면 다음 실행에서 아직 끝나지 않은 로그를 건너뛸 수 있다.
+
+Codex 호출의 종료 코드를 확인하고 실패 시 `ingest-batch.mjs retry`로 선택한 배치 전체를 다시 미처리로 돌린다. 세션 원문과 부분 위키 편집은 보존하며 다음 실행이 기존 문서를 대조해 이어간다. 배치 복구 뒤에도 원래 비정상 종료 코드를 반환하고 작업 잠금은 해제한다.
+
+실패 테스트는 가짜 CLI가 먼저 완료 플래그를 쓰고 exit 42로 끝나는 상황을 재현했다. 수정 뒤 플래그가 false로 돌아오고 원문이 유지되며 잠금이 남지 않는 것을 확인했다. 이 검증은 단순 로그 없음 테스트와 다르다.
+
+## 모델 선택과 적용 범위
+
+현재 예약 ingest·lint는 `gpt-6.1-sol / medium`이다. 전역 대화 모델은 바꾸지 않았다. Sol 전환 후 실제 ingest와 lint를 별도 임시 저장소에서 검증했고 관련 테스트 51개가 통과했다. 배치 크기와 예약 시간은 유지했다.
+
+설치 전부터 열려 있던 세션은 훅 설정을 즉시 갱신하지 않을 수 있다. 새 세션에 적용하고, 기존 세션은 예약 reconciliation으로 저장된 원본의 추가 내용을 수집한다. 사용량 제한은 정리 작업을 늦출 수 있지만 로컬 수집기 자체는 모델을 호출하지 않는다.
+
 ## 처리 완료와 원문 변경의 구분
 
 2026-10-11 재검토에서는 완료 표시만 바뀐 로그를 새 대화로 오인하는 감사 체크섬 문제를 바로잡았다. 비교 시 frontmatter의 `ingested` 값만 정규화하고, 대화 본문에 들어 있는 같은 문자열 예시는 그대로 보존해야 한다. 파일 전체에 무조건 문자열 치환을 적용하면 본문까지 달라져 잘못된 변경 판정이 생길 수 있다.
@@ -50,6 +68,8 @@ Codex 전역 `~/.codex/hooks.json`에 SessionStart, UserPromptSubmit, Stop, Post
 마지막 Claude 자동 ingest 성공은 8월 3일이었고 이후 인증 만료로 실패했다. 10월 10일 Claude 로그 104건은 Codex CLI로 검토·스킵 처리했다. 다음 Codex 기록 처리에서 CLI 사용량 제한이 발생하여 남은 기록은 현재 Codex 대화에서 검토했다. 성공한 인증·한 번의 ingest와 사용량 한도는 구분해서 진단한다. 한도 회복 뒤 10월 11일 실제 Codex lint를 read-only로 실행해 리포트 생성과 exit 0을 확인했다.
 
 ## 변경 이력
+
+- 2026-10-11: CLI 실패 시 전체 선택 배치 재시도, Sol medium 실실행·51개 회귀 검증, 설치 전 세션의 훅 적용 범위를 보강.
 
 - 2026-10-11: 완료 플래그와 본문 변경을 구분하는 감사 체크섬 기준 보강. 전환 설계·재개 파일 병합은 기수록으로 중복 생성을 생략 (출처: session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md).
 
