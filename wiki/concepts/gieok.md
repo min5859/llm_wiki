@@ -1,16 +1,19 @@
 ---
 domain: "ai-agent"
 sensitivity: "public"
-title: gieok — Claude Code 세컨드 브레인
+title: gieok — 코딩 에이전트 세컨드 브레인
 tags: [concept, gieok, claude-code, knowledge-management, automation]
 created: 2026-04-22
-updated: 2026-04-22
-sources: 1
+updated: 2026-10-11
+legacy_sources_count: 1
+sources:
+  - "wiki/projects/gieok.md"
+  - "session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md"
 ---
 
 ## 개요
 
-gieok은 Claude Code의 세션 간 기억 상실 문제를 해결하는 자동 지식 축적 시스템이다.
+gieok은 코딩 에이전트의 세션 간 기억 상실 문제를 해결하는 자동 지식 축적 시스템이다.
 Claude Code는 세션이 끝나면 모든 대화를 잊는다. gieok은 CC Hook 이벤트를 가로채
 대화를 자동으로 Obsidian Wiki에 축적하고, 다음 세션 시작 시 관련 지식을 Claude에게 다시 주입한다.
 
@@ -65,6 +68,8 @@ Vault의 기존 내용은 보존되고 `wiki/`, `session-logs/`, `templates/` �
 
 ## Hook 등록 범위
 
+2026-10-10 이 환경에는 `~/.codex/hooks.json` 전역 훅을 추가하고 ingest·lint를 Codex로 전환했다. 아래 Claude 설정은 함께 유지된다. 세션 수집과 위키 정리 주체는 독립적이며, 구현과 검증은 [[codex-session-capture-and-curation]]을 참조한다.
+
 `~/.claude/settings.json`(전역)에 등록되므로, **어느 프로젝트에서 나눈 대화든 전부 캡처**된다.
 특정 프로젝트에서만 동작하도록 제한하는 기능은 기본 제공되지 않는다.
 
@@ -78,3 +83,6 @@ Vault의 기존 내용은 보존되고 `wiki/`, `session-logs/`, `templates/` �
 - [[gieok-project]]
 - [[personal-llm-wiki-curation]] — 수집·승격 기준 설계 (write-only 창고 방지)
 
+## 변경 이력
+
+- 2026-10-11: Claude 수집 유지와 Codex 병행 수집·정리 전환을 현재 환경에 맞게 보강.

@@ -4,7 +4,7 @@ sensitivity: "public"
 title: gieok — 프로젝트 설계 상세
 tags: [project, gieok, claude-code, automation, launchagent]
 created: 2026-04-22
-updated: "2026-10-10"
+updated: "2026-10-11"
 sources:
   - "session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md"
   - "session-logs/codex-01a125c8-3e17-7de2-9855-9b2eaacd74fc.md"
@@ -26,7 +26,7 @@ gieok은 Claude Code 세션 기록을 Obsidian Wiki에 자동 축적하는 개�
 npm 패키지로 배포되며, Node.js 18+ 표준 모듈만 사용해 외부 의존성이 없다.
 
 - **설치**: `npx gieok --vault <vault-path>` (또는 로컬 소스에서 `bash install.sh`)
-- **요구사항**: Claude Code Max 플랜, Obsidian, jq
+- **요구사항**: Node.js와 선택한 CLI의 인증. Claude Code 훅은 유지하며, 이 환경의 ingest/lint는 2026-10-10부터 Codex를 사용한다. Obsidian은 결과를 보는 뷰어다.
 
 ## 주요 컴포넌트
 
@@ -97,7 +97,7 @@ launchctl load  ~/Library/LaunchAgents/com.gieok.ingest.plist
 위 표의 "❌ LLM 필요"는 **`claude -p` 를 호출하지 않는다**는 뜻일 뿐, 토큰을 안 쓴다는 뜻이 아니다. gieok 의 실제 토큰 소비는 딱 두 곳:
 
 1. **wiki-context-injector (SessionStart hook)** — `wiki/index.md` **전문을 매 세션 시스템 프롬프트에 주입**하고, 그 이후 *모든 턴*의 입력 컨텍스트에 계속 실린다. 로컬 파일 읽기라 `claude -p` 는 안 부르지만, **비용의 본질 = index 크기 × 세션 수(× 턴 수)** 다. "로그 저장" 자체는 공짜지만 "목차 주입"은 반복 입력 비용이다.
-2. **매일 auto-ingest** — `claude -p` headless 1회(하루 1회 상한, 최대 수십 턴). 구독 로그인 계정이라 API 과금이 아니라 사용량 한도에서 차감.
+2. **예약 auto-ingest** — 미처리 소스가 있으면 선택한 CLI를 호출한다. 현재 예약은 하루 3회이며 Codex는 실행당 배치를 제한한다. 하루 1회라는 과거 관찰은 고정된 호출 상한이 아니다. 이 환경은 구독 로그인 사용량 한도에서 차감된다.
 
 나머지 hook(session-logger 4종, git pull/commit)은 로컬 node/git 스크립트라 토큰을 전혀 안 쓴다.
 
@@ -160,6 +160,8 @@ Claude 훅은 유지하고 Codex 전역 훅 6개와 전용 로거를 추가했�
 세부 구현·중복 방지·사용량 한도에 의한 실행 제한은 [[codex-session-capture-and-curation]]을 참조한다. 세션 수집은 모델 호출이 없어 정리용 CLI의 사용량 한도와 독립적으로 계속 작동한다.
 
 ## 변경 이력
+
+- 2026-10-11: 실제 Codex lint 정상 종료와 07:00 예약 ingest 성공을 확인. 현재 정리 주체와 예약/호출 횟수의 구분을 명시.
 
 - 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 - 2026-07-23: "알려진 버그 및 수정 이력"에 session-log credential 마스킹이 lore.kernel.org 스타일 URL 을 파괴하는 오탐 절 추가 — ingest 트리아지 오판 위험 포함, 상세는 [[gieok-session-log-url-credential-masking-false-positive]] (출처: session-logs/20260723-041432-7948-* 외 11건)
