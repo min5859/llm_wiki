@@ -1,3 +1,14 @@
+## 2026-10-11 (ingest — 지정 세션 최종 내용 중복 대조)
+
+- **session-logs 유래** — `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md` 1건을 읽기용 `.cache/ingest-views/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md`의 최종 응답까지 검토했다. 대상은 `type: session-log`이며 mcp-note는 없다.
+- **중복 스킵 근거** — `wiki/patterns/codex-session-capture-and-curation.md`의 「수집」「리미트·CLI 실패 뒤 부분 완료를 재시도한다」「처리 완료와 원문 변경의 구분」에 Claude 훅 보존·Codex 전용 로거, 재개 rollout 병합, 실패 배치 전체 재처리, frontmatter만 정규화하는 감사 기준이 이미 있다. `wiki/projects/gieok.md`의 「2026-10-11 최종 운영 설정과 재검증」에는 Sol medium 선택, 과거 169건 처리, 실제 Sol ingest·lint 성공과 51개 테스트, 설치 전 세션의 훅 적용 범위가 이미 있다. 새 지식 페이지 없이 기존 패턴의 검토 이력과 index만 갱신했다.
+- **Phase I 판단** — 수집기와 정리 엔진 분리·중단 복구의 범용 지식은 위 패턴에 기수록이다. API 가격과 구독 사용량의 구분도 기존 프로젝트에 있으므로 별도 비교 analyses를 만들지 않았다. 일회성 상태 조회·탐색 과정·중간 진행 보고는 제외했다.
+- **이전 보류 해소** — 아래 「지정 Codex 세션 재검토」 당시 보류했던 lint 성공은 이번 읽기용 대화 후속 최종 응답에서 확인되며 기존 프로젝트·패턴에도 반영되어 있다. 운영 Vault 07:00 성공은 Astra, Sol 실실행은 임시 Vault라는 기존 구분을 유지한다. 이번에는 프로그램·예약 작업·테스트를 재실행하지 않았다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD·fetched 대상 없음. 루트 MD 2개는 이번 하위 디렉터리 대상 밖이며 변경하지 않았다.
+- **PDF 유래** — `.cache/extracted/` 디렉터리와 chunk 대상 없음. 신규·갱신 summary가 없어 source_sha256 복사 대상도 없다.
+- 위키 → index → 본 기록 순서로 갱신 후 지정 세션 frontmatter의 `ingested: false`만 `true`로 변경했다. 목록 외 세션·참고 자료·기존 사용자 변경은 보존했다.
+- 변경 파일: `wiki/patterns/codex-session-capture-and-curation.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md`.
+
 ## 2026-10-11 (오늘 작업 위키 정리)
 
 - 사용자 요청에 따라 오늘의 gieok 작업을 기존 프로젝트·패턴 문서에 통합했다. 신규 페이지를 중복 생성하지 않았다.

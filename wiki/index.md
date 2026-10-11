@@ -154,11 +154,13 @@
 
 ## Codex 미수집 기록 보강 (2026-10-10)
 
-- [[codex-session-capture-and-curation]] — Claude 훅 유지, Codex 전역 수집·정리, 재개 세션 원본 합치기·완료 플래그와 본문 변경 구분
+- [[codex-session-capture-and-curation]] — Claude 훅 유지, Codex 전역 수집·정리, 재개 세션 원본 합치기·실패 배치 재시도·완료 플래그와 본문 변경 구분
 - [[trailing-activation-current-profit-gate]] — 활성화 이후 현재 수익률로 트레일링 검사를 끄는 공통 오류
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-11: 지정 Codex 세션 최종 내용은 기존 [[codex-session-capture-and-curation]]·[[wiki/projects/gieok|gieok 프로젝트]]에 기수록으로 확인. 패턴 목차에 실패 배치 재시도를 명시, 신규 analyses 없음.
 
 - 2026-10-11: [[wiki/projects/gieok|gieok 프로젝트]]의 최종 운영 설정·Sol medium 실실행·기존 기록 처리 상태와 [[codex-session-capture-and-curation]]의 리미트 중단 복구를 보강. 신규 페이지 없이 기존 문서에 통합.
 
