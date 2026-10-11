@@ -1,13 +1,14 @@
 ---
-title: "n_stock_info — 네이버 금융 기반 종목 스크리닝·스코어링·텔레그램 리포트"
+title: "n_stock_info — KIS 중심 종목 스크리닝·스코어링·리포트"
 domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "screening", "python", "telegram", "backtest"]
 created: "2026-06-03"
-updated: "2026-07-22"
+updated: "2026-10-12"
 status: active
 tech_stack: ["python", "requests", "beautifulsoup", "sqlite", "ruff", "pytest"]
 sources:
+  - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/20260602-223325-f11f-지금-프로젝트를-분석해-주세요.md"
   - "session-logs/20260602-230501-585d-리포트에도-업종-PER-표시해줘.md"
   - "session-logs/20260616-210439-d6f6-오늘-알고리즘-바꾼지-2일-지났는데-2일-동안-매매에서-오류나-개선점이-없었는지-검토해줘.md"
@@ -17,6 +18,7 @@ sources:
   - "session-logs/20260721-231701-8f9d-오늘-동작-로그좀-분석해줘-매수조건에-들어온-종목이-있는-것-같은데-매수를-하지-않은-것.md"
 confidence: high
 related:
+  - "wiki/decisions/shared-broker-appkey-token-cache.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/projects/ht-dde.md"
   - "wiki/analyses/scoring-system-ic-validation.md"
@@ -29,7 +31,7 @@ related:
 
 # n_stock_info — 종목 스크리닝·스코어링·리포트 시스템
 
-네이버 금융 데이터를 수집해 종목을 100점 만점으로 스코어링하고, 통과 종목을 매일 텔레그램 Daily Brief 로 전송하는 Python 파이프라인. `ht_trading` 의 스코어 함수 (`analyzers/{technical,fundamental}.py`) 가 이 패키지에서 나오지만, n_stock_info 자체는 **별도 git 저장소**이며 수집→분석→리포트→저장의 독립 파이프라인을 가진다. cron 으로 장중 매시간 실행된다.
+KIS 중심 데이터와 네이버 보조정보로 종목을 100점 만점으로 스코어링하고, 추천을 텔레그램 Daily Brief로 전송하는 Python 파이프라인. `ht_trading` 의 스코어 함수 (`analyzers/{technical,fundamental}.py`) 가 이 패키지에서 나오지만, n_stock_info 자체는 **별도 git 저장소**이며 수집→분석→리포트→저장의 독립 파이프라인을 가진다. 2026년 9~10월 기록 기준 cron으로 장중 30분마다 실행된다. 아래 기존 아키텍처·설계 절은 6~7월 이력이며, 최종 전환 상태는 「KIS 전환과 운영 점수식 복구」를 참조한다.
 
 ## 아키텍처
 
@@ -160,7 +162,39 @@ PER 8·ROE 20%를 전 업종에 일률 적용하면 은행(PER 5 정상)·바이
 - **숫자를 바꾸기 전에 분포를 본다** — 상한이 아니라 컷오프가 병목이었던 사례.
 - EPS vs EY 같은 도메인 지식은 [[eps-vs-earnings-yield]] 로 분리.
 
+## KIS 전환과 운영 점수식 복구 (2026-09~10)
+
+### 수집 장애와 데이터 역할
+
+9월 11일부터 구 네이버 URL이 Npay 페이지로 이동했다. HTTP 200이어도 구형 `table.type_2`·지수 선택자가 없어 후보가 0건이 됐고, 마지막 정상 데이터는 9월 10일이었다. cron 실행 성공과 데이터 수집 성공은 다르다. 필수 응답 형식 불일치·전 후보 수집 실패를 정상적인 추천 0건과 구별해야 한다.
+
+9월 28일 KIS 공식 API로 후보 순위·지수·시세·일봉·재무·투자의견·추정실적 수집을 전환했다. Npay 리포트 제목·원문 링크·조회 수는 보조 수집으로 격리했다. KIS 인증·토큰 캐시는 ht_trading과 공유한다([[shared-broker-appkey-token-cache]]). 단일 소스 실패를 다른 소스 값이나 0점으로 조용히 대체하지 않고 실패 사유를 남긴다.
+
+### 점수식 변경과 최종 복구
+
+초기 `kis-naver-v2`는 유효 가중치 50/30/20을 유지했지만 리서치를 KIS 신호 18점·네이버 조회 수 2점으로 바꿨다. 과거 리포트 수는 변수명과 달리 최근 30일이 아니라 최신 최대 30개였으며, 기간 정의까지 달라졌다. 배당·동일업종 PER 누락과 재무 기준기간 차이도 분포 이동에 섞였다.
+
+10월 3일 최종 복구에서는 KIS 시세·일봉·재무를 유지하며 기존 조회 수 10점·리포트 수 10점 리서치식을 운영 `stock_info.db`에 연결했다. 재무 보완에는 EPS의 최근 12개월 환산, ROE·부채비율의 확정 연간 기준 대조가 포함됐다. 팬오션은 가중 기술 38.75·재무 19.50·리서치 12.00으로 70.25점이 됐고, ht_trading 스크리너가 실제 매수 후보로 읽는 것까지 확인했다. 복구 전 61.75점과의 차이는 리서치 7점·재무 1.5점이었다.
+
+운영 추천 컷 55와 실매수 컷 62는 별개이며, 최종 실매수 컷은 62를 유지했다. 점수 상승은 수익성 개선의 증명이 아니다. 과거 재무·조회 수를 현재 값으로 소급 재구성하지 않고 버전·시점을 나눠 검증한다([[scoring-version-comparison-methodology]]).
+
+### 네이버 비교군의 의미 변화
+
+9월 29일 비교는 후보 발굴만 KIS/Naver로 다르고 상세 입력·점수식은 KIS로 통일한 실험이었다. 따라서 그 결과를 네이버 자체 데이터 품질 비교로 읽으면 안 된다. 10월 3일에는 독립 네이버 시세·재무·장기 일봉 수집과 기존 점수식을 추가했다. `source_comparison.db`와 `score_audit.db`의 비교 관측은 운영 DB와 분리하며, 비교 기능 완료와 실제 매수 경로 복구 완료를 구별한다.
+
+### 수집 주기와 알림 보안
+
+30분마다 수집·DB 갱신을 유지하되 텔레그램은 당일 첫 실행, KIS/Naver 최종 추천 집합 변경, 17:50 마감 실행에만 보낸다. 운영 Daily Brief와 그림자 비교 요약을 구분하고, 전체 후보 목록은 대시보드에 둔다.
+
+HTTP 성공 요청 로그는 `httpx/httpcore` WARNING 이상으로 제한하고 Telegram URL의 인증 부분을 오류 로그에서도 마스킹했다. 로그 마스킹은 기존 노출 토큰의 폐기·교체를 대신하지 않는다. 당시 토큰 교체는 보류됐고 기존 로그도 변경하지 않았다.
+
+### 검증 경계
+
+세션에 기록된 최종 오류 수정 검증은 n_stock_info 215개·ht_trading 568개·ht_dde 호환성 251개 테스트 통과다. 이번 wiki 수집에서 실제 서비스·외부 API를 재검증하지 않았다. 과거 「현재 상태」의 173개 테스트 수와 네이버 중심 아키텍처는 7월 시점 기록이다.
+
 ## 변경 이력
+
+- 2026-10-12: KIS 수집 전환·운영 기존식 복구·독립 비교군·알림 정책의 최종 상태를 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-07-22: §8 "유동성 게이트가 만드는 추천 0종목" 추가 — 4단계 필터(점수→안정성→추세→유동성) 중 liquidity gate(시총 900억·거래대금 200억)가 80.25점 종목(자이에스앤디)도 탈락시켜 18회 연속 "Filtered to 0 candidates", ht_trading "기준일=N/A"는 is_recommended 필터 설계의 결과. 임계 재검토는 분포 기반(§6 사상) (출처: session-logs/20260721-231701-8f9d-*)
 - 2026-07-08: §5 에 "하류 관측성 비용" 절 추가 — 일자 멱등 저장(DELETE→INSERT)이 당일 point-in-time 이력을 파괴해, 다운스트림 [[ht-trading]] 이 매수한 종목(남성)의 매수 시점 추천 스냅샷이 사후 소실됨(그날 전 종목 is_recommended=0). ht_trading 이 매수 감사 로그를 별도 도입한 배경. 자체 추천 컷 55 vs ht_trading 매수 컷 62 의 2단계 컷 관계 명시 (출처: session-logs/20260707-223019-2c24-*)

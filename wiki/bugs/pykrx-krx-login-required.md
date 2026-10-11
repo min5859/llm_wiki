@@ -4,8 +4,9 @@ domain: "trading"
 sensitivity: "public"
 tags: ["bug", "trading", "pykrx", "krx", "eod", "login", "jsondecodeerror"]
 created: "2026-07-07"
-updated: "2026-07-07"
+updated: "2026-10-12"
 sources:
+  - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: "high"
 related:
@@ -33,6 +34,16 @@ JSONDecodeError: Expecting value: line 1 column 1 (char 0)
 
 - 무료 공개 데이터 소스의 **접근 정책 변경은 라이브러리 에러 메시지에 드러나지 않는다** — 파싱 에러·빈 응답이 나오면 인증/차단 정책 변경부터 의심할 것 (네이버 금융 Referer 의무화 [[naver-finance-news-referer-required]] 와 같은 계열).
 
+## 인증정보가 있어도 계정 상태로 실패할 수 있다
+
+2026년 10월 ht_dde RS 수집은 pykrx 1.2.8과 인증정보가 이미 있는데도 `KeyError: '지수명'`으로 실패했다. 로그인 원응답은 `CD010`으로 비밀번호 변경을 요구했다. 따라서 라이브러리 업그레이드나 선택자 수정만으로 해결되지 않았다.
+
+사용자가 KRX 웹에서 비밀번호 변경을 완료하고 로컬 설정을 갱신한 뒤 정상 코드 `CD001`과 지수 26개 일봉 수집을 확인했다. 후속 안전장치는 오래된 추천 재사용 차단, 휴장일 관측 제외, 배치 중단 기간 매도대금의 한 번만 반영이었다. 상세 복구 경계는 [[ht-dde]]에 기록돼 있다.
+
+파싱 오류는 인증 실패의 후속 증상일 수 있다. 자격증명 존재 여부뿐 아니라 로그인 결과와 계정 조치 요구를 확인하고, 비밀번호·쿠키 자체는 로그나 wiki에 남기지 않는다. 이 사례의 코드 의미와 복구 결과는 지정 세션에 기록된 사실이며, 현재 외부 정책을 재확인한 것은 아니다.
+
 ## 변경 이력
+
+- 2026-10-12: 로그인 의무화의 후속 계정 상태 오류 CD010 및 복구 결과 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-07-07: 최초 생성 — ht_dde RS EOD 스캐너의 pykrx 도입 중 발견 (출처: session-logs/20260706-220340-ac9d-*)

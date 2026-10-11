@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-10-10"
+updated: "2026-10-12"
 sources:
   - "session-logs/codex-019db8f4-139a-7a71-864f-ca4c29244465.md"
   - "session-logs/codex-019e837c-d7e0-7212-b02b-de0b576c8a17.md"
@@ -40,6 +40,7 @@ sources:
   - "session-logs/20260707-223019-2c24-오늘-남성이라는-종목이-추천되서-매수가-되었는데-실제-스코어가-62-점이-넘었는지-확인해줘.md"
 confidence: "high"
 related:
+  - "wiki/analyses/multi-market-trading-account-isolation.md"
   - "wiki/bugs/kis-derivative-etf-order-reject-apbk1497.md"
   - "wiki/bugs/kis-holiday-detection-bsop-date.md"
   - "wiki/bugs/kis-cash-d2-settlement-buy-rejection.md"
@@ -857,7 +858,15 @@ while self._running and time.monotonic() < wait_end:
 - 9~10월 수집 원천 변경은 점수식까지 바꿔 62점 통과 빈도를 줄였다. 비교 도구만 만든 상태와 실제 운영 DB에 복구 점수를 연결한 상태를 구분했고, 최종적으로 기존 점수식을 운영 경로에 복구하며 컷 62는 유지했다. [[scoring-version-comparison-methodology]] 참조.
 - 10월 손익 알림은 실제 체결·부분매도를 기준으로 계산하고 비용은 추정임을 표시했다. 백테스트의 같은 종목·같은 진입일 중복 집계도 수정했다. 단일 실패 거래만 보고 손절·추가매수 정책을 바꾸자는 제안은 철회/보류된 것으로 기록한다.
 
+## 미국 신규 계좌 확장 검토 (2026-10-11)
+
+미국 전용 계좌를 새로 만든다는 가정으로, 같은 코드를 활용하되 국내/미국 실행·자금·DB·전략 상태·로그를 분리하는 계획을 작성했다. 당시 해외주식 코드에는 주문 코드 불일치와 실제 체결 확인 미구현이 보고됐고, 현금 조회·취소·운영 시간도 국내 기준이었다.
+
+구현은 아직 하지 않았으며 계좌 해외 권한도 확인하지 않았다. 국내 운영을 유지하면서 해외 주문 생명주기·USD 위험 한도·미국 거래 세션을 구현하고 페이퍼로 검증하는 순서다. 일반 설계와 적용 경계는 [[multi-market-trading-account-isolation]]을 참조한다.
+
 ## 변경 이력
+
+- 2026-10-12: 미국 전용 신규 계좌 확장 계획과 미구현 경계·분석 링크 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 

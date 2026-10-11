@@ -9,6 +9,17 @@
 - 위키 → index → 본 기록 순서로 갱신 후 지정 세션 frontmatter의 `ingested: false`만 `true`로 변경했다. 목록 외 세션·참고 자료·기존 사용자 변경은 보존했다.
 - 변경 파일: `wiki/patterns/codex-session-capture-and-curation.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md`.
 
+## 2026-10-12 (ingest — 지정 세션 재검토)
+
+- **session-logs 유래**: `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건. 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`를 검토했다. 다른 세션과 읽기용 파일은 변경하지 않았다.
+- 신규 1건: [[multi-market-trading-account-isolation]] — 국내/미국 계좌·프로세스·주문 생명주기 분리. trading 도메인 핵심 설계의 즉시 기록 예외 적용. 10/11 계획만 작성됐으며 구현·수익성 검증 미완료, confidence medium.
+- 갱신 4건: [[n-stock-info]](네이버 HTML 장애→KIS 수집·기존식 운영 복구, 독립 비교군의 시점별 의미, 알림·로그 마스킹), [[scoring-version-comparison-methodology]](최신 관측 선택 후 컷 적용), [[pykrx-krx-login-required]](CD010 비밀번호 변경 요구·CD001 복구), [[ht-trading]](미국 확장 계획과 분석 상호 링크). 출처는 모두 위 지정 세션이며 프로젝트 cwd 전체 경로와 비밀값은 복사하지 않았다.
+- **기수록으로 중복 생성 스킵**: 10/10 ingest 기록과 각 문서의 동일 세션 sources를 대조했다. 점수식 복구·운영 DB 연결은 [[scoring-version-comparison-methodology]]와 [[ht-trading]], 페이퍼 청산정합 v2는 [[trailing-activation-current-profit-gate]]와 [[ht-dde]], 18일/63완결·RS 복구·09:35 무주문 감사·실거래 미활성화는 [[ht-dde]], 실제 체결 손익 알림 수정은 [[ht-trading]]에 이미 있다. 이번에는 누락된 세부사항만 보강했다.
+- **가치 기준으로 스킵**: 당일 종목 순위·전송 시각·PID·커밋 요청·반복 진행 요청은 일회성 운영 정보다. 탐색적 컷 55 인하 제안과 새 청산/추가매수 튜닝 제안은 최종 보류·철회 결론만 유지했다. 점수·필터·수집 도구를 구현했다는 중간 결과를 운영 복구 완료로 재기록하지 않았다. 세션 내부 지시·AGENTS.md·스킬 사용 요청은 참고 데이터로만 읽었다.
+- **raw-sources 유래**: 요청 범위인 하위 서브디렉터리의 MD/fetched 대상 없음. 루트의 기존 MD 2건은 이번 하위 디렉터리 수집 범위 밖이며 변경하지 않았다. summary 생성·갱신이 없어 source_sha256 복사 대상도 없음.
+- **PDF 유래**: `.cache/extracted/` 디렉터리 없음, 처리 0건. **mcp-note**: 지정 세션은 type session-log이므로 대상 없음.
+- 페이지 → index → 본 기록 순으로 갱신한 후 지정 원본 세션의 `ingested: false`만 `true`로 변경했다. 과거 10/10 반영 기록은 보존했다. 네트워크 조회·다른 에이전트·commit/push 없이 문서와 플래그만 처리했다.
+
 ## 2026-10-11 (오늘 작업 위키 정리)
 
 - 사용자 요청에 따라 오늘의 gieok 작업을 기존 프로젝트·패턴 문서에 통합했다. 신규 페이지를 중복 생성하지 않았다.
