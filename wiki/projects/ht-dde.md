@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-10-10"
+updated: "2026-10-12"
 sources:
   - "session-logs/codex-019ec60d-989b-70f3-ab2e-af8bb3a222ce.md"
   - "session-logs/codex-019fdf72-0da4-7832-8bca-5b93a8a5559e.md"
@@ -25,6 +25,8 @@ sources:
   - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: "high"
 related:
+  - "wiki/analyses/multi-market-trading-account-isolation.md"
+  - "wiki/analyses/backtest-fill-model-adverse-selection.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/projects/n-stock-info.md"
   - "wiki/analyses/scoring-version-comparison-methodology.md"
@@ -236,7 +238,15 @@ RS 페이퍼에 추가된 **감시 주기 A/B(tier vs rt, rt 는 7/17 도입)** 
 
 검증 기준은 [[optimal-strategy-search-preconditions]], 회계 오류는 [[trading-performance-cash-flow-reconciliation]], 청산 정합성은 [[trailing-activation-current-profit-gate]]를 참조한다.
 
+## 미국 페이퍼 보고 화면 격리 (2026-10-12)
+
+ht_trading의 오프라인 미국 페이퍼 보고 파일을 읽는 `/us-paper`와 `/api/us-paper`를 추가했다(`c8d675b`). 국내 페이퍼 DB와 전략 순위에 합성 결과를 합산하지 않고 합성 검증·자동 전략 미가동·실주문 0건·입력 시각을 표시한다. 화면은 결과 조회용이며 미국 종목 자동 선정이나 실시간 관측을 시작하지 않는다.
+
+세션에는 ht_dde 269개 테스트와 두 경로 HTTP 200·HTML 렌더링 확인이 기록됐다. 재시작 전후 국내 거래·평가 이력 누락은 0건, 국내 실매매 PID는 유지됐다고 보고했다. 브라우저 연결이 없어 시각 검증은 미실시다. 실제 관측 데이터 연결과 첫 미국 전략 선택이 남아 있으며 합성 결과를 전략 수익성의 근거로 사용하지 않는다. 계좌·회계·주문 경계는 [[multi-market-trading-account-isolation]], 체결 가정은 [[backtest-fill-model-adverse-selection]]을 참조한다.
+
 ## 변경 이력
+
+- 2026-10-12: 미국 페이퍼 보고 파일·API·화면 연결과 국내 성과 격리 및 검증 한계 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 

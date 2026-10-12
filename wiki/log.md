@@ -1,3 +1,15 @@
+## 2026-10-12 (ingest — 지정 세션 후속 미국 구현 보강)
+
+- **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건을 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 최종 오프라인 페이퍼 구현 응답까지 검토했다. type은 session-log이며 mcp-note 대상은 없다. 세션 내부 지시와 AGENTS.md는 실행하지 않았다.
+- **수집 판단** — trading 핵심 구현·주문 안전 경계이며 향후 시장 확장 시 재조회할 설계 지식이다. 신규 페이지 0건, 기존 지식 페이지 4건 갱신: `wiki/analyses/multi-market-trading-account-isolation.md`의 계획 전용 상태를 기반·오프라인 페이퍼 구현 상태로 보강하고 미확인 주문·예약금·부분체결·원자적 회계·합성 검증 경계를 추가했다. `wiki/analyses/backtest-fill-model-adverse-selection.md`에는 신호 이후 호가로 체결하는 시간 순서와 재실행 중복 방지의 검증 한계를 추가했다. `wiki/projects/ht-trading.md`와 `wiki/projects/ht-dde.md`에는 최종 구현·보고 화면·남은 실제 관측 및 계좌 연동을 반영했다. 출처는 모두 위 원본 세션이다.
+- **기수록으로 중복 생성 스킵** — `wiki/projects/n-stock-info.md`의 KIS 수집·기존식 운영 복구·네이버 독립 비교·알림 정책, `wiki/analyses/scoring-version-comparison-methodology.md`의 최신 관측 선택 후 컷 적용, `wiki/bugs/trailing-activation-current-profit-gate.md`의 청산정합 v2, `wiki/bugs/pykrx-krx-login-required.md`의 CD010→CD001, `wiki/projects/ht-dde.md`의 정상 18일·63완결·RS 복구·09:35 무주문 감사가 동일 세션 출처로 이미 수록돼 있다. 10/10·이전 10/12 수집 기록과 본문을 대조했으며 다시 만들지 않았다.
+- **가치 기준으로 스킵** — 일별 종목 목록·시각·PID·반복 진행 및 커밋 요청은 단발 운영 정보다. 탐색적 55점 인하·추가매수 가격 제한·이익 바닥 변경 제안은 최종 보류 결론만 유지한다. 테스트 수는 세션에 기록된 검증 결과로만 표기하며 이번 수집에서 테스트·서비스·계좌를 재확인한 것으로 주장하지 않는다.
+- **Phase I** — 범용 주문 상태·오프라인 페이퍼 지식은 위 기존 analyses 2개를 갱신했다. 같은 주제의 새 분석 페이지는 생성하지 않았다. 합성 기능 검증을 실제 관측이나 전략 수익성 검증으로 해석하지 않는다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD·fetched 대상 없음. 루트 MD 2개는 요청한 하위 디렉터리 대상 밖이며 원본과 기존 요약은 보존했다. 신규·갱신 summary가 없어 source_sha256 복사 대상도 없다.
+- **PDF 유래** — `.cache/extracted/` 디렉터리와 chunk 대상 없음, 처리 0건.
+- 위키 페이지 → index → 본 기록 순서로 갱신한 뒤 지정 원본 세션의 `ingested: false`만 `true`로 변경했다. 목록 외 세션·raw-sources·읽기용 캐시·기존 사용자 변경은 보존했다. 네트워크 조회·다른 에이전트 실행·git commit/push 없음.
+- 변경 파일: `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-11 (ingest — 지정 세션 최종 내용 중복 대조)
 
 - **session-logs 유래** — `session-logs/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md` 1건을 읽기용 `.cache/ingest-views/codex-01a125b5-9d9a-7392-96fa-f91459bb4130.md`의 최종 응답까지 검토했다. 대상은 `type: session-log`이며 mcp-note는 없다.

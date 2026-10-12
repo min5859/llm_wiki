@@ -4,11 +4,13 @@ domain: "trading"
 sensitivity: "public"
 tags: ["analysis", "trading", "backtest", "fill-model", "adverse-selection", "limit-order", "slippage"]
 created: "2026-07-05"
-updated: "2026-07-05"
+updated: "2026-10-12"
 sources:
+  - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/20260704-130158-2dad-현재-프로젝트에서-개선할-부분이-있을지-검토해줘.md"
 confidence: high
 related:
+  - "wiki/analyses/multi-market-trading-account-isolation.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/patterns/backtest-clock-injection.md"
   - "wiki/analyses/backtest-timeframe-sensitivity.md"
@@ -49,6 +51,14 @@ related:
 2. **지정가 프리미엄/디스카운트는 체결률과 함께 스윕**해야 한다 — 수익률만 보면 "하루 종일 살아있는 주문" 아티팩트에 속는다.
 3. **체결 모델을 바꾸면 과거 파라미터 결정의 근거가 무효**가 된다 — ht_trading 의 `limit_price_ratio` 반전 이력(1.0→1.005→0.995→1.0)은 전부 즉시체결 구모델 하의 결정이라, 신모델 통찰로 1.005 재채택.
 
+## 오프라인 페이퍼의 시간 순서와 재처리 검증
+
+10월 12일 미국 페이퍼 구현에서는 신호가 나온 뒤의 새 호가로만 가상 체결을 판단하고, 수수료·슬리피지·부분체결·만료를 모델에 포함했다. 신호 생성에 사용한 가격으로 곧바로 체결시키는 낙관적 가정을 피하려는 설계다.
+
+같은 합성 입력을 재실행해도 체결 3건·완결 1건이 늘어나지 않았다는 검증 결과가 기록됐다. 이는 시간 순서와 회계·재처리 기능을 확인한 결과이며 체결 가정의 현실성이나 미국 전략 수익성을 입증하지 않는다. 실제 관측 데이터가 연결되기 전에는 합성 결과를 국내 전략 순위나 실제 관측 성과에 합산하지 않는다. 실행·계좌 격리는 [[multi-market-trading-account-isolation]]을 참조한다.
+
 ## 변경 이력
+
+- 2026-10-12: 신호 이후 호가로 체결하는 미국 오프라인 페이퍼와 합성 검증 한계 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-07-05: 최초 생성 — ht_trading 백테스트 낙관 편향 2건 제거와 장중 리플레이 검증에서 일반화 (출처: session-logs/20260704-130158-2dad-*)

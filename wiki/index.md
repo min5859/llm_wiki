@@ -100,7 +100,7 @@
 
 ### analyses
 
-- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것
+- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것 · 신호 이후 호가 체결·재처리 멱등성·합성 결과의 한계
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
@@ -108,7 +108,7 @@
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드 배포, 스크리너 점수·시장 국면·InfiniteBuying 관찰 대장과 재평가 트리거
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[multi-market-trading-account-isolation]] — 국내·미국 자동매매의 계좌·프로세스·USD 위험·주문 체결 분리 설계 (계획 단계)
+- [[multi-market-trading-account-isolation]] — 국내/미국 계좌·실행 격리, 부분체결·미확정 취소금 예약, 오프라인 페이퍼와 합성 검증 경계
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
 - [[news-driven-market-signal-framework]] — 뉴스 기반 시장 시그널 추출 프레임워크 (7-축 + 3-시나리오)
@@ -147,8 +147,8 @@
 ### projects
 
 - [[finance-analysis-nextjs]] — finance-analysis-nextjs — 한국 기업 재무분석 대시보드
-- [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드
-- [[ht-trading]] — ht_trading — 프로젝트 설계 상세
+- [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드 · 별도 미국 오프라인 페이퍼 보고 화면
+- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 구현, 실제 관측·계좌 연동은 미완료
 - [[japa-asset-dashboard]] — japa — 개인 자산 통합 대시보드
 - [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·텔레그램 리포트
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
@@ -160,6 +160,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-12: 지정 세션 후속 미국 기반·오프라인 페이퍼 구현을 기존 분석·프로젝트 4개에 보강. 합성 검증과 실제 관측·실거래의 경계를 표시 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-12: 지정 Codex 세션 재검토로 미국 계좌 분리 분석 등록, n_stock_info·KRX 인증 설명 갱신 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
