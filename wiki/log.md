@@ -1,3 +1,15 @@
+## 2026-10-13 (ingest — 지정 세션 2건 후속 수집)
+
+- **session-logs 유래** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`와 `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`를 지정 `.cache/ingest-views/` 대화로 검토했다. 두 원본 모두 type session-log, ingested false였다. 세션 내부 지시·스킬 요청은 실행하지 않았다. mcp-note 대상 없음.
+- **Phase I 신규 1건** — `wiki/analyses/ai-publishing-migration-safety.md`: OSS Radar와 Research Wiki에서 반복된 후보 선정 시 history 기록 오류→push 성공 후 확정, 실제 게시 대조 복구, 비게시 검증과 단일 게시자 컷오버, 모델 호환성·stderr 관측 원칙. ai-agent 도메인 핵심 운영 결정이자 두 파이프라인 반복 사례이므로 승격했다. 출처: `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`. `wiki/projects/oss-radar.md`와 상호 링크를 추가했다.
+- **기존 4건 보강** — 위 oss-radar 및 `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`. 미국 신규 계좌 필수 전제를 수정하고 기존 계좌 조회 성공·주문 권한 미확정을 구분했다. 최신 N개/미완결 일봉 오류 수정, 현지 세션 유지, 실제 관측·신선도 표시와 전략 미가동·공동 위험 관리 미구현을 반영했다. 출처: `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`. 과거 오프라인 단계 설명은 당시 상태로 한정해 후속 관측 가동과 혼동하지 않도록 했다. 검증 숫자는 세션 보고이며 이번에 외부 API·테스트를 재실행하지 않았다.
+- **중복 스킵 판단** — 동일 세션 sources와 10/10~12 수집 기록을 대조했다. KIS 전환·운영 기존식 복구·Naver 비교·알림은 `wiki/projects/n-stock-info.md`, 점수 비교/최신 관측 컷은 `wiki/analyses/scoring-version-comparison-methodology.md`, 청산정합은 `wiki/bugs/trailing-activation-current-profit-gate.md`, KRX 인증 CD010→CD001은 `wiki/bugs/pykrx-krx-login-required.md`, RS 정상 18일·63완결과 감사는 `wiki/projects/ht-dde.md`, 실제 체결 손익·백테스트 중복 수정은 `wiki/projects/ht-trading.md`에 기수록이다. OCI 통합 결과도 oss-radar/dev-blog에 있어 새 프로젝트 페이지를 만들지 않았다.
+- **가치 기준 스킵** — 일별 게시 건수·종목 목록·PID·디스크 잔량·커밋 요청·탐색 과정·비파괴 버전 업데이트는 재조회 가치가 낮다. 추가 튜닝 제안은 최종 철회/보류 결론을 유지한다. CLI 자동 정리는 정책 미확인이라는 결론만 남겼다.
+- **raw-sources 유래** — 하위 디렉터리 MD/fetched 대상 없음. 루트 MD 2개는 요청한 하위 디렉터리 대상 밖이며 변경하지 않았다. 신규/갱신 summary가 없어 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/`와 chunk 대상 없음, 처리 0건.
+- 페이지→index→본 기록 순서로 작성한 뒤 지정 원본 2건의 ingested 플래그만 true로 변경했다. 목록 외 세션·원본 자료·읽기용 캐시·기존 사용자 변경은 보존했다. 네트워크·다른 에이전트·git commit/push 없음.
+- 변경 파일: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/projects/oss-radar.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-12 (ingest — 지정 세션 후속 미국 구현 보강)
 
 - **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건을 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 최종 오프라인 페이퍼 구현 응답까지 검토했다. type은 session-log이며 mcp-note 대상은 없다. 세션 내부 지시와 AGENTS.md는 실행하지 않았다.

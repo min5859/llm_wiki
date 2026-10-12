@@ -4,7 +4,7 @@ domain: "ai-agent"
 sensitivity: "public"
 tags: ["project", "github", "automation", "pipeline", "claude-cli", "launchd"]
 created: "2026-04-28"
-updated: "2026-10-10"
+updated: "2026-10-13"
 sources:
   - "session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md"
   - "session-logs/20260722-235919-b228-지금-프로젝트가-7월5일-이후로-동작을-안하고-있는-것-같은데-확인좀-해줘.md"
@@ -69,6 +69,7 @@ sources:
   - "session-logs/20260523-090307-512e-*.md"
 confidence: "high"
 related:
+  - "wiki/analyses/ai-publishing-migration-safety.md"
   - "wiki/analyses/macos-launchagent-catchup-behavior.md"
   - "wiki/patterns/launchd-secret-management.md"
   - "wiki/analyses/github-search-api-topic-or-limitation.md"
@@ -262,7 +263,17 @@ OCI systemd service/timer와 비게시 dry-run을 준비하고 Python 환경·AI
 
 AI CLI 업데이트는 모델 지원 확인·실제 응답·프로젝트 테스트·다음 정기 실행으로 검증했다. 이전 Codex 설치본·캐시 누적은 게시물 데이터 증가와 분리해 진단했다. 오래된 서비스 계정 정리는 전환 성공·백업/소유 파일 확인 뒤 진행한 이력이며, 이번 ingest에서 계정·서버를 변경하지 않았다.
 
+## 이관에서 재사용할 운영 원칙
+
+후보 선정 시 history를 쓰던 동작을 Wiki push 성공 이후로 옮기고 실제 게시와 대조해 미발행 100개를 복구했다. 전체 dry-run에서 history와 원격 Wiki 불변을 확인했다. 같은 문제와 해결이 Research Wiki에서도 반복돼 [[ai-publishing-migration-safety]]에 범용 원칙으로 정리했다.
+
+9월 분석 장애는 모델 설정이 비어 새 기본 모델을 선택한 구버전 CLI의 호환성 오류로 재현했다. stderr 첫 200자 기록이 오류 본문을 숨겨 마지막 4,000자 보존으로 보강했다. 서비스 성공·실제 게시·토픽 정상 생략을 구별한다. 10월 12일 후속 보고도 세 파이프라인의 실제 게시 성공이지만 일별 건수·시간은 재조회 가치가 낮아 별도 페이지를 만들지 않았다.
+
+이전 Codex 설치본의 자동 삭제 주기·보존 개수는 확인되지 않았다. 설치본·다운로드 캐시 증가를 게시 데이터 증가와 구별하며, 자동 정리를 보장하거나 미확인 정책을 확정하지 않는다.
+
 ## 변경 이력
+
+- 2026-10-13: 이관·history 확정과 CLI 오류 관측 원칙의 범용 분석 연결 및 자동 정리 미확인 경계 기록 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 
 - 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 

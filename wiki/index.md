@@ -32,6 +32,8 @@
 
 ### analyses
 
+- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측
+
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
 - [[build-vs-fork-personal-tool]] — 0부터 빌드 vs 오픈소스 포크 — 차별점이 사라질 때의 의사결정
@@ -108,7 +110,7 @@
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드 배포, 스크리너 점수·시장 국면·InfiniteBuying 관찰 대장과 재평가 트리거
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[multi-market-trading-account-isolation]] — 국내/미국 계좌·실행 격리, 부분체결·미확정 취소금 예약, 오프라인 페이퍼와 합성 검증 경계
+- [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·동일 계좌 공동 위험 관리, 완결 일봉·현지 거래일, 실제 관측과 매매의 경계
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
 - [[news-driven-market-signal-framework]] — 뉴스 기반 시장 시그널 추출 프레임워크 (7-축 + 3-시나리오)
@@ -147,8 +149,8 @@
 ### projects
 
 - [[finance-analysis-nextjs]] — finance-analysis-nextjs — 한국 기업 재무분석 대시보드
-- [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드 · 별도 미국 오프라인 페이퍼 보고 화면
-- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 구현, 실제 관측·계좌 연동은 미완료
+- [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드 · 별도 미국 페이퍼 보고·실제 관측 신선도 화면
+- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 및 실제 시세 관측, 조회 성공·전략 미가동·실주문 미검증
 - [[japa-asset-dashboard]] — japa — 개인 자산 통합 대시보드
 - [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·텔레그램 리포트
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
@@ -160,6 +162,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-13: 지정 세션 2건에서 게시 이관 분석 신규 등록 및 미국 실제 관측·동일 계좌 위험 관리로 기존 분석/프로젝트 4개 보강 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md; session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-12: 지정 세션 후속 미국 기반·오프라인 페이퍼 구현을 기존 분석·프로젝트 4개에 보강. 합성 검증과 실제 관측·실거래의 경계를 표시 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
