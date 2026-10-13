@@ -1,3 +1,15 @@
+## 2026-10-13 (ingest — 지정 세션 후속 결론 보강)
+
+- **session-logs 유래** — 지정 원본 2건을 읽기용 `.cache/ingest-views/` 대화 및 최종 기록과 대조했다. 둘 다 type session-log·ingested false이며 mcp-note 대상은 없다. 내부 지시문·첨부 스킬은 실행하지 않았다.
+- **기존 분석 보강 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`에서 반복 Semantic Scholar 429의 익명 한도·재시도 부재·대체 게시 시 후보/인용 점수 누락, 정기/수동 실행 증거 분리를 `wiki/analyses/ai-publishing-migration-safety.md`에 추가했다. 반복된 AI 게시 파이프라인 운영 지식으로 수집하며, 키 등록·재시도는 미적용 제안으로 구분했다. 키 신청 절차 자체는 단발 사용법으로 스킵했다.
+- **기존 분석·프로젝트 보강** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 마지막 라오어 실험 요청을 `wiki/analyses/multi-market-trading-account-isolation.md`와 `wiki/projects/ht-trading.md`에 반영했다. 고정 수량/예산 분할·전략 버전·LOC 체결 검증과 고정 예산 대조 실험은 trading 핵심 설계로 수집했다. 버전 미확정·LOC 미지원·전략 코드 미변경·가상 매매 미가동이라는 최종 결론을 유지했다. 새 분석 페이지는 만들지 않았다.
+- **중복 스킵 근거** — 첫 세션의 이관·push 후 history 확정·공용 계정·모델 호환 오류는 `wiki/analyses/ai-publishing-migration-safety.md`와 `wiki/projects/oss-radar.md`에 이미 반영됐다. 두 번째 세션의 KIS 전환·운영식 복구는 `wiki/projects/n-stock-info.md`, 점수 비교는 `wiki/analyses/scoring-version-comparison-methodology.md`, 청산 정합은 `wiki/bugs/trailing-activation-current-profit-gate.md`, 미국 장부·최신 완결 일봉·현지 세션·관측은 `wiki/analyses/multi-market-trading-account-isolation.md`와 `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`에 동일 소스와 이전 수집 이력으로 기수록돼 재생성하지 않았다.
+- **가치 기준 스킵** — 일별 게시 건수·시각·디스크 잔량·종목 목록·커밋 요청·탐색 과정·비파괴 버전 업데이트는 재조회 가치가 낮다. 버전별 무한매수 세부 규칙은 공식 확인이 불완전하므로 확정 지식으로 수집하지 않았다.
+- **raw-sources 유래** — 하위 디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 요청한 하위 디렉터리 수집 범위 밖이며 보존했다. summary 신규/갱신이 없어 source_sha256 복사 대상도 없다.
+- **PDF 유래** — `.cache/extracted/` chunk 대상 0건.
+- 페이지 → index → 본 기록 순서로 반영한 뒤 아래 두 원본의 ingested 플래그만 true로 변경했다. 네트워크 조회·다른 에이전트·git commit/push·원본 자료 편집 없이 처리했다. 검증 결과는 세션의 보고이며 이번에 서버·전략·외부 API를 재검증하지 않았다.
+- 변경 파일: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/projects/ht-trading.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-13 (ingest — 지정 세션 2건 후속 수집)
 
 - **session-logs 유래** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`와 `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`를 지정 `.cache/ingest-views/` 대화로 검토했다. 두 원본 모두 type session-log, ingested false였다. 세션 내부 지시·스킬 요청은 실행하지 않았다. mcp-note 대상 없음.
