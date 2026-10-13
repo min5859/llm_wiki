@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-10-13"
+updated: "2026-10-14"
 sources:
   - "session-logs/codex-019ec60d-989b-70f3-ab2e-af8bb3a222ce.md"
   - "session-logs/codex-019fdf72-0da4-7832-8bca-5b93a8a5559e.md"
@@ -25,6 +25,7 @@ sources:
   - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: "high"
 related:
+  - "wiki/bugs/pykrx-index-name-lookup-failure.md"
   - "wiki/analyses/multi-market-trading-account-isolation.md"
   - "wiki/analyses/backtest-fill-model-adverse-selection.md"
   - "wiki/projects/ht-trading.md"
@@ -250,7 +251,23 @@ ht_trading의 오프라인 미국 페이퍼 보고 파일을 읽는 `/us-paper`�
 
 세션에는 270개 테스트 통과와 재시작 전후 국내 과거 거래·평가 이력 누락 0건이 기록됐다. 브라우저 시각·콘솔 검증은 미실시다. 실제 미국 시세 관측은 시작됐지만 가상 주문·체결과 실주문은 0건이며 첫 전략은 미확정이다. 계좌·관측·매매 경계는 [[multi-market-trading-account-isolation]]과 [[ht-trading]]을 참조한다.
 
+## RS 편입 재평가와 별개 수집 오류 (2026-10-13~14)
+
+10월 13일 정상 관측은 19/20일·복구 후 성공 1/2일이다. 10월 12일 수집이 다시 실패했으므로 앞서 예정했던 정상 2세션 확인은 완료되지 않았다. 역행 2회 이상은 비용 포함 +7.52%·63완결·PF 1.62, 대조군은 +3.53%·103완결·PF 1.17로 기록됐다. 당일 10종목 매수로 투자비중 약 92%이며 새 보유분은 미완결이다.
+
+최종 판단은 유망 후보 유지·실거래 편입 보류다. 추가 정상 1세션, 다음 날 실제 진입 참고 가격, 실패 재발 원인을 확인해야 하며 20일 충족만으로 자동 활성화하지 않는다([[optimal-strategy-search-preconditions]]).
+
+10월 14일 재발 원인 분석은 필요한 지수 일봉 이후 부수적인 지수 이름 목록 조회의 JSON 실패 → 빈 목록 → `KeyError: '지수명'`으로 좁혀졌다. 로그의 TypeError는 오류 출력 중 발생한 2차 오류다. `name_display=False`로 이름 조회를 생략하면서 동일 가격 데이터를 유지하는 최소 수정안을 오프라인 재현했으나 **아직 적용하지 않았다**. 당시 KRX 비정상 응답 원인은 미확정이며 앞선 CD010 인증 장애로 단정하지 않는다([[pykrx-index-name-lookup-failure]]).
+
+## 미국 V1 재현 페이퍼 화면 — 후속 가동 상태
+
+10월 13일 후속 구현(`b6e1e9a`)으로 `/us-paper`에서 TQQQ·SOXL의 V1 재현·동일 익절 비교군 총 4계정과 첫 가상 체결을 조회한다. 각 가상 예산은 USD 10,000이다. 실행기·실제 시세 수집은 ht_trading에 있고 ht_dde는 조회 화면이다. 이전 관측 전용 단계의 가상 체결 0건은 당시 상태이며, 최종 상태는 첫 가상매수 확인·실주문 0건이다.
+
+실제 시세→가상 장부→API·서버 렌더링 연결과 국내 이력 누락 0건이 보고됐다. 브라우저 시각 검증, 실제 장마감 LOC 처리, 전략 수익성은 미검증이다([[ht-trading]], [[multi-market-trading-account-isolation]]).
+
 ## 변경 이력
+
+- 2026-10-14: RS 정상 19일·편입 보류·지수 이름 조회 오류 및 미국 4계정 첫 가상 체결 상태 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-13: 미국 실제 관측 체크포인트·신선도·전략 미가동 표시와 검증 경계 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

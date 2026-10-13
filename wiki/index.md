@@ -110,7 +110,7 @@
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드 배포, 스크리너 점수·시장 국면·InfiniteBuying 관찰 대장과 재평가 트리거
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·동일 계좌 공동 위험 관리, 완결 일봉·현지 거래일, 실제 관측과 매매의 경계·무한매수 버전/LOC 검증
+- [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·동일 계좌 공동 위험 관리, 완결 일봉·현지 거래일, 실제 관측과 V1 재현 4계정 가동·고정 예산/LOC 검증
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
 - [[news-driven-market-signal-framework]] — 뉴스 기반 시장 시그널 추출 프레임워크 (7-축 + 3-시나리오)
@@ -139,6 +139,7 @@
 - [[naver-finance-news-referer-required]] — 네이버 금융 종목 뉴스 크롤링 — Referer 헤더 없으면 빈 스텁 페이지
 - [[naver-finance-no-info-selector-drift]] — 네이버 금융 table.no_info 셀렉터 드리프트 — 거래량·시가·등락률 silent 0 (가짜 fixture가 가린 버그)
 - [[order-post-retry-double-fill]] — 비멱등 주문 POST 자동 재시도 — 이중 체결 위험과 취소 오판
+- [[pykrx-index-name-lookup-failure]] — 지수 이름 부수 조회의 JSON 실패·빈 목록·2차 출력 오류, name_display=False 최소 수정안은 미적용
 - [[pykrx-krx-login-required]] — pykrx — KRX 로그인 의무화·CD010 비밀번호 변경 요구가 파싱 오류로 발현
 - [[reentry-after-full-liquidation-no-cooldown]] — ht_trading 전량 청산 직후 재매수 — flat 재진입 쿨다운 부재
 - [[relative-stop-benchmark-stale-price]] — 상대손절의 벤치마크 stale price — 종목은 실시간가, 지수는 일봉 캐시 종가
@@ -150,7 +151,7 @@
 
 - [[finance-analysis-nextjs]] — finance-analysis-nextjs — 한국 기업 재무분석 대시보드
 - [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드 · 별도 미국 페이퍼 보고·실제 관측 신선도 화면
-- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 및 실제 시세 관측, 조회 성공·전략 미가동·실주문 미검증
+- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 및 실제 시세 관측, 조회 성공·V1 재현 첫 가상 체결·실주문 미검증
 - [[japa-asset-dashboard]] — japa — 개인 자산 통합 대시보드
 - [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·텔레그램 리포트
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
@@ -162,6 +163,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-14: 지정 세션 후속 결과로 지수 이름 조회 버그 신규 등록, 기존 분석 3건·프로젝트 2건·인증 버그 1건 보강. V1 재현 가동과 RS 편입 보류·미적용 수정안을 구분 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-13: 지정 세션 후속 결론으로 기존 분석 2건·프로젝트 1건 보강: 수집 소스 부분 실패와 정기 실행 증거, 무한매수 버전·LOC 검증 및 미가동 상태 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md; session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

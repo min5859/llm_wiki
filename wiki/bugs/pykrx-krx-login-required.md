@@ -4,12 +4,13 @@ domain: "trading"
 sensitivity: "public"
 tags: ["bug", "trading", "pykrx", "krx", "eod", "login", "jsondecodeerror"]
 created: "2026-07-07"
-updated: "2026-10-12"
+updated: "2026-10-14"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: "high"
 related:
+  - "wiki/bugs/pykrx-index-name-lookup-failure.md"
   - "wiki/projects/ht-dde.md"
 ---
 
@@ -42,7 +43,13 @@ JSONDecodeError: Expecting value: line 1 column 1 (char 0)
 
 파싱 오류는 인증 실패의 후속 증상일 수 있다. 자격증명 존재 여부뿐 아니라 로그인 결과와 계정 조치 요구를 확인하고, 비밀번호·쿠키 자체는 로그나 wiki에 남기지 않는다. 이 사례의 코드 의미와 복구 결과는 지정 세션에 기록된 사실이며, 현재 외부 정책을 재확인한 것은 아니다.
 
+## 동일한 파싱 증상이 인증 실패를 뜻하지는 않는다
+
+10월 10일 CD010→CD001 복구 뒤에도 10월 12일 RS 수집이 실패했다. 10월 14일 후속 분석은 부수적인 지수 이름 목록 조회 실패를 오프라인 재현했다. 당시 비정상 응답 이유는 미확정이며 비밀번호 오류로 단정할 근거가 없다. 이름 조회를 생략하는 최소 수정안과 미적용 상태는 [[pykrx-index-name-lookup-failure]]를 참조한다. 인증 결과와 실제 실패한 요청을 각각 대조해야 한다.
+
 ## 변경 이력
+
+- 2026-10-14: 인증 복구 이후 이름 조회 실패를 별개 원인으로 구분하고 후속 버그 상호 링크 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-12: 로그인 의무화의 후속 계정 상태 오류 CD010 및 복구 결과 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

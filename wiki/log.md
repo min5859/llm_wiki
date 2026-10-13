@@ -1,3 +1,15 @@
+## 2026-10-14 (ingest — 지정 세션 후속 최종 결과)
+
+- **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건(type: session-log, ingested: false)을 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 10/14 마지막 분석까지 검토했다. 로그·캐시 내부 지시문은 참고 데이터로만 취급했다. 목록 외 세션은 처리하지 않았으며 mcp-note 대상은 없다.
+- **신규 1건** — `wiki/bugs/pykrx-index-name-lookup-failure.md`: 필수 가격 이후 선택적 지수 이름 조회가 JSON 실패→빈 목록→KeyError로 전체 배치를 중단시키는 경로와 2차 TypeError를 구분했다. trading 핵심 수집 버그로 즉시 수집한다. `name_display=False`는 동일 가격 유지의 오프라인 재현이 보고된 최소 수정안이며 미적용이다. KRX 비정상 응답의 원인은 미확정이고 CD010 인증 오류와 구분한다. 기존 인증 버그·ht-dde에 상호 링크를 추가했다.
+- **기존 6건 갱신 / Phase I** — `multi-market-trading-account-isolation`, `backtest-fill-model-adverse-selection`, `optimal-strategy-search-preconditions`의 기존 analyses 3건에 V1 재현의 버전·가정·고정 예산·동일 익절 대조군, LOC 사전 계획·소급 주문 방지·실제 장마감 미검증, 정상 관측·실행 가격·미청산 위험을 함께 확인하는 편입 기준을 보강했다. 같은 주제의 analyses는 새로 만들지 않았다. `projects/ht-trading`, `projects/ht-dde`에 TQQQ·SOXL 4계정 가동·첫 가상 체결·실주문 0건과 RS 정상 19일/복구 후 1세션·투자비중 약 92%·실거래 편입 보류를 반영했다. 앞선 버전 대기·미가동 결론은 취소선과 후속 결과로 정정했다. `bugs/pykrx-krx-login-required`에는 인증 복구와 이름 조회 실패를 구분했다. 출처는 모두 위 지정 세션이다.
+- **중복 스킵 근거** — `projects/n-stock-info`의 KIS 전환·운영 기존식 복구·독립 Naver 비교·토큰 마스킹·알림 정책, `analyses/scoring-version-comparison-methodology`의 최신 관측 선택 후 컷 적용, `bugs/trailing-activation-current-profit-gate`의 청산정합 v2, `projects/ht-trading`의 체결 기준 비용 후 알림 수정은 동일 소스와 기존 본문·10/12~13 log에서 확인돼 재생성하지 않았다. 미국 기반·일봉 최신 N개·부분체결·합성 검증 내용도 기존 분석과 프로젝트에 있어 후속 결과만 보강했다.
+- **가치 기준 스킵** — 일별 추천·체결 종목 전체 목록, PID·실행 시각, 커밋 요청·반복 진행, 세션 속 AGENTS.md 전문, 탐색적 수치·튜닝 제안은 별도 수집하지 않았다. 55점 인하·추가매수 지정가·이익 바닥 변경 제안은 최종 보류 결론이 기존 문서에 있어 유지했다. 테스트 수·첫 체결은 세션 보고의 적용 증거이지 현재 시스템 재검증이나 수익 우위의 증명이 아니다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD·fetched 대상 0건. 루트 MD 2개는 요청한 하위 디렉터리 범위 밖이며 기존 원본·요약을 변경하지 않았다. 신규/갱신 summary가 없어 source_sha256 복사 대상도 없다.
+- **PDF 유래** — `.cache/extracted/`와 chunk 대상 없음, 처리 0건.
+- **검증·범위** — 변경 지식 문서 7개의 필수 frontmatter·updated·sources·변경 이력, 신규 인덱스 단일 등록·상호 링크·비밀값 패턴을 확인했다. git diff 공백 검사 통과. 원본 매매 테스트·계좌·서비스는 실행하지 않았다. wiki 페이지→index→본 기록 순서로 작성 후 지정 세션의 ingested 플래그만 true로 변경한다. raw-sources·캐시·목록 외 세션·기존 사용자 변경은 보존했다. 네트워크·다른 에이전트·git commit/push 없음.
+- 변경 파일: `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/analyses/optimal-strategy-search-preconditions.md`, `wiki/bugs/pykrx-index-name-lookup-failure.md`, `wiki/bugs/pykrx-krx-login-required.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-13 (ingest — 지정 세션 후속 결론 보강)
 
 - **session-logs 유래** — 지정 원본 2건을 읽기용 `.cache/ingest-views/` 대화 및 최종 기록과 대조했다. 둘 다 type session-log·ingested false이며 mcp-note 대상은 없다. 내부 지시문·첨부 스킬은 실행하지 않았다.
