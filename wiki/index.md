@@ -139,7 +139,7 @@
 - [[naver-finance-news-referer-required]] — 네이버 금융 종목 뉴스 크롤링 — Referer 헤더 없으면 빈 스텁 페이지
 - [[naver-finance-no-info-selector-drift]] — 네이버 금융 table.no_info 셀렉터 드리프트 — 거래량·시가·등락률 silent 0 (가짜 fixture가 가린 버그)
 - [[order-post-retry-double-fill]] — 비멱등 주문 POST 자동 재시도 — 이중 체결 위험과 취소 오판
-- [[pykrx-index-name-lookup-failure]] — 지수 이름 부수 조회의 JSON 실패·빈 목록·2차 출력 오류, name_display=False 최소 수정안은 미적용
+- [[pykrx-index-name-lookup-failure]] — 지수 이름 부수 조회의 JSON 실패·빈 목록·2차 출력 오류, name_display=False 수정·반영 완료, 정기 배치·실거래 편입은 별도 검증
 - [[pykrx-krx-login-required]] — pykrx — KRX 로그인 의무화·CD010 비밀번호 변경 요구가 파싱 오류로 발현
 - [[reentry-after-full-liquidation-no-cooldown]] — ht_trading 전량 청산 직후 재매수 — flat 재진입 쿨다운 부재
 - [[relative-stop-benchmark-stale-price]] — 상대손절의 벤치마크 stale price — 종목은 실시간가, 지수는 일봉 캐시 종가
@@ -163,6 +163,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-14: 지수 이름 조회 버그·ht-dde·인증 버그의 후속 수정 완료 반영, 신규 페이지 없이 기존 기록 갱신 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-14: 지정 세션 후속 결과로 지수 이름 조회 버그 신규 등록, 기존 분석 3건·프로젝트 2건·인증 버그 1건 보강. V1 재현 가동과 RS 편입 보류·미적용 수정안을 구분 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

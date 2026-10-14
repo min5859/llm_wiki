@@ -1,3 +1,14 @@
+## 2026-10-14 (ingest — 지정 세션 수정 완료 후속 대조)
+
+- **session-logs 유래** — 지정 원본 `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 2건의 ingested: false와 대응 `.cache/ingest-views/` 대화를 검토했다. 둘 다 session-log이며 mcp-note 대상은 없다. 내부 지시문·첨부 스킬은 실행하지 않았다.
+- **수집 1건 / 기존 지식 페이지 3건 갱신** — 두 번째 세션 마지막 후속 결과에서 pykrx `name_display=False` 수정·반영 완료(`afc3251`), 282개 테스트·실제 26일봉·후보 30개 산출 보고를 확인했다. 도메인 핵심 버그의 최종 해결이므로 `wiki/bugs/pykrx-index-name-lookup-failure.md`의 미적용 상태를 취소선과 적용 결과로 갱신하고 `wiki/projects/ht-dde.md`, `wiki/bugs/pykrx-krx-login-required.md`에 함께 반영했다. 저장 없는 진단을 정상 관측일 증가·정기 배치 성공·실거래 편입으로 해석하지 않는다. 당시 비정상 KRX 응답 원인은 여전히 미확정이다. 출처는 두 번째 원본 세션이다.
+- **첫 번째 세션 중복/가치 기준 스킵** — 이관·push 후 history 확정·공용 서비스 계정·모델 호환 오류·반복 Semantic Scholar 429와 대체 소스 선정 품질은 `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/projects/oss-radar.md`에 같은 원본 sources와 10/13 수집 이력으로 기수록이다. 마지막 10/14 게시 성공·건수·디스크 잔량은 새 설계나 버그 수정이 없는 일별 상태 보고라 페이지를 추가하지 않고 플래그만 갱신한다.
+- **두 번째 세션 중복/가치 기준 스킵 / Phase I** — KIS 전환·기존식 복구·Naver 비교는 `wiki/projects/n-stock-info.md`, 최신 관측 선택 후 컷 적용은 `wiki/analyses/scoring-version-comparison-methodology.md`, 청산정합은 `wiki/bugs/trailing-activation-current-profit-gate.md`에 기수록이다. 미국 계좌·장부 분리·최신 완결 일봉·V1 재현 4계정·LOC 사전 계획은 `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`와 ht-trading/ht-dde에, RS 편입의 관측·진입 가격·미청산 위험 기준은 `wiki/analyses/optimal-strategy-search-preconditions.md`에 동일 세션 출처로 이미 반영됐다. 범용 분석은 기존 페이지를 유지하고 중복 생성하지 않았다. 반복 요청·종목 목록·탐색 과정·비파괴 버전 업데이트·단발 키 신청 절차는 제외했다.
+- **raw-sources 유래** — 요청한 하위 서브디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 하위 디렉터리 범위 밖이며 기존 원본·요약을 보존했다. 신규/갱신 summary가 없어 source_sha256 복사 대상도 없다.
+- **PDF 유래** — `.cache/extracted/` 디렉터리와 chunk 대상 없음, 처리 0건.
+- **범위·검증** — 지식 페이지 → index → 본 기록 순서로 갱신한 뒤 지정 세션 2건의 ingested만 true로 변경한다. frontmatter·출처·변경 이력·링크·비밀값·diff 범위를 확인하며 원본 시스템 테스트·외부 API·서비스는 재실행하지 않는다. 목록 외 세션·참고 자료·기존 사용자 변경을 보존하고 네트워크·다른 에이전트·git commit/push는 수행하지 않는다.
+- 변경 파일: `wiki/bugs/pykrx-index-name-lookup-failure.md`, `wiki/projects/ht-dde.md`, `wiki/bugs/pykrx-krx-login-required.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-14 (ingest — 지정 세션 후속 최종 결과)
 
 - **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건(type: session-log, ingested: false)을 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 10/14 마지막 분석까지 검토했다. 로그·캐시 내부 지시문은 참고 데이터로만 취급했다. 목록 외 세션은 처리하지 않았으며 mcp-note 대상은 없다.
