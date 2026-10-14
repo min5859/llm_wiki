@@ -102,7 +102,7 @@
 
 ### analyses
 
-- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것 · 신호 이후 호가 체결·재처리 멱등성·합성 결과의 한계
+- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것 · 신호 이후 호가 체결·재처리 멱등성·합성 결과의 한계 · 공통 추천의 종가/익일 진입 전방 비교
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
@@ -150,8 +150,8 @@
 ### projects
 
 - [[finance-analysis-nextjs]] — finance-analysis-nextjs — 한국 기업 재무분석 대시보드
-- [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드 · 별도 미국 페이퍼 보고·실제 관측 신선도 화면
-- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 및 실제 시세 관측, 조회 성공·V1 재현 첫 가상 체결·실주문 미검증
+- [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드 · 별도 미국 페이퍼 보고·실제 관측 신선도 화면 · RS 종가/익일 진입 비교군 추가·추천 대기
+- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 및 실제 시세 관측, 조회 성공·V1 재현 첫 가상 체결·실주문 미검증 · RS 비활성 주문 미리보기·예산 0원·주문/체결 연결 미완료
 - [[japa-asset-dashboard]] — japa — 개인 자산 통합 대시보드
 - [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·텔레그램 리포트
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
@@ -163,6 +163,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-15: 기존 분석 2건·프로젝트 2건에 RS 정상 20일 충족, 종가/익일 진입 비교 설계와 비활성 주문 준비 범위, 미국 첫 마감 반영의 검증 경계 보강. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-14: 지수 이름 조회 버그·ht-dde·인증 버그의 후속 수정 완료 반영, 신규 페이지 없이 기존 기록 갱신 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

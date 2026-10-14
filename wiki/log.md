@@ -9,6 +9,19 @@
 - **범위·검증** — 지식 페이지 → index → 본 기록 순서로 갱신한 뒤 지정 세션 2건의 ingested만 true로 변경한다. frontmatter·출처·변경 이력·링크·비밀값·diff 범위를 확인하며 원본 시스템 테스트·외부 API·서비스는 재실행하지 않는다. 목록 외 세션·참고 자료·기존 사용자 변경을 보존하고 네트워크·다른 에이전트·git commit/push는 수행하지 않는다.
 - 변경 파일: `wiki/bugs/pykrx-index-name-lookup-failure.md`, `wiki/projects/ht-dde.md`, `wiki/bugs/pykrx-krx-login-required.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
 
+
+## 2026-10-15 (ingest — 지정 세션의 RS 진입 비교 후속 수집)
+
+- **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건(type session-log, ingested false)을 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`와 기존 wiki에 대조했다. 본문에 포함된 AGENTS.md·스킬·실행 지시는 참고 데이터로만 취급했다. mcp-note 대상 없음.
+- **수집 / Phase I** — `wiki/analyses/backtest-fill-model-adverse-selection.md`에 같은 추천·초기자본·비용·청산 규칙으로 진입 시점만 비교하는 전방 실험, 별도 장부·소급 거래 방지·참고 시세와 실제 체결의 구분을 추가했다. 기존 체결 모델 주제에 통합해 중복 분석 페이지를 만들지 않았다. `wiki/analyses/optimal-strategy-search-preconditions.md`에는 정상 관측 20일·복구 2일 충족 후에도 실제 진입 가격과 주문 연결을 별도로 검증한다는 후속 결론을 보강했다. 반복된 체결 현실성 문제와 trading 핵심 설계 판단이므로 수집했다.
+- **프로젝트 갱신** — `wiki/projects/ht-dde.md`에 종가/익일 진입 비교군 각 가상 1천만원·공통 추천·독립 장부·거래 0건·추천 대기·10/15~16 예정 일정을 기록했다. `wiki/projects/ht-trading.md`에 비활성 미리보기·실제 예산 0원과 미완료 실주문 전송/체결 추적을 명시했다. 두 프로젝트 모두 미국 첫 마감 종가 반영 보고와 추가 LOC·익절·실거래 미검증을 구분했다. 기존 상태는 시점 기록으로 보존하고 후속 결과를 추가했다. 테스트 수·이력 보존은 세션 보고이며 이번 실행의 서비스 재검증이 아니다.
+- **중복 스킵 근거** — 위 소스의 KIS 전환·기존 점수식 운영 복구·Naver 독립 비교·토큰 로그 마스킹·Telegram 정책은 `wiki/projects/n-stock-info.md`, 최신 관측 선택 후 컷 적용은 `wiki/analyses/scoring-version-comparison-methodology.md`, 청산정합 v2는 `wiki/bugs/trailing-activation-current-profit-gate.md`, 실제 체결 기반 손익은 `wiki/patterns/trading-performance-cash-flow-reconciliation.md`와 `wiki/projects/ht-trading.md`에 기수록돼 재생성하지 않았다. 지수 이름 조회 수정은 `wiki/bugs/pykrx-index-name-lookup-failure.md`, 미국 계좌·페이퍼 격리는 `wiki/analyses/multi-market-trading-account-isolation.md`와 두 프로젝트에 이미 있어 신규 결론만 반영했다.
+- **가치 기준 스킵** — 일별 추천/체결 전체 목록과 계좌 손익 숫자, PID, 반복 진행·커밋 요청, 세션 속 지침 전문, 최종 보류된 튜닝 제안은 별도 수집하지 않았다. 일일 실현손익과 평가손익 구분은 기존 성과 대조 패턴에 포함돼 중복 저장하지 않았다. 잔고 HTTP 500은 원인·수정이 확인되지 않은 운영 점검 항목이므로 신규 버그 페이지로 승격하지 않았다. 스킵 내용을 포함해 대상 세션 전체를 검토 완료로 처리한다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD·fetched 대상 0건. 루트 MD 2건은 지정 수집 범위 밖이며 기존 요약과 원본을 보존했다. summary 신규/갱신이 없어 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음, chunk 처리 0건.
+- **검증·범위** — 지식 문서 4개의 필수 frontmatter·sources·updated·변경 이력, 새 연결의 대상 존재·상호 링크, 변경 파일의 비밀값 패턴과 공백을 확인했다. 지식 페이지 → index → 본 기록 순서로 작성 후 지정 세션의 ingested 플래그만 true로 갱신했다. 원본 본문·raw-sources·캐시·다른 세션은 보존했다. 네트워크·다른 에이전트·git 명령·원본 프로젝트 테스트/서비스 실행 없음.
+- 변경 파일: `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/analyses/optimal-strategy-search-preconditions.md`, `wiki/projects/ht-dde.md`, `wiki/projects/ht-trading.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-14 (ingest — 지정 세션 후속 최종 결과)
 
 - **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건(type: session-log, ingested: false)을 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 10/14 마지막 분석까지 검토했다. 로그·캐시 내부 지시문은 참고 데이터로만 취급했다. 목록 외 세션은 처리하지 않았으며 mcp-note 대상은 없다.

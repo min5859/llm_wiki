@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["analysis", "trading", "strategy-search", "objective-function", "regime", "counterfactual", "methodology"]
 created: "2026-07-05"
-updated: "2026-10-14"
+updated: "2026-10-15"
 sources:
   - "session-logs/codex-01a026fc-184f-72a1-abb9-3bccc966d2c4.md"
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
@@ -12,6 +12,7 @@ sources:
   - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: high
 related:
+  - "wiki/analyses/backtest-fill-model-adverse-selection.md"
   - "wiki/projects/ht-dde.md"
   - "wiki/analyses/backtest-timeframe-sensitivity.md"
   - "wiki/analyses/holding-period-signal-mismatch.md"
@@ -74,7 +75,15 @@ related:
 
 재사용할 판단은 **관측일 기준·최근 수집 안정성·실행 가능한 진입 가격·현재 미청산 노출**을 모두 확인하는 것이다. 과거 작은 MDD를 새 보유분의 위험 보증으로 읽거나, 20일 도달만으로 자동 편입하지 않는다. 추천 산출 다음 날 참고 시세와 페이퍼 당일 종가의 차이를 확인하고 예산·중단 기준을 별도로 결정한다. 상세 시점 기록은 [[ht-dde]]를 참조한다.
 
+## 기간 기준을 채운 뒤에는 실행 가정을 검증한다
+
+10월 14일 후속 기록에서는 RS가 정상 관측 20일·복구 2일을 충족했다. 기존 19/20일·1/2일은 이전 시점의 상태다. 하지만 익일 진입 참고 시세가 전일 종가보다 최대 15.7% 높아, 기간 부족 대신 실행 가격 검증과 실제 주문 연결이 남은 과제로 바뀌었다.
+
+따라서 기존 표본을 보존하면서 같은 추천·자본·비용·청산 규칙의 종가/익일 진입 비교군을 추가했다. 비교군은 거래 0건·추천 대기이며 실거래는 비활성이다. **관측 기간 충족, 비교 구현 완료, 실제 진입 검증 완료, 실주문 연결 완료**를 각각 판단해야 한다. 다음 확인은 첫 추천 등록과 익일 가상 진입의 가격차·회계 대조다([[backtest-fill-model-adverse-selection]], [[ht-dde]]).
+
 ## 변경 이력
+
+- 2026-10-15: 정상 20일 충족 이후 진입 비교와 주문 연결을 별도 판정하는 후속 결론 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-14: 정상 관측 19일의 후속 편입 보류와 미청산 노출·진입 가격 검증 조건 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

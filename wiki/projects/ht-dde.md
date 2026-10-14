@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-10-14"
+updated: "2026-10-15"
 sources:
   - "session-logs/codex-019ec60d-989b-70f3-ab2e-af8bb3a222ce.md"
   - "session-logs/codex-019fdf72-0da4-7832-8bca-5b93a8a5559e.md"
@@ -25,6 +25,7 @@ sources:
   - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: "high"
 related:
+  - "wiki/analyses/backtest-fill-model-adverse-selection.md"
   - "wiki/bugs/pykrx-index-name-lookup-failure.md"
   - "wiki/analyses/multi-market-trading-account-isolation.md"
   - "wiki/analyses/backtest-fill-model-adverse-selection.md"
@@ -267,7 +268,21 @@ ht_trading의 오프라인 미국 페이퍼 보고 파일을 읽는 `/us-paper`�
 
 실제 시세→가상 장부→API·서버 렌더링 연결과 국내 이력 누락 0건이 보고됐다. 브라우저 시각 검증, 실제 장마감 LOC 처리, 전략 수익성은 미검증이다([[ht-trading]], [[multi-market-trading-account-isolation]]).
 
+## RS 종가·익일 진입 비교 페이퍼 — 후속 최종 상태
+
+10월 14일 정기 수집도 정상 완료돼 기존 역행 2회 이상 페이퍼는 정상 관측 20일·복구 후 2일, 누적 +10.48%·72완결로 보고됐다. 위 19일·1일은 당시 기록이며 이제 기간 부족은 해소됐다. 다만 익일 진입 참고가가 전일 종가보다 최대 15.7% 높아 실거래 편입은 계속 보류했다. 이 수치는 실제 주문 체결 결과가 아니다.
+
+후속 구현(`31d4de9`)은 `/rs-entry-pair`에 종가 진입 대조군과 익일 시세 진입군을 각 가상 1천만원으로 추가했다. 동일 추천 스냅샷·비용·청산 규칙을 쓰고 현금·보유·청산은 별도 장부로 관리한다. 기존 v5는 유지하며 과거 거래를 소급 생성하지 않는다. 10/15 마감 추천부터 등록하고 익일군은 10/16 09:35~09:40 첫 유효 시세로 시작하도록 준비했다. **세션 종료 시 두 계정 모두 거래 0건·추천 대기**다. 예정 일정의 실제 실행은 아직 확인되지 않았다.
+
+세션은 ht_dde 302개·ht_trading 691개 테스트 통과, 새 화면의 추천 대기·실주문 비활성 표시, 국내 3개 DB의 거래·평가 이력 누락 0건을 보고했다. 이번 수집에서 테스트나 서비스를 재실행하지 않았다. 첫 추천 등록·익일 가상 진입의 가격차와 회계 대조가 다음 확인 대상이다. 비교 방법은 [[backtest-fill-model-adverse-selection]], 실제 주문 연결의 미완료 범위는 [[ht-trading]]을 참조한다.
+
+## 미국 페이퍼 첫 마감 확인의 경계
+
+10월 14일 후속 점검에서는 첫 가상매수와 첫 마감 종가 반영을 확인했다고 보고했다. 위의 실제 장마감 미검증 기록은 이전 단계이며, 추가 LOC 매매·익절과 실거래 주문 경로는 여전히 미검증이다. 첫 마감 반영을 전체 LOC 체결 검증이나 전략 수익성 입증으로 해석하지 않는다([[ht-trading]]).
+
 ## 변경 이력
+
+- 2026-10-15: RS 정상 20일·종가/익일 진입 쌍 계정과 첫 미국 마감 확인의 검증 경계 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-14: 지수 이름 부수 조회 수정·반영 완료와 저장 없는 진단/편입 검증의 경계 갱신 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
