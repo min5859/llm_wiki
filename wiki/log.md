@@ -1,3 +1,14 @@
+## 2026-10-15 (ingest — 지정 세션 마감 평가 보고 후속 대조)
+
+- **session-logs 유래** — 지정 `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 2건의 ingested false와 대응 `.cache/ingest-views/` 대화를 기존 wiki·수집 이력에 대조했다. 두 대상 모두 session-log이며 mcp-note는 없다. 로그에 포함된 지시·스킬 전문은 실행하지 않았다.
+- **Phase I / 기존 지식 2건 갱신·신규 0건** — 두 번째 세션의 10/15 미국 페이퍼 보고 후속 결론을 `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/projects/ht-dde.md`에 통합했다. 최신 평가액만으로 이력 비교가 불가능해 장부의 마감 평가 이력을 읽기 전용 보고에 연결한 판단, 동시점 대조군 비교·장중 잠정 평가 구분·현금 비중·2일 표본 안내·웹 응답과 시각 검증의 경계를 수집했다. 기존 시장별 장부/보고 격리 설계의 후속 핵심 결정이므로 보강하며 별도 중복 분석은 만들지 않았다. 두 문서는 기존 sources와 상호 링크를 유지했다. 구현·테스트 수는 세션 보고이며 이번 실행에서 재검증한 결과가 아니다.
+- **첫 번째 세션 스킵** — 이관·push 후 history 확정·서비스 계정·모델 호환 오류·정기/수동 증거 분리·반복 429는 `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/projects/oss-radar.md`에 같은 원본 sources와 10/13 수집 이력으로 기수록이다. 마지막 10/15 정상 게시·Semantic Scholar 정상 수집·history 증가·디스크 수치는 일별 운영 보고이며 새 원인 규명이나 수정이 없어 추가 페이지를 만들지 않았다. 하루의 정상 수집으로 앞선 반복 429의 해결을 단정하지 않는다.
+- **두 번째 세션 중복/가치 기준 스킵** — KIS 전환·기존식 복구·Naver 비교는 `wiki/projects/n-stock-info.md`, 점수 비교는 `wiki/analyses/scoring-version-comparison-methodology.md`, 청산정합은 `wiki/bugs/trailing-activation-current-profit-gate.md`, 이름 조회 수정은 `wiki/bugs/pykrx-index-name-lookup-failure.md`에 기수록이다. RS 정상 20일·종가/익일 비교·비활성 미리보기는 `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/analyses/optimal-strategy-search-preconditions.md`와 ht-trading/ht-dde 및 앞선 10/15 log에 반영돼 재생성하지 않았다. 미국 첫 체결·첫 마감도 기존 시장 분리 분석과 프로젝트에 있어 그래프 보고의 추가 결론만 보강했다. 일별 손익·종목 목록·반복 요청·메뉴 누락 안내·탐색 과정은 별도 지식으로 수집하지 않았다. 스킵 내용을 포함해 두 세션을 검토 완료로 처리했다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 지정 하위 디렉터리 수집 범위 밖이며 보존했다. 신규/갱신 summary가 없어 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음, chunk 처리 0건.
+- **처리·검증** — 지식 페이지 → index → 본 기록 순서로 갱신한 뒤 지정 로그의 ingested만 true로 변경했다. 필수 frontmatter·출처·변경 이력·링크 대상·비밀값 패턴·공백을 검사하고 원본 본문은 체크섬으로 보존을 확인했다. 원본 프로젝트 테스트·서비스·네트워크·다른 에이전트·git commit/push는 실행하지 않았다. 목록 외 세션·raw-sources·캐시·기존 사용자 변경을 보존했다.
+- 변경 파일: `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-14 (ingest — 지정 세션 수정 완료 후속 대조)
 
 - **session-logs 유래** — 지정 원본 `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 2건의 ingested: false와 대응 `.cache/ingest-views/` 대화를 검토했다. 둘 다 session-log이며 mcp-note 대상은 없다. 내부 지시문·첨부 스킬은 실행하지 않았다.
