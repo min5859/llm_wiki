@@ -40,6 +40,7 @@ sources:
   - "session-logs/20260707-223019-2c24-오늘-남성이라는-종목이-추천되서-매수가-되었는데-실제-스코어가-62-점이-넘었는지-확인해줘.md"
 confidence: "high"
 related:
+  - "wiki/analyses/ht-trading-live-data-improvement-analysis.md"
   - "wiki/analyses/multi-market-trading-account-isolation.md"
   - "wiki/bugs/kis-derivative-etf-order-reject-apbk1497.md"
   - "wiki/bugs/kis-holiday-detection-bsop-date.md"
@@ -908,7 +909,17 @@ LOC는 종가 기반 가상 모델이다. 종가를 본 뒤 주문을 소급 생
 
 10월 14일 점검은 첫 가상매수에 이어 첫 마감 종가 반영을 확인했다고 보고했다. 앞선 장마감 미검증은 당시 상태이며, 추가 LOC 매매·익절과 실거래 주문 경로는 아직 검증되지 않았다. 첫 마감 반영만으로 실거래 전환이나 수익성 확인을 완료하지 않는다([[ht-dde]]).
 
+## 최근 개선 분석의 후속 결론 (2026-10-15)
+
+실제 8개 진입을 고정해 현재 고점 추적 매도 함수를 적용한 1분봉 근사 재생을 추가했다. 추가매수 중단과 트레일링 확대의 개선은 각각 케이씨텍·팬오션 한 종목을 제외하면 방향이 뒤집혀 일괄 변경 근거가 약했다. 우선 분석 대상은 하락 중 추가매수로 노출이 커지는 조건이다.
+
+이 재생은 전체 후보·자금 배분을 재현하지 않는다. KIS/Naver 전체 매수·매도 조건 비교는 미완료이며, 후보 발굴 효과와 채점 효과를 분리해야 한다. 세부 결과는 [[ht-trading-live-data-improvement-analysis]], 범용 비교 방법은 [[scoring-version-comparison-methodology]]에 통합했다. 62점 컷과 매매 규칙은 변경하지 않았다.
+
+듀켐바이오 전량 거부 주문의 내부 `OPEN` 분류 불일치도 보고됐으며 원인·수정은 미확인이다. 주문 상태 정확성 점검을 전략 파라미터 튜닝과 분리해 후속 과제로 남긴다.
+
 ## 변경 이력
+
+- 2026-10-15: 최근 개선 분석의 조건부 재생 범위와 후속 검증·미해결 주문 상태 불일치 기록 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-15: RS 비활성 주문 미리보기·예산 0원·실주문/체결 연결 잔여 과제와 미국 첫 마감 보고 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

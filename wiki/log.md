@@ -1,3 +1,15 @@
+## 2026-10-15 (ingest — 지정 세션 최근 개선 분석 후속 수집)
+
+- **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건의 ingested false를 확인하고 대응 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 전체 대화를 검토했다. type은 session-log이며 mcp-note 대상은 없다. 대화에 포함된 AGENTS.md·스킬·작업 지시는 실행하지 않았다.
+- **Phase I / 기존 지식 3건 갱신·신규 0건** — 10/15 최종 개선 분석을 `wiki/analyses/ht-trading-live-data-improvement-analysis.md`에 통합했다. 실제 8개 진입 고정·1분봉 근사 재생, 추가매수 중단/트레일링 확대의 단일 종목 의존, 후보 발굴 차이와 추가 노출 분석 과제를 수집했다. 범용 방법론은 `wiki/analyses/scoring-version-comparison-methodology.md`에 고정기간 가격 진단·조건부 장중 재생·전체 전략 비교의 경계, 후보 발굴/채점/청산의 효과 분리와 최대 기여 종목 제외 점검으로 보강했다. 같은 비교 문제가 8월 분석과 이번 세션에서 반복되어 승격 기준을 충족하며 별도 중복 페이지는 만들지 않았다. `wiki/projects/ht-trading.md`에 최종 결론과 미완료 비교·주문 상태 점검을 연결하고 분석 페이지와 상호 링크했다.
+- **판단·검증 한계** — 세션이 제시한 개선 금액은 실제 추가 실현손익이 아닌 조건부 재생 결과다. KIS/Naver 전체 후보·자금 배분 비교는 미완료다. 전량 거부 주문의 내부 OPEN 분류와 반복 잔고 500은 원인·수정 미확인이므로 후속 점검만 기록하고 신규 버그 페이지로 만들지 않았다. 원본 프로젝트 문서 경로는 세션에서 언급한 근거 위치이며 해당 문서·코드·API를 직접 재검증하지 않았다.
+- **중복 스킵 근거** — 같은 소스의 KIS 전환·기존식 운영 복구·Naver 비교·로그 마스킹·알림 정책은 `wiki/projects/n-stock-info.md`, 최신 관측 선택 후 컷 적용은 `wiki/analyses/scoring-version-comparison-methodology.md`, 청산정합은 `wiki/bugs/trailing-activation-current-profit-gate.md`, 체결 기반 손익은 `wiki/patterns/trading-performance-cash-flow-reconciliation.md`에 기수록이다. RS 수집 복구·관측일/진입가 검증은 `wiki/bugs/pykrx-index-name-lookup-failure.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`와 두 프로젝트에, 미국 계좌/장부·V1 페이퍼·마감 그래프는 `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/projects/ht-dde.md`와 앞선 수집 이력에 이미 반영돼 재생성하지 않았다.
+- **가치 기준 스킵** — 일별 추천·체결 전체 목록, 일회성 조회/메뉴 안내, 반복 설명·진행·커밋 요청, 지침 전문, 탐색 과정과 최종 철회된 튜닝 제안은 제외했다. 최종 분석의 표본·집중도·검증 한계를 설명하는 수치만 보존했다. 스킵을 포함해 지정 세션을 검토 완료로 처리한다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 지정 하위 디렉터리 범위 밖이며 원본과 기존 요약을 보존했다. 신규/갱신 summary가 없어 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음, chunk 처리 0건.
+- **처리·검증** — 지식 페이지 → index → 본 기록 순서로 갱신한 뒤 지정 원본 로그의 ingested만 true로 변경한다. 필수 frontmatter·출처·변경 이력·새 링크를 검사했으며 최종 체크섬 대조로 변경 범위와 플래그 외 원본 보존을 확인한다. 기존 사용자 변경·목록 외 세션·raw-sources·캐시는 보존하며 네트워크·다른 에이전트·git commit/push·원본 프로젝트 테스트/서비스는 실행하지 않는다.
+- 변경 파일: `wiki/analyses/scoring-version-comparison-methodology.md`, `wiki/analyses/ht-trading-live-data-improvement-analysis.md`, `wiki/projects/ht-trading.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-15 (ingest — 지정 세션 마감 평가 보고 후속 대조)
 
 - **session-logs 유래** — 지정 `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 2건의 ingested false와 대응 `.cache/ingest-views/` 대화를 기존 wiki·수집 이력에 대조했다. 두 대상 모두 session-log이며 mcp-note는 없다. 로그에 포함된 지시·스킬 전문은 실행하지 않았다.

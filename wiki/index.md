@@ -108,7 +108,7 @@
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
 - [[holding-period-signal-mismatch]] — 보유기간-신호 미스매치 — 같은 진입신호가 홀딩 호라이즌에 따라 손실↔초과수익으로 뒤집힌다
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
-- [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드 배포, 스크리너 점수·시장 국면·InfiniteBuying 관찰 대장과 재평가 트리거
+- [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 실제 8개 진입의 조건부 장중 재생·종목 집중도·추가 노출 분석
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·동일 계좌 공동 위험 관리, 완결 일봉·현지 거래일, 실제 관측과 V1 재현 4계정 가동·고정 예산/LOC 검증
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
@@ -119,7 +119,7 @@
 - [[polling-interval-vs-bar-interval]] — 폴링 주기 vs 봉 단위 — 알고리즘 트레이딩의 시간 정합성
 - [[risk-control-exemption-and-failed-attempt-accounting]] — 안전장치가 손실을 키울 때 — 리스크 감축 주문 면제와 실패 시도 회계
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
-- [[scoring-version-comparison-methodology]] — 스코어 알고리즘 두 버전 비교 — 컷오프 캘리브레이션 vs 진짜 알파 변화
+- [[scoring-version-comparison-methodology]] — 스코어 알고리즘 두 버전 비교 — 컷오프 캘리브레이션 vs 진짜 알파 변화 · 후보 발굴/채점/청산 분리, 고정기간과 조건부 재생의 한계
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
 - [[surge-chasing-exclusion-filter]] — 급등 종목 추격 배제 필터 — 하락장 레짐의 유일한 초과수익 규칙 (confidence medium — 단일 레짐 표본)
@@ -163,6 +163,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-15: 기존 분석 2건·ht-trading에 최근 장중 재생 결과, 단일 종목 제외 민감도와 후보 발굴/채점/매매 조건의 비교 범위를 보강. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-15: 기존 미국 시장 분리 분석·ht-dde에 장부 기반 마감 평가 보고와 그래프의 비교/검증 경계 보강. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
