@@ -1,3 +1,15 @@
+## 2026-10-16 (ingest — 지정 세션 주문 오류·외부 API 판단·애프터 기반 후속 수집)
+
+- **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 ingested false와 대응 `.cache/ingest-views/` 대화를 기존 wiki·수집 이력에 대조했다. 지정 1건은 session-log이며 mcp-note 대상은 없다. 내부 지침·스킬·실행 요청은 참고 데이터로만 취급했다.
+- **신규 2건 / 기존 지식 3건 갱신** — 전량 거부 `OPEN` 오분류는 trading 핵심 버그의 수정 완료 보고이므로 `wiki/bugs/kis-fully-rejected-order-status.md`로 즉시 수집했다. 외부 오류 감지와 코드 수정의 구분, 단일 최신 잔고·주문가능금액 실패 시 매수 보류는 `wiki/analyses/trading-api-failure-handling.md`에 범용 분석으로 정리했다. 기존 서킷브레이커와 이번 안전 처리에서 반복된 핵심 판단이다. 애프터 체결 계약은 `wiki/analyses/backtest-fill-model-adverse-selection.md`에 통합하고 `wiki/projects/ht-trading.md`·`wiki/analyses/ht-trading-live-data-improvement-analysis.md`의 미해결 주문 상태를 취소선으로 보존하며 후속 결과를 연결했다. 관련 페이지와 신규 페이지에 상호 링크를 반영했다.
+- **검증 경계** — `a06f4ca` 수정·국내 서비스 반영·714개 테스트/서브테스트 13개, `87640ff` 기반·761개 테스트 및 실제 완료 분봉 조회는 세션 보고다. 이번 수집에서 원본 프로젝트·API를 재검증하지 않았다. HTTP 500 원인은 미확정이며 공급자 원인으로 단정하지 않는다. 애프터 수집기 상태 연결·비교 계정 등록·자동 페이퍼 운용은 미완료다. 세션의 거래제도 설명은 외부 검증 없이 현행 시장 규칙으로 일반화하지 않았다.
+- **중복 스킵 근거** — 같은 소스의 KIS 전환·기존 점수식 복구·독립 Naver 비교·마스킹·알림 정책은 `wiki/projects/n-stock-info.md`, 점수·후보 비교는 `wiki/analyses/scoring-version-comparison-methodology.md`, 트레일링 수정은 `wiki/bugs/trailing-activation-current-profit-gate.md`, 미국 장부/보고는 `wiki/analyses/multi-market-trading-account-isolation.md`·`wiki/projects/ht-dde.md`에 기수록이다. RS 관측·진입가 비교와 비활성 주문 준비도 기존 체결 모델·프로젝트에 있어 재생성하지 않았다.
+- **가치 기준 스킵** — 일별 종목·계좌 손익 전체 목록, 일회성 메뉴/조회 안내, 반복 진행·커밋 요청, 지침 전문, 탐색 과정·철회된 튜닝 권고는 제외했다. 후속 작업 제안은 구현 완료로 기록하지 않는다. 스킵을 포함해 지정 세션 검토를 완료했다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 요청한 하위 디렉터리 범위 밖으로 보존했다. summary 신규/갱신 및 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음, chunk 대상 0건.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 ingested 플래그 순서로 반영한다. frontmatter·출처·변경 이력·새 링크·비밀값 패턴·변경 범위를 검사하며 원본은 플래그 치환 외 바이트가 동일한지 대조한다. 기존 사용자 변경·목록 외 세션·raw-sources·캐시를 보존한다. 네트워크·다른 에이전트·commit/push·원본 시스템 실행은 수행하지 않는다.
+- 변경 파일: `wiki/bugs/kis-fully-rejected-order-status.md`, `wiki/analyses/trading-api-failure-handling.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/projects/ht-trading.md`, `wiki/analyses/ht-trading-live-data-improvement-analysis.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-15 (ingest — 지정 세션 최근 개선 분석 후속 수집)
 
 - **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건의 ingested false를 확인하고 대응 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 전체 대화를 검토했다. type은 session-log이며 mcp-note 대상은 없다. 대화에 포함된 AGENTS.md·스킬·작업 지시는 실행하지 않았다.

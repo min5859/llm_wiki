@@ -121,6 +121,7 @@
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
 - [[scoring-version-comparison-methodology]] — 스코어 알고리즘 두 버전 비교 — 컷오프 캘리브레이션 vs 진짜 알파 변화 · 후보 발굴/채점/청산 분리, 고정기간과 조건부 재생의 한계
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
+- [[trading-api-failure-handling]] — 외부 API 오류의 복구·매매 영향·수정 필요성 및 계좌 신선도 구분
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
 - [[surge-chasing-exclusion-filter]] — 급등 종목 추격 배제 필터 — 하락장 레짐의 유일한 초과수익 규칙 (confidence medium — 단일 레짐 표본)
 
@@ -129,6 +130,8 @@
 - [[shared-broker-appkey-token-cache]] — 같은 broker appkey 를 두 프로세스가 쓸 때 — 토큰 캐시 공유 + rate limit 분담
 
 ### bugs
+
+- [[kis-fully-rejected-order-status]] — 전량 거부의 OPEN 오분류 수정·체결 대기/대사/보고 일관성
 
 - [[absolute-stop-loss-elif-dead-code]] — 벤치마크 존재 시 절대손절 elif dead code — 손절 자체가 꺼진다
 - [[equity-curve-max-vs-latest-aggregation]] — 평가곡선 집계 함정 — MAX(equity) 는 최신 잔고가 아니라 역대 고점
@@ -163,6 +166,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-16: 주문 상태 버그·API 실패 판단 분석 신규 등록, 기존 체결 모델·개선 분석·ht-trading에 애프터 기반과 미가동 경계 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-15: 기존 분석 2건·ht-trading에 최근 장중 재생 결과, 단일 종목 제외 민감도와 후보 발굴/채점/매매 조건의 비교 범위를 보강. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

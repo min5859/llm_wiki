@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-10-15"
+updated: "2026-10-16"
 sources:
   - "session-logs/codex-019db8f4-139a-7a71-864f-ca4c29244465.md"
   - "session-logs/codex-019e837c-d7e0-7212-b02b-de0b576c8a17.md"
@@ -40,6 +40,8 @@ sources:
   - "session-logs/20260707-223019-2c24-오늘-남성이라는-종목이-추천되서-매수가-되었는데-실제-스코어가-62-점이-넘었는지-확인해줘.md"
 confidence: "high"
 related:
+  - "wiki/analyses/trading-api-failure-handling.md"
+  - "wiki/bugs/kis-fully-rejected-order-status.md"
   - "wiki/analyses/ht-trading-live-data-improvement-analysis.md"
   - "wiki/analyses/multi-market-trading-account-isolation.md"
   - "wiki/bugs/kis-derivative-etf-order-reject-apbk1497.md"
@@ -915,9 +917,21 @@ LOC는 종가 기반 가상 모델이다. 종가를 본 뒤 주문을 소급 생
 
 이 재생은 전체 후보·자금 배분을 재현하지 않는다. KIS/Naver 전체 매수·매도 조건 비교는 미완료이며, 후보 발굴 효과와 채점 효과를 분리해야 한다. 세부 결과는 [[ht-trading-live-data-improvement-analysis]], 범용 비교 방법은 [[scoring-version-comparison-methodology]]에 통합했다. 62점 컷과 매매 규칙은 변경하지 않았다.
 
-듀켐바이오 전량 거부 주문의 내부 `OPEN` 분류 불일치도 보고됐으며 원인·수정은 미확인이다. 주문 상태 정확성 점검을 전략 파라미터 튜닝과 분리해 후속 과제로 남긴다.
+~~듀켐바이오 전량 거부 주문의 내부 `OPEN` 분류 불일치도 보고됐으며 원인·수정은 미확인이다. 주문 상태 정확성 점검을 전략 파라미터 튜닝과 분리해 후속 과제로 남긴다.~~
+
+10/15 후속 세션에서 전량 거부를 `REJECTED`로 처리하고 체결 대기·대사·보고까지 수정·반영했다고 확인됐다(`a06f4ca`, [[kis-fully-rejected-order-status]]). 계좌 정보 신선도 처리도 보완했으나 HTTP 500 원인은 미확정이다. 복구된 일시 오류를 매번 수정 과제로 올리지 않는 최종 기준은 [[trading-api-failure-handling]]을 참조한다.
+
+## 애프터마켓 검증 기반 — 구현 완료·자동 운용 미시작 (10/15)
+
+`87640ff`로 정규장/애프터 데이터·가상 지정가 주문·부분체결·만료·마감 평가 기반을 구현했다는 세션 보고다. 완료 분봉 실제 조회와 761개 테스트 통과가 보고됐다. 기존 실매매 시간·전략·주문 경로는 유지했고 이 기반 작업에서는 실매매 서비스를 재시작하지 않았다.
+
+장중 수집기에 거래일·장 구분·거래 대상·정지/VI 정보를 연결해 대조하는 작업과 ht_dde 비교 계정 등록은 남아 있다. 자동 페이퍼가 가동됐거나 실거래 시간이 확대된 상태가 아니다. 체결 데이터 계약은 [[backtest-fill-model-adverse-selection]]에 통합했다.
+
+후속 비교는 추천 완료 후 당일 애프터/익일 진입, 기존 매수시간 고정·매도 감시 연장, KIS 단독/후보 합집합을 각각 분리한다. 기존 62점·손절·트레일링을 유지한 전체 과거 재생과 RS 실제 주문·체결·취소 연결도 아직 미완료다.
 
 ## 변경 이력
+
+- 2026-10-16: 전량 거부 수정·계좌 실패 정책·애프터 기반 구현과 미가동 상태 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-15: 최근 개선 분석의 조건부 재생 범위와 후속 검증·미해결 주문 상태 불일치 기록 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

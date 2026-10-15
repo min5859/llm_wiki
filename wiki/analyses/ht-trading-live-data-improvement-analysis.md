@@ -4,13 +4,15 @@ domain: "trading"
 sensitivity: "public"
 tags: ["analysis", "trading", "ht-trading", "live-logs", "intraday", "backtest", "scoring", "execution"]
 created: "2026-08-16"
-updated: "2026-10-15"
+updated: "2026-10-16"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "TODO.md"
   - "local-repo: ht_trading/docs/plans/2026-08-16-buy-order-safety-guard.md"
 confidence: medium
 related:
+  - "wiki/analyses/trading-api-failure-handling.md"
+  - "wiki/bugs/kis-fully-rejected-order-status.md"
   - "wiki/patterns/trading-performance-cash-flow-reconciliation.md"
   - "wiki/analyses/scoring-version-comparison-methodology.md"
   - "wiki/projects/ht-trading.md"
@@ -386,11 +388,21 @@ Spearman 순위상관(당일 종가 수익):
 
 기존 62점과 매매 규칙을 기준선으로 두고, 추가매수 직전의 가격·추세·노출과 이후 결과를 종목별로 대조한다. Naver 전용 후보의 과거 1분봉 조회 가능성은 확인됐다고 보고됐으나, 전체 후보에 같은 매수·매도·자금 배분을 적용한 KIS/Naver 비교는 아직 완료되지 않았다. 자료를 보완해 후보 소스·컷·청산 조건의 효과를 분리한다.
 
-듀켐바이오 주문은 KIS 원본상 66주 전량 거부인데 내부 조회는 `OPEN`으로 분류되는 불일치가 보고됐다. 원인과 수정은 확인되지 않아 미해결 정확성 점검으로 남기며, 잔고 조회 HTTP 500 반복과 함께 전략 튜닝 효과와 구분한다.
+~~듀켐바이오 주문은 KIS 원본상 66주 전량 거부인데 내부 조회는 `OPEN`으로 분류되는 불일치가 보고됐다. 원인과 수정은 확인되지 않아 미해결 정확성 점검으로 남기며, 잔고 조회 HTTP 500 반복과 함께 전략 튜닝 효과와 구분한다.~~
+
+10/15 후속 세션에서 전량 거부를 `REJECTED`로 처리하고 체결 대기·대사·보고까지 수정·반영했다고 확인됐다(`a06f4ca`, [[kis-fully-rejected-order-status]]). 계좌 정보 신선도 처리도 보완했으나 HTTP 500 원인은 미확정이다. 복구된 일시 오류를 매번 수정 과제로 올리지 않는 최종 기준은 [[trading-api-failure-handling]]을 참조한다.
 
 범용 비교 절차는 [[scoring-version-comparison-methodology]], 실현·평가손익 대조는 [[trading-performance-cash-flow-reconciliation]]을 참조한다.
 
+## 12. 운영 정확성 수정과 시간 확대 검증의 후속 상태
+
+10/15 세션 후속 결과에서 주문 상태 분류와 계좌 신선도 안전 처리는 반영됐다. 500 자체는 장외에서 재현되지 않았으며, 이후 최종 판단은 재시도 후 복구·실제 매매 영향·내부 결함의 증거에 따라 집계/알림/수정을 구분하는 것이다([[trading-api-failure-handling]]).
+
+애프터 검증 기반도 `87640ff`로 구현됐다고 보고됐지만 자동 페이퍼 운용은 미시작이다. 장중 거래 가능 상태를 검증한 뒤 당일 애프터/익일 진입과 매도 감시 연장을 별도로 비교한다([[backtest-fill-model-adverse-selection]], [[ht-trading]]). 한 차례의 완료 분봉 재생에서 추가 매도 신호가 없었던 결과만으로 시간 확대의 이익을 확정하지 않는다. KIS 단독/후보 합집합 페이퍼 등록과 전체 전략 재생은 여전히 미완료다.
+
 ## 변경 이력
+
+- 2026-10-16: 미해결 주문 상태 기록 정정·외부 오류 최종 판단과 애프터 검증 상태 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-15: 10/15 실제 8개 진입 장중 재생 결과와 집중도·표본 한계, 추가 노출 분석 및 미완료 비교 기록 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
