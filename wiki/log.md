@@ -1,3 +1,16 @@
+## 2026-10-16 (ingest — 지정 세션 후보 비교 등록·전체 재생 후속)
+
+- **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건(type: session-log, ingested: false)의 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`와 기존 wiki를 대조했다. 내부 지시문은 참고 데이터로만 취급했으며 mcp-note 대상은 없다.
+- **수집 / Phase I** — 신규 0건, 기존 지식 6건 갱신. `analyses/scoring-version-comparison-methodology`에 수집 완료 이후의 정보 사용·144개 실행의 완료 로그 근거·종목 제외 후 현금 재배분과 고점 모형 민감도를 보강했다. `patterns/backtest-clock-injection`에는 재발한 매수 시간 가드 수정과 기존 가드 무효화 우회의 한계를 정정했다. `analyses/backtest-fill-model-adverse-selection`에는 구독 승인/등록과 실제 수신·체결 가능 판정의 경계, 종가 소급 체결 방지 검증을 추가했다. 반복된 시간·체결 현실성 문제와 trading 핵심 설계·버그 수정이므로 수집하며 기존 주제에 통합했다.
+- **프로젝트·분석 상태 갱신** — `projects/ht-dde`에 `/source-pair` 쌍 계정 등록·동일 실행/채점/62점·각 가상 1천만원·양쪽 거래/상태 동시 롤백을 기록했다. `projects/ht-trading`과 `analyses/ht-trading-live-data-improvement-analysis`에 전체 후보·매매·현금 배분 재생의 후속 결과, 애프터 관측기 등록, 예산 0·실주문 불가 역행 집행 준비 장부를 반영했다. 앞선 미완료 기록은 시점 이력으로 보존하고 후속 절로 갱신했다.
+- **검증 경계** — 개장 전 후보 비교 거래·관측 그래프와 애프터 시세 수신은 없었다. 구독 3종 승인·08:55 등록은 실제 장중 수신·대상/정지/VI 판정 검증 완료가 아니다. 애프터 비교 매매와 역행 KIS 전송 어댑터 운영 연결은 미완료다. 최신 전체 재생의 최종 검증·커밋 정리는 대화 말미에 진행 중이며 최종 성과표·테스트 수를 보충하지 않았다. 세션의 코드·서비스·테스트 결과는 보고 사실이며 이번 실행에서 재검증하지 않았다.
+- **중복 스킵 근거** — 같은 원본의 KIS 전환·기존 점수식 복구·독립 Naver 비교는 `projects/n-stock-info`, 최신 관측 선택 후 컷 적용은 `analyses/scoring-version-comparison-methodology`, 청산정합은 `bugs/trailing-activation-current-profit-gate`, 체결 손익은 `patterns/trading-performance-cash-flow-reconciliation`에 기수록이다. KRX 복구는 `bugs/pykrx-index-name-lookup-failure`, 미국 장부/보고는 `analyses/multi-market-trading-account-isolation` 및 두 프로젝트, 전량 거부·500 판단은 `bugs/kis-fully-rejected-order-status`·`analyses/trading-api-failure-handling`과 앞선 10/16 수집 기록에 있어 재생성하지 않았다. 출처는 모두 위 지정 세션이다.
+- **가치 기준 스킵** — 종목/손익 전체 목록·PID·일별 운영 숫자·일회성 메뉴 안내·반복 요청·지침 전문·탐색 과정·철회된 튜닝 제안은 제외했다. 복제 페이퍼의 매도 감시 인자 오류는 수정 보고만 프로젝트에 남기고 정확한 재현 정보가 없어 별도 버그 페이지를 만들지 않았다. 스킵까지 검토 완료로 처리한다.
+- **raw-sources 유래** — 하위 디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 지정 하위 디렉터리 수집 범위 밖이며 보존했다. 신규/갱신 summary 및 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음, chunk 대상 0건.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 로그 플래그 순서로 반영했다. 필수 frontmatter·출처·변경 이력·연결 대상과 변경 범위·원본 플래그 외 바이트 보존을 확인한다. 네트워크·다른 에이전트·commit/push·원본 시스템 실행은 수행하지 않는다. 목록 외 세션·raw-sources·캐시·기존 사용자 변경은 보존한다.
+- 변경 파일: `wiki/patterns/backtest-clock-injection.md`, `wiki/analyses/scoring-version-comparison-methodology.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/projects/ht-dde.md`, `wiki/projects/ht-trading.md`, `wiki/analyses/ht-trading-live-data-improvement-analysis.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-16 (ingest — 지정 세션 주문 오류·외부 API 판단·애프터 기반 후속 수집)
 
 - **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 ingested false와 대응 `.cache/ingest-views/` 대화를 기존 wiki·수집 이력에 대조했다. 지정 1건은 session-log이며 mcp-note 대상은 없다. 내부 지침·스킬·실행 요청은 참고 데이터로만 취급했다.

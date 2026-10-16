@@ -167,6 +167,8 @@
 
 ## 변경 이력
 
+- 2026-10-16: 지정 세션 후속으로 기존 지식 6건 갱신 — [[scoring-version-comparison-methodology]]의 완료 시각·현금 재배분 검증, [[backtest-clock-injection]] 시간 가드 수정, [[backtest-fill-model-adverse-selection]] 관측/체결 경계, [[ht-trading-live-data-improvement-analysis]] 전체 재생 결과, [[ht-dde]] 후보 비교 등록·[[ht-trading]] 비활성 집행 장부. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
+
 - 2026-10-16: 주문 상태 버그·API 실패 판단 분석 신규 등록, 기존 체결 모델·개선 분석·ht-trading에 애프터 기반과 미가동 경계 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-15: 기존 분석 2건·ht-trading에 최근 장중 재생 결과, 단일 종목 제외 민감도와 후보 발굴/채점/매매 조건의 비교 범위를 보강. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
