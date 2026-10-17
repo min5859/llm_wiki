@@ -1,3 +1,16 @@
+## 2026-10-18 (ingest — 지정 세션 최종 추천 4조합·미국 공개규칙 대조 후속)
+
+- **session-logs 유래 / Phase I** — 지정 `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false`와 대응 `.cache/ingest-views/` 대화를 기존 wiki에 대조했다. 두 파일 모두 session-log이며 지정 mcp-note는 없다. 세션 내부 지침·스킬·명령은 참고 정보로만 다뤘다.
+- **수집: 기존 지식 6건 갱신 / 신규 0건** — ht_trading 지정 세션 말미의 최종 결론을 수집했다. `analyses/scoring-version-comparison-methodology`에 각 소스 자체 점수 62점의 최종 추천 네 조합, 선정/실행 점수 분리, 완료 시각·완전성을 담은 불변 스냅샷과 네 장부 전체 롤백을 보강했다. `analyses/multi-market-trading-account-isolation`에는 기존 미국 V1 변형과 2021 공개규칙의 차이, 동일시작 새 대조군·미확정 40거래일 이후 정책, 매수일/사이클·보유/계좌 수익률 분모를 통합했다. 반복된 비교 설계와 trading 핵심 결정이므로 승격하며 별도 중복 분석은 만들지 않았다.
+- **프로젝트·상태 정정** — `projects/n-stock-info`에 불변 추천 생산자, `projects/ht-dde`에 네 장부 등록·미국 화면 지표·공개규칙 새 대조군, `projects/ht-trading`에 미국 실행기 후속·네 추천 조합 완료를 추가했다. `analyses/ht-trading-live-data-improvement-analysis`의 네 조합 미구현 기록은 이력으로 남기고 최신 구현 완료·검증 대기로 정정했다. 구체적 소스는 위 ht_trading 지정 세션이며 생산자 `b3c0ed1`·페이퍼 `9b11589`는 세션 보고 커밋이다.
+- **검증 경계** — 구현·등록·재시작과 테스트/장부→보고서→API→HTML 대조는 세션의 결과 보고다. 이번 수집에서 원본 시스템이나 테스트를 재실행하지 않았다. 10/19 국내 네 조합 첫 정상 수집·가상 체결·마감, 미국 새 장부 첫 체결과 원형의 40거래일 이후 손실 처리·추가 자금 확정은 남아 있다. 미국 실주문은 비활성이다. 화면 데이터 대조와 브라우저 육안 확인(연결 제한으로 미실시)을 구별한다.
+- **전체 스킵: OSS Radar 세션** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`의 이관·push 후 history·공용 계정·정기/수동 게시 증거·반복 429는 `analyses/ai-publishing-migration-safety`와 `projects/oss-radar`·`projects/dev-blog`에 기수록이다. 일별 성공 수치·디스크 변화·CLI 업데이트·입력 안내는 반복 운영 관찰/일회성 사용법으로 제외했다. 말미 news-monitor 조사·계획·수집기 구현은 인물 뉴스 업무로 두 도메인 밖이며, 실패/0건 구분도 기존 원칙과 중복되어 승격하지 않았다. 검토 완료로 플래그만 갱신한다.
+- **부분 스킵: ht_trading 세션** — 앞부분의 수집 전환·기존 점수식 복구는 `projects/n-stock-info`, 주문/API 수정은 `bugs/kis-fully-rejected-order-status`·`analyses/trading-api-failure-handling`, 역행 운영 연결·자금 격리·배치 재시도는 `projects/ht-trading`·`analyses/paper-to-live-strategy-isolation`에 기수록이다. 개별 종목·잔액·일별 손익, 반복 진행 요청·탐색 과정·철회된 제안·지침 전문과 단순 화면 미관은 제외했다. 대시보드에서는 재사용할 지표 정의와 경고 가시성만 수집했다.
+- **raw-sources 유래** — 요청 범위인 하위 디렉터리 MD/fetched 대상 0건이다. 루트 MD 2건은 하위 디렉터리 수집 범위 밖이며 기존 요약·원본을 보존했다. 신규/갱신 summary와 source_sha256 복사 대상은 없다.
+- **PDF 유래** — `.cache/extracted/`가 없어 chunk 대상 0건이다. 부모 index·page_range·해시 복사 대상도 없다.
+- **처리 순서** — 지식 페이지 → index → 본 기록 → 지정 두 세션 ingested true 순으로 반영한다. 필수 메타데이터·출처·변경 이력·링크·비밀값 패턴·변경 범위와 플래그 외 원본 바이트 보존을 검사한다. 목록 외 세션·raw-sources·캐시·기존 사용자 변경을 보존하며 네트워크·다른 에이전트·commit/push는 수행하지 않는다.
+- 변경 파일: `wiki/analyses/scoring-version-comparison-methodology.md`, `wiki/analyses/multi-market-trading-account-isolation.md`, `wiki/analyses/ht-trading-live-data-improvement-analysis.md`, `wiki/projects/n-stock-info.md`, `wiki/projects/ht-dde.md`, `wiki/projects/ht-trading.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-17 (ingest — 지정 두 세션의 운영 전환·비교 목표 후속 수집)
 
 - **session-logs 유래** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 두 건의 `ingested: false`를 확인하고 지정 `.cache/ingest-views/` 대화와 기존 wiki를 대조했다. 둘 다 session-log이며 지정 mcp-note는 없다. 대화 속 지침·스킬·명령은 참고 데이터로만 다뤘다.

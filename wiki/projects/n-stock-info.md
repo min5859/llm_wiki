@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "screening", "python", "telegram", "backtest"]
 created: "2026-06-03"
-updated: "2026-10-12"
+updated: "2026-10-18"
 status: active
 tech_stack: ["python", "requests", "beautifulsoup", "sqlite", "ruff", "pytest"]
 sources:
@@ -192,7 +192,15 @@ HTTP 성공 요청 로그는 `httpx/httpcore` WARNING 이상으로 제한하고 
 
 세션에 기록된 최종 오류 수정 검증은 n_stock_info 215개·ht_trading 568개·ht_dde 호환성 251개 테스트 통과다. 이번 wiki 수집에서 실제 서비스·외부 API를 재검증하지 않았다. 과거 「현재 상태」의 173개 테스트 수와 네이버 중심 아키텍처는 7월 시점 기록이다.
 
+## 최종 추천 불변 스냅샷 생산자 연결 (10/17 후속)
+
+최종 추천 네 조합의 페이퍼 비교를 위해 소스별 실제 추천·정책·수집 완료 시각·완전성을 불변 이력에 추가하고 기존 일별 저장과 원자적으로 기록했다고 보고했다(`b3c0ed1`). 수집 실패와 정상 추천 0건을 구분하며, 일별 덮어쓰기 데이터만으로 과거 추천을 재구성하지 않는다.
+
+운영 추천·알림 정책은 유지하고 ht_dde 소비자가 새 이력에서 각 소스 최종 추천 중 자체 점수 62점 이상을 읽도록 연결했다. 생산자 연결·저장 실패 복원 테스트는 보고됐으나 10/19 첫 정상 수집은 확인 전이다. 비교 계약은 [[scoring-version-comparison-methodology]], 장부·대시보드는 [[ht-dde]]를 참조한다.
+
 ## 변경 이력
+
+- 2026-10-18: 최종 추천 불변 스냅샷 생산자와 원자 저장·첫 정상 입력 대기 기록 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-12: KIS 수집 전환·운영 기존식 복구·독립 비교군·알림 정책의 최종 상태를 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["analysis", "trading", "ht-trading", "live-logs", "intraday", "backtest", "scoring", "execution"]
 created: "2026-08-16"
-updated: "2026-10-17"
+updated: "2026-10-18"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "TODO.md"
@@ -419,9 +419,15 @@ Spearman 순위상관(당일 종가 수익):
 
 ## 15. 10/17 최종 목표 정정
 
-KIS 단독/후보 합집합 두 장부의 구현 완료와, 사용자가 결정하려던 최종 추천 네 조합(KIS 단독·Naver 단독·합집합·교집합)의 비교 완료를 구분한다. 현재는 전자만 구현됐으며 후자의 Naver 단독·교집합과 각 소스의 최종 추천을 그대로 쓰는 비교는 남아 있다. 점수 진단표와 실험 버전이 비교 목적을 늘리는 것으로 설명하지 않는다([[scoring-version-comparison-methodology]], [[ht-dde]]).
+KIS 단독/후보 합집합 두 장부의 구현 완료와, 사용자가 결정하려던 최종 추천 네 조합(KIS 단독·Naver 단독·합집합·교집합)의 비교 완료를 구분한다. ~~현재는 전자만 구현됐으며 후자의 Naver 단독·교집합과 각 소스의 최종 추천을 그대로 쓰는 비교는 남아 있다.~~ 이 미구현 기록은 10/17 말미의 후속 구현으로 갱신됐다. 각 소스 최종 추천의 자체 점수 62점 이상을 사용하는 네 장부가 등록됐으며, 첫 정상 입력·가상 체결·마감은 10/19 확인 전이다. 점수 진단표와 실험 버전이 비교 목적을 늘리는 것으로 설명하지 않는다([[scoring-version-comparison-methodology]], [[ht-dde]]).
+
+## 최종 추천 비교의 후속 검증 대상
+
+최종 추천 네 장부 전환은 구현 완료이며 소스 우위의 검증 완료가 아니다. 불변 추천 스냅샷의 수집 완료·완전성, Naver 추천의 KIS 점수 재탈락 방지, 공통 종목의 실행 점수·가격 일치와 네 장부 전체 롤백을 계약으로 고정했다. 같은 시작일·가상자금·비용·청산 조건에서 결과를 쌓은 뒤 판단하며 운영 62점은 유지한다. 첫 신규 입력·체결·마감 대사는 남아 있다([[scoring-version-comparison-methodology]], [[ht-dde]]).
 
 ## 변경 이력
+
+- 2026-10-18: 최종 추천 네 조합 미구현 상태 정정과 전방 검증·입력 계약 연결 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-17: 역행 운영 활성화 후속 상태와 최종 추천 네 조합의 미구현 범위 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
