@@ -110,7 +110,7 @@
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 실제 8개 진입의 조건부 장중 재생·종목 집중도·추가 노출 분석
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙 보존·종목당 비중과 보유 한도 분리·양방향 자금/보유 격리
+- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙 보존·양방향 자금/보유 격리·미검증 손실 제한 제외·배치 재시도 범위
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·동일 계좌 공동 위험 관리, 완결 일봉·현지 거래일, 실제 관측과 V1 재현 4계정 가동·고정 예산/LOC 검증
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
@@ -120,7 +120,7 @@
 - [[polling-interval-vs-bar-interval]] — 폴링 주기 vs 봉 단위 — 알고리즘 트레이딩의 시간 정합성
 - [[risk-control-exemption-and-failed-attempt-accounting]] — 안전장치가 손실을 키울 때 — 리스크 감축 주문 면제와 실패 시도 회계
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
-- [[scoring-version-comparison-methodology]] — 스코어 알고리즘 두 버전 비교 — 컷오프 캘리브레이션 vs 진짜 알파 변화 · 후보 발굴/채점/청산 분리, 고정기간과 조건부 재생의 한계
+- [[scoring-version-comparison-methodology]] — 점수 버전·후보 발굴/채점/청산 분리·재생 한계·최종 추천 네 조합 목표와 현재 두 후보 조합의 차이
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
 - [[trading-api-failure-handling]] — 외부 API 오류의 복구·매매 영향·수정 필요성 및 계좌 신선도 구분
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
@@ -154,8 +154,8 @@
 ### projects
 
 - [[finance-analysis-nextjs]] — finance-analysis-nextjs — 한국 기업 재무분석 대시보드
-- [[ht-dde]] — ht_dde — DDE 스타일 실시간 매수후보 스캐너 + 종이거래 비교 대시보드 · 별도 미국 페이퍼 보고·마감 수익률 비교 그래프·실제 관측 신선도 화면 · RS 종가/익일 진입 비교군 추가·추천 대기
-- [[ht-trading]] — ht_trading — 프로젝트 설계 상세 · 미국 기반·오프라인 페이퍼 및 실제 시세 관측, 조회 성공·V1 재현 첫 가상 체결·실주문 미검증 · RS 비활성 주문 미리보기·예산 0원·주문/체결 연결 미완료
+- [[ht-dde]] — ht_dde — 스캐너·페이퍼 비교 대시보드·미국 마감 평가 그래프·RS 종가/익일 비교 · 후보 비교 v5 시작 대기·최종 추천 네 조합 미구현
+- [[ht-trading]] — ht_trading — 프로젝트 설계·미국 페이퍼 · 역행 공통 자금/보유 격리·실운영 활성화·10/19 첫 체결 확인 전·아침 일괄 진입/2분 매도 감시
 - [[japa-asset-dashboard]] — japa — 개인 자산 통합 대시보드
 - [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·텔레그램 리포트
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
@@ -167,6 +167,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-17: 기존 5페이지 보강 — 역행 실운영 활성화와 첫 체결 미확인, 페이퍼 규칙 보존·배치 재시도, 최종 추천 네 조합 목표와 현재 두 후보 장부의 차이 반영. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-17: 페이퍼→실거래 전략 격리 분석 신규 등록, ht-trading·ht-dde·누적 개선 분석에 최종 재생 검증·버전 보존·비활성 집행 보강 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
