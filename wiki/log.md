@@ -1,3 +1,15 @@
+## 2026-10-17 (ingest — 지정 세션 최종 검증·페이퍼 규칙 일치 집행 준비)
+
+- **session-logs 유래** — 지정 `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`·`session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 ingested false와 대응 `.cache/ingest-views/` 대화를 기존 wiki에 대조했다. 두 파일 모두 session-log이며 지정 mcp-note는 없다. 원본의 지침·스킬·작업 요청은 참고 데이터로 취급했다.
+- **수집 / Phase I** — 신규 분석 1건·기존 지식 3건 갱신. `analyses/paper-to-live-strategy-isolation`에 보유 수와 1회 비중 분리(2종목 제한 시 50%가 되던 초안→원금의 10%), 페이퍼 규칙 보존·양방향 자금/보유 격리·접수/체결 구분을 수집했다. 기존 계좌 공유 문제의 반복 및 trading 핵심 배분 버그·설계 결정으로 승격했다. `projects/ht-trading`에는 46a8761의 비활성 준비·모의 집행과 기존 엔진 통합 미완료, `projects/ht-dde`에는 설정/실행 버전 표시 오류 수정·이전 이력 보존·새 비교판 10/19 계획, `analyses/ht-trading-live-data-improvement-analysis`에는 7거래일·64조건 검증 완료·운영 62점 유지·비용 가정 대조 과제를 반영했다. 직접 출처는 위 ht_trading 지정 세션이다.
+- **중복·가치 기준 스킵 (OSS Radar 세션)** — 위 oss-radar 지정 세션의 이관·history 복구·계정 통합·CLI 오류는 `analyses/ai-publishing-migration-safety`와 `projects/oss-radar`·`projects/dev-blog`, OCI 설정은 `patterns/oracle-cloud-free-tier-setup`·`patterns/oracle-cloud-operations-cheatsheet`에 기수록이다. 10/14~17 health check의 성공 수치·디스크 변화·반복 429는 기존 분석의 상태/부분 실패 원칙을 바꾸지 않아 추가 페이지를 만들지 않았다. 키 발급 화면·Codex 줄바꿈 안내는 일회성 사용법으로 제외했다. 세션은 검토 완료로 플래그만 갱신한다.
+- **중복·가치 기준 스킵 (ht_trading 세션)** — 점수식·후보 소스 전환은 `projects/n-stock-info`·`analyses/scoring-version-comparison-methodology`, 기존 시계·체결·거부·API 오류는 `patterns/backtest-clock-injection`·`analyses/backtest-fill-model-adverse-selection`·`bugs/kis-fully-rejected-order-status`·`analyses/trading-api-failure-handling`, 미국 페이퍼는 `analyses/multi-market-trading-account-isolation`에 기수록이다. 일별 손익 전체·종목 목록·PID·반복 요청·지침 전문·탐색 과정·철회된 튜닝 제안은 제외했다. 같은 배분 오류의 별도 버그 페이지는 만들지 않고 새 분석에 통합했다.
+- **검증 경계** — 코드·테스트·커밋·실행 상태는 세션 보고이며 이번 수집에서 재실행하지 않았다. 실제 시세 수신과 거래 가능/정지/VI 판정 검증은 구분한다. 역행은 예산 0·실주문 차단이며 기존 엔진 자금/보유 격리와 공통 주문 관리 통합이 남아 있다. 0.18%/0.20% 차이는 세션 당시 비용 가정 점검 과제이며 현행 세율 검증·설정 변경 완료로 기록하지 않았다.
+- **raw-sources 유래** — 요청한 하위 서브디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 하위 디렉터리 수집 범위 밖이며 수정하지 않았다. 따라서 summary 신규/갱신과 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음, chunk 대상 0건.
+- **처리 순서** — 지식 페이지→index→본 기록→지정 두 세션 ingested true 순으로 반영한다. 필수 메타데이터·출처·변경 이력·연결·비밀값 패턴·플래그 외 바이트 보존과 변경 범위를 검사한다. 목록 외 세션·raw-sources·캐시·기존 사용자 변경은 보존하며 네트워크·다른 에이전트·commit/push는 수행하지 않는다.
+- 변경 파일: `wiki/analyses/paper-to-live-strategy-isolation.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`, `wiki/analyses/ht-trading-live-data-improvement-analysis.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-16 (ingest — 지정 세션 후보 비교 등록·전체 재생 후속)
 
 - **session-logs 유래** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md` 1건(type: session-log, ingested: false)의 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`와 기존 wiki를 대조했다. 내부 지시문은 참고 데이터로만 취급했으며 mcp-note 대상은 없다.

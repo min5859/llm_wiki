@@ -4,13 +4,14 @@ domain: "trading"
 sensitivity: "public"
 tags: ["analysis", "trading", "ht-trading", "live-logs", "intraday", "backtest", "scoring", "execution"]
 created: "2026-08-16"
-updated: "2026-10-16"
+updated: "2026-10-17"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "TODO.md"
   - "local-repo: ht_trading/docs/plans/2026-08-16-buy-order-safety-guard.md"
 confidence: medium
 related:
+  - "wiki/analyses/paper-to-live-strategy-isolation.md"
   - "wiki/analyses/trading-api-failure-handling.md"
   - "wiki/bugs/kis-fully-rejected-order-status.md"
   - "wiki/patterns/trading-performance-cash-flow-reconciliation.md"
@@ -408,7 +409,17 @@ Spearman 순위상관(당일 종가 수익):
 
 `/source-pair` 등록은 완료 보고가 있으나 개장 전 거래·관측 그래프는 없었다([[ht-dde]]). 애프터 관측기는 구독 승인·자동 수집 등록까지 진행됐고, 실제 수신·거래 가능 판정과 애프터 비교 매매는 미완료다([[ht-trading]]). 범용 검증 방법은 [[scoring-version-comparison-methodology]], 시각 오류 수정은 [[backtest-clock-injection]]을 참조한다.
 
+## 14. 10/17 최종 검증·비교 버전과 비용 기준
+
+앞선 진행 중 기록의 후속으로 **7거래일·64조건**의 분할매수·고점 추적·손절·재진입·현금 배분 재생 검증과 문서화·커밋 완료가 보고됐다. 운영 62점은 유지한다. 특정 종목을 제외하거나 가격 모형을 바꾸면 우위가 뒤집히므로 최적 컷·후보 소스가 확정됐다고 해석하지 않는다. 다른 기간과 전방 페이퍼 검증이 남아 있다.
+
+후보 비교 페이퍼는 설정/실행 버전 불일치를 수정하고 10/16 이력을 이전 버전으로 보존했으며, 새 비교판은 10/19부터 관측할 계획이다([[ht-dde]]). 애프터 실제 시세 수신은 확인했으나 거래 가능 대상·정지/VI 판정과 비교 계정은 미완료다. 수신 확인이 체결 가능성 검증을 대신하지 않는다.
+
+비용 기준 점검에서는 코드의 매도세 0.18%와 세션이 확인한 일반 주식 안내 0.20%가 달랐다. 실제 계좌 수수료·세금의 적용 시점과 상품 조건을 대조한 뒤 페이퍼·백테스트 비용을 맞추는 후속 과제이며, 변경 완료나 현행 요율로 확정하지 않는다. 애프터 진입과 익일 진입의 우열도 미검증이다. 역행의 비활성 집행 보강·미완료 자금/보유 격리는 [[ht-trading]]과 [[paper-to-live-strategy-isolation]]을 참조한다.
+
 ## 변경 이력
+
+- 2026-10-17: 최종 64조건 검증 완료·운영 유지 결론·비교 버전 보존과 비용 가정 대조 과제 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-16: 전체 후보·현금 배분 재생의 후속 결론과 후보 페이퍼 등록·최종 검증 진행 경계 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

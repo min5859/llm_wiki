@@ -110,6 +110,7 @@
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 실제 8개 진입의 조건부 장중 재생·종목 집중도·추가 노출 분석
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
+- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙 보존·종목당 비중과 보유 한도 분리·양방향 자금/보유 격리
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·동일 계좌 공동 위험 관리, 완결 일봉·현지 거래일, 실제 관측과 V1 재현 4계정 가동·고정 예산/LOC 검증
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
@@ -166,6 +167,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-17: 페이퍼→실거래 전략 격리 분석 신규 등록, ht-trading·ht-dde·누적 개선 분석에 최종 재생 검증·버전 보존·비활성 집행 보강 반영 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-16: 지정 세션 후속으로 기존 지식 6건 갱신 — [[scoring-version-comparison-methodology]]의 완료 시각·현금 재배분 검증, [[backtest-clock-injection]] 시간 가드 수정, [[backtest-fill-model-adverse-selection]] 관측/체결 경계, [[ht-trading-live-data-improvement-analysis]] 전체 재생 결과, [[ht-dde]] 후보 비교 등록·[[ht-trading]] 비활성 집행 장부. 신규 페이지 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
