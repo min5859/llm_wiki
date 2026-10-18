@@ -11,6 +11,7 @@ sources:
   - "local-repo: ht_trading/docs/plans/2026-08-16-buy-order-safety-guard.md"
 confidence: medium
 related:
+  - "wiki/analyses/financial-data-freshness-and-cache.md"
   - "wiki/analyses/paper-to-live-strategy-isolation.md"
   - "wiki/analyses/trading-api-failure-handling.md"
   - "wiki/bugs/kis-fully-rejected-order-status.md"
@@ -425,7 +426,25 @@ KIS 단독/후보 합집합 두 장부의 구현 완료와, 사용자가 결정�
 
 최종 추천 네 장부 전환은 구현 완료이며 소스 우위의 검증 완료가 아니다. 불변 추천 스냅샷의 수집 완료·완전성, Naver 추천의 KIS 점수 재탈락 방지, 공통 종목의 실행 점수·가격 일치와 네 장부 전체 롤백을 계약으로 고정했다. 같은 시작일·가상자금·비용·청산 조건에서 결과를 쌓은 뒤 판단하며 운영 62점은 유지한다. 첫 신규 입력·체결·마감 대사는 남아 있다([[scoring-version-comparison-methodology]], [[ht-dde]]).
 
+## 16. 10/18 재무 보정과 독립 추천 소스의 근사 재생
+
+같은 점수식의 차이를 입력별로 분해하자 일부 종목의 연간 재무 기준기간 차이가 드러났다. 당시 저장된 Naver 재무를 KIS에 대입한 가정에서 연간 ROE·부채비율만 보정한 경우와 EPS·PER·PBR까지 보정한 경우 모두 기존 62점 통과 종목이 같았다. 이 가정은 실제 KIS의 과거 최신 재무를 완전히 복원한 결과가 아니다.
+
+10/6~10/16 8거래일·가상 1천만원으로 분할매수·트레일링·손절·비용을 반영한 실현+평가손익은 다음과 같이 보고됐다.
+
+| 조건 | 분 시가만 관측 | 완료 분봉 고가도 추적 |
+|---|---:|---:|
+| 기존 KIS | -14,992원 | -9,972원 |
+| KIS 재무 보정 가정 | 기존 KIS와 동일 | 기존 KIS와 동일 |
+| Naver 최종 추천 | -130,320원 | +49,080원 |
+
+Naver 결과는 주성엔지니어링의 고점 관측·청산 시점에 크게 의존했다. 같은 종목이 모형에 따라 약 -16.9만원 손절 또는 +1.3만원 트레일링 청산으로 갈렸다. 누락 자료를 보완한 근사 재생이므로 소스 우위나 실거래 전환의 근거로 확정하지 않는다. 새 네 조합 페이퍼의 실제 고점·청산 기록 대조가 남아 있다.
+
+수익 개선이 없었다는 결과와 재무 입력의 정확성은 별개다. 후속 구현은 점수식·62점을 유지하며 일부 구재무를 보완하고, 보완 실패 시 제한된 KIS 원자료 복귀와 일일 재무 응답 캐시를 적용했다([[financial-data-freshness-and-cache]], [[n-stock-info]]). DART 자동 보완은 미구현이다. 10/19 새 캐시·추천 저장·실매수 후보 연결은 확인 전이며, 이번 수집에서 코드·테스트·운영 계좌를 재검증하지 않았다. 직접 출처는 지정 세션이며 세션이 지목한 재현 문서는 `ht_trading/docs/native-source-profit-review-2026-10-18.md`다.
+
 ## 변경 이력
+
+- 2026-10-18: 8거래일 재무 보정·독립 추천 재생과 고점 관측 민감도, 입력 정확성 수정의 별도 판단 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-18: 최종 추천 네 조합 미구현 상태 정정과 전방 검증·입력 계약 연결 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

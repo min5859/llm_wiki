@@ -108,7 +108,8 @@
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
 - [[holding-period-signal-mismatch]] — 보유기간-신호 미스매치 — 같은 진입신호가 홀딩 호라이즌에 따라 손실↔초과수익으로 뒤집힌다
 - [[holding-transaction-cost-basis-design]] — 보유 종목 매수/매도 거래 추적 설계 — 평균단가·실현손익 동결·삭제 역연산
-- [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 실제 8개 진입의 조건부 장중 재생·종목 집중도·추가 노출 분석
+- [[financial-data-freshness-and-cache]] — 재무 기준기간·확정값 대조, KIS 우선·제한적 장애 대체와 일일 원자료 캐시
+- [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 조건부 장중 재생·8거래일 독립 추천 비교·고점 관측 민감도
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
 - [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙 보존·양방향 자금/보유 격리·미검증 손실 제한 제외·배치 재시도 범위
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·미국 V1 변형/2021 공개규칙의 동일시작 대조·40거래일 정책 경계·매수일과 손익 분모
@@ -157,7 +158,7 @@
 - [[ht-dde]] — ht_dde — 스캐너·페이퍼 비교 대시보드·미국 마감 평가 그래프·RS 종가/익일 비교 · 최종 추천 네 조합 등록·미국 공개규칙 새 대조군·첫 입력/체결 대기
 - [[ht-trading]] — ht_trading — 프로젝트 설계·미국 페이퍼 · 역행 공통 자금/보유 격리·실운영 활성화·10/19 첫 체결 확인 전·아침 일괄 진입/2분 매도 감시
 - [[japa-asset-dashboard]] — japa — 개인 자산 통합 대시보드
-- [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·불변 최종 추천 스냅샷·텔레그램 리포트
+- [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·불변 최종 추천·재무 보완/장애 대체·일일 캐시
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
 
 ## Codex 미수집 기록 보강 (2026-10-10)
@@ -167,6 +168,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-18: [[financial-data-freshness-and-cache]] 신규 등록, [[n-stock-info]] 재무 보완·장애 대체·일일 캐시와 [[ht-trading-live-data-improvement-analysis]] 8거래일 재생 보강. 첫 정상 수집 연결은 확인 전 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-18: 기존 지식 6건 갱신 — 최종 추천 네 조합 구현·불변 스냅샷·전체 롤백, 미국 공개규칙/기존 방식의 동일시작 대조와 지표 의미 반영. 첫 신규 입력·체결·마감은 확인 전 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
