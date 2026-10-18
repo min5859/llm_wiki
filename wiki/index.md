@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질
+- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -41,7 +41,7 @@
 - [[everything-claude-code]] — everything-claude-code (ECC) — Claude Code 하네스 성능 시스템
 - [[hermes-paperclip-adapter]] — hermes-paperclip-adapter — Paperclip 에 Hermes Agent 를 붙이는 런타임 어댑터
 - [[karpathy-claude-md-skills]] — multica-ai/andrej-karpathy-skills — CLAUDE.md 4원칙 가이드
-- [[llm-content-quality-guards]] — LLM 기반 자동 콘텐츠 발행의 5 가지 품질 가드
+- [[llm-content-quality-guards]] — LLM 콘텐츠 품질 가드·자동 분류의 판단 보류·제목 입력 한계·표본 분모·실제 호출/배포 검증 경계
 - [[llm-newsletter-rewrite-metadata-grounding]] — LLM 뉴스레터 rewrite 의 메타데이터 그라운딩 베스트 프랙티스
 - [[llm-provider-aggregator-vs-local-vs-hub]] — OpenRouter vs Ollama vs Hugging Face — LLM 백엔드 3가지 분류
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent — 미실행 작업 캐치업 동작
@@ -168,6 +168,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-19: 기존 분석 2건 보강 — [[ai-publishing-migration-safety]]의 실행 환경·재실행 대기·이전 결과 표시와 [[llm-content-quality-guards]]의 분류 보류·표본·실제 호출/배포 경계. 신규 페이지 없음 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 
 - 2026-10-18: [[financial-data-freshness-and-cache]] 신규 등록, [[n-stock-info]] 재무 보완·장애 대체·일일 캐시와 [[ht-trading-live-data-improvement-analysis]] 8거래일 재생 보강. 첫 정상 수집 연결은 확인 전 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

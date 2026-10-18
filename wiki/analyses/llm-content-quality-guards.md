@@ -4,9 +4,10 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["analysis", "llm", "newsletter", "content-quality", "hallucination", "prompt-engineering", "cjk-leak", "language-enforcement"]
 created: 2026-05-12
-updated: "2026-10-10"
+updated: "2026-10-19"
 source_session: "20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
 sources:
+  - "session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md"
   - "session-logs/codex-019e6ee9-3c6c-7930-bf1e-428ce5df35eb.md"
   - "session-logs/codex-019e5525-08d4-7620-90eb-04c6e3d81c25.md"
   - "session-logs/codex-019e5f49-2074-7ed0-8a85-fbf004b4e51d.md"
@@ -17,6 +18,7 @@ sources:
   - "dev-blog logs/ai-rewrite-failures/2026-07-25T13-28-26/ (opensource-curation write attempt1/2 실패 덤프, KST 22:28~22:31)"
 confidence: medium
 related:
+  - "wiki/analyses/ai-publishing-migration-safety.md"
   - "wiki/projects/dev-blog.md"
   - "wiki/analyses/llm-news-prediction-pitfalls.md"
   - "wiki/analyses/research-write-agent-separation.md"
@@ -240,7 +242,20 @@ CLI의 JSON 이벤트/envelope가 콘텐츠 스키마 보장을 뜻하지는 않
 
 후속 redaction hook·설정 UI·추가 필터는 마지막 세션에서 미실행 계획이었다. MVP 완료와 모든 아이디어 적용을 혼동하지 않는다. 새 근거 유형에서도 참조 ID의 실재·workspace 내부 코드 위치·모델 전송 전 비밀 정보 제거를 각각 검증한다.
 
+## 무인 AI 분류의 보류 상태와 표본 경계
+
+news-monitor 후속 구현은 기존 콘텐츠 가드의 원칙을 자동 분류에도 적용한 사례다. 기사 내용 자체나 인물별 결과는 수집하지 않고, AI 호출·검증·표시에 재사용할 경계만 기록한다.
+
+- 수집 실패는 기사 0건이 아니라 **확인 불가**, 모델 응답 실패는 중립이 아니라 **판단 보류**로 표시했다. 입력 부족·모델 실패를 정상 분류값으로 바꾸면 통계까지 오염된다.
+- 분류기에는 기사 본문 없이 제목을 전달하고 도구 사용·응답 형식·호출 시간·호출 횟수를 제한했다. 제목 기반 결과임을 명시하며 본문을 읽고 검증한 판정으로 설명하지 않는다. 실행 제한의 공통 원리는 [[agentic-cli-text-generation-lockdown]]에 기수록이다.
+- 세션의 화면 검증에서는 목록 필터를 바꿔도 상단 통계의 분모가 유지되는지 확인했다. 검색으로 확보한 소수 기사 비율은 그 수집 표본의 분포이며 전체 보도나 여론으로 일반화하지 않는다. 검색 상한을 늘리는 것과 실제 관련 기사·매체 범위를 늘리는 것도 구별한다.
+- 가상 자료로 한 화면 검증과 실제 기사·실제 AI 호출의 성공을 분리했다. 최종 대화에서는 실제 기사 3건의 분류와 로컬 화면 제공·공개 전 검사 통과를 보고했지만, OCI 타이머와 GitHub Pages 공개 배포는 아직 미설정이었다. 일일 실행·검색어 분할·검증 기사 누적은 계획으로 남았다.
+
+출처는 지정 세션의 단계별 보고이며 이번 수집에서 코드·모델·화면을 재실행하지 않았다. 이전 정상 데이터의 경고 표시와 수집 상태 관리는 [[ai-publishing-migration-safety]]를 참조한다.
+
 ## 변경 이력
+
+- 2026-10-19: 자동 분류의 실패/중립/보류, 제목 입력·표본 분모, 가상 검증·실제 호출·배포 경계 보강 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 
 - 2026-10-10: Codex 과거 세션에서 구현 완료와 미실행 계획을 구분해 보강.
 

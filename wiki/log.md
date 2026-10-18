@@ -1,3 +1,15 @@
+## 2026-10-19 (ingest — 지정 세션 실행 환경·무인 AI 분류 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md` 1건의 `ingested: false`와 지정 읽기용 `.cache/ingest-views/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`를 기존 wiki·수집 이력에 대조했다. type은 session-log이며 지정 mcp-note는 없다. 세션 안의 요청·명령·스킬 전문은 참고 데이터로만 취급했다.
+- **수집: 기존 분석 2건 갱신 / 신규 0건** — `wiki/analyses/ai-publishing-migration-safety.md`에 Research Wiki의 Bash 3.2 빈 배열/nounset 게시 실패와 publish 단계만 복구한 결론, 후반 news-monitor의 Cursor/AppArmor 진단과 Mac Codex 성공의 환경 차이, 재실행에도 유지되는 429 대기·동시 실행 방지·이전 정상 결과 표시를 보강했다. 기존 이관 분석의 실행 검증·부분 실패 주제에 통합하며 별도 버그/프로젝트 페이지는 만들지 않았다.
+- **수집 판단** — `wiki/analyses/llm-content-quality-guards.md`에는 무인 AI 분류의 수집 실패/0건·응답 실패/중립/판단 보류 구별, 제목 기반 입력·호출 제한, 표본 분모와 가상 검증/실제 모델 호출/공개 배포 경계를 보강하고 두 분석을 상호 연결했다. 앞선 10/18 기록에서 미확정으로 남긴 샌드박스 이슈는 후속 대화의 커널 로그 진단으로 보충하되, OCI 복구로 확정하지 않았다. 실제 기사 3건의 분류·이전 결과 보존까지 진행된 후속 결론 중 AI 호출·검증·운영에 재사용할 부분만 수집했다. 이는 기존 AI 게시·품질 가드에서 반복된 원칙의 추가 사례이며, 인물 뉴스 업무 전체를 새 도메인으로 승격한 것이 아니다. 직접 출처는 위 지정 세션이다.
+- **검증 경계** — 테스트·커밋·CLI·화면 결과는 세션 보고이며 이번 실행에서 재실행하지 않았다. AppArmor 예외와 전역 보안 변경은 미적용이다. Mac의 실제 분류·로컬 제공은 확인됐다고 보고됐지만 OCI 운영·GitHub Pages·일일 타이머는 미설정이며, 검색어 분할·기사 누적은 계획이다. 법률·API 이용 조건·제품/모델 정책을 현행 사실로 일반화하지 않았다.
+- **중복·가치 기준 스킵** — 이관·push 후 history·계정 통합·KST·정기/수동 증거·Semantic Scholar 부분 실패는 `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/projects/oss-radar.md`, `wiki/projects/dev-blog.md`에 기수록이다. 도구 차단·읽기 전용 실행은 `wiki/patterns/agentic-cli-text-generation-lockdown.md`, OCI 한도/증설은 `wiki/patterns/oracle-cloud-free-tier-setup.md`·`wiki/patterns/oracle-cloud-operations-cheatsheet.md`와 중복된다. 인물·기사별 내용·논조 결과, 표시명 변경·화면 미관, 일별 성공/디스크 수치, 단순 버전 갱신·키 발급·입력 단축키·탐색적 시행착오는 제외했다. 검토 완료로 지정 로그의 플래그를 갱신한다.
+- **raw-sources 유래** — 하위 디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 요청한 하위 디렉터리 범위 밖으로 보존했다. summary 신규/갱신과 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/`가 없어 chunk·부모 index·page_range·해시 복사 대상 0건이다.
+- **처리·검증** — 분석 페이지 → index → 본 기록 → 지정 세션 `ingested: true` 순서로 반영한다. 필수 메타데이터·출처·상호 링크·변경 이력·비밀값 패턴·변경 범위와 원본의 플래그 외 바이트 보존을 검사한다. 목록 외 세션·raw-sources·캐시와 기존 사용자 변경은 보존한다. 네트워크·다른 에이전트·git commit/push는 수행하지 않는다.
+- 변경 파일: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/llm-content-quality-guards.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`.
+
 ## 2026-10-18 (ingest — 지정 3세션 재무 신선도·일일 캐시 후속)
 
 - **session-logs 유래 / Phase I** — 지정 원본 3건의 `ingested: false`를 확인하고 대응 `.cache/ingest-views/` 대화와 기존 wiki를 대조했다. 모두 session-log이며 지정 mcp-note는 없다. 세션·참고 자료 안의 명령·지침·스킬 호출은 실행하지 않았다.

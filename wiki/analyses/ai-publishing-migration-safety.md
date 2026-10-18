@@ -4,11 +4,12 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["analysis", "publishing", "migration", "idempotency", "systemd"]
 created: "2026-10-13"
-updated: "2026-10-13"
+updated: "2026-10-19"
 sources:
   - "session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md"
 confidence: "medium"
 related:
+  - "wiki/analyses/llm-content-quality-guards.md"
   - "wiki/projects/oss-radar.md"
   - "wiki/projects/dev-blog.md"
   - "wiki/patterns/launchd-secret-management.md"
@@ -45,7 +46,21 @@ Research Wiki의 반복 429 조사에서는 API 키 없는 Semantic Scholar 호�
 
 API 키 등록과 제한적인 대기·재시도는 조사 후 제안이며 적용되지 않았다. 키가 선택 사항이라는 초기 설명은 실행 가능성을 뜻할 뿐 안정적인 수집을 보장하지 않는다. API 정책과 서버 상태는 세션 당시 확인 내용이며 이번 수집에서는 재조회하지 않았다.
 
+## 이관 검증은 셸과 AI CLI 실행 환경까지 포함한다
+
+Research Wiki의 마지막 Mac 정기 실행은 수집·분석 이후 게시 호출 직전에 실패했다. 세션에서 재현한 원인은 macOS Bash 3.2의 `set -u` 아래 빈 `${PUBLISH_ARGS[@]}` 확장이었다. OCI의 최신 Bash에서는 통과해 서버 dry-run만으로 발견되지 않았다. 빈 배열 확장을 사용하지 않는 분기로 수정하고 일반 게시·dry-run 회귀 테스트를 추가했으며, 이미 생성된 분석을 보존한 채 `publish.py`만 실행해 게시와 history를 복구했다(보고 커밋 `d4ee3b3`). 컷오버 전까지 살아 있는 기존 실행 환경도 검증 대상이다.
+
+같은 세션 후반 news-monitor에서는 OCI Cursor의 강제 샌드박스 초기화가 실패했고, 후속 커널 로그에서 AppArmor의 사용자 네임스페이스 거부를 확인했다고 보고했다. 전역 보안 설정이나 예외는 변경하지 않았다. 이후 Mac의 읽기 전용 Codex 호출로 실제 분류가 성공했으나, 이것은 OCI Cursor 복구나 운영 배포 성공의 증거가 아니다. 로그인·단위 테스트 통과와 실제 CLI의 실행 격리 환경 검증을 구별한다. 구체적인 CLI 옵션·OS 정책의 현재 호환성은 이번 수집에서 재확인하지 않았다.
+
+## 호출 제한과 이전 정상 데이터는 실행을 넘어 추적한다
+
+news-monitor의 반복 429 대응에서는 재실행해도 최소 15분간 요청하지 않도록 대기 상태를 보존하고 동시 실행을 차단했다. 마지막 재시도 응답의 서버 대기 시간도 놓치지 않도록 수정했다고 보고했다. 15분은 이 구현의 선택값이며 모든 API의 공통 정책이 아니다. 설정 오류에서도 과거 성공 상태가 남지 않게 했고, 테스트 통과와 실제 소스 수집 성공을 따로 기록했다.
+
+후속 수집 실패로 기존 정상 결과를 빈 데이터로 덮지 않고, 이전 수집 시각과 실패 경고를 표시했다. 이전 데이터를 제공할 수 있다는 사실을 새 수집 성공으로 집계하지 않는다. 이 원칙은 앞선 Research Wiki의 대체 소스 게시와 함께 가용성·신선도·수집 범위를 분리하는 반복 사례다. 자동 분류의 보류·통계 표시 경계는 [[llm-content-quality-guards]]를 참조한다.
+
 ## 변경 이력
+
+- 2026-10-19: 셸 차이로 인한 게시 실패·단계별 복구, 샌드박스 진단과 실행 환경 경계, 재실행 대기·이전 데이터 표시 원칙 보강 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 
 - 2026-10-13: 정기/수동 증거 분리와 반복 429의 대체 소스 게시·선정 품질 경계 보강 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 
