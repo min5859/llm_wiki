@@ -171,6 +171,8 @@
 
 ## 변경 이력
 
+- 2026-10-20: 기존 5문서 보강 — [[trading-observation-vs-order-time-gates]]의 시초 세 방식 비교·현행 유지, [[paper-to-live-strategy-isolation]]의 고정 금액 가드 수정·엔진 복구, [[llm-content-quality-guards]]의 요약 근거/필터/시각 검증, [[ht-trading]]·[[ht-dde]]의 운영 및 첫 가상매수 대사 후속. 지정 3세션 검토·신규 문서 없음.
+
 - 2026-10-19: [[trading-observation-vs-order-time-gates]] 신규 등록·ht-trading/기존 트레일링 버그 연결, 게시/품질 분석의 10/19 배포·누적 구현 후속 반영. 지정 세션 2건 검토 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md; session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-19: 기존 분석 2건 보강 — [[ai-publishing-migration-safety]]의 실행 환경·재실행 대기·이전 결과 표시와 [[llm-content-quality-guards]]의 분류 보류·표본·실제 호출/배포 경계. 신규 페이지 없음 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)

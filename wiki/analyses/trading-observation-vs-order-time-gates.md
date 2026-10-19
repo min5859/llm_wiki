@@ -4,11 +4,12 @@ domain: "trading"
 sensitivity: "internal"
 tags: ["trailing-stop", "time-gate", "observation", "replay"]
 created: "2026-10-19"
-updated: "2026-10-19"
+updated: "2026-10-20"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
 confidence: "medium"
 related:
+  - "wiki/analyses/ht-trading-live-data-improvement-analysis.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/bugs/trailing-activation-current-profit-gate.md"
   - "wiki/patterns/backtest-clock-injection.md"
@@ -42,6 +43,18 @@ related:
 
 기존 보유만 09:00부터 관측하는 안과 시초 보호 매도까지 허용하는 안은 **미적용 검토안**이다. 이번 세션은 진단·모의 재현·문서화만 수행했고 운영 코드·시간 정책·실주문을 변경하지 않았다. 시간 주입은 [[backtest-clock-injection]], 관측과 체결의 구분은 [[backtest-fill-model-adverse-selection]], 프로젝트 연결은 [[ht-trading]]을 참조한다.
 
+## 10/20 후속: 관측 공백 진단과 정책의 수익성은 별개다
+
+같은 세션의 후속 백테스트는 현행 09:30 감시·매도, 09:00 고점 기록/09:30 이후 매도, 09:00부터 트레일링 매도를 분리했다. 실제 매수기회를 고정하고 비용을 포함했으며, 남은 HMM 보유분은 10/19 종가에 청산한다고 가정한 손익은 각각 +36,604원·+8,846원·+11,339원이었다. 실제 체결 손익이 아닌 가상 재생이다.
+
+10/16 금요일까지만 보면 조기 청산이 유리했으나 10/19 월요일 반등을 포함하면 결론이 뒤집혔다. 다종목 8거래일 전체 자금 재생도 현행 -0.150%, 09시 매도 -0.278%로 보고됐다. 특정 사건 직후에 평가를 끝내지 말고 동일한 종료일·잔여 보유 평가·후속 반등 기회를 포함해야 한다. 실제 진입 고정 비교와 전체 자금 재생의 수익률을 한 실험으로 합치지 않는다.
+
+최종 권고는 **현행 09:30 이후 매도 유지**이며 조기 고점 기록도 적용하지 않았다. 짧은 표본·관측/체결 모형에 의존하므로 영구적인 우위는 아니다. 감시 공백의 원인이 재현됐다는 사실만으로 감시 확대의 성과 개선이 입증되지는 않는다. 백테스트 관련 검증을 포함한 전체 952개 테스트 통과와 결과 문서 `ht_trading/docs/morning-trailing-backtest-2026-10-20.md`는 세션 보고이며 이번 수집에서 재실행하지 않았다.
+
+[[ht-trading]]의 운영 후속과 [[ht-trading-live-data-improvement-analysis]]의 고점 관측 민감도를 함께 참조한다.
+
 ## 변경 이력
+
+- 2026-10-20: HMM 세 방식·평가 종료일 역전·다종목 재생과 현행 유지 결론 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-19: HMM 진단에서 관측·상태 갱신·주문 시간의 분리와 재생 검증 경계 수집 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
