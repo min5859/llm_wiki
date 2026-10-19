@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시
+- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시·검증 기사 누적/중복 제거·수동 배포/첫 예약 구분
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -102,6 +102,8 @@
 
 ### analyses
 
+- [[trading-observation-vs-order-time-gates]] — 가격 관측·고점 갱신·주문 허용 시간 분리, 시초 미활성 진단과 미적용 개선안
+
 - [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것 · 신호 이후 호가 체결·재처리 멱등성·합성 결과의 한계 · 공통 추천의 종가/익일 진입 전방 비교
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
@@ -168,6 +170,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-19: [[trading-observation-vs-order-time-gates]] 신규 등록·ht-trading/기존 트레일링 버그 연결, 게시/품질 분석의 10/19 배포·누적 구현 후속 반영. 지정 세션 2건 검토 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md; session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-19: 기존 분석 2건 보강 — [[ai-publishing-migration-safety]]의 실행 환경·재실행 대기·이전 결과 표시와 [[llm-content-quality-guards]]의 분류 보류·표본·실제 호출/배포 경계. 신규 페이지 없음 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 

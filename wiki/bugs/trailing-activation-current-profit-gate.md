@@ -4,12 +4,13 @@ domain: "trading"
 sensitivity: "internal"
 tags: ["trailing-stop", "state", "paper-trading", "regression"]
 created: "2026-10-10"
-updated: "2026-10-10"
+updated: "2026-10-19"
 sources:
   - "session-logs/codex-01a09b03-3a64-74b3-8a44-c59f3d3ce4f4.md"
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
 confidence: "high"
 related:
+  - "wiki/analyses/trading-observation-vs-order-time-gates.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/projects/ht-dde.md"
   - "wiki/analyses/partial-sell-rule-idempotency.md"
@@ -25,6 +26,8 @@ related:
 
 수정 원칙은 활성 상태를 현재 수익률과 분리하고, 과거 최고 수익률과 전략별 거리로 스톱을 계산하는 것이다. 실거래·페이퍼·추가매수 차단이 같은 활성화와 거리 계산을 사용해야 한다. 전략별 손절·익절 정책 자체를 바꾸는 수정과 혼동하지 않는다.
 
+활성화 조건이 처음부터 저장되지 않는 시초 시간 가드 사례는 [[trading-observation-vs-order-time-gates]]를 참조한다. 활성화 후 현재 수익률 가드 수정만으로 관측 공백이 해소되는 것은 아니다.
+
 ## 적용 이력과 검증 경계
 
 - 2026-09-13 세션: 무한매수와 스코어링의 트레일링 판단 공통화, 성과 기록 재시도와 함께 커밋 `fc5eb02` 및 재기동이 기록됐다.
@@ -32,5 +35,7 @@ related:
 - 회귀 검증은 활성 후 기준 아래로 급락, 스톱 정확한 경계, 미활성 상태, 전략별 거리 차이를 포함해야 한다. 수정 전·후 페이퍼 성과를 한 표본으로 합치지 않는다.
 
 ## 변경 이력
+
+- 2026-10-19: 활성화 전 고점 관측 공백과 기존 오류를 구별하고 분석 연결 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-10: 실거래와 페이퍼의 두 번째 재현을 대조해 승격. 기록된 적용 결과이며 이번 ingest에서 매매 코드·계좌를 변경하거나 현재 데몬을 재검증한 것은 아니다.

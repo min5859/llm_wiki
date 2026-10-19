@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "scoring", "algorithm", "config"]
 created: "2026-04-23"
-updated: "2026-10-18"
+updated: "2026-10-19"
 sources:
   - "session-logs/codex-019db8f4-139a-7a71-864f-ca4c29244465.md"
   - "session-logs/codex-019e837c-d7e0-7212-b02b-de0b576c8a17.md"
@@ -40,6 +40,7 @@ sources:
   - "session-logs/20260707-223019-2c24-오늘-남성이라는-종목이-추천되서-매수가-되었는데-실제-스코어가-62-점이-넘었는지-확인해줘.md"
 confidence: "high"
 related:
+  - "wiki/analyses/trading-observation-vs-order-time-gates.md"
   - "wiki/analyses/paper-to-live-strategy-isolation.md"
   - "wiki/analyses/trading-api-failure-handling.md"
   - "wiki/bugs/kis-fully-rejected-order-status.md"
@@ -383,6 +384,10 @@ sell_min_minute: 30                    # KST 매도 최소 시각 (분) — 09:3
 - 파라미터 로드: `line:109~114` — `ctx.params.get("buy_min_hour", 0)` 등으로 YAML 주입
 - 매수 가드 적용: `line:574`
 - 매도 가드 적용: `line:831`
+
+### 시초 고점 관측 공백 (2026-10-19 진단)
+
+HMM 미매도 조사에서 기존 추천 엔진의 09:10 감시 시작과 09:30 이전 매도 가드가 겹쳐 시초 +3% 구간이 트레일링 상태에 기록되지 않았다고 확인했다. 매도 가드는 일반 매도뿐 아니라 고점 갱신도 생략했다. 독립 전략 재현과 기존 회귀 12개 통과는 세션 보고이며 운영 정책은 변경하지 않았다. 기존 보유의 조기 관측과 보호 매도 허용은 각각 검토안이다. 근거·당시 평단·분봉/실제 틱의 차이는 [[trading-observation-vs-order-time-gates]] 참조.
 
 ### 설정값 이력
 
@@ -979,6 +984,8 @@ LOC는 종가 기반 가상 모델이다. 종가를 본 뒤 주문을 소급 생
 KIS/Naver 최종 추천 네 조합도 이후 구현·등록·페이퍼 서비스 재시작까지 완료했다고 보고됐다. 앞선 ‘네 조합 미완료’는 당시 이력이며, 현재 남은 것은 첫 정상 수집·가상 체결·마감 검증이다. 생산자는 [[n-stock-info]], 실행·화면은 [[ht-dde]], 비교 계약은 [[scoring-version-comparison-methodology]]를 참조한다. 이 전환에서는 국내 실매매 서비스와 미국 페이퍼를 재시작하지 않았다. 첫 역행 실거래·애프터 주문 연결·비용 가정 대조는 별도 미완료 과제다.
 
 ## 변경 이력
+
+- 2026-10-19: 시초 매도 시간 가드의 고점 갱신 생략 진단과 미적용 개선안 연결 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-18: 미국 공개규칙 새 장부와 추천 네 조합 구현 후속·첫 거래 검증 대기 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

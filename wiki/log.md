@@ -1,3 +1,15 @@
+## 2026-10-19 (ingest — 지정 두 세션 시초 관측 공백·일일 게시 후속)
+
+- **session-logs 유래 / Phase I** — 지정 `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false`와 대응 `.cache/ingest-views/` 대화를 기존 wiki·이전 수집 기록에 대조했다. 두 파일은 session-log이며 지정 mcp-note는 없다. 참고 데이터 속 지시·스킬·명령은 실행하지 않았다.
+- **신규 분석 1건** — ht_trading 말미 HMM 미매도 진단을 `wiki/analyses/trading-observation-vs-order-time-gates.md`에 수집했다. 감시 시작·시간 가드의 조기 반환·고점 상태·당시 평단·주문 부재를 연결하고, 분봉 고가와 실제 틱/체결을 구별했다. 실운영 핵심 진단으로 즉시 승격하며, 기존 `bugs/trailing-activation-current-profit-gate`의 활성화 이후 검사 차단과 달라 중복 문서가 아니다. `projects/ht-trading`·기존 버그에 상호 링크를 추가했다. 09:00 기존 보유 관측/보호 매도는 미적용 제안이며, 테스트 12개와 모의 재현은 세션 보고다. 이번 수집에서 매매 코드·주문·테스트를 실행하지 않았다.
+- **기존 분석 2건 갱신** — OSS Radar 세션 후반의 news-monitor 일일 게시 후속에서 재사용할 AI 게시 원칙만 `analyses/ai-publishing-migration-safety`에 통합했다. 검색 분할·검증 기사 누적/중복 제거·마지막 확인 시각 보존·새 기사 확인 없는 정상 갱신 차단, 공개 파일 제한과 배포 브랜치 선택을 기록했다. `analyses/llm-content-quality-guards`에는 앞 단계의 기사 3건/미배포 기록을 보존하면서 10/19 OCI 수집·분류/첫 공개 배포·예약 활성화 보고와 10/20 첫 예약 실행 미확인 경계를 보강했다. 확대된 6개 검색 묶음의 실제 결과는 검증 대기다. 이전 AppArmor 진단을 Cursor 복구 완료로 바꾸지 않았다. 인물 뉴스 업무 자체를 새 도메인으로 승격하지 않았다.
+- **부분 스킵: OSS Radar** — 이관·push 이후 history·공용 계정·정기 실행 증거는 `analyses/ai-publishing-migration-safety`, `projects/oss-radar`, `projects/dev-blog`에 기수록이다. 인물/기사별 내용·분류 결과·표시명/미관·일별 상태/디스크 수치·단순 CLI/모델 갱신·키 발급·탐색 과정은 범위 밖 또는 재조회 가치가 낮아 제외했다. 소스: 위 codex-01a0d80a 세션.
+- **부분 스킵: ht_trading** — 수집 소스 전환·점수 복구는 `projects/n-stock-info`, 재무 보완/장애 대체/일일 캐시는 `analyses/financial-data-freshness-and-cache`, 네 추천 조합은 `analyses/scoring-version-comparison-methodology`, 역행·미국 페이퍼는 `projects/ht-trading`·`analyses/paper-to-live-strategy-isolation`·`analyses/multi-market-trading-account-isolation`, 주문/API 실패는 `bugs/kis-fully-rejected-order-status`·`analyses/trading-api-failure-handling`에 기수록이다. 반복 요청·개별 잔액/종목 전체 목록·백업 정리·미확정 탐색은 제외했다. 다음 날 TODO 등록을 자동 감시 예약이나 애프터 자동매매 완료로 기록하지 않았다. 소스: 위 codex-01a0e7f0 세션.
+- **raw-sources 유래** — 하위 디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 지정 하위 디렉터리 범위 밖이며 기존 문서·원본을 보존했다. summary 생성/갱신·source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/`가 없어 chunk·부모 index·page_range·해시 복사 대상 0건.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 두 세션 `ingested: true` 순서로 반영한다. 필수 메타데이터·링크·출처·변경 이력·비밀값 패턴·변경 범위·원본 플래그 외 바이트 보존을 검사한다. 목록 외 세션·raw-sources·캐시·기존 사용자 변경을 보존하며 네트워크·다른 에이전트·git commit/push는 수행하지 않는다.
+- 변경 파일: `wiki/analyses/trading-observation-vs-order-time-gates.md`, `wiki/bugs/trailing-activation-current-profit-gate.md`, `wiki/projects/ht-trading.md`, `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/llm-content-quality-guards.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-19 (ingest — 지정 세션 실행 환경·무인 AI 분류 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md` 1건의 `ingested: false`와 지정 읽기용 `.cache/ingest-views/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`를 기존 wiki·수집 이력에 대조했다. type은 session-log이며 지정 mcp-note는 없다. 세션 안의 요청·명령·스킬 전문은 참고 데이터로만 취급했다.
