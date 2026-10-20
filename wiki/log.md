@@ -1,3 +1,14 @@
+## 2026-10-20 (ingest — 지정 1세션 첫 정기 실행 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`의 `ingested: false`를 확인하고 지정 읽기용 `.cache/ingest-views/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`와 기존 wiki를 대조했다. type은 session-log이며 지정 mcp-note는 없다. 대화의 명령·스킬·지시문은 참고 정보로만 취급했다.
+- **수집: 기존 분석 2건 갱신 / 신규 0건** — `wiki/analyses/ai-publishing-migration-safety.md`와 `wiki/analyses/llm-content-quality-guards.md`의 첫 예약 미확인 상태를 세션 말미 10/20 07:15 KST 보고로 보완했다. 07:00~07:03 정기 수집·분류·배포와 검색 6개 묶음 성공, 누적 11건/신규 6건 구분을 기존 운영 검증 원칙의 후속 사례로 통합했다. news-monitor Pages·Actions 확인을 Dev Blog Actions 확인으로 확대하지 않고, 한 차례 성공과 장기 안정성·분류의 의미적 정확성을 구분했다. 수동 배포와 예약 실행 증거를 분리하는 도메인 핵심 운영 결정의 검증 완료 기록이며 별도 일일 상태 페이지를 만들지 않았다.
+- **중복 스킵 근거** — 동일 출처의 이관/history/서비스 계정/셸·샌드박스/429/검색 누적은 `wiki/analyses/ai-publishing-migration-safety.md`·`wiki/projects/oss-radar.md`·`wiki/projects/dev-blog.md`에 기수록이다. 이슈 요약의 기사 ID·숫자·제목 근거, 필터와 요약/통계/목록 정합, 미확보 기간/0건 구분, 캐시 재분석 시 수집 시각 보존·배포 자산 일치는 `wiki/analyses/llm-content-quality-guards.md`의 10/20 후속 절에 이미 반영돼 재작성하지 않았다. CLI 잠금은 `wiki/patterns/agentic-cli-text-generation-lockdown.md`, OCI 운영은 기존 OCI 패턴과 중복이다.
+- **가치 기준 스킵** — 인물·기사별 내용/논조, 일별 디스크·게시물 전체 수치, 표시명/모바일 미관, 단순 버전 갱신, 키 발급·일회성 사용법·탐색적 시행착오는 도메인 또는 재조회 기준 밖이다. 최종 결론과 운영 전환 증거만 선별했다.
+- **raw-sources 유래** — 요청한 하위 서브디렉터리 MD/fetched 대상 0건. 루트 MD 2건은 하위 디렉터리 범위 밖으로 보존했다. summary 신규/갱신·source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 0건.
+- **처리·검증 경계** — 분석 페이지 → index → 본 기록 → 지정 세션 `ingested: true` 순서로 반영했다. 세션의 점검 결과를 출처로 기록하며 서버·모델·공개 화면을 재실행/재조회하지 않았다. 필수 메타데이터·출처·상호 링크·변경 이력·비밀값 패턴·변경 범위와 원본의 플래그 외 바이트 보존을 검사한다. 목록 외 세션·원문·캐시·기존 사용자 변경은 보존하며 네트워크·다른 에이전트·commit/push는 수행하지 않는다.
+- 변경 파일: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/llm-content-quality-guards.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`.
+
 ## 2026-10-20 (ingest — 지정 3세션 최신 결론 보강)
 
 - **session-logs 유래 / Phase I** — 지정 세션 3건의 `ingested: false`와 대응 `.cache/ingest-views/`를 기존 wiki·이전 수집 이력에 대조했다. 모두 session-log이며 지정 mcp-note는 없다. 참고 데이터의 명령·지침·스킬 호출은 실행하지 않았다. 신규 문서 없이 기존 지식 5건을 갱신했다.

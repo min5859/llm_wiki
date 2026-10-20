@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시·검증 기사 누적/중복 제거·수동 배포/첫 예약 구분
+- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시·검증 기사 누적/중복 제거·수동 배포/첫 예약 구분·첫 정기 실행 검증
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -41,7 +41,7 @@
 - [[everything-claude-code]] — everything-claude-code (ECC) — Claude Code 하네스 성능 시스템
 - [[hermes-paperclip-adapter]] — hermes-paperclip-adapter — Paperclip 에 Hermes Agent 를 붙이는 런타임 어댑터
 - [[karpathy-claude-md-skills]] — multica-ai/andrej-karpathy-skills — CLAUDE.md 4원칙 가이드
-- [[llm-content-quality-guards]] — LLM 콘텐츠 품질 가드·자동 분류의 판단 보류·제목 입력 한계·표본 분모·실제 호출/배포 검증 경계
+- [[llm-content-quality-guards]] — LLM 콘텐츠 품질 가드·자동 분류의 판단 보류·제목 입력 한계·표본 분모·요약 근거/필터/수집 시각 검증·실제 호출/정기 배포 경계
 - [[llm-newsletter-rewrite-metadata-grounding]] — LLM 뉴스레터 rewrite 의 메타데이터 그라운딩 베스트 프랙티스
 - [[llm-provider-aggregator-vs-local-vs-hub]] — OpenRouter vs Ollama vs Hugging Face — LLM 백엔드 3가지 분류
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent — 미실행 작업 캐치업 동작
@@ -170,6 +170,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-20: 지정 1세션 후속 대조 — [[ai-publishing-migration-safety]]·[[llm-content-quality-guards]]에 첫 정기 실행 성공 보고와 누적/신규 및 검증 범위 경계 보완. 신규 문서 없음 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 
 - 2026-10-20: 기존 5문서 보강 — [[trading-observation-vs-order-time-gates]]의 시초 세 방식 비교·현행 유지, [[paper-to-live-strategy-isolation]]의 고정 금액 가드 수정·엔진 복구, [[llm-content-quality-guards]]의 요약 근거/필터/시각 검증, [[ht-trading]]·[[ht-dde]]의 운영 및 첫 가상매수 대사 후속. 지정 3세션 검토·신규 문서 없음.
 
