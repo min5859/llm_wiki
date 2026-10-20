@@ -99,10 +99,11 @@
 - [[mirror-config-drift-guard-test]] — 미러 설정 드리프트 가드 테스트 — 원본을 읽어 자동 대조
 - [[post-bugfix-reverification-data-cutoff]] — 데이터 품질 버그 수정 후 재검증 — 평가 도구도 수정일 이후로 필터해야
 - [[startup-dependency-crash-loop]] — 기동 시 외부 의존성 강체크 + 자동 재시작 = 크래시 루프
+- [[trading-performance-cash-flow-reconciliation]] — 입출금·체결 대조·공식/추정 손익 분리·원본 대사 이력 보존
 
 ### analyses
 
-- [[trading-observation-vs-order-time-gates]] — 가격 관측·고점 갱신·주문 허용 시간 분리, 시초 미활성 진단과 미적용 개선안
+- [[trading-observation-vs-order-time-gates]] — 가격 관측·고점 갱신·주문 허용 시간 분리, 시초 정책 유지·종가 소급 가정과 장후/익일 호가 진입 비교
 
 - [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것 · 신호 이후 호가 체결·재처리 멱등성·합성 결과의 한계 · 공통 추천의 종가/익일 진입 전방 비교
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
@@ -125,7 +126,7 @@
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
 - [[scoring-version-comparison-methodology]] — 점수 버전·후보/채점/청산 분리·최종 추천 네 조합 구현·불변 입력/선정·실행 분리·네 장부 롤백
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
-- [[trading-api-failure-handling]] — 외부 API 오류의 복구·매매 영향·수정 필요성 및 계좌 신선도 구분
+- [[trading-api-failure-handling]] — 외부 API 오류의 복구·매매 영향·수정 필요성 및 계좌 신선도 구분·비밀정보 없는 주문 전 보류 진단
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
 - [[surge-chasing-exclusion-filter]] — 급등 종목 추격 배제 필터 — 하락장 레짐의 유일한 초과수익 규칙 (confidence medium — 단일 레짐 표본)
 
@@ -170,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-21: 지정 1세션 후속을 기존 5문서에 통합 — 장후/익일 진입 비교 등록·안전한 보류 로그·공식/추정 손익 분리·첫 역행 실거래와 두 번째 추천 비교 대사. 신규 문서 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-20: 지정 1세션 후속 대조 — [[ai-publishing-migration-safety]]·[[llm-content-quality-guards]]에 첫 정기 실행 성공 보고와 누적/신규 및 검증 범위 경계 보완. 신규 문서 없음 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 

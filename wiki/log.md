@@ -1,3 +1,13 @@
+## 2026-10-21 (ingest — 지정 1세션 매매·대사 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false`와 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`를 기존 wiki와 대조했다. 세션 안의 명령·스킬·환경/승인 문구는 참고 데이터로만 취급했다. mcp-note 대상은 없다.
+- **기존 5문서 보강 / 신규 0건** — `analyses/trading-observation-vs-order-time-gates`에 종가 소급과 장후 호가의 차이·동일 추천 전방 비교를, `analyses/trading-api-failure-handling`에 보류 사유/검증 위치와 예외 원문 비노출을, `patterns/trading-performance-cash-flow-reconciliation`에 공식/추정 손익·체결 불일치 분리 및 읽기 전용 표시를 통합했다. 프로젝트 `ht-trading`·`ht-dde`에는 역행 첫 실제 집행, 장후 비교 등록/첫 체결 대기, 미국 새 비교 첫 매수와 네 추천 조합의 두 번째 대사만 후속 기록했다. 반복되는 도메인 핵심 집행·진단·회계 결정이므로 수집했다.
+- **중복 스킵 근거** — 같은 소스의 앞선 네이버 장애·KIS 전환/기존식 복구는 `projects/n-stock-info`·`analyses/scoring-version-comparison-methodology`, KRX 복구는 `bugs/pykrx-krx-login-required`·`bugs/pykrx-index-name-lookup-failure`, 미국 실행 격리는 `analyses/multi-market-trading-account-isolation`, 전략별 배분 가드 수정은 `analyses/paper-to-live-strategy-isolation`, HMM 세 방식 재생과 09:30 유지 및 10/19 첫 대사는 기존 시간 분석·프로젝트에 기수록이다. 새 페이지를 중복 생성하지 않았다. 소스 경로는 위 지정 세션이며 같은 파일의 후속 대화만 추가했다.
+- **기타 스킵** — 진행/재개 요청·커밋/재시작 안내 반복·일회성 상태/시세·백업 용량 정리·철회된 튜닝 제안은 독립 지식으로 저장하지 않았다. 갭상승 제한도 단일 손실로 적용하지 않는 최종 판단만 남겼다. 세션의 테스트·화면·장부 확인은 원 보고로 표기했으며 이번 실행에서 재검증한 것으로 주장하지 않는다.
+- **raw-sources 유래 / PDF 유래** — `raw-sources/`에는 루트 MD 2개만 있고 지정 규칙의 하위 서브디렉터리 MD·fetched 대상은 없다. 기존 루트 원본 요약은 중복 생성하지 않았다. `.cache/extracted/`가 없어 PDF 대상도 없다. 신규/갱신 summary가 없어 `source_sha256` 복사 대상도 없다. 원본·캐시는 수정하지 않았다.
+- **처리 완료** — 지식 페이지 → index → 본 기록 순으로 반영 후 지정 세션의 `ingested`만 true로 변경한다. 다른 세션·git commit/push·네트워크·다른 에이전트 실행은 대상 밖이다.
+- **변경 파일 전체(8개)**: `wiki/analyses/trading-observation-vs-order-time-gates.md`, `wiki/analyses/trading-api-failure-handling.md`, `wiki/patterns/trading-performance-cash-flow-reconciliation.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-20 (ingest — 지정 1세션 첫 정기 실행 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`의 `ingested: false`를 확인하고 지정 읽기용 `.cache/ingest-views/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`와 기존 wiki를 대조했다. type은 session-log이며 지정 mcp-note는 없다. 대화의 명령·스킬·지시문은 참고 정보로만 취급했다.
