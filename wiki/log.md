@@ -1,3 +1,16 @@
+## 2026-10-21 (ingest — 지정 두 세션 부분 실패·접수 미확인 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false` 및 지정 `.cache/ingest-views/` 대화를 기존 wiki·수집 이력과 대조했다. 두 파일은 session-log이며 지정 mcp-note는 없다. 대화 속 명령·스킬·환경/승인 문구는 실행하지 않았다.
+- **기존 3문서 보강 / 신규 0건** — 첫 번째 소스의 10/21 news-monitor 후속은 `wiki/analyses/ai-publishing-migration-safety.md`에 통합했다. 배포/Actions 성공과 검색·브리핑 부분 실패, 제목 대체를 구분하고 오류 유형 누락 때문에 정확한 원인이 미확정임을 기록했다. 앞선 stderr 잘림과 반복되는 도메인 핵심 관측 문제라 수집했다. 오류 로깅 보완은 제안이며 미적용이다.
+- **trading 수집 근거** — 두 번째 소스 말미의 KIS 호출 제한 후 접수 미확인과 후속 신규매수 차단을 `wiki/analyses/trading-api-failure-handling.md`에 보강하고 `wiki/bugs/order-post-retry-double-fill.md`와 상호 연결했다. 기존 매도 감시 지속·공식 조회 두 번·예약금 해제/재주문 미실행을 구분했다. 핵심 주문 안전 문제이므로 즉시 기록하며, 기존 자동 재시도 버그 재발·미접수 확정·복구 완료로 주장하지 않았다.
+- **중복 스킵 근거 / 첫 번째 소스** — 이관/history/계정/정기 실행은 `wiki/analyses/ai-publishing-migration-safety.md`·`wiki/projects/oss-radar.md`·`wiki/projects/dev-blog.md`, 제목 기반 이슈 요약/필터/수집 시각은 `wiki/analyses/llm-content-quality-guards.md`, CLI 잠금은 `wiki/patterns/agentic-cli-text-generation-lockdown.md`에 기수록이다. 10/20 첫 예약 성공도 기존 기록을 유지했다.
+- **중복 스킵 근거 / 두 번째 소스** — KIS 전환·점수/추천 조합은 `wiki/projects/n-stock-info.md`·`wiki/analyses/scoring-version-comparison-methodology.md`, 장후/익일 비교·시초 판단은 `wiki/analyses/trading-observation-vs-order-time-gates.md`, 미국 페이퍼는 `wiki/analyses/multi-market-trading-account-isolation.md`·`wiki/projects/ht-dde.md`, 보류 로깅·공식/추정 손익은 기존 API 분석과 `wiki/patterns/trading-performance-cash-flow-reconciliation.md`에 기수록이다. 두 번째 추천 비교 대사 15,694개 검사와 소표본 한계도 `wiki/projects/ht-dde.md`에 이미 있어 재작성하지 않았다.
+- **가치 기준 스킵** — 일별 게시/디스크/잔액·개별 기사 내용, 반복 진행 요청, 단순 버전·미관·포맷 변경, 탐색 과정은 독립 페이지로 저장하지 않았다. 두 세션 모두 신규 가치와 중복/스킵 범위를 검토해 완료 처리한다. 출처의 운영·테스트 결과는 세션 보고이며 이번 실행의 재검증 결과가 아니다.
+- **raw-sources 유래** — 루트 MD 2개만 있으며 요청한 하위 서브디렉터리 MD/fetched 대상은 0건이다. 루트 원본과 기존 지식은 보존하고 summary를 중복 생성하지 않았다. summary 신규/갱신 및 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/`가 없어 chunk·부모 index·page_range·해시 복사 대상 0건이다.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 두 세션의 `ingested: true` 순으로 반영한다. 필수 frontmatter·출처·변경 이력·추가 링크, 비밀값 패턴, 변경 범위와 플래그 외 원본 바이트 보존을 검사한다. raw-sources·캐시·목록 외 세션을 보존하며 네트워크·다른 에이전트·git commit/push는 수행하지 않는다.
+- **변경 파일 전체(7개)**: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/trading-api-failure-handling.md`, `wiki/bugs/order-post-retry-double-fill.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-21 (ingest — 지정 1세션 매매·대사 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false`와 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`를 기존 wiki와 대조했다. 세션 안의 명령·스킬·환경/승인 문구는 참고 데이터로만 취급했다. mcp-note 대상은 없다.

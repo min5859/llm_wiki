@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시·검증 기사 누적/중복 제거·수동 배포/첫 예약 구분·첫 정기 실행 검증
+- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시·검증 기사 누적/중복 제거·수동 배포/첫 예약 구분·첫 정기 실행 검증·AI 부분 실패/오류 유형 관측
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -126,7 +126,7 @@
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
 - [[scoring-version-comparison-methodology]] — 점수 버전·후보/채점/청산 분리·최종 추천 네 조합 구현·불변 입력/선정·실행 분리·네 장부 롤백
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
-- [[trading-api-failure-handling]] — 외부 API 오류의 복구·매매 영향·수정 필요성 및 계좌 신선도 구분·비밀정보 없는 주문 전 보류 진단
+- [[trading-api-failure-handling]] — 외부 API 오류의 복구·매매 영향·수정 필요성 및 계좌 신선도 구분·비밀정보 없는 주문 전 보류 진단·접수 미확인 대사/미복구 경계
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
 - [[surge-chasing-exclusion-filter]] — 급등 종목 추격 배제 필터 — 하락장 레짐의 유일한 초과수익 규칙 (confidence medium — 단일 레짐 표본)
 
@@ -171,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-21: 지정 두 세션 후속을 기존 3문서에 통합 — [[ai-publishing-migration-safety]]의 배포/AI 부분 실패·원인 로그 누락, [[trading-api-failure-handling]]과 [[order-post-retry-double-fill]]의 접수 미확인·신규매수 차단·미복구 경계. 신규 문서 없음.
 
 - 2026-10-21: 지정 1세션 후속을 기존 5문서에 통합 — 장후/익일 진입 비교 등록·안전한 보류 로그·공식/추정 손익 분리·첫 역행 실거래와 두 번째 추천 비교 대사. 신규 문서 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

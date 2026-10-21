@@ -4,11 +4,13 @@ domain: "trading"
 sensitivity: "public"
 tags: ["bug", "trading", "kis", "retry", "idempotency", "double-fill", "circuit-breaker"]
 created: "2026-07-05"
-updated: "2026-07-05"
+updated: "2026-10-21"
 sources:
+  - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/20260704-130158-2dad-현재-프로젝트에서-개선할-부분이-있을지-검토해줘.md"
 confidence: high
 related:
+  - "wiki/analyses/trading-api-failure-handling.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/analyses/risk-control-exemption-and-failed-attempt-accounting.md"
   - "wiki/analyses/partial-sell-rule-idempotency.md"
@@ -38,6 +40,12 @@ HTTP 클라이언트의 공용 재시도 래퍼가 **주문 제출 POST 까지 �
 - 실패 시도의 카운터 회계·유령 체결 등 인접 원칙 묶음은 [[risk-control-exemption-and-failed-attempt-accounting]].
 - SELL 경로의 멱등성·dedup 부재는 [[partial-sell-rule-idempotency]].
 
+## 후속 사례: 자동 재전송 방지 이후에도 복구는 별도다
+
+10/21 ht_trading 세션에서는 호출 한도 초과 응답 뒤 접수 미확인 주문이 남아 후속 신규매수가 차단됐다. 공식 조회 두 번에서 주문을 찾지 못했지만 예약금 해제나 재주문은 하지 않았고, 재시작만으로 해결되지 않는다고 보고됐다. 이는 앞선 자동 재시도 결함의 재발로 확정한 사례가 아니라, 중복 주문 방지와 미확인 상태의 복구를 함께 설계해야 함을 보여준다. 관측·미복구 범위는 [[trading-api-failure-handling]]에 통합한다.
+
 ## 변경 이력
+
+- 2026-10-21: 접수 미확인 후 신규매수 차단 사례를 연결하고 자동 재시도 결함 재발과 미확인 상태 복구를 구분 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-07-05: 최초 생성 — ht_trading 라이브 주문 경로 전면 검토에서 발견·수정 (출처: session-logs/20260704-130158-2dad-*)
