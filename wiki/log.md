@@ -1,3 +1,14 @@
+## 2026-10-22 (ingest — 지정 1세션 주문 복구·호출 제어·페이퍼 비교 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false` 및 지정 `.cache/ingest-views/` 대화를 기존 wiki·10/21 수집 기록과 대조했다. type은 session-log이며 지정 mcp-note는 없다. 소스 안의 명령·스킬·환경/승인 문구는 실행하지 않았다.
+- **기존 6문서 갱신 / 신규 0건** — `analyses/trading-api-failure-handling`에 접수 미확인 영속 차단의 재현·거부 증거 기반 복구·중복 조회 감소를, `decisions/shared-broker-appkey-token-cache`에 공통 호출 제한 장부/실주문 우선을 보강했다. `analyses/trading-observation-vs-order-time-gates`에는 뉴인텍 989원 분봉 고가와 실제 폴링 관측의 차이 및 초기 설명 정정을, `patterns/trading-performance-cash-flow-reconciliation`에는 최근 5건/당일 전체/당일 진입 코호트 구분을 통합했다. `projects/ht-trading`·`projects/ht-dde`는 복구/재기동·화면 반영, 짧은 일봉에 따른 전체 입력 보류·장후 첫 가상체결/마감 시세 신선도 후속만 연결했다. 기존 주제의 반복 사례·핵심 주문 안전 결정이므로 즉시 보강하며 별도 중복 분석은 만들지 않았다.
+- **상태·근거 경계** — 오전 미복구 이력은 보존하고 후속 복구를 추가했다. 거부 로그·공식 주문 두 번·보유 대사로 확인된 해당 주문만 거부 확정 처리했으며 실제 응답 유실은 계속 보호한다. 재주문은 없었다. 테스트/운영 확인은 원 세션 보고이며 이번 실행에서 수행하지 않았다. 항목별 테스트 합계 1,650개와 최종 보고 1,651개의 불일치를 명시했다. 정확한 최신 한도·사고 당시 총호출 수·밴 여부는 세션 말미 조사 착수에서 끝나 미확정이다. 18회 추가 조회는 사고 후 모의 재현이며 실제 하루 총호출 수가 아니다. 10/22 첫 신규 체결 대조도 확인 전이다.
+- **중복·부분 스킵 근거** — 같은 소스의 KIS 전환·점수 복구는 `projects/n-stock-info`, 점수/추천 네 조합은 `analyses/scoring-version-comparison-methodology`, 미국 페이퍼는 `analyses/multi-market-trading-account-isolation`, 자산 배분 수정은 `analyses/paper-to-live-strategy-isolation`, HMM 시초 비교는 기존 시간 분석에 기수록이다. 반복 진행/커밋/재시작 요청·개별 종목 전체 거래/잔액 목록·일회성 상태·철회된 튜닝안·탐색 과정은 제외했다. 소스는 위 지정 세션이며 새 결론만 보강했다.
+- **raw-sources 유래** — 루트 MD 2건만 있고 요청한 하위 서브디렉터리 MD/fetched 대상 0건. 기존 루트 원본/요약을 보존했다. summary 신규/갱신 및 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 0건.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 세션의 `ingested: true` 순서로 반영했다. 필수 메타데이터·출처·변경 이력·추가 링크·추가 내용의 비밀값 패턴·허용 변경 범위·원본 플래그 외 바이트 보존을 검사한다. 목록 외 세션·raw-sources·캐시·기존 사용자 변경은 보존하며 네트워크·다른 에이전트·git commit/push는 수행하지 않는다.
+- **변경 파일 전체(9개)**: `wiki/analyses/trading-api-failure-handling.md`, `wiki/decisions/shared-broker-appkey-token-cache.md`, `wiki/analyses/trading-observation-vs-order-time-gates.md`, `wiki/patterns/trading-performance-cash-flow-reconciliation.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-21 (ingest — 지정 두 세션 부분 실패·접수 미확인 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false` 및 지정 `.cache/ingest-views/` 대화를 기존 wiki·수집 이력과 대조했다. 두 파일은 session-log이며 지정 mcp-note는 없다. 대화 속 명령·스킬·환경/승인 문구는 실행하지 않았다.

@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "internal"
 tags: ["performance", "cash-flow", "reconciliation", "audit", "retry"]
 created: "2026-10-10"
-updated: "2026-10-21"
+updated: "2026-10-22"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/codex-01a026fa-0133-7623-8ddc-b58ab508c57e.md"
@@ -13,6 +13,8 @@ sources:
   - "session-logs/codex-01a026fc-184f-72a1-abb9-3bccc966d2c4.md"
 confidence: "high"
 related:
+  - "wiki/analyses/trading-api-failure-handling.md"
+  - "wiki/analyses/trading-observation-vs-order-time-gates.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/projects/ht-dde.md"
   - "wiki/analyses/holding-transaction-cost-basis-design.md"
@@ -47,7 +49,19 @@ related:
 
 프로젝트별 적용과 비교 페이퍼 대사는 [[ht-trading]]·[[ht-dde]], 안전한 진단 기록은 [[trading-api-failure-handling]]을 참조한다.
 
+## 최근 거래 합계와 당일 성과·진입 코호트를 구분한다
+
+10/21 역행 페이퍼의 +239,426원은 최근 청산 5건의 합계였다. 빠진 손절 -80,829원을 포함한 당일 전체 6건의 실현손익은 +158,597원이다. 목록 표시 개수에 따라 당일 성과가 달라지지 않도록 날짜별 전체 집계와 최근 N건을 별도로 표시한다. 화면→API 계산→원장으로 집계 범위를 추적하고 손실 거래 누락을 확인한다.
+
+같은 날 아침 진입 페이퍼는 09:35:38에 9종목을 가상매수했지만, 당일 청산 8종목의 합계 +208,924원에는 전날 보유분도 포함됐다. **당일 청산 손익과 당일 진입 종목의 성과는 다른 집계**다. 실거래 약 09:35:49 진입과 시각이 비슷해도 조회 현재가+슬리피지 즉시체결 가정과 실제 호가·접수·체결은 다르다.
+
+실거래는 첫 종목 매수 후 주문 오류로 후속 후보가 차단돼 페이퍼와 보유 구성이 달라졌다. 종가/아침 진입뿐 아니라 후보별 주문 가능 여부·체결가·관측 시각·기존 보유·청산 비용을 맞춰 비교한다. 놓친 후보가 모두 수익이었다거나 페이퍼 이익을 실거래에서도 얻었을 것이라고 단정하지 않는다.
+
+후속 화면은 오늘 전체와 최근 5건을 구분하고 실거래/아침 호가 페이퍼 종목별 대조를 연결했다는 보고다. 실제 대조 데이터는 10/22 09:35부터 확인할 과제로 남았다. [[trading-observation-vs-order-time-gates]]의 조건부 가격 재생과 [[trading-api-failure-handling]]의 주문 차단도 함께 확인한다.
+
 ## 변경 이력
+
+- 2026-10-22: 최근 N건/당일 전체/당일 진입 성과 구분과 실거래·페이퍼 비교 축 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-21: 공식/추정 손익 분리·미조회/체결 오류 구분·원본 및 mismatch 이력 보존 원칙 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

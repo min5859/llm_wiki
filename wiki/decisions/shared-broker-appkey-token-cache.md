@@ -4,13 +4,15 @@ domain: "trading"
 sensitivity: "public"
 tags: ["decision", "kis", "trading", "auth", "token-cache", "rate-limit", "appkey", "multi-process"]
 created: "2026-06-13"
-updated: "2026-10-10"
+updated: "2026-10-22"
 sources:
+  - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
   - "session-logs/codex-01a026fc-184f-72a1-abb9-3bccc966d2c4.md"
   - "session-logs/20260613-164818-fc2f-신규-프로젝트를-시작하려고-하는데-지금-내가-이미-한국-투자-증권으로-API-사용해서-거래.md"
   - "session-logs/20260704-093146-5338-현재-프로젝트-분석.md"
 confidence: "high"
 related:
+  - "wiki/analyses/trading-api-failure-handling.md"
   - "wiki/projects/ht-dde.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/analyses/oauth-refresh-token-rotation-multi-client.md"
@@ -70,7 +72,15 @@ ht_dde 심층 분석에서 결정 1의 구현이 의도대로임을 확인:
 
 순서는 메모리 만료 감지 → 공유 캐시 재독 → 유효 토큰 재사용 → 정말 없을 때만 신규 발급으로 수정됐다(`df686e6`). 파일 캐시 공유만 설계하고 장수 객체의 재독 경로를 빠뜨리면 인증 경쟁을 막지 못한다. 실거래와 페이퍼가 같은 appkey를 쓰는 경우 합산 호출·토큰 갱신을 계속 함께 점검한다.
 
+## 10/22 후속: 사전 분담에서 공통 호출 제어로 보강
+
+10/21에는 실거래·페이퍼·수집기가 같은 자격증명을 쓰면서 전체 합산 호출량을 통제하지 못한 문제가 다시 드러났다. 토큰 캐시 공유와 각 프로세스의 간격 조정만으로는 동시 요청의 충돌을 막지 못한다. 후속 구현은 세 프로그램이 같은 호출 제한 장부를 사용하고 실주문을 우선 처리하며, 판단 시간이 아니거나 신규매수가 차단된 계획의 반복 조회를 줄였다. 재기동 후 공통 장부 사용 확인은 세션 보고다.
+
+거부 주문 복구와 호출 증가 재현은 [[trading-api-failure-handling]]에 정리한다. 위의 초당 약 20건 등 숫자는 과거 출처의 운영 설명이며, 10/22 말미의 최신 공식 한도·사고 당시 총호출 수·밴 여부는 답변이 완료되지 않았다. 과거 수치와 재현 호출 수를 이번 사고의 실측값으로 사용하지 않는다.
+
 ## 변경 이력
+
+- 2026-10-22: 공유 호출 제한 장부·실주문 우선 처리의 적용 보고와 최신 한도 미확인 경계 추가 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-10: 미수집 Codex 세션의 최종 결과·정정·적용 경계를 검토해 보강. 출처는 frontmatter의 codex 세션 목록 참조.
 

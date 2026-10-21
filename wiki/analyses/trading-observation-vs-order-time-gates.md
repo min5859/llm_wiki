@@ -4,11 +4,13 @@ domain: "trading"
 sensitivity: "internal"
 tags: ["trailing-stop", "time-gate", "observation", "replay"]
 created: "2026-10-19"
-updated: "2026-10-21"
+updated: "2026-10-22"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
 confidence: "medium"
 related:
+  - "wiki/patterns/trading-performance-cash-flow-reconciliation.md"
+  - "wiki/analyses/trading-api-failure-handling.md"
   - "wiki/analyses/ht-trading-live-data-improvement-analysis.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/bugs/trailing-activation-current-profit-gate.md"
@@ -63,7 +65,17 @@ related:
 
 뉴인텍은 10/20 갭상승 진입 뒤 손절됐지만, 10/19 약 15% 갭상승 진입의 익일형 페이퍼는 트레일링 청산으로 비용 후 약 6만원 이익이었다고 보고됐다. 같은 종목도 날짜·진입 경로에 따라 결과가 달라진다. 하루 손실로 갭상승 전면 제외나 진입 시간 변경을 확정하지 않으며, 페이퍼 이익을 실제 호가·체결의 보장으로 해석하지 않는다.
 
+## 순간 고가와 실제 폴링 관측을 구별한다 (10/21~22 뉴인텍)
+
+뉴인텍 비교에서 페이퍼 약 952원·실거래 약 960원의 진입가에 같은 987원을 넣으면 +3% 활성화 여부가 달라졌다. 여기서 ‘같은 시세열’은 페이퍼에 저장된 시간순 가격 목록을 두 매수가에 넣은 조건부 재생이다. 실제 실거래가 관측한 모든 가격을 복원한 결과가 아니다.
+
+후속 확인에서 10:02~10:04 분봉 고가는 989원으로 실제 매수가 기준 +3% 선 약 988.8원을 넘었다. 따라서 ‘시장이 +3%에 도달하지 않았다’는 초기 해석은 정정한다. 약 2분마다 조회한 현재가로만 고점을 저장해 순간 상승을 놓쳤을 가능성은 있지만, 당시 실제 관측값 전체가 없어 정확한 미발동 경위는 확정할 수 없다. 분봉 고가를 사후 주입한 재생과 실제 관측 상태를 구별해야 한다.
+
+수정은 관측가격·저장 고점·트레일링 활성화 여부·조회 보류 사유를 남기는 관측성 보강이며, 3% 기준과 매매 규칙은 유지했다는 보고다. 이후 11:01 잔고 조회 실패로 손절이 보류되고 11:03 매도된 사실도 있어, 판단선 -5%와 실제 체결 손실을 같게 보지 않는다. 조회 지연만의 손실 기여분은 분리할 자료가 부족하다. 주문/API 복구는 [[trading-api-failure-handling]], 비교 손익의 기간·거래 구성은 [[trading-performance-cash-flow-reconciliation]]을 참조한다.
+
 ## 변경 이력
+
+- 2026-10-22: 뉴인텍 분봉 고가 정정·동일 시세열 재생의 한계·실제 관측 로그 보강 수집 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-21: 종가 소급 가정과 장후 호가 진입의 차이·동일 추천 전방 비교·갭상승 단일 사례의 판단 한계 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

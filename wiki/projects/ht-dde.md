@@ -4,7 +4,7 @@ domain: "trading"
 sensitivity: "public"
 tags: ["project", "trading", "kis", "scoring", "paper-trading", "scanner", "flask", "launchd"]
 created: "2026-06-13"
-updated: "2026-10-21"
+updated: "2026-10-22"
 sources:
   - "session-logs/codex-019ec60d-989b-70f3-ab2e-af8bb3a222ce.md"
   - "session-logs/codex-019fdf72-0da4-7832-8bca-5b93a8a5559e.md"
@@ -340,7 +340,17 @@ ht_trading의 오프라인 미국 페이퍼 보고 파일을 읽는 `/us-paper`�
 
 합집합과 KIS 단독 차이 -9,434원은 추가 종목 HT로보틱스에서 발생했다. 오전 부분익절 뒤 더 높은 가격의 추가매수·이후 손절이 이어졌으므로 추천 소스뿐 아니라 동일 매매 규칙이 후보와 상호작용하는 경로도 확인해야 한다. 기존 규칙이 허용하는 동작이며 이 한 사례로 버그나 Naver 열위를 확정하지 않는다. 운영은 KIS 단독·62점을 유지하고 합산 전환은 보류했다는 최종 판단이다. 원 분석은 `ht_trading/docs/source-pair-second-session-2026-10-20.md`; 이번 수집에서 장부·서비스·테스트를 재실행하지 않았다([[scoring-version-comparison-methodology]]).
 
+## 10/21~22 후속: 입력 보류·장후 첫 체결·실거래 대조
+
+네 최종 추천 비교의 10/21 신규 입력 보류는 Naver 접속 장애가 아니라, 한 후보의 일봉이 5개뿐이라 채점할 수 없어 전체 비교 입력을 보류한 것으로 보고됐다. 원인 진단이며 보류 정책 수정 완료나 기존 장부 손상으로 해석하지 않는다. 단일 후보 자료 부족과 전체 비교 입력 완전성의 경계를 후속 검토 대상으로 남긴다.
+
+장후 비교는 이후 2종목 가상매수·미체결 취소가 확인됐으므로 앞선 ‘첫 체결 확인 전’을 보충한다. 다만 20시 평가에 오래된 시세가 포함돼 확정 성과로 사용할 수 없었다. 익일 아침 대조는 10/22 09:35 대기 상태이며, 두 경로의 공정한 성과 비교가 끝난 것은 아니다([[trading-observation-vs-order-time-gates]]).
+
+역행 화면은 최근 5건 +239,426원과 당일 전체 6건 +158,597원을 구분하고 실거래/아침 호가 페이퍼 종목별 대조를 연결했다고 보고됐다. 기존 페이퍼 이력은 보존했고 조회 시각·기존 보유 차이도 표시했다. 집계와 실행 조건의 차이는 [[trading-performance-cash-flow-reconciliation]], 공통 호출 제한·주문 복구는 [[trading-api-failure-handling]]을 참조한다. 실제 신규 대조 결과는 아직 확인 전이다.
+
 ## 변경 이력
+
+- 2026-10-22: 추천 입력 부족·장후 첫 가상체결/평가 신선도와 당일 전체 손익·호가 대조 화면 후속 수집 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-21: 장후/익일 두 계정 등록·첫 체결 대기·공식 손익 화면과 네 추천 조합 2거래일 대사 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
