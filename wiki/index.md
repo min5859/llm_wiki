@@ -114,14 +114,14 @@
 - [[financial-data-freshness-and-cache]] — 재무 기준기간·확정값 대조, KIS 우선·제한적 장애 대체와 일일 원자료 캐시
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 조건부 장중 재생·8거래일 독립 추천 비교·고점 관측 민감도
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙 보존·양방향 자금/보유 격리·미검증 손실 제한 제외·배치 재시도 범위
+- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙 보존·양방향 자금/보유 격리·미검증 손실 제한 제외·배치 재시도 범위 — 10/22 후속: 동일 추천과 실제 매수 집합을 보유·진입·주문 단계별로 대사
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·미국 V1 변형/2021 공개규칙의 동일시작 대조·40거래일 정책 경계·매수일과 손익 분모
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
 - [[news-driven-market-signal-framework]] — 뉴스 기반 시장 시그널 추출 프레임워크 (7-축 + 3-시나리오)
 - [[optimal-strategy-search-preconditions]] — 전략 탐색의 4가지 선결 조건 — "최적을 찾았다"를 판정하기 전에
 - [[partial-sell-rule-idempotency]] — 알고리즘 트레이딩의 부분 매도 규칙 멱등성 패턴
-- [[polling-interval-vs-bar-interval]] — 폴링 주기 vs 봉 단위 — 알고리즘 트레이딩의 시간 정합성
+- [[polling-interval-vs-bar-interval]] — 폴링 주기 vs 봉 단위 — 알고리즘 트레이딩의 시간 정합성 — 10/22 후속: 저장 샘플링 전 이벤트 판단·WebSocket/1분 보완·실주문 없는 120초 대조
 - [[risk-control-exemption-and-failed-attempt-accounting]] — 안전장치가 손실을 키울 때 — 리스크 감축 주문 면제와 실패 시도 회계
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
 - [[scoring-version-comparison-methodology]] — 점수 버전·후보/채점/청산 분리·최종 추천 네 조합 구현·불변 입력/선정·실행 분리·네 장부 롤백
@@ -132,7 +132,7 @@
 
 ### decisions
 
-- [[shared-broker-appkey-token-cache]] — 공유 broker appkey의 토큰 캐시·공통 호출 제한 장부·실주문 우선 처리
+- [[shared-broker-appkey-token-cache]] — 공유 broker appkey의 토큰 캐시·공통 호출 제한 장부·실주문 우선 처리 — 10/22 후속: 세션 보고 18회 한도·내부 합산 8회/배경 4회 예산 구분
 
 ### bugs
 
@@ -171,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-22: 지정 1세션 추가 대화를 기존 6문서에 통합 — [[polling-interval-vs-bar-interval]]의 저장 샘플링 전 이벤트 판단·실주문 없는 검증 감시, [[paper-to-live-strategy-isolation]]의 추천/매수 대사, [[shared-broker-appkey-token-cache]]·[[trading-api-failure-handling]]의 한도/내부 예산·밴 증거 경계와 [[ht-trading]]·[[ht-dde]] 후속. 신규 문서 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-21: 지정 두 세션 후속을 기존 3문서에 통합 — [[ai-publishing-migration-safety]]의 배포/AI 부분 실패·원인 로그 누락, [[trading-api-failure-handling]]과 [[order-post-retry-double-fill]]의 접수 미확인·신규매수 차단·미복구 경계. 신규 문서 없음.
 

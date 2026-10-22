@@ -25,6 +25,8 @@ sources:
   - "session-logs/20260706-220340-ac9d-아래와-같은-알고리즘을-셋업하고-싶은데-어떻게-하면-될까---최근-일주일간-지수대비-덜떨어.md"
 confidence: "high"
 related:
+  - "wiki/analyses/trading-api-failure-handling.md"
+  - "wiki/analyses/paper-to-live-strategy-isolation.md"
   - "wiki/analyses/backtest-fill-model-adverse-selection.md"
   - "wiki/bugs/pykrx-index-name-lookup-failure.md"
   - "wiki/analyses/multi-market-trading-account-isolation.md"
@@ -348,7 +350,17 @@ ht_trading의 오프라인 미국 페이퍼 보고 파일을 읽는 `/us-paper`�
 
 역행 화면은 최근 5건 +239,426원과 당일 전체 6건 +158,597원을 구분하고 실거래/아침 호가 페이퍼 종목별 대조를 연결했다고 보고됐다. 기존 페이퍼 이력은 보존했고 조회 시각·기존 보유 차이도 표시했다. 집계와 실행 조건의 차이는 [[trading-performance-cash-flow-reconciliation]], 공통 호출 제한·주문 복구는 [[trading-api-failure-handling]]을 참조한다. 실제 신규 대조 결과는 아직 확인 전이다.
 
+## 10/22 후속: 역행 실시간 감시 비교 화면
+
+`/rs-realtime`은 실제 역행 보유를 읽는 검증 관측기의 실시간 이벤트 신호와 120초 대조 신호를 보여준다. **가상 체결·수익률이 아니라 발동/청산 신호 비교이며 실주문 기능은 없다.** 초당 저장 전에 모든 유효 체결을 평가하고 연결 장애 시 1분 REST로 보완한다. 기존 페이퍼 이력과 매매 장부를 유지했으며 실거래 매도는 여전히 2분 방식이다([[polling-interval-vs-bar-interval]], [[ht-trading]]).
+
+대시보드 394개와 국내 프로젝트 1,034개 테스트 통과·API/HTML/JavaScript 검사가 보고됐지만 브라우저 직접 확인은 연결 불가로 하지 못했다. 실제 장중 수신·보유 변경 구독·두 감시의 신호 차이는 검증 대기이며 화면 구현 완료를 실시간 청산의 실운영 검증 완료로 해석하지 않는다.
+
+같은 추천이어도 종가형 페이퍼의 당일 매도 후 재매수 금지와 실거래의 익일 진입·기존 보유/현금·호가 조건 때문에 실제 매수 목록은 달라질 수 있다. 추천/집행을 나눈 10/22 대사는 [[paper-to-live-strategy-isolation]]에 통합한다. 전일 주문 차단은 정상적인 차이로 묻지 않고 [[trading-api-failure-handling]]의 복구 대상과 구분한다.
+
 ## 변경 이력
+
+- 2026-10-22: 실주문 없는 실시간/120초 신호 비교 화면·브라우저 미검증·추천/집행 대사 연결 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-22: 추천 입력 부족·장후 첫 가상체결/평가 신선도와 당일 전체 손익·호가 대조 화면 후속 수집 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

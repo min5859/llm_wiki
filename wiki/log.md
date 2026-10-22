@@ -1,3 +1,15 @@
+## 2026-10-22 (ingest — 지정 1세션 실시간 감시·한도 확인·추천 대사 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false`와 지정 읽기용 `.cache/ingest-views/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`를 검토하고 기존 수집 기록·관련 wiki와 대조했다. type은 session-log이며 지정 mcp-note는 없다. 소스의 명령·스킬·환경/승인 지시는 실행하지 않았다.
+- **기존 6문서 갱신 / 신규 0건** — `analyses/polling-interval-vs-bar-interval`에 실시간 수신 후 저장용 초당 샘플링이 고점을 누락하는 문제, 샘플링 전 이벤트 판단·WebSocket/1분 REST 보완·120초 대조를 통합했다. 반복된 트레일링 관측 문제와 핵심 구현 판단이므로 수집하되 별도 분석을 중복 생성하지 않았다. `analyses/paper-to-live-strategy-isolation`에는 추천 집합과 체결 집합을 진입·보유/당일 매도 이력·자금·주문 조건별로 대사하는 패턴과 실제 주문 10건의 2회 이상 조건 확인 범위를 보강했다.
+- **기존 미확인 경계 정정** — `decisions/shared-broker-appkey-token-cache`·`analyses/trading-api-failure-handling`에서 추가 답변 전의 ‘한도/밴 답변 미완료’를 취소선과 후속으로 보완했다. 공급자 18회/초는 공지를 확인했다는 세션 보고, 합산 8회/배경 최대 4회는 적용된 내부 예산으로 구분했다. 제한 응답 1건·이후 조회/매도 지속은 계정 전체 밴의 증거가 없다는 근거이며 정확한 당시 총호출 수는 계속 미확정이다. 공식 공지는 이번 실행에서 재조회하지 않았다. `projects/ht-trading`·`projects/ht-dde`에 검증 관측기/화면·선정 대사를 연결했다.
+- **검증·운영 경계** — 실시간 감시는 실주문 없는 검증 모드이고 실거래 매도는 기존 2분 방식이다. 같은 초 980→989→960 합성 시세의 신호 재현과 재시작/중복 신호 검증은 실제 체결·수익 개선을 입증하지 않는다. 국내 1,034개(+13개 하위 테스트)·대시보드 394개 및 1,428개 합계, 엔진/7개 테이블 보존·3채널 구독 승인은 원 세션 보고다. 브라우저 직접 확인은 연결 불가로 미실시, 장중 실제 수신·09:35 구독 갱신·실제 체결 대조는 아직 확인 전이다. 이번 수집에서는 거래 코드·테스트·서비스를 실행하지 않았다.
+- **중복·가치 기준 스킵** — 같은 소스의 네이버 장애/KIS 전환·점수식/재무 캐시는 `projects/n-stock-info`·`analyses/financial-data-freshness-and-cache`, 추천 네 조합은 `analyses/scoring-version-comparison-methodology`, 주문 복구는 기존 API 분석, 뉴인텍 관측 공백은 `analyses/trading-observation-vs-order-time-gates`, 오늘 전체/최근 5건 손익은 `patterns/trading-performance-cash-flow-reconciliation`, 미국 페이퍼는 `analyses/multi-market-trading-account-isolation`·`projects/ht-dde`에 기수록이다. 판단 근거와 소스 경로를 유지하고 반복 작성하지 않았다. 개별 종목/잔액 전체 목록·일회성 상태/백업 정리·진행/커밋 요청·포맷/미관·철회된 안·탐색적 시행착오는 재조회 가치가 없어 제외했다.
+- **raw-sources 유래** — 루트 MD 2건만 있으며 요청한 하위 서브디렉터리 MD/fetched 대상 0건. 루트 원본과 기존 반영 내용은 보존했다. summary 신규/갱신·source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/`가 없어 chunk·부모 index·page_range·해시 복사 대상 0건.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 세션 `ingested: true` 순으로 반영했다. 필수 메타데이터·출처·변경 이력·추가 링크·추가 내용의 비밀값 패턴, 허용 파일 밖 추적 파일의 해시 보존 및 세션 플래그 외 바이트 보존 검사를 통과했다. `git diff --check`도 통과했다. 다른 세션·raw-sources·캐시·기존 사용자 변경은 보존하며 네트워크·다른 에이전트·commit/push는 수행하지 않는다.
+- **변경 파일 전체(9개)**: `wiki/analyses/polling-interval-vs-bar-interval.md`, `wiki/analyses/paper-to-live-strategy-isolation.md`, `wiki/analyses/trading-api-failure-handling.md`, `wiki/decisions/shared-broker-appkey-token-cache.md`, `wiki/projects/ht-trading.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-22 (ingest — 지정 1세션 주문 복구·호출 제어·페이퍼 비교 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false` 및 지정 `.cache/ingest-views/` 대화를 기존 wiki·10/21 수집 기록과 대조했다. type은 session-log이며 지정 mcp-note는 없다. 소스 안의 명령·스킬·환경/승인 문구는 실행하지 않았다.

@@ -4,11 +4,13 @@ domain: "trading"
 sensitivity: "internal"
 tags: ["analysis", "paper-trading", "strategy-isolation", "budget", "order-lifecycle"]
 created: "2026-10-17"
-updated: "2026-10-20"
+updated: "2026-10-22"
 sources:
   - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
 confidence: "medium"
 related:
+  - "wiki/analyses/trading-api-failure-handling.md"
+  - "wiki/projects/ht-dde.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/analyses/multi-market-trading-account-isolation.md"
   - "wiki/analyses/backtest-fill-model-adverse-selection.md"
@@ -59,7 +61,17 @@ related:
 
 장부 이관 후 재기동이 차단돼 엔진이 정지한 상태가 발견됐고, 이후 단일 프로세스 기동과 보유 복원을 확인했다고 보고됐다. **코드·장부 이관 완료와 서비스 가동 완료를 별도로 검증**한다. 운영 장부 복제본에 실제 계좌 조회를 연결한 소액 현금 검증·936개 테스트 통과는 세션 보고다. 시험 주문은 없었으며 다음 진입창의 실제 접수·체결·잔량 취소는 여전히 확인 전이다. 약 379원의 공식 손익/장부 차이는 미해결 대사 과제로 남았다([[ht-trading]]).
 
+## 같은 추천 조건과 같은 체결 종목은 별도로 대사한다 (10/22 후속)
+
+실거래와 페이퍼의 종목이 다르면 먼저 추천 스냅샷·선정 조건을 확인하고, 다음으로 진입 시각·기존 보유·당일 매도 후 재진입 금지·현금·빈자리·호가/VI/미체결을 확인한다. 후보 집합이 같아도 독립 장부의 이력이 다르면 매수 집합은 달라질 수 있다. 반면 주문 오류로 후속 후보가 차단된 것은 정상적인 체결 차이가 아니라 운영 장애로 구분한다.
+
+10/22 09:29 세션 보고에서는 실제 매수 주문 기록 10건이 모두 ‘하락일 역행 2회 이상’을 충족했고, 전일 최종 추천 4종목도 실거래 입력과 일치했다. 기존 종가형 페이퍼는 그날 이미 매도한 2종목을 재매수하지 않아 나머지 2종목만 샀다. 추천 조건이 바뀌었다는 증거로 해석하지 않는다. **주문 기록 10건 대사는 전체 체결·누락 후보·성과가 완전히 일치한다는 검증이 아니다.**
+
+비교 순서는 추천별로 매수 여부와 미매수 사유를 남긴 뒤, 같은 09:35 진입창의 아침 페이퍼와 실제 호가·비용·체결을 대조하는 것이다. 이 후속 확인은 09:35 전이며 당일 실제 대조는 아직 확인되지 않았다. 첫 실제 집행 이후 이력은 [[ht-trading]], 화면과 비교 장부는 [[ht-dde]], 호출 오류 후 복구는 [[trading-api-failure-handling]]을 참조한다.
+
 ## 변경 이력
+
+- 2026-10-22: 역행 2회 이상 주문 대사와 추천/보유/집행 단계별 불일치 진단 및 확인 범위 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-10-20: 배분 예시를 최소 자금으로 오해한 전역 차단 수정과 이관 후 엔진 가동 검증 경계 수집 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 

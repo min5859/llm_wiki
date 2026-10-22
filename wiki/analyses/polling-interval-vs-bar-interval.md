@@ -4,10 +4,15 @@ domain: "trading"
 sensitivity: public
 tags: ["analysis", "trading", "polling", "bar-interval", "latency", "anti-pattern"]
 created: "2026-05-14"
-updated: "2026-07-22"
+updated: "2026-10-22"
 source_session: "20260514-175837-5657-수익율을-더-개선할-방안을-찾으려고-합니다.md"
+sources:
+  - "session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md"
 confidence: high
 related:
+  - "wiki/decisions/shared-broker-appkey-token-cache.md"
+  - "wiki/projects/ht-dde.md"
+  - "wiki/analyses/trading-observation-vs-order-time-gates.md"
   - "wiki/projects/ht-trading.md"
   - "wiki/projects/upbit-trading.md"
   - "wiki/analyses/risk-control-exemption-and-failed-attempt-accounting.md"
@@ -117,7 +122,21 @@ periodic --interval 10    # 10분마다 폴링
 - [[dca-trailing-stop-tuning]] — DCA 회전율의 *적절한 cooldown* 설정도 같은 사상 (너무 짧으면 변동성 노이즈에 휘둘림)
 - [[partial-sell-rule-idempotency]] — 같은 시그널이 반복 발동되는 안티패턴 일반화
 
+## 실시간 수신도 판단 전에 샘플링하면 고점을 놓친다 (10/22 후속)
+
+2분 REST 관측에서 순간 +3% 고점을 놓쳤을 가능성이 제기된 뒤, 1분 폴링과 WebSocket 수신을 비교했다. 1분 조회도 두 조회 사이의 상승은 놓칠 수 있다. 실시간 체결가 API는 가격 이벤트를 전달하며, 매수평단 대비 +3% 도달·고점·청산 여부는 애플리케이션이 판단한다. 이 설명은 지정 세션의 조사 보고이며 이번 수집에서 API를 조회하지 않았다.
+
+기존 관측기는 같은 초의 후속 가격을 저장하지 않았다. **저장용 샘플링 전에 모든 유효 체결 이벤트로 발동·고점·청산 상태를 갱신**해야 한다. 실시간으로 수신하면서 판단을 다시 2분마다 하거나 초당 한 값으로 줄이면 관측 공백이 남는다. 실제 주문 연결에는 기존 안전검증·중복매도 방지도 필요하다.
+
+최종 구현은 실시간 감시와 120초 대조를 별도 비교 장부에 기록하고, 연결 장애 시 1분 REST 조회로 보완한다. 보완 조회는 연결 중 놓친 모든 틱을 복원하지 못한다. 보유 변경에 따라 구독을 갱신하고 재연결·재시작 뒤 고점 보존·중복 청산 신호 방지를 검증했다고 보고했다.
+
+같은 초의 980원 → 989원 → 960원 합성 재생에서 실시간 감시는 +3% 발동과 추적 이탈을 기록했고 2분 대조는 이를 놓쳤다. 이는 합성 신호 검증이며 실제 체결이나 수익 개선 증거가 아니다. **관측기만 검증 모드로 가동됐고 실거래 매도는 기존 2분 방식을 유지**한다. 장 시작 후 실제 수신·09:35 보유 추가 시 구독 갱신·실제 신호 차이는 확인 전이다. 기존 7월의 REST 경량 루프 권고를 실주문 적용 완료로 읽지 않는다.
+
+[[trading-observation-vs-order-time-gates]]의 분봉 고가/실제 관측 구분, [[ht-trading]]의 검증 모드와 [[ht-dde]]의 신호 비교 화면을 함께 참조한다. 공유 REST 예산은 [[shared-broker-appkey-token-cache]]를 따른다. 과거 ‘2분이면 호출 예산 안에서 안전’이라는 설명은 당시 추정이며, 여러 프로그램의 합산 호출 안전성을 보장하지 않는다.
+
 ## 변경 이력
+
+- 2026-10-22: 이벤트 판단 전 초당 저장 샘플링의 고점 누락·WebSocket/1분 보완/120초 대조 설계와 실주문 미연결 경계 보강 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
 - 2026-05-14: 최초 작성 (session-logs/20260514-175837-5657-*.md). ht_trading 의 10분 폴링 + 일봉 운영에 대한 폴링 주기 단축 제안을 검토하다, 봉 단위와의 정합성 문제로 일반화
 - 2026-06-11: 「실시간 가격 기반 청산」 예외 절 추가 (session-logs/20260611-231312-ba46-*). ht_trading 검토에서 트레일링스톱이 `bar.close` 가 아닌 `pos.current_price` 로 트리거되고 엔진이 매 사이클 포지션을 강제 갱신함을 확인 — 일봉 유지 상태에서도 폴링 10→2분 단축이 청산 해상도를 실제로 높인다는 예외. 초기 판단을 사용자 지적으로 정정한 케이스 (commit `1bb80f1`)
