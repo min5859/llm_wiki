@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·push 성공 후 history 확정·단일 게시자 전환·모델 호환성과 오류 관측·정기 실행 증거·대체 소스 품질·셸/샌드박스 실행 환경·재실행 대기·이전 데이터 표시·검증 기사 누적/중복 제거·수동 배포/첫 예약 구분·첫 정기 실행 검증·AI 부분 실패/오류 유형 관측
+- [[ai-publishing-migration-safety]] — AI 게시 이관·발행 이력·단일 게시자·정기 실행 검증·오류 유형별 제한 재처리·서비스 계정/소스 소유권 통일
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -41,7 +41,7 @@
 - [[everything-claude-code]] — everything-claude-code (ECC) — Claude Code 하네스 성능 시스템
 - [[hermes-paperclip-adapter]] — hermes-paperclip-adapter — Paperclip 에 Hermes Agent 를 붙이는 런타임 어댑터
 - [[karpathy-claude-md-skills]] — multica-ai/andrej-karpathy-skills — CLAUDE.md 4원칙 가이드
-- [[llm-content-quality-guards]] — LLM 콘텐츠 품질 가드·자동 분류의 판단 보류·제목 입력 한계·표본 분모·요약 근거/필터/수집 시각 검증·실제 호출/정기 배포 경계
+- [[llm-content-quality-guards]] — LLM 콘텐츠 품질 가드·제목 근거/필터/시각 검증 — AI는 기사 ID 선택, 코드는 원제목에서 근거 추출
 - [[llm-newsletter-rewrite-metadata-grounding]] — LLM 뉴스레터 rewrite 의 메타데이터 그라운딩 베스트 프랙티스
 - [[llm-provider-aggregator-vs-local-vs-hub]] — OpenRouter vs Ollama vs Hugging Face — LLM 백엔드 3가지 분류
 - [[macos-launchagent-catchup-behavior]] — macOS LaunchAgent — 미실행 작업 캐치업 동작
@@ -105,7 +105,7 @@
 
 - [[trading-observation-vs-order-time-gates]] — 가격 관측·고점 갱신·주문 시간 분리, 순간 고가와 실제 폴링·조건부 재생의 경계
 
-- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택 — 즉시체결 가정이 은폐하는 것 · 신호 이후 호가 체결·재처리 멱등성·합성 결과의 한계 · 공통 추천의 종가/익일 진입 전방 비교
+- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택·종가/익일 전방 비교·다음 호가 체결의 미체결 편향·호가 비교와 전략 성과 분리
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
@@ -114,17 +114,17 @@
 - [[financial-data-freshness-and-cache]] — 재무 기준기간·확정값 대조, KIS 우선·제한적 장애 대체와 일일 원자료 캐시
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 조건부 장중 재생·8거래일 독립 추천 비교·고점 관측 민감도
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙 보존·양방향 자금/보유 격리·미검증 손실 제한 제외·배치 재시도 범위 — 10/22 후속: 동일 추천과 실제 매수 집합을 보유·진입·주문 단계별로 대사
+- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙·자금/보유 격리·추천/집행 대사·응답 시각 호가 검증·동일 주문 부분체결 감시 유지
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·미국 V1 변형/2021 공개규칙의 동일시작 대조·40거래일 정책 경계·매수일과 손익 분모
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
 - [[news-driven-market-signal-framework]] — 뉴스 기반 시장 시그널 추출 프레임워크 (7-축 + 3-시나리오)
 - [[optimal-strategy-search-preconditions]] — 전략 탐색의 4가지 선결 조건 — "최적을 찾았다"를 판정하기 전에
 - [[partial-sell-rule-idempotency]] — 알고리즘 트레이딩의 부분 매도 규칙 멱등성 패턴
-- [[polling-interval-vs-bar-interval]] — 폴링 주기 vs 봉 단위 — 알고리즘 트레이딩의 시간 정합성 — 10/22 후속: 저장 샘플링 전 이벤트 판단·WebSocket/1분 보완·실주문 없는 120초 대조
+- [[polling-interval-vs-bar-interval]] — 폴링 주기와 봉 단위·샘플링 전 이벤트 판단·고점/신호 보존·단일 실매도 경로 연결·1분 장애 보완·장중 확인 대기
 - [[risk-control-exemption-and-failed-attempt-accounting]] — 안전장치가 손실을 키울 때 — 리스크 감축 주문 면제와 실패 시도 회계
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
-- [[scoring-version-comparison-methodology]] — 점수 버전·후보/채점/청산 분리·최종 추천 네 조합 구현·불변 입력/선정·실행 분리·네 장부 롤백
+- [[scoring-version-comparison-methodology]] — 점수/후보/추천 필터 효과 분리·최종 추천 네 조합·200억원 필터 제거 재생·소표본 판단·영향 검증 후 지문 갱신
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
 - [[trading-api-failure-handling]] — API 실패·계좌 신선도·접수 미확인의 증거 기반 복구·공통 호출 제어와 미확정 경계
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
@@ -158,8 +158,8 @@
 ### projects
 
 - [[finance-analysis-nextjs]] — finance-analysis-nextjs — 한국 기업 재무분석 대시보드
-- [[ht-dde]] — ht_dde — 스캐너·페이퍼 비교 대시보드·미국 마감 평가 그래프·RS 종가/익일 비교 · 최종 추천 네 조합 등록·미국 공개규칙 새 대조군·첫 입력/체결 대기
-- [[ht-trading]] — ht_trading — 프로젝트 설계·미국 페이퍼 · 역행 공통 자금/보유 격리·실운영 활성화·10/19 첫 체결 확인 전·아침 일괄 진입/2분 매도 감시
+- [[ht-dde]] — ht_dde — 스캐너·페이퍼 비교·실시간 신호/체결 대사·추천 네 계정 지문 복구·분할매수 감사 오탐 수정
+- [[ht-trading]] — ht_trading — 전략 자금/보유 격리·09:35 매수·실시간 실매도 연결 반영/장중 확인 대기·추천 필터 유지 분석
 - [[japa-asset-dashboard]] — japa — 개인 자산 통합 대시보드
 - [[n-stock-info]] — n_stock_info — KIS 중심 수집·기존 점수식 운영 복구·독립 네이버 비교·불변 최종 추천·재무 보완/장애 대체·일일 캐시
 - [[upbit-trading]] — upbit_trading — 암호화폐 무한매수법 자동매매
@@ -171,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-23: 지정 두 세션 후속을 기존 8문서에 통합 — 제목 근거 추출·오류 제한 재처리·소유권 통일, 실시간 단일 매도 경로·호가/부분체결 수정, 체결 모형 정정·추천 필터 재생·비교 지문 복구. 신규 문서 없음. 출처·스킵 사유·전체 변경 파일은 [[log]] 참조.
 
 - 2026-10-22: 지정 1세션 추가 대화를 기존 6문서에 통합 — [[polling-interval-vs-bar-interval]]의 저장 샘플링 전 이벤트 판단·실주문 없는 검증 감시, [[paper-to-live-strategy-isolation]]의 추천/매수 대사, [[shared-broker-appkey-token-cache]]·[[trading-api-failure-handling]]의 한도/내부 예산·밴 증거 경계와 [[ht-trading]]·[[ht-dde]] 후속. 신규 문서 없음 (출처: session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md)
 
