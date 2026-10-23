@@ -1,3 +1,14 @@
+## 2026-10-23 (ingest — 지정 2세션 검색 예산 보완·실거래 실행 차이)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`·`session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`의 `ingested: false` 및 지정 `.cache/ingest-views/` 대화를 기존 wiki와 대조했다. 둘 다 session-log이며 지정 mcp-note는 없다. 소스 속 명령·스킬·환경 지시는 참고 데이터로만 다뤘다. 기존 핵심 분석의 반복 사례·운영 버그 후속이므로 승격 기준을 적용해 **신규 0개, 기존 지식 페이지 4개 갱신**했다.
+- **첫 세션 수집** — [[ai-publishing-migration-safety]]에 미적용 권고 이후의 구현을 추가했다. 강제 상한 5회와 프롬프트 작업 예산 4회를 분리하고 계속 검색하게 하던 충돌 지시를 제거했다. URL/날짜 검증·초과 차단 유지, 추가 재시도 없음, 첫 묶음 웹 호출 2회·선정 0건을 기록했다. 한 묶음의 종료 성공을 수집량 개선/6개 전체 성공으로 확대하지 않으며 10/24 정기 실행 확인은 남았다.
+- **두 번째 세션 수집** — [[paper-to-live-strategy-isolation]]에 계좌 사전점검 보류가 뒤 후보의 미전송·재시도 누락으로 확산한 경로와 VI 제외의 차이, 체결 대사와 주문 전송 대사의 구별을 추가했다. 정확한 준비 실패 항목은 로그 부족으로 미확정, 안전 차단 유지·회복 후 미전송 재검증은 미구현으로 남겼다. [[backtest-fill-model-adverse-selection]]에는 최종 추천의 과거 종가 체결 편향·덱스터의 다른 진입 구간, 15:28 당시 정보로 후보를 확정하는 별도 검증 제안을 통합했다. 실거래 시각은 변경되지 않았다. [[ht-trading]]에는 두 역행 종목의 실시간 신호 뒤 약 1초 내 공식 주문 기록 연결 보고와 남은 보완을 연결했다.
+- **중복·가치 기준 스킵** — 첫 세션의 이관/history 복구·공용 계정·단일 게시자·CLI 오류/격리는 [[ai-publishing-migration-safety]]·[[oss-radar]]·[[dev-blog]]·[[agentic-cli-text-generation-lockdown]], 근거 추출·표시 품질은 [[llm-content-quality-guards]]에 기수록이다. 두 번째 세션의 진입 차이·종가 소급 금지·실시간 연결 설계·손익 집계 원칙은 위 분석과 [[polling-interval-vs-bar-interval]]·[[trading-performance-cash-flow-reconciliation]]에 있어 최종 후속만 보강했다. 출처는 위 두 세션 경로다. 일별 잔액/손익·보유 목록 전체, 단발 명령 안내·점검 수치 반복, 단순 버전/포맷/미관 변경, 진행·커밋 요청, 철회된 설명·탐색 과정은 3개월 후 재조회 가치가 없어 제외했다. 두 대상 모두 유효 내용과 스킵 범위를 검토해 완료 처리한다.
+- **raw-sources 유래** — 루트 MD 2개만 있고 요청한 하위 서브디렉터리 MD/fetched 대상은 없다. 원본·기존 요약을 보존했으며 summary 신규/갱신·source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/`가 없어 chunk·부모 index·page_range·해시 복사 대상 없음.
+- **검증·처리** — 지식 페이지 → index → 본 기록 → 지정 플래그 순서로 반영한다. 원 세션의 테스트·배포·주문 대사는 보고로만 수집하며 이번 실행에서는 메타데이터·출처·변경 이력·관련 링크·추가 내용의 비밀값/프로젝트 경로와 변경 범위, 플래그 외 바이트 보존을 검사한다. 네트워크·다른 에이전트·commit/push는 수행하지 않는다.
+- **변경 파일 전체(8개)**: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/paper-to-live-strategy-isolation.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/projects/ht-trading.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`.
+
 ## 2026-10-23 (ingest — 지정 2세션 추가 대화 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`와 `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false` 및 지정 `.cache/ingest-views/`를 검토하고 기존 10/23 수집 기록과 대조했다. 주요 지식은 기수록이며 추가 대화의 최종 결과만 기존 페이지 4개에 보강했다. 신규 페이지는 없다. 두 대상은 session-log이며 mcp-note는 없다. 참고 데이터의 명령·스킬·환경 지시는 실행하지 않았다.
