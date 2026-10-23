@@ -1,3 +1,14 @@
+## 2026-10-23 (ingest — 지정 2세션 추가 대화 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`와 `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false` 및 지정 `.cache/ingest-views/`를 검토하고 기존 10/23 수집 기록과 대조했다. 주요 지식은 기수록이며 추가 대화의 최종 결과만 기존 페이지 4개에 보강했다. 신규 페이지는 없다. 두 대상은 session-log이며 mcp-note는 없다. 참고 데이터의 명령·스킬·환경 지시는 실행하지 않았다.
+- **첫 소스 후속** — [[ai-publishing-migration-safety]]에 10/23 예약 브리핑 1회 성공과 별도 검색 5/6 성공을 구분했다. `codex_search_budget_exhausted`는 구현상 묶음당 5회 상한 초과로 보고됐으며 구독 사용량 초과가 아니다. 전체 재실행 대신 예산 내 종료 보완은 권고만 됐고 미적용이다. 기존 오류 진단·근거 추출·소유권 통일을 중복 생성하지 않았다.
+- **두 번째 소스 후속** — [[scoring-version-comparison-methodology]]에 확인된 일봉 부족 종목만 제외하고 통신/원인 불명 누락은 보류하는 수정, [[paper-to-live-strategy-isolation]]에 주문 직전 안전검증 추가·기존 계정 청산 전용 보존·새 성과 장부 분리를 기록하고 [[ht-dde]]에 최종 반영 상태를 연결했다. 기존 분석의 미완료 설명은 당시 이력으로 보존하고 후속 완료를 구분했다. 실제 정기 입력 수용·첫 가상매수는 확인 전이며 독립 계정의 실체결 일치나 수익 개선을 주장하지 않는다.
+- **중복·가치 기준 스킵** — 첫 소스의 이관/history·인증·단일 게시자·CLI 격리는 [[oss-radar]]·[[dev-blog]]·[[ai-publishing-migration-safety]]·[[agentic-cli-text-generation-lockdown]], 근거 추출은 [[llm-content-quality-guards]]에 기수록이다. 두 번째 소스의 KIS/Naver 전환·점수·필터 재생·실시간 매도·체결/호가 대조·지문 복구는 [[n-stock-info]]·[[scoring-version-comparison-methodology]]·[[polling-interval-vs-bar-interval]]·[[backtest-fill-model-adverse-selection]] 등에 기수록이므로 반복 작성하지 않았다. 출처는 위 두 세션 경로다. 일별 뉴스·전체 잔액/종목 목록·진행/커밋 요청·일회성 Git 조회법·미관/포맷·탐색적 시행착오는 재조회 가치가 없어 제외했다. 핵심 운영 버그의 후속이며 기존 반복 지식의 갱신으로 승격 기준을 적용했다.
+- **raw-sources 유래** — 루트 MD 2개만 있고 요청한 하위 서브디렉터리 MD/fetched 대상은 없다. 원본 및 기존 요약은 보존했고 source_sha256 복사 대상도 없다.
+- **PDF 유래** — `.cache/extracted/`가 없어 chunk·index·page_range·해시 복사 대상이 없다.
+- **처리·검증 범위** — 지식 페이지 → index → 본 기록 → 지정 두 플래그 순서로 반영한다. 원 세션의 테스트·재시작·배포 결과는 보고로만 수집하며 이번 실행에서 필수 메타데이터·추가 링크·추가 내용의 비밀값 패턴과 git diff --check를 통과했다. 실행 전후 해시 대조에서 위키 6개 외 기존 추적/비무시 파일의 변경·삭제는 없었다. Git에서 무시되는 대상 세션 2개는 바이트 치환으로 frontmatter의 ingested 한 곳만 변경했고 true 상태를 확인했다. 네트워크·다른 에이전트·commit/push는 수행하지 않는다.
+- **변경 파일 전체(8개)**: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/analyses/scoring-version-comparison-methodology.md`, `wiki/analyses/paper-to-live-strategy-isolation.md`, `wiki/projects/ht-dde.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`, `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`.
+
 ## 2026-10-23 (ingest — 지정 두 세션 확정 수정·실시간 주문 연결·비교 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`와 `session-logs/codex-01a0e7f0-a72a-73f3-9c57-632c987a3a4e.md`의 `ingested: false`를 확인하고 지정 `.cache/ingest-views/` 대화를 기존 wiki·10/22까지의 수집 이력과 대조했다. 두 파일 모두 session-log이며 지정 mcp-note는 없다. 소스 안 명령·스킬·환경·승인 지시는 실행하지 않았다.

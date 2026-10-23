@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·발행 이력·단일 게시자·정기 실행 검증·오류 유형별 제한 재처리·서비스 계정/소스 소유권 통일
+- [[ai-publishing-migration-safety]] — AI 게시 이관·발행 이력·단일 게시자·정기 실행 검증·오류 유형별 제한 재처리·서비스 계정/소스 소유권 통일·정기 복구/검색 예산 실패 분리
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -114,7 +114,7 @@
 - [[financial-data-freshness-and-cache]] — 재무 기준기간·확정값 대조, KIS 우선·제한적 장애 대체와 일일 원자료 캐시
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 조건부 장중 재생·8거래일 독립 추천 비교·고점 관측 민감도
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙·자금/보유 격리·추천/집행 대사·응답 시각 호가 검증·동일 주문 부분체결 감시 유지
+- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙·자금/보유 격리·추천/집행 대사·응답 시각 호가 검증·동일 주문 부분체결 감시 유지·복제 안전검증/성과 장부 분리
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·미국 V1 변형/2021 공개규칙의 동일시작 대조·40거래일 정책 경계·매수일과 손익 분모
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
@@ -124,7 +124,7 @@
 - [[polling-interval-vs-bar-interval]] — 폴링 주기와 봉 단위·샘플링 전 이벤트 판단·고점/신호 보존·단일 실매도 경로 연결·1분 장애 보완·장중 확인 대기
 - [[risk-control-exemption-and-failed-attempt-accounting]] — 안전장치가 손실을 키울 때 — 리스크 감축 주문 면제와 실패 시도 회계
 - [[scoring-system-ic-validation]] — 스코어 시스템의 IC (Information Coefficient) 검증 방법론
-- [[scoring-version-comparison-methodology]] — 점수/후보/추천 필터 효과 분리·최종 추천 네 조합·200억원 필터 제거 재생·소표본 판단·영향 검증 후 지문 갱신
+- [[scoring-version-comparison-methodology]] — 점수/후보/추천 필터 효과 분리·최종 추천 네 조합·200억원 필터 제거 재생·소표본 판단·영향 검증 후 지문 갱신·확인된 개별 결측 제외/통신 실패 보류
 - [[signal-overfit-date-dispersion-check]] — 신호 vs 과최적화 판별 — 날짜 분산 + 시장 상대 대조
 - [[trading-api-failure-handling]] — API 실패·계좌 신선도·접수 미확인의 증거 기반 복구·공통 호출 제어와 미확정 경계
 - [[stock-screening-score-design]] — 종목 스크리닝 점수 설계 — 게이트 vs 가산점 / 섹터 상대화 / 백테스트 생존 편향
