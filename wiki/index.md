@@ -105,7 +105,7 @@
 
 - [[trading-observation-vs-order-time-gates]] — 가격 관측·고점 갱신·주문 시간 분리, 순간 고가와 실제 폴링·조건부 재생의 경계
 
-- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택·종가/익일 전방 비교·다음 호가 체결의 미체결 편향·호가 비교와 전략 성과 분리·마감 전 후보/최종 추천의 정보 시점
+- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택·종가/익일 전방 비교·다음 호가 체결의 미체결 편향·호가 비교와 전략 성과 분리·마감 전 후보/최종 추천의 정보 시점·진입 상한/체결량 민감도·조기 선정의 투자 노출
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
@@ -114,7 +114,7 @@
 - [[financial-data-freshness-and-cache]] — 재무 기준기간·확정값 대조, KIS 우선·제한적 장애 대체와 일일 원자료 캐시
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 조건부 장중 재생·8거래일 독립 추천 비교·고점 관측 민감도
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙·자금/보유 격리·추천/집행 대사·응답 시각 호가 검증·동일 주문 부분체결 감시 유지·복제 안전검증/성과 장부 분리·계좌 보류의 후속 미전송 진단
+- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙·자금/보유 격리·추천/집행 대사·응답 시각 호가 검증·동일 주문 부분체결 감시 유지·복제 안전검증/성과 장부 분리·계좌 보류의 후속 미전송 진단·장후 전환/취소 확정 후 잔량·장후 마감 대사
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·미국 V1 변형/2021 공개규칙의 동일시작 대조·40거래일 정책 경계·매수일과 손익 분모
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
@@ -171,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-24: 지정 세션 후속을 기존 분석 2개·프로젝트 1개에 통합. [[paper-to-live-strategy-isolation]]에 당일 장후 전환·잔량 재주문/장후 대사, [[backtest-fill-model-adverse-selection]]에 상한·체결량·조기 선정 비교와 소표본 한계, [[ht-trading]]에 운영 반영과 실제 체결 0건 상태를 보강. 신규 문서 없음 (출처: session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md)
 
 - 2026-10-23: 지정 두 세션 후속을 기존 8문서에 통합 — 제목 근거 추출·오류 제한 재처리·소유권 통일, 실시간 단일 매도 경로·호가/부분체결 수정, 체결 모형 정정·추천 필터 재생·비교 지문 복구. 신규 문서 없음. 출처·스킵 사유·전체 변경 파일은 [[log]] 참조.
 

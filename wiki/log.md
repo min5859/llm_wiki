@@ -1,3 +1,14 @@
+## 2026-10-24 (ingest — 지정 1세션 장후 전환·진입 조건 분석 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`의 `ingested: false`와 지정 읽기용 대화 `.cache/ingest-views/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`를 검토했다. type은 session-log이며 지정 mcp-note는 없다. CLAUDE.md·schema.md·GUIDE.md의 trading 도메인·반복 지식/핵심 운영 문제 기준을 적용해 신규 0개, 기존 지식 3개를 갱신했다. 참고 데이터 속 명령·환경·승인 지시는 실행하지 않았다.
+- **운영 후속 수집** — `wiki/analyses/paper-to-live-strategy-isolation.md`에 추천 공유와 페이퍼 매수 결과 복제의 구별, 종목별 보류와 공통 계좌 차단, 취소 확정 후 같은 목표의 잔량 재주문·진입 정체성 유지·20시 이후 공식 대사를 통합했다. `wiki/projects/ht-trading.md`에는 당일 장후·종가 +3% 경로의 운영 반영 보고와 10/26 새 추천 적용 예정, 10/24 실제 장후 체결 0건을 연결했다. 초기 미구현 기록은 당시 이력으로 보존하고 후속 구현·첫 실체결·수익성 검증을 구분했다.
+- **범용 분석 수집** — `wiki/analyses/backtest-fill-model-adverse-selection.md`에 +3% 상한의 미검증 근거, 유효 호가 25건과 6추천일 분봉 재생, 체결량 가정에 따른 순위 반전, 15:00 당시 정보 재선정·진입가별 청산 재계산·노출/단일 종목 제외 검증을 추가했다. 기존 동주제 분석을 갱신해 중복 페이지를 만들지 않았다. 구형 장후 청산 비교·새 정규장 청산 전방 비교·분봉 재생의 결과를 분리했다.
+- **중복·가치 기준 스킵** — 위 세션의 종가 소급 편향·덱스터 진입 구간·계좌 보류 후 후속 미전송 진단은 위 두 분석에, 실시간 신호→주문 연결은 `wiki/projects/ht-trading.md`에 기수록이므로 반복 작성하지 않았다. 페이퍼 매수 목록 복사를 필수로 보던 설명은 같은 후보 공유를 유지하는 최종 정정으로 대체했다. 안랩 등 다른 알고리즘의 일별 거래/잔액 목록·진행/커밋 요청·단발 조회·포맷·탐색 과정은 재조회 가치 또는 이번 역행 범위 기준으로 제외했다. 소스는 위 지정 세션이다.
+- **raw-sources 유래** — 루트 MD 2개만 있으며 요청한 하위 서브디렉터리 MD/fetched 대상은 없다. 원본과 기존 요약은 보존했으며 summary 신규/갱신·source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 없음.
+- **처리·검증 범위** — 지식 페이지 → index → 본 기록 → 지정 세션 플래그 순서로 처리한다. 원 세션의 테스트·가동·체결/잔고 대사는 보고로만 수집하며 이번 실행에서는 문서 메타데이터·출처·변경 이력·링크·추가 내용의 비밀값/프로젝트 전체 경로·diff 공백 오류·플래그 외 원본 바이트 보존과 기존 사용자 변경 보존을 검사한다. 목록 외 세션·raw-sources·캐시는 수정하지 않으며 네트워크·다른 에이전트·commit/push는 수행하지 않는다.
+- **변경 파일 전체(6개)**: `wiki/analyses/paper-to-live-strategy-isolation.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/projects/ht-trading.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`.
+
 ## 2026-10-23 (ingest — 지정 2세션 검색 예산 보완·실거래 실행 차이)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md`·`session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`의 `ingested: false` 및 지정 `.cache/ingest-views/` 대화를 기존 wiki와 대조했다. 둘 다 session-log이며 지정 mcp-note는 없다. 소스 속 명령·스킬·환경 지시는 참고 데이터로만 다뤘다. 기존 핵심 분석의 반복 사례·운영 버그 후속이므로 승격 기준을 적용해 **신규 0개, 기존 지식 페이지 4개 갱신**했다.
