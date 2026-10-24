@@ -105,7 +105,7 @@
 
 - [[trading-observation-vs-order-time-gates]] — 가격 관측·고점 갱신·주문 시간 분리, 순간 고가와 실제 폴링·조건부 재생의 경계
 
-- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택·종가/익일 전방 비교·다음 호가 체결의 미체결 편향·호가 비교와 전략 성과 분리·마감 전 후보/최종 추천의 정보 시점·진입 상한/체결량 민감도·조기 선정의 투자 노출
+- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택·종가/익일 전방 비교·다음 호가 체결의 미체결 편향·호가 비교와 전략 성과 분리·마감 전 후보/최종 추천의 정보 시점·진입 상한/체결량 민감도·조기 선정의 투자 노출·주간 177개 조합/동일 추천 비교·09:05 권고
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
@@ -171,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-24: 지정 세션 최종 주간 비교를 [[backtest-fill-model-adverse-selection]]에 보강하고 [[ht-trading]]에 09:05 권고 미적용·11/20 재평가일을 연결. 신규 문서 없음 (출처: session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md)
 
 - 2026-10-24: 지정 세션 후속을 기존 분석 2개·프로젝트 1개에 통합. [[paper-to-live-strategy-isolation]]에 당일 장후 전환·잔량 재주문/장후 대사, [[backtest-fill-model-adverse-selection]]에 상한·체결량·조기 선정 비교와 소표본 한계, [[ht-trading]]에 운영 반영과 실제 체결 0건 상태를 보강. 신규 문서 없음 (출처: session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md)
 

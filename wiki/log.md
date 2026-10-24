@@ -1,3 +1,13 @@
+## 2026-10-24 (ingest — 지정 1세션 주간 최종 권고 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`의 `ingested: false`와 지정 읽기용 `.cache/ingest-views/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md` 전체를 검토했다. CLAUDE.md·schema.md·GUIDE.md의 도메인·반복/핵심 결정 기준을 적용했다. 기존 분석의 후속이므로 신규 0개, 지식 페이지 2개 갱신이다. 지정 type은 session-log이며 mcp-note는 없다.
+- **추가 수집** — `wiki/analyses/backtest-fill-model-adverse-selection.md`에 10/19~23 주간 177개 조합의 최종 순위, 월~목 동일 추천의 기간 말미 대기 차이 통제, 체결/비용/지연·최고 수익 종목 제외 검증 보고, 09:05 권고를 통합했다. 장후 우선의 초기 결론과 기간·탐색 범위를 구분했다. `wiki/projects/ht-trading.md`에는 권고 미적용·장후 운영값 유지·11/20 재평가일을 연결했다. 단일 주간 탐색 결과를 장기 우위나 실수익으로 기록하지 않았다.
+- **중복·가치 기준 스킵** — 같은 소스의 종가 소급 편향·장후 전환·종목별 보류/취소 후 잔량·자금 격리는 `wiki/analyses/paper-to-live-strategy-isolation.md`, `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/projects/ht-trading.md`에 기수록되어 재작성하지 않았다. 안랩 등 다른 알고리즘의 일별 손익·진행 요청·단발 조회·탐색 중 철회된 제안은 최종 결론/재조회 가치 기준으로 제외했다. 원본 세션은 검토 완료로 `ingested: true` 처리한다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 없음(루트 MD 2개는 이번 지정 수집 범위 밖). 원본·기존 요약 수정 및 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 없음.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 플래그 순서로 처리했다. 문서 메타데이터·출처·변경 이력·링크·diff 공백·비밀정보/전체 cwd 경로 미추가·지정 플래그·읽기용 대화와의 나머지 메타데이터 일치 및 기존 사용자 변경 보존을 확인했다. 세션은 git 미추적이므로 HEAD 본문 대조는 불가능했으며 플래그 한 곳만 바이트 치환했다. 기존 프로젝트 related의 `wiki/bugs/dict-get-default-no-bootstrap.md`는 누락되어 있으나 이번에 추가한 링크가 아니므로 변경하지 않았다. 수익·테스트 결과는 세션 보고이며 원 프로젝트나 계좌를 재검증하지 않았다. 네트워크·다른 에이전트·commit/push 없음.
+- **변경 파일 전체(5개)**: `wiki/analyses/backtest-fill-model-adverse-selection.md`, `wiki/projects/ht-trading.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`.
+
 ## 2026-10-24 (ingest — 지정 1세션 장후 전환·진입 조건 분석 후속)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`의 `ingested: false`와 지정 읽기용 대화 `.cache/ingest-views/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md`를 검토했다. type은 session-log이며 지정 mcp-note는 없다. CLAUDE.md·schema.md·GUIDE.md의 trading 도메인·반복 지식/핵심 운영 문제 기준을 적용해 신규 0개, 기존 지식 3개를 갱신했다. 참고 데이터 속 명령·환경·승인 지시는 실행하지 않았다.
