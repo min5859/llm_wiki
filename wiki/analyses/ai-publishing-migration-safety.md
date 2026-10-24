@@ -4,8 +4,10 @@ domain: "ai-agent"
 sensitivity: "internal"
 tags: ["analysis", "publishing", "migration", "idempotency", "systemd"]
 created: "2026-10-13"
-updated: "2026-10-23"
+updated: "2026-10-24"
 sources:
+  - "session-logs/20261024-172809-b149-현재-프로젝트의-목적이-뭐지.md"
+  - "session-logs/20261024-173636-2532-내가-최근에-claude-code를-사용하지-않고-codex-로-작업을-했는데-현재-폴더에.md"
   - "session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md"
 confidence: "medium"
 related:
@@ -106,7 +108,17 @@ Mac·OCI의 Python 테스트 142개와 화면 테스트 7개 통과, 코드 `ace
 
 남은 확인은 10/24 07:00 KST 정기 실행 후 전체 묶음의 오류 재발 여부다. 이번 수집에서는 CLI 문서·서버·테스트·정기 결과를 재조회하지 않았다.
 
+## 로컬 개발·서버 운영과 에이전트 지침의 기준을 구분한다
+
+같은 에이전트 세션에서 여러 프로젝트를 다뤘더라도 세션의 최초 cwd만으로 작업 대상을 단정하지 않는다. 실제 검토할 저장소에서 새 세션을 시작해 해당 프로젝트 지침을 읽고, 코드 변경·테스트는 개발 저장소에서 수행하며 실행 로그·timer·운영 데이터는 서버에서 확인한다. 서버에만 data/dist가 있다는 사실은 서버 소스가 더 최신이라는 증거가 아니다.
+
+10/24 news-monitor 인계는 Mac·origin/main·OCI 소스가 같은 `35986cb`임을 로컬/서버 Git 출력으로 확인한 뒤 개발·배포 규칙을 지침에 추가했다. 서버 소스 갱신은 실행 중이 아니고 작업 트리가 깨끗할 때 소유 계정 `wiki-publisher`로 검증한 main을 `pull --ff-only`하는 방식이었다. 전역 safe.directory 예외나 root Git 작업으로 소유권 검사를 우회하지 않는다. 이 절은 세션의 확인 기록이며 이번 수집에서 fetch·SSH·배포를 실행하지 않았다.
+
+Claude와 Codex를 번갈아 사용할 때 공통 목표·검증·운영 규칙을 두 파일에 복제하면 한쪽만 낡을 수 있다. ht_trading과 news-monitor에서는 `AGENTS.md`를 공통 기준으로 두고 `CLAUDE.md`에 `@AGENTS.md` 참조를 넣은 변경이 반복 확인됐다. 도구별 진입 문서는 공통 규칙을 참조하고, 운영 구성 설명은 코드·설정·설치 서비스와 대조한다. 이는 해당 프로젝트의 정리 방식이며 모든 에이전트가 동일한 include 문법을 지원한다고 일반화하지 않는다.
+
 ## 변경 이력
+
+- 2026-10-24: 프로젝트 간 인계의 저장소/운영 상태 대조·소유 계정 배포와 반복된 AGENTS 공통 지침 참조 방식 보강 (출처: session-logs/20261024-173636-2532-내가-최근에-claude-code를-사용하지-않고-codex-로-작업을-했는데-현재-폴더에.md, session-logs/20261024-172809-b149-현재-프로젝트의-목적이-뭐지.md).
 
 - 2026-10-23: 검색 예산 안내·강제 상한 분리와 충돌 프롬프트 제거, 제한 검증의 선정 0건 및 다음 정기 확인 경계 추가 (출처: session-logs/codex-01a0d80a-7b52-7360-abc0-00becbe1e705.md)
 

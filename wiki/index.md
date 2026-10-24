@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·발행 이력·단일 게시자·정기 실행 검증·오류 유형별 제한 재처리·서비스 계정/소스 소유권 통일·정기 복구/검색 예산 실패 분리·예산 내 종료 보완과 제한 검증
+- [[ai-publishing-migration-safety]] — AI 게시 이관·발행 이력·단일 게시자·정기 실행 검증·오류 유형별 제한 재처리·서비스 계정/소스 소유권 통일·정기 복구/검색 예산 실패 분리·예산 내 종료 보완과 제한 검증·로컬/서버 소스 대조·공통 에이전트 지침 참조
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -105,7 +105,7 @@
 
 - [[trading-observation-vs-order-time-gates]] — 가격 관측·고점 갱신·주문 시간 분리, 순간 고가와 실제 폴링·조건부 재생의 경계
 
-- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택·종가/익일 전방 비교·다음 호가 체결의 미체결 편향·호가 비교와 전략 성과 분리·마감 전 후보/최종 추천의 정보 시점·진입 상한/체결량 민감도·조기 선정의 투자 노출·주간 177개 조합/동일 추천 비교·09:05 권고
+- [[backtest-fill-model-adverse-selection]] — 백테스트 체결 모델과 역선택·종가/익일 전방 비교·다음 호가 체결의 미체결 편향·호가 비교와 전략 성과 분리·마감 전 후보/최종 추천의 정보 시점·진입 상한/체결량 민감도·조기 선정의 투자 노출·주간 177개 조합/동일 추천 비교·장세 확장 후 09:05 상시 권고 철회
 - [[backtest-timeframe-sensitivity]] — 백테스트 봉 간격 민감도 — 지표 신호 효과는 timeframe 따라 뒤집힌다 + 공정 비교 방법론
 - [[dca-intraday-buy-timing]] — 정액 DCA 의 일중 매수 타이밍 — 레버리지 ETF 분봉 실측 (시가 직후·14:30 회피)
 - [[dca-trailing-stop-tuning]] — DCA·트레일링 스톱 튜닝 — 운영 로그 기반 진단·개선 패턴
@@ -114,7 +114,7 @@
 - [[financial-data-freshness-and-cache]] — 재무 기준기간·확정값 대조, KIS 우선·제한적 장애 대체와 일일 원자료 캐시
 - [[ht-trading-live-data-improvement-analysis]] — ht_trading 운영 로그·분봉 기반 누적 개선 분석 — BUY 안전가드·관찰 대장, 조건부 장중 재생·8거래일 독립 추천 비교·고점 관측 민감도
 - [[kis-balance-api-fields]] — KIS 잔고 API 응답의 현금 필드 의미 (예수금 vs 매수가능)
-- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙·자금/보유 격리·추천/집행 대사·응답 시각 호가 검증·동일 주문 부분체결 감시 유지·복제 안전검증/성과 장부 분리·계좌 보류의 후속 미전송 진단·장후 전환/취소 확정 후 잔량·장후 마감 대사
+- [[paper-to-live-strategy-isolation]] — 페이퍼→실거래 규칙·자금/보유 격리·추천/집행 대사·응답 시각 호가 검증·동일 주문 부분체결 감시 유지·복제 안전검증/성과 장부 분리·계좌 보류의 후속 미전송 진단·장후 전환/취소 확정 후 잔량·장후 마감 대사·주간/누적 손익 분리·후보별 정합·신규매수 중단/SHADOW·구현 지문 이관
 - [[multi-market-trading-account-isolation]] — 국내/미국 실행 격리·미국 V1 변형/2021 공개규칙의 동일시작 대조·40거래일 정책 경계·매수일과 손익 분모
 - [[kis-minute-chart-trs]] — KIS 분봉 조회 TR 비교 — 당일 전용(FHKST03010200) vs 과거일(FHKST03010230)
 - [[llm-news-prediction-pitfalls]] — LLM 의 뉴스 기반 시장 예측 — 6가지 함정과 한계
@@ -171,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-24: 지정 5세션 검토, 신규 0개·기존 4페이지 갱신. [[backtest-fill-model-adverse-selection]]의 09:05 상시 권고 철회, [[paper-to-live-strategy-isolation]]의 주간 손익·실행 정합/SHADOW·지문 이관, [[ht-trading]]의 매수 중단 구현 완료·운영 이관 전, [[ai-publishing-migration-safety]]의 로컬/서버 인계·공통 지침 참조를 반영. 내용 없는 1세션 스킵을 포함한 대상·근거·변경 파일은 [[log]] 참조.
 
 - 2026-10-24: 지정 세션 최종 주간 비교를 [[backtest-fill-model-adverse-selection]]에 보강하고 [[ht-trading]]에 09:05 권고 미적용·11/20 재평가일을 연결. 신규 문서 없음 (출처: session-logs/codex-01a167f5-cf85-7bb1-b68f-b8a9539ce3d9.md)
 
