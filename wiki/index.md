@@ -32,7 +32,7 @@
 
 ### analyses
 
-- [[ai-publishing-migration-safety]] — AI 게시 이관·발행 이력·단일 게시자·정기 실행 검증·오류 유형별 제한 재처리·서비스 계정/소스 소유권 통일·정기 복구/검색 예산 실패 분리·예산 내 종료 보완과 제한 검증·로컬/서버 소스 대조·공통 에이전트 지침 참조
+- [[ai-publishing-migration-safety]] — AI 게시 이관·발행 이력·단일 게시자·정기 실행 검증·오류 유형별 제한 재처리·서비스 계정/소스 소유권 통일·정기 복구/검색 예산 실패 분리·예산 내 종료 보완과 제한 검증·로컬/서버 소스 대조·공통 에이전트 지침 참조·수집 범위 경고/날짜 검증 대체와 발행 증거 분리
 
 - [[ai-coding-agent-cost-and-context-patterns]] — AI 코딩 에이전트의 비용·컨텍스트 설계 패턴 — 강/약 모델 분리와 context rot 완화
 - [[anthropic-oauth-third-party-billing-trap]] — Anthropic OAuth 의 third-party 빌링 함정 — Claude Max 구독을 외부 CLI 가 재사용한다는 오해
@@ -171,6 +171,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-10-25: 지정 1세션 검토, 신규 0개·기존 분석 1개 갱신. [[ai-publishing-migration-safety]]에 수집 범위 제한·날짜 검증 대체 브리핑·발행 검증의 구분을 보강. 중복/일일 현황 제외 근거는 [[log]] 참조.
 
 - 2026-10-24: 지정 5세션 검토, 신규 0개·기존 4페이지 갱신. [[backtest-fill-model-adverse-selection]]의 09:05 상시 권고 철회, [[paper-to-live-strategy-isolation]]의 주간 손익·실행 정합/SHADOW·지문 이관, [[ht-trading]]의 매수 중단 구현 완료·운영 이관 전, [[ai-publishing-migration-safety]]의 로컬/서버 인계·공통 지침 참조를 반영. 내용 없는 1세션 스킵을 포함한 대상·근거·변경 파일은 [[log]] 참조.
 

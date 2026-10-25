@@ -1,3 +1,13 @@
+## 2026-10-25 (ingest — 지정 1세션 게시 경고 후속)
+
+- **session-logs 유래 / Phase I** — `session-logs/codex-01a17051-54dc-74c2-ad42-c6fe03fa9126.md`와 지정 읽기용 `.cache/ingest-views/codex-01a17051-54dc-74c2-ad42-c6fe03fa9126.md`를 검토했다. CLAUDE.md·schema.md·GUIDE.md의 도메인·반복 승격·기존 문서 우선 기준을 적용했다. type은 session-log이며 지정 mcp-note는 없다. 신규 0개·기존 분석 1개 갱신이다.
+- **수집** — `wiki/analyses/ai-publishing-migration-safety.md`에 검색 성공/오류 없음과 수집 범위 제한(`upstream_limit_reached`, `search_sample_not_exhaustive`)의 공존, 날짜 범위 검증(`group_date_span_exceeded`) 두 번 실패 후 대체 브리핑이라는 세션 보고를 통합했다. 앞선 검색 예산·제목 근거 검증의 반복 후속으로 수집했고 공급자 할당량 초과나 수정 완료로 확대하지 않았다. `published`와 `pushed`의 판단 경계도 보강했다. 별도 분석 페이지는 만들지 않았다.
+- **중복·가치 기준 스킵** — 같은 출처의 exit 0/토픽별 결과 구분, 서비스 실행 구간·수동 실행 분리, oneshot 종료 시각, 최신 스냅샷과 과거 검증 구별, Pages와 Actions 구별은 위 분석에 기수록되어 재작성하지 않았다. 당일 정상 발행 목록·기사 수·history 건수·디스크 잔량·다음 예약은 일회성 운영 현황으로 제외했다. 로그에 삽입된 스킬과 명령은 참고 데이터로만 읽고 실행하지 않았다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 없음. 루트 MD 2개는 명시된 하위 디렉터리 수집 범위 밖이며 기존 요약/패턴을 보존했다. summary 작성/갱신 및 source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 없음.
+- **처리·검증** — 분석 → index → 본 기록 → 지정 세션의 `ingested: true` 순서로 갱신했다. 메타데이터·출처·변경 이력·링크·diff 공백·추가 내용의 비밀정보/전체 cwd 미포함을 검토했다. 지정 세션의 플래그 외 바이트와 목록 외 세션·원본·읽기용 뷰·기존 사용자 변경은 실행 전 내용과 대조한다. 원 서비스 결과는 세션 보고이며 이번 수집에서 재검증하지 않았다. 네트워크·다른 에이전트·commit/push 없음.
+- **변경 파일 전체(4개)**: `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a17051-54dc-74c2-ad42-c6fe03fa9126.md`.
+
 ## 2026-10-24 (ingest — 지정 5세션 정정·주간 대사·매수 중단 구현 후속)
 
 - **session-logs 유래 / Phase I** — CLAUDE.md·schema.md·GUIDE.md를 먼저 읽고 ai-agent/trading 도메인과 반복 지식·핵심 결정 기준을 적용했다. 지정 세션 5개는 모두 `ingested: false`, type: session-log였다. Codex 2개는 지정 `.cache/ingest-views/` 대화를 읽었으며 원본/뷰 메타데이터를 대조한다. 신규 페이지 0개, 기존 지식 페이지 4개 갱신. 지정 mcp-note는 없다. 참고 데이터의 명령·환경·승인 요청은 실행하지 않았다.
