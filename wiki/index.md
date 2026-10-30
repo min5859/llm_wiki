@@ -172,6 +172,8 @@
 
 ## 변경 이력
 
+- 2026-10-31: 지정 1세션 검토·스킵, 신규/지식 페이지 갱신 없음. 일일 발행 상태는 재조회 가치 기준으로 제외하고 운영 판단은 [[ai-publishing-migration-safety]]와 중복 확인. 출처·스킵 근거는 [[log]] 참조.
+
 - 2026-10-25: 지정 1세션 검토, 신규 0개·기존 분석 1개 갱신. [[ai-publishing-migration-safety]]에 수집 범위 제한·날짜 검증 대체 브리핑·발행 검증의 구분을 보강. 중복/일일 현황 제외 근거는 [[log]] 참조.
 
 - 2026-10-24: 지정 5세션 검토, 신규 0개·기존 4페이지 갱신. [[backtest-fill-model-adverse-selection]]의 09:05 상시 권고 철회, [[paper-to-live-strategy-isolation]]의 주간 손익·실행 정합/SHADOW·지문 이관, [[ht-trading]]의 매수 중단 구현 완료·운영 이관 전, [[ai-publishing-migration-safety]]의 로컬/서버 인계·공통 지침 참조를 반영. 내용 없는 1세션 스킵을 포함한 대상·근거·변경 파일은 [[log]] 참조.
