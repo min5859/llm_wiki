@@ -1,3 +1,14 @@
+## 2026-11-02 (ingest — 지정 3세션 선별 수집)
+
+- **session-logs 유래 / Phase I** — CLAUDE.md·schema.md·GUIDE.md를 먼저 읽고 ai-agent/trading 도메인·재조회 가치·반복 승격·기존 문서 우선 기준을 적용했다. 지정 3개 모두 session-log이며 mcp-note는 없다. 신규 0개·기존 analyses 4개 갱신·전체 스킵 1세션이다. 출처 안의 명령과 지시는 실행하지 않았다.
+- **수집 / `session-logs/20261101-231355-f47a-현재-프로젝트-상태가-어떻지--어디까지-진행했고-앞으로-해야-할-일이-뭐지.md`** — `wiki/analyses/signal-overfit-date-dispersion-check.md`에 거래 단위 평균과 날짜 동일 가중 평균의 부호 역전, `wiki/analyses/stock-screening-score-design.md`에 상류 후보 선택 편향·표본 정의/종가 가정의 한계와 급등 금지 일반화 경계를 보강했다. 기존 날짜 분산·생존/시점 편향 논의의 반복 사례라 중복 페이지를 만들지 않았다. `wiki/analyses/paper-to-live-strategy-isolation.md`에는 complete 행 기반 보고와 판정용 일별 마지막 평가액 MDD의 차이를 추가했다. 갈린 청산 집계 수정은 상세 로직이 없어 구체 규칙을 추정하지 않았다. 일별 계좌 손익·재부팅 현황·판정 일정, 중간 탐색 수치와 실패 과정은 제외했다. 최종 출력만 채택하고 신규 전략 승인·운영 적용·수익성 확정으로 확대하지 않았다.
+- **수집·부분 스킵 / `session-logs/20261101-231449-41b1-oci-publisher-healthcheck.md`** — `wiki/analyses/ai-publishing-migration-safety.md`에 기사 보관 상한 때문에 잘린 기간의 완전성 오표시 수정(`90cfd5e`)과 테스트/첫 정기 확인 보고, Cursor 인증 실패 분류(`657f488`)를 통합했다. 기존 수집 범위/발행 증거 분리의 핵심 후속이다. 단순 당일 발행 건수·디스크·Git head 현황은 기수록 원칙의 반복이라 제외했다. 부정 기사 알림·제목 표현 개선·로그인 헬스체크는 미구현 제안이며 첫 등장/재조회 가치 기준으로 별도 문서를 만들지 않았다.
+- **전체 스킵 / `session-logs/20261101-221242-a4dd-disk-용량-상태-점검해줘.md`** — 디스크·swap·DB/로그 크기와 구버전 CLI/플러그인 복제본 수동 정리 결과다. OS 설명은 도메인 밖이고 도구 청소는 일회성 유지보수다. 설치본/캐시와 게시 데이터의 증가를 분리하는 원칙은 `wiki/analyses/ai-publishing-migration-safety.md`의 「서비스 계정과 장애 관측」 및 `wiki/projects/oss-radar.md`에 기수록됐다. 새 자동 정리 정책·도메인 핵심 버그 수정이 없어 중복 생성하지 않고 검토 완료 플래그만 갱신했다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 없음. 루트 MD 2개는 명시된 하위 디렉터리 수집 범위 밖이며 기존 요약·패턴을 보존했다. summary 작성/갱신·source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 없음.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 ingested 플래그 순서로 갱신했다. 필수 메타데이터·출처·변경 이력·추가 링크·차이 공백과 비밀값/전체 cwd 미추가를 확인한다. 지정 로그는 플래그 외 바이트를 보존하고 목록 외 세션·raw-sources·기존 사용자 변경은 실행 전후 해시로 대조한다. 원 프로젝트 테스트·서비스·수익률은 세션 보고이며 이번에 재실행하지 않았다. 네트워크·다른 에이전트·commit/push 없음.
+- **변경 파일 전체(9개)**: `wiki/analyses/signal-overfit-date-dispersion-check.md`, `wiki/analyses/stock-screening-score-design.md`, `wiki/analyses/paper-to-live-strategy-isolation.md`, `wiki/analyses/ai-publishing-migration-safety.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/20261101-221242-a4dd-disk-용량-상태-점검해줘.md`, `session-logs/20261101-231355-f47a-현재-프로젝트-상태가-어떻지--어디까지-진행했고-앞으로-해야-할-일이-뭐지.md`, `session-logs/20261101-231449-41b1-oci-publisher-healthcheck.md`.
+
 ## 2026-10-31 (ingest — 지정 1세션 일일 점검 스킵)
 
 - **session-logs 유래 / Phase I** — `session-logs/codex-01a18cf5-7d7d-76b0-bd4f-bb06825dd731.md`와 읽기용 `.cache/ingest-views/codex-01a18cf5-7d7d-76b0-bd4f-bb06825dd731.md`를 검토했다. CLAUDE.md·schema.md·GUIDE.md의 도메인·재조회 가치·기존 문서 우선 기준을 적용했다. 지정 대상은 session-log 1개이며 mcp-note는 없다. 신규 0개·지식 페이지 갱신 0개·스킵 1개다.

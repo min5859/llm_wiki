@@ -172,6 +172,8 @@
 
 ## 변경 이력
 
+- 2026-11-02: 지정 3세션 검토, 신규 0개·기존 분석 4개 보강. [[signal-overfit-date-dispersion-check]]의 날짜 가중 평균 역전, [[stock-screening-score-design]]의 후보군 선택 편향/급등 필터 일반화 경계, [[paper-to-live-strategy-isolation]]의 판정 MDD, [[ai-publishing-migration-safety]]의 상한/표시 기간 정합과 인증 오류 분류를 반영. 대상별 스킵 근거와 전체 변경 파일은 [[log]] 참조.
+
 - 2026-10-31: 지정 1세션 검토·스킵, 신규/지식 페이지 갱신 없음. 일일 발행 상태는 재조회 가치 기준으로 제외하고 운영 판단은 [[ai-publishing-migration-safety]]와 중복 확인. 출처·스킵 근거는 [[log]] 참조.
 
 - 2026-10-25: 지정 1세션 검토, 신규 0개·기존 분석 1개 갱신. [[ai-publishing-migration-safety]]에 수집 범위 제한·날짜 검증 대체 브리핑·발행 검증의 구분을 보강. 중복/일일 현황 제외 근거는 [[log]] 참조.
