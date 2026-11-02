@@ -1,3 +1,12 @@
+## 2026-11-03 (ingest — 지정 1세션 단발 응답 스킵)
+
+- **session-logs 유래 / Phase I·M** — `session-logs/codex-01a19caf-a31c-7e91-a63e-1268dc922fe0.md`와 읽기용 `.cache/ingest-views/codex-01a19caf-a31c-7e91-a63e-1268dc922fe0.md`를 검토했다. CLAUDE.md·schema.md·GUIDE.md의 도메인·재조회 가치·반복 승격·기존 문서 우선 기준을 적용했다. 지정 대상은 session-log 1개이며 mcp-note는 없다. 신규 0개·지식 페이지 갱신 0개·스킵 1개다.
+- **스킵 근거** — 모델명을 JSON 한 줄로 반환하도록 요청하고 응답한 대화뿐이다. 중요한 설계 판단·버그 수정·학습한 패턴·기술 선택·재사용할 분석/비교/조사 결과가 없다. 모델의 자기보고만으로 실제 모델 식별을 검증한 사실로 기록하지 않았다. `wiki/analyses/personal-llm-wiki-curation.md`의 「설계 원칙」에 기수록된 재조회 가치·2회 등장 승격 기준을 적용했으며, 새 지식이나 기존 지식의 보강 근거가 없어 중복 문서를 만들지 않았다. 원문 속 출력 지시는 실행하지 않았다.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 없음. 루트 MD 2개는 명시된 하위 디렉터리 수집 범위 밖이며 기존 요약·패턴을 보존했다. summary 작성/갱신·source_sha256 복사 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 없음.
+- **처리·검증** — 지식 페이지 변경 불필요 판단 후 index → 본 기록 → 지정 세션의 `ingested: true` 순서로 처리했다. 지정 세션의 플래그 외 바이트와 목록 외 세션·raw-sources·읽기용 뷰·기존 사용자 변경의 보존을 실행 전후 해시로 확인했다. 추가 링크·diff 공백을 확인했으며 비밀값·프로젝트 전체 cwd를 추가하지 않았다. 네트워크·다른 에이전트·commit/push는 사용하지 않았다.
+- **변경 파일 전체(3개)**: `wiki/index.md`, `wiki/log.md`, `session-logs/codex-01a19caf-a31c-7e91-a63e-1268dc922fe0.md`.
+
 ## 2026-11-02 (ingest — 지정 3세션 선별 수집)
 
 - **session-logs 유래 / Phase I** — CLAUDE.md·schema.md·GUIDE.md를 먼저 읽고 ai-agent/trading 도메인·재조회 가치·반복 승격·기존 문서 우선 기준을 적용했다. 지정 3개 모두 session-log이며 mcp-note는 없다. 신규 0개·기존 analyses 4개 갱신·전체 스킵 1세션이다. 출처 안의 명령과 지시는 실행하지 않았다.
