@@ -61,7 +61,32 @@ flowchart LR
   V --> G["답 반환<br/>근거 없는 문장 제거"]
 ```
 
-하지 않을 것: 검색 결과를 미리 프롬프트에 넣어 주고 끝내는 방식. 프롬프트가 길어지고, 넣은 정보가 도움이 되는지 검증 없이 끝난다. (단 6단계의 "검색·재정렬로 후보를 먼저 좁혀 에이전트에 넘기기"는 다르다 — 에이전트가 그 후보를 다시 검증한다)
+하지 않을 것: 검색 결과를 넣어 주기만 하고 판정 없이 끝내는 방식. 아래 '전략 판단'의 후보 강제는 판정 의무·추가 탐색·종료 전 검사가 함께 붙는다는 점이 다르다.
+
+## 전략 판단 — KB 를 계속 쌓는 게 맞나
+
+방향은 맞다. 과거 해결 사례의 재사용은 효과가 확인됐다: Microsoft RCACopilot(비슷한 과거 장애 재사용, 원인 분류 정확도 0.766), BugLocator(비슷한 과거 버그가 고친 파일), HAFix(수정 이력 활용 +45~50%), SWE-Exp(과거 해결 기록 재사용). 다만 "KB 가 쌓이면 에이전트가 자연히 좋아진다"는 전제는 두 군데서 끊긴다.
+
+1. **쓸지 말지를 AI 에게 맡김** — AI 가 말하는 "중요하지 않아서 건너뛰었다"는 사후 설명일 가능성이 크다 (effort medium, 도구 미로드, 선택 사항으로 읽히는 지침이 실제 원인일 수 있음). KB 조회를 **파이프라인 단계로** 바꾼다: 이슈가 들어오면 코드가 먼저 에러 시그니처·스택 함수로 KB 를 조회해 후보 5~10건을 만들고, AI 는 후보마다 판정을 반드시 남기며 필요하면 더 찾는다. 성능 좋은 시스템도 대부분 "검색·재정렬로 후보 → 에이전트 검증" 구조다 (Agentless, SweRank, Meta RCA).
+2. **쌓이는 내용의 형태** — 크기만 늘면 잡음이 늘고, 쓸모없는 결과를 몇 번 본 AI 는 KB 를 건너뛴다. 사람이 해결한 이슈는 사례 카드로 쌓는다:
+
+| 칸 | 내용 |
+| --- | --- |
+| 증상 | 에러 메시지 원문, 스택 함수, 버전·환경 |
+| 원인 | 한두 문장 + 확인 근거 |
+| 수정 | 고친 패치 ID, 바뀐 함수, 버그를 넣은 커밋(알면) |
+| 진단 경로 | 사람이 어떻게 찾았나, 무엇을 배제했나 — 에이전트에게 "사람처럼 푸는 법"을 주는 부분 |
+| 검증 | 사람이 확인했나 / 추정인가 |
+
+**지금 방식이 맞는지는 실험으로 판단한다** (시험지 20~30건, '효과 측정' 절의 방법으로):
+
+| 조건 | 내용 | 해석 |
+| --- | --- | --- |
+| A | KB 없이 | 기준 |
+| B | 지금처럼 KB 사용은 선택 | B ≈ A 면 지금 KB 는 사실상 안 쓰이는 것 |
+| C | 후보 강제 + 판정 의무 | C ≫ A 면 KB 투자는 맞고 소비 구조가 문제. C ≈ A 면 KB 내용·검색 품질 문제 → 더 쌓기 전에 카드 형식·검색부터 |
+
+지표는 문서 수가 아니라 **답에 KB 가 인용된 비율과 인용된 근거가 맞았는지**다 (이 llm_wiki 의 성공 기준과 같은 원칙).
 
 ## 왜 headless 가 대화형보다 못한가 — 문서로 확인된 차이
 
@@ -138,7 +163,7 @@ claude -p --model claude-opus-5-5 --effort high \
 원인 가설을 2~3개 세우고, 근거를 찾을 때마다 각 가설의 확신도를 갱신한다.
 
 1. 증상 정리: 에러 메시지 원문, 스택트레이스의 함수·파일(프로젝트 프레임 우선), 모듈, 버전, 재현 조건.
-2. 후보 찾기: 서로 다른 검색어로 최소 3번. ① 에러 원문 ② 함수·파일·모듈 이름 ③ 증상을 풀어 쓴 문장. 처음엔 넓게, 그다음 좁힌다.
+2. 후보 찾기: 입력으로 받은 KB 후보는 하나도 빠짐없이 판정한다. 그 외에 서로 다른 검색어로 최소 3번. ① 에러 원문 ② 함수·파일·모듈 이름 ③ 증상을 풀어 쓴 문장. 처음엔 넓게, 그다음 좁힌다.
 3. 후보 검증: 도구 결과를 받을 때마다 관련성을 평가한다. 상위 후보는 원문과 패치 diff 를 열고 판정 기준으로 판정한다.
 4. 판정에 따른 다음 행동 (최대 3라운드):
    - 모두 무관 → 다른 관점의 핵심어 3개 이하로 검색어를 다시 쓴다
@@ -439,27 +464,15 @@ Hermes 명령은 개인 Mac에 설치된 버전의 도움말(2026-11) 기준이�
 
 ## 참고 자료
 
-Claude Code 공식 문서 (2026-11 확인):
-- headless 실행·stream-json·permission_denials: https://code.claude.com/docs/en/headless.md
-- 권한 모드·allowedTools 문법: https://code.claude.com/docs/en/permission-modes.md , https://code.claude.com/docs/en/permissions.md
-- MCP tool search·alwaysLoad·MCP_TIMEOUT: https://code.claude.com/docs/en/mcp.md
-- effort·thinking: https://code.claude.com/docs/en/model-config.md , https://platform.claude.com/docs/en/build-with-claude/effort
-- 훅 (Stop·PostToolUse·SubagentStop): https://code.claude.com/docs/en/hooks.md
-- 서브에이전트: https://code.claude.com/docs/en/sub-agents.md , 모범 사례: https://code.claude.com/docs/en/best-practices
-- CLI 옵션: https://code.claude.com/docs/en/cli-reference.md
-- Opus 5.5 프롬프트 가이드: https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5
+Claude Code 공식 문서 (2026-11 확인): headless https://code.claude.com/docs/en/headless.md · 권한 https://code.claude.com/docs/en/permission-modes.md , https://code.claude.com/docs/en/permissions.md · MCP https://code.claude.com/docs/en/mcp.md · effort https://code.claude.com/docs/en/model-config.md , https://platform.claude.com/docs/en/build-with-claude/effort · 훅 https://code.claude.com/docs/en/hooks.md · 서브에이전트 https://code.claude.com/docs/en/sub-agents.md · 모범 사례 https://code.claude.com/docs/en/best-practices · CLI https://code.claude.com/docs/en/cli-reference.md · Opus 5.5 가이드 https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5-5
 
-Anthropic Engineering:
-- 멀티 에이전트 연구 시스템: https://www.anthropic.com/engineering/multi-agent-research-system
-- 에이전트용 도구 작성: https://www.anthropic.com/engineering/writing-tools-for-agents
-- 효과적인 에이전트 만들기: https://www.anthropic.com/engineering/building-effective-agents
-- 컨텍스트 엔지니어링: https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents
-- 에이전트 평가: https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents
-- Contextual Retrieval: https://www.anthropic.com/news/contextual-retrieval
+Anthropic Engineering: 멀티 에이전트 연구 시스템 https://www.anthropic.com/engineering/multi-agent-research-system · 도구 작성 https://www.anthropic.com/engineering/writing-tools-for-agents · 효과적인 에이전트 https://www.anthropic.com/engineering/building-effective-agents · 컨텍스트 엔지니어링 https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents · 평가 https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents · Contextual Retrieval https://www.anthropic.com/news/contextual-retrieval
 
 검색 판정·검증 연구: CRAG https://arxiv.org/abs/2401.15884 · Self-RAG https://arxiv.org/abs/2310.11511 · IRCoT https://arxiv.org/abs/2212.10509 · CoVe https://arxiv.org/abs/2309.11495
 
 이슈 위치 찾기·코드 그래프 연구: Agentless https://arxiv.org/abs/2407.01489 · LocAgent https://aclanthology.org/2025.acl-long.426 · RepoGraph https://arxiv.org/abs/2410.14684 · KGCompass https://arxiv.org/abs/2503.21710 · SWE-agent https://arxiv.org/abs/2405.15793 · SweRank https://arxiv.org/abs/2505.07849 · CoSIL https://arxiv.org/abs/2503.22424 · HAFix https://arxiv.org/abs/2501.09135 · SWE-bench 미래 이력 유출 https://github.com/SWE-bench/SWE-bench/issues/465
+
+과거 사례 재사용: BugLocator https://doi.org/10.1109/ICSE.2012.6227210 · SWE-Exp https://arxiv.org/abs/2507.23361
 
 산업 사례: Meta 장애 RCA https://engineering.fb.com/2024/06/24/data-infrastructure/leveraging-ai-for-efficient-incident-response/ · Microsoft RCACopilot https://arxiv.org/abs/2305.15778 · Google Passerine https://arxiv.org/abs/2501.07531
 
@@ -476,3 +489,4 @@ Anthropic Engineering:
 
 - 2026-11-03: 최초 생성 — 헤드리스 호출의 KB 스킵 원인(재촉 부재), 절차·답 형식, Stop 훅 스크립트, 이어서 묻기, 도구 분리, 서브에이전트, 가벼운 온톨로지, 골든셋 측정, Hermes CLI 메모 (출처: 이 세션 대화, ai_arena 웹 검색 "선택→필수" 실측)
 - 2026-11-03: 딥 리서치 반영 개정 — 'headless 에서 달라지는 실행 설정' 표(effort medium·MCP 지연 로드·권한 자동 거부·MCP 결과 소실·로딩 범위) 신설, 0단계에 init/permission_denials 검사·대화형 transcript 비교, 1단계 실행 설정 신설, 절차 문구를 강조 대신 이유 설명·넓게 조사·경쟁 가설·판정별 다음 행동(CRAG·IRCoT)으로 교체, Stop 훅을 PostToolUse 기록 + 최대 2회 + 인용 ID 대조로 교체(transcript 비동기 기록 대응), 도구에 skeleton·blame·traverse·결과 상한 추가, 검증 담당(문장 단위 지지 판정) 추가, 그래프에 introduced_by·시점 필터·contain/invoke·테스트·점수→재정렬 추가, 측정에 격리·pass^k·무정답 문제·LLM 채점 추가, 참고 자료 절 추가 (출처: 본문 참고 자료)
+- 2026-11-03: '전략 판단' 절 추가 — KB 를 계속 쌓는 게 맞나(과거 사례 재사용 근거, 끊긴 곳 2가지: 조회를 AI 선택에 맡김·쌓이는 형태), 후보 강제 + 판정 의무, 사례 카드 형식, A/B/C 실험과 KB 인용률 지표. 절차 2번에 주어진 후보 전수 판정 추가, 참고 자료 압축

@@ -173,6 +173,7 @@
 
 ## 변경 이력
 
+- 2026-11-03: [[headless-agent-kb-research-enforcement]] '전략 판단' 절 추가 (KB 투자 판단·후보 강제·사례 카드·A/B/C 실험)
 - 2026-11-03: [[headless-agent-kb-research-enforcement]] 딥 리서치 반영 개정 (headless 실행 설정 원인·검증 담당·그래프 보강·측정 격리)
 - 2026-11-03: [[agentic-cli-text-generation-lockdown]] 정정 — read-only·ask 모드의 읽기 허용 실측, 읽기 차단·웹 검색 허용 방법 추가
 - 2026-11-03: 신규 1건 등록 — [[headless-agent-kb-research-enforcement]] (ai-agent/patterns)
