@@ -17,6 +17,7 @@
 - [[agentic-cli-text-generation-lockdown]] — 에이전트형 CLI(claude -p/codex/cursor)를 순수 텍스트 생성기로 쓸 때의 잠금 패턴 — 도구 차단·cwd 격리·모델 별칭 고정·교정 재시도
 - [[claude-code-model-tier-orchestration-gate]] — Claude Code 모델 계층 오케스트레이션 + PreToolUse 게이트 (off/hard/soft 모드 토글 · 하드블록 vs 소프트넛지(additionalContext 단독 — allow 동반 시 권한 우회) · Bash 감지는 정규식 아닌 shlex 토큰화 · hard 는 CC v2.1.196+ 필수 · Opus메인 vs Sonnet메인 · 심링크 토글 · 실측: 위임 강제는 hard 게이트뿐, Haiku는 지침 기반 · claude_env 멱등 install 패키징)
 - [[claude-code-token-optimization]] — Claude Code 토큰 최적화 — 소비 절반 줄이기
+- [[headless-agent-kb-research-enforcement]] — 헤드리스(claude -p·Hermes) 에이전트가 KB 를 건너뛸 때 — 필수 조사 절차·research_log 답 형식·Stop 훅 종료 차단·이어서 묻기·도구 분리·조사 서브에이전트·이슈/패치/코드 관계 그래프(가벼운 온톨로지)·골든셋 측정
 - [[hermes-single-model-delegation]] — Hermes 단일 모델 delegate_task — context 부패 지연 + 약한 모델(소형 Qwen) 신뢰도
 - [[homebrew-python-upgrade-breaks-cron-venv]] — Homebrew python 메이저 업그레이드가 cron/launchd venv 파이프라인을 조용히 깨뜨리는 패턴 — PATH prepend 로 venv 무력화 + venv 부재 전역 의존
 - [[launchd-plist-symlink-from-project]] — launchd plist 프로젝트 폴더 마스터 + ~/Library/LaunchAgents symlink 패턴 (Homebrew 스타일)
@@ -172,6 +173,7 @@
 
 ## 변경 이력
 
+- 2026-11-03: 신규 1건 등록 — [[headless-agent-kb-research-enforcement]] (ai-agent/patterns)
 - 2026-11-03: 지정 1세션 검토·스킵, 신규/지식 페이지 갱신 없음. 모델명 JSON 단발 응답은 재조회 가치·승격 기준에 미달하여 제외. 출처·판단 근거는 [[log]] 참조.
 
 - 2026-11-02: 지정 3세션 검토, 신규 0개·기존 분석 4개 보강. [[signal-overfit-date-dispersion-check]]의 날짜 가중 평균 역전, [[stock-screening-score-design]]의 후보군 선택 편향/급등 필터 일반화 경계, [[paper-to-live-strategy-isolation]]의 판정 MDD, [[ai-publishing-migration-safety]]의 상한/표시 기간 정합과 인증 오류 분류를 반영. 대상별 스킵 근거와 전체 변경 파일은 [[log]] 참조.
