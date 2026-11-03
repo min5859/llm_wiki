@@ -14,10 +14,10 @@
 
 ### patterns
 
-- [[agentic-cli-text-generation-lockdown]] — 에이전트형 CLI(claude -p/codex/cursor)를 순수 텍스트 생성기로 쓸 때의 잠금 패턴 — 도구 차단·cwd 격리·모델 별칭 고정·교정 재시도
+- [[agentic-cli-text-generation-lockdown]] — 에이전트형 CLI(claude -p/codex/cursor)를 순수 텍스트 생성기로 쓸 때의 잠금 패턴 — 도구 차단·cwd 격리·모델 별칭 고정·교정 재시도 · read-only/ask 모드는 쓰기만 막음 → 셸 끄기·cursor 거부 파일·OS 샌드박스로 읽기 차단 · 웹 검색만 허용하는 법
 - [[claude-code-model-tier-orchestration-gate]] — Claude Code 모델 계층 오케스트레이션 + PreToolUse 게이트 (off/hard/soft 모드 토글 · 하드블록 vs 소프트넛지(additionalContext 단독 — allow 동반 시 권한 우회) · Bash 감지는 정규식 아닌 shlex 토큰화 · hard 는 CC v2.1.196+ 필수 · Opus메인 vs Sonnet메인 · 심링크 토글 · 실측: 위임 강제는 hard 게이트뿐, Haiku는 지침 기반 · claude_env 멱등 install 패키징)
 - [[claude-code-token-optimization]] — Claude Code 토큰 최적화 — 소비 절반 줄이기
-- [[headless-agent-kb-research-enforcement]] — 헤드리스(claude -p·Hermes) 에이전트가 KB 를 건너뛸 때 — 필수 조사 절차·research_log 답 형식·Stop 훅 종료 차단·이어서 묻기·도구 분리·조사 서브에이전트·이슈/패치/코드 관계 그래프(가벼운 온톨로지)·골든셋 측정
+- [[headless-agent-kb-research-enforcement]] — 헤드리스(claude -p·Hermes) 에이전트가 KB 를 건너뛸 때 — 먼저 실행 설정 진단(Opus 5.5 effort medium·MCP 지연 로드/연결 대기·권한 자동 거부·MCP 결과 소실) · 필수 조사 절차·판정별 다음 행동 · PostToolUse 기록+Stop 훅 · 검증 담당 · skeleton/blame/traverse 도구 · 시점 필터 관계 그래프 · 격리·pass^k 측정
 - [[hermes-single-model-delegation]] — Hermes 단일 모델 delegate_task — context 부패 지연 + 약한 모델(소형 Qwen) 신뢰도
 - [[homebrew-python-upgrade-breaks-cron-venv]] — Homebrew python 메이저 업그레이드가 cron/launchd venv 파이프라인을 조용히 깨뜨리는 패턴 — PATH prepend 로 venv 무력화 + venv 부재 전역 의존
 - [[launchd-plist-symlink-from-project]] — launchd plist 프로젝트 폴더 마스터 + ~/Library/LaunchAgents symlink 패턴 (Homebrew 스타일)
@@ -173,6 +173,8 @@
 
 ## 변경 이력
 
+- 2026-11-03: [[headless-agent-kb-research-enforcement]] 딥 리서치 반영 개정 (headless 실행 설정 원인·검증 담당·그래프 보강·측정 격리)
+- 2026-11-03: [[agentic-cli-text-generation-lockdown]] 정정 — read-only·ask 모드의 읽기 허용 실측, 읽기 차단·웹 검색 허용 방법 추가
 - 2026-11-03: 신규 1건 등록 — [[headless-agent-kb-research-enforcement]] (ai-agent/patterns)
 - 2026-11-03: 지정 1세션 검토·스킵, 신규/지식 페이지 갱신 없음. 모델명 JSON 단발 응답은 재조회 가치·승격 기준에 미달하여 제외. 출처·판단 근거는 [[log]] 참조.
 
