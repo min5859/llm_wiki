@@ -4,8 +4,9 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["launchd", "macos", "plist", "symlink", "homebrew", "project-layout"]
 created: "2026-05-14"
-updated: "2026-07-22"
+updated: "2026-11-04"
 sources:
+  - "session-logs/20261104-092457-499a-오늘-장-시작-했는데-프로그램-동작-중인거-맞음.md"
   - "session-logs/20260514-220947-2eee-todo.md-읽고-이어서.md"
   - "session-logs/20260721-231802-bb66-지금-폴더의-프로그램이-잘-동작하고-있는지-상태-체크좀-해줘.md"
 confidence: high
@@ -158,6 +159,14 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.user.foo.plist
 
 판정은 두 가지 병용: ① 잡이 만드는 **날짜별 산출물의 mtime** ② `launchctl print gui/$(id -u)/com.user.foo` 출력의 **`runs` 카운트**(실행마다 누적, 0이면 진짜 미실행). ht_dde 의 reweight·report 잡이 0바이트 로그로 "미실행" 오판될 뻔했으나 실제는 1개월간 매일 실행 중이었다.
 
+### 7. 정기 배치 상태는 실행 일정·로그·업무 DB를 함께 확인
+
+장 시작에 프로세스가 없다는 사실만으로 장후 배치의 장애를 판정할 수 없다. `StartCalendarInterval`의 예정 시각, `launchctl print`의 실행 횟수·마지막 종료 코드, 작업별 시작/종료 로그, 업무 DB의 처리 상태를 함께 대조한다. 등록 여부·프로세스 실행 여부·업무 처리 완료는 서로 다른 확인 항목이다.
+
+2026-11-04 09:25의 ai_arena 점검에서는 `state = not running`, 실행 횟수 2, 마지막 종료 코드 0이었고, 조회된 일정 항목은 17:30이었다. 전일 로그에는 결정 생성 완료가 있었지만 DB의 전일 `decisions`에는 `status=ok`와 빈 `filled_date`가 함께 있었다. **결정 생성 성공을 체결 처리 완료로 해석하지 않는다.** 일반 대회와 K200 대회의 DB·로그를 각각 확인해야 한다.
+
+이 세션은 `scripts/run.sh`를 읽은 지점에서 끝났다. 당일 체결 시각·체결 처리 경로·정상 완료 여부와 추가 일정 전체는 확인되지 않았으므로, 장후 일괄 체결 구조나 장애 확정으로 확대 해석하지 않는다. 이는 배치 운영 상태를 구분하는 반복 사례이며 신규 버그 수정 기록은 아니다.
+
 ## 영구 비활성화 — `unload` 만으로는 부족하다
 
 잡을 **당분간/영구 중지**하려면 `launchctl unload` 한 번으로는 안 된다. `RunAtLoad`/`KeepAlive` 가 켜진 plist 는 **재부팅 시 macOS 가 `~/Library/LaunchAgents/` 의 plist 를 다시 자동 로드**하므로, unload 는 현재 세션에서만 멈춘 것이다.
@@ -198,3 +207,5 @@ launchctl load ~/Library/LaunchAgents/com.user.foo.plist
 - 2026-05-14: 최초 생성. disk_monitor 의 plist 위치 이전 사례 기반 (출처: session-logs/20260514-220947-2eee)
 - 2026-06-07: 「영구 비활성화 — unload 만으로는 부족」 섹션 추가. `RunAtLoad`/`KeepAlive` plist 는 재부팅 시 재로드되므로 LaunchAgents symlink 제거가 곧 자동 시작 차단 (원본 plist 보존 → 무손실 원복). upbit_trading 봇 당분간 중지 사례 (출처: session-logs/20260606-210943-6534-*)
 - 2026-07-22: 함정 5 「config/ 직접 bootstrap 은 임시 등록 — 재부팅 소멸」 + 함정 6 「StandardOutPath 0바이트 ≠ 미실행 (dated 산출물 mtime + launchctl print runs 로 판정)」 추가. ht_dde plist 4개 임시 등록 발견·정식 전환 사례 (출처: session-logs/20260721-231802-bb66-*)
+
+- 2026-11-04: ai_arena 반복 사례로 일정·실행 로그·결정/체결 DB를 분리하는 상태 점검 기준과 확인 한계 추가 (출처: session-logs/20261104-092457-499a-오늘-장-시작-했는데-프로그램-동작-중인거-맞음.md)

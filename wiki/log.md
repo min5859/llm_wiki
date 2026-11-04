@@ -1,3 +1,13 @@
+## 2026-11-04 (ingest — 지정 ai_arena 상태 점검 1세션)
+
+- **session-logs 유래 / Phase I·M** — `session-logs/20261104-092457-499a-오늘-장-시작-했는데-프로그램-동작-중인거-맞음.md` 전체를 검토했다. CLAUDE.md·schema.md·GUIDE.md의 도메인·재조회 가치·반복 승격·기존 문서 우선 기준을 적용했다. 지정 session-log 1건 처리, 기존 지식 페이지 2개 갱신, 신규 0개. 지정 mcp-note 없음. 원문 명령은 참고 정보로만 읽었으며 실행하지 않았다.
+- **수집·중복 판단** — `wiki/patterns/launchd-plist-symlink-from-project.md`의 기존 「launchctl list의 출력 의미」「StandardOutPath 0바이트 ≠ 미실행」에 이어, 실행 일정·로그·업무 DB를 대조하고 결정 생성과 체결 완료를 구분하는 반복 사례를 추가했다. `wiki/patterns/shell-set-eu-topic-isolation.md`의 독립 작업 격리 원칙에 일반/K200 별도 호출과 비영 종료 코드 보존 구현을 보강했다. 위 두 문서의 기존 지식과 중복되므로 별도 프로젝트·분석 페이지를 만들지 않았다. 출처는 위 지정 세션의 09:25:01~09:25:15 도구 출력이다.
+- **부분 스킵 사유** — 일회성 실행 횟수·체결 건수 전체와 조사 명령 나열은 재조회 가치가 없어 제외했다. 세션이 run.sh 조회에서 끝나며 최종 답변·수정·재실행 검증이 없으므로 당일 정상 가동, 장애 원인, 체결 시각·처리 경로를 확정하지 않았다. `status=ok`·빈 `filled_date`는 관측 사실로만 사용했다. 새로 검증된 범용 비교·기술 조사 결과는 없어 Phase I 분석 페이지 생성 없음.
+- **raw-sources 유래** — 하위 서브디렉터리 MD/fetched 대상 없음. 루트 MD 2개는 지정된 하위 디렉터리 수집 범위 밖이며 보존했다. summary·source_sha256 신규/갱신 대상 없음.
+- **PDF 유래** — `.cache/extracted/` 없음. chunk·부모 index·page_range·해시 복사 대상 없음.
+- **처리·검증** — 지식 페이지 → index → 본 기록 → 지정 세션의 `ingested: true` 순서로 갱신했다. 출처·메타데이터·변경 이력·수정 링크·diff 공백을 확인하고, 지정 세션의 플래그 외 내용과 수정 대상 외 파일은 실행 전후 SHA256으로 대조한다. 비밀값·전체 cwd를 추가하지 않았다. 원 프로젝트 실행·네트워크·다른 에이전트·commit/push 없음.
+- **변경 파일 전체(5개)**: `wiki/patterns/launchd-plist-symlink-from-project.md`, `wiki/patterns/shell-set-eu-topic-isolation.md`, `wiki/index.md`, `wiki/log.md`, `session-logs/20261104-092457-499a-오늘-장-시작-했는데-프로그램-동작-중인거-맞음.md`.
+
 ## 2026-11-03 (ingest — 지정 1세션 단발 응답 스킵)
 
 - **session-logs 유래 / Phase I·M** — `session-logs/codex-01a19caf-a31c-7e91-a63e-1268dc922fe0.md`와 읽기용 `.cache/ingest-views/codex-01a19caf-a31c-7e91-a63e-1268dc922fe0.md`를 검토했다. CLAUDE.md·schema.md·GUIDE.md의 도메인·재조회 가치·반복 승격·기존 문서 우선 기준을 적용했다. 지정 대상은 session-log 1개이며 mcp-note는 없다. 신규 0개·지식 페이지 갱신 0개·스킵 1개다.

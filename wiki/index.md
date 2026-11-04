@@ -20,7 +20,7 @@
 - [[headless-agent-kb-research-enforcement]] — 헤드리스(claude -p·Hermes) 에이전트가 KB 를 건너뛸 때 — 먼저 실행 설정 진단(Opus 5.5 effort medium·MCP 지연 로드/연결 대기·권한 자동 거부·MCP 결과 소실) · 필수 조사 절차·판정별 다음 행동 · PostToolUse 기록+Stop 훅 · 검증 담당 · skeleton/blame/traverse 도구 · 시점 필터 관계 그래프 · 격리·pass^k 측정
 - [[hermes-single-model-delegation]] — Hermes 단일 모델 delegate_task — context 부패 지연 + 약한 모델(소형 Qwen) 신뢰도
 - [[homebrew-python-upgrade-breaks-cron-venv]] — Homebrew python 메이저 업그레이드가 cron/launchd venv 파이프라인을 조용히 깨뜨리는 패턴 — PATH prepend 로 venv 무력화 + venv 부재 전역 의존
-- [[launchd-plist-symlink-from-project]] — launchd plist 프로젝트 폴더 마스터 + ~/Library/LaunchAgents symlink 패턴 (Homebrew 스타일)
+- [[launchd-plist-symlink-from-project]] — launchd plist 프로젝트 폴더 마스터 + ~/Library/LaunchAgents symlink 패턴 (Homebrew 스타일) · 배치 일정·로그·결정/체결 DB를 통한 상태 확인
 - [[launchd-secret-management]] — macOS launchd 환경 시크릿 분리 패턴 — ~/.zshrc 는 안 읽힌다
 - [[llm-json-parse-retry-with-dump]] — LLM JSON 파싱 실패 시 raw 응답 덤프 + 재시도 패턴
 - [[macos-tcc-full-disk-access]] — macOS TCC: 터미널이 다른 앱 sandbox 에 접근할 때 토스트 팝업 처리
@@ -28,7 +28,7 @@
 - [[oracle-cloud-operations-cheatsheet]] — Notion에서 보충한 OCI 운영 명령어·한국 가입 입력 팁·CLI API 키 설정·Windows SSH 접속 (과거 실행 기록)
 - [[parallel-review-adversarial-fix-workflow]] — 병렬 리뷰 → 교차검증 → TDD 수정 + 적대적 검증 워크플로
 - [[prompt-schema-pipeline-coupling]] — LLM 프롬프트 출력 스키마와 다운스트림 validator 간 결합 관리
-- [[shell-set-eu-topic-isolation]] — shell 의 set -eu 와 multi-topic 파이프라인의 격리 패턴
+- [[shell-set-eu-topic-isolation]] — shell 의 set -eu 와 multi-topic 파이프라인의 격리 패턴 · 독립 작업 계속 실행과 실패 종료 코드 보존
 - [[single-dispatcher-per-queue]] — 공유 작업 큐의 dispatcher 는 하나만 — claim churn 함정
 
 ### analyses
@@ -172,6 +172,8 @@
 - [[trading-performance-cash-flow-reconciliation]] — 체결·입출금·성과 대조 및 오염된 페이퍼 검증 경계
 
 ## 변경 이력
+
+- 2026-11-04: 지정 ai_arena 세션 1건에서 [[launchd-plist-symlink-from-project]]의 배치 상태 확인 기준과 [[shell-set-eu-topic-isolation]]의 실패 종료 코드 보존을 보강. 신규 페이지 없음.
 
 - 2026-11-03: [[headless-agent-kb-research-enforcement]] '전략 판단' 절 추가 (KB 투자 판단·후보 강제·사례 카드·A/B/C 실험)
 - 2026-11-03: [[headless-agent-kb-research-enforcement]] 딥 리서치 반영 개정 (headless 실행 설정 원인·검증 담당·그래프 보강·측정 격리)

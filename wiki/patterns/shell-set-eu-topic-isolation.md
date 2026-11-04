@@ -4,9 +4,10 @@ domain: "ai-agent"
 sensitivity: public
 tags: ["pattern", "shell", "bash", "set-eu", "error-handling", "pipeline", "isolation"]
 created: 2026-05-12
-updated: 2026-05-12
+updated: "2026-11-04"
 source_session: "20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
 sources:
+  - "session-logs/20261104-092457-499a-오늘-장-시작-했는데-프로그램-동작-중인거-맞음.md"
   - "session-logs/20260511-230001-14d5-오늘-dev-blog-주제들이-5월11일-자로-업데이트-되지않았습니다.md"
 confidence: high
 related:
@@ -134,6 +135,25 @@ run_topic() {
 
 이 결정은 script 가 자라면서 자주 흐려진다. 처음엔 1개 토픽 → 점점 토픽이 추가 → 어느 시점부터 "독립 N건" 인데 `set -e` 가 1번째 토픽 실패에 모두 죽이는 구조로 변질. 정기적으로 "이 script 는 의존 사슬인가, 독립 N건인가?" 질문해야 한다.
 
+## 반복 사례: 독립 대회 실행과 실패 종료 코드 보존
+
+ai_arena의 `scripts/run.sh`는 일반 대회와 K200 대회를 각각 별도 Python 호출로 실행한다. 세션에서 읽은 구현은 `set -u`를 사용하고 각 호출 직후 `$?`를 저장해, 한 대회가 실패해도 다음 대회를 실행한 뒤 비영 종료 코드를 상위 스케줄러에 반환한다. 기존 토픽 격리 패턴의 반복 사례이며, 이번 세션에서 새로 구현하거나 실패 상황을 실증한 것은 아니다.
+
+아래는 프로젝트 경로와 실행 명령을 일반화한 구조다.
+
+```bash
+set -u
+rc=0
+for cfg in config/arena.yaml config/arena_k200.yaml; do
+  python -m batch_runner --config "$cfg"
+  r=$?
+  [ "$r" -ne 0 ] && rc=$r
+done
+exit "$rc"
+```
+
+모두 성공하면 0, 하나라도 실패하면 마지막으로 관측한 비영 코드가 남는다. 뒤 작업의 성공이 앞 작업의 실패를 덮어쓰지 않는다. 실제 래퍼는 설정별 시작·종료 코드도 로그에 남기므로 실패한 대회를 구분할 수 있다. 이 형태에 `set -e`를 그대로 더하면 종료 코드 수집 전에 중단될 수 있으므로 앞 절의 `if` 분기 방식으로 실패를 처리해야 한다.
+
 ## 관련 페이지
 
 - [[ndjson-stdout-parser-greedy-regex]] — 이번 사고의 직접 원인이 된 파서 깨짐
@@ -142,3 +162,5 @@ run_topic() {
 ## 변경 이력
 
 - 2026-05-12: 최초 작성 (session-logs/20260511-230001-14d5-*.md). dev-blog 5/11 사고의 토픽 격리 패턴을 일반화
+
+- 2026-11-04: ai_arena의 독립 대회 호출을 반복 사례로 추가하고 최종 실패 종료 코드 보존을 보강 (출처: session-logs/20261104-092457-499a-오늘-장-시작-했는데-프로그램-동작-중인거-맞음.md)
